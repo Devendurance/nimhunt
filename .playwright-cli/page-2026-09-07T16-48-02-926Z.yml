@@ -1,0 +1,64 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - link "NimHunt hunt home" [ref=e6] [cursor=pointer]:
+      - /url: /play
+      - img "NimHunt" [ref=e7]
+    - generic [ref=e8]: ANGKOR RUINS
+  - main [ref=e9]:
+    - region [ref=e208]:
+      - generic [ref=e209]: THE DAILY BOARD · PREVIEW
+      - heading "Today's missions" [level=1] [ref=e210]
+      - paragraph [ref=e211]: Choose your route. The task is clear before the ruins open.
+    - region [ref=e212]:
+      - generic [ref=e213]:
+        - generic [ref=e214]:
+          - generic [ref=e215]: THE DAILY BOARD
+          - heading "Today's missions" [level=2] [ref=e216]
+        - generic [ref=e217]: 3 AVAILABLE
+      - paragraph [ref=e218]: Choose your route. The task is clear before the ruins open.
+      - generic [ref=e219]:
+        - article [ref=e220]:
+          - generic [ref=e225]:
+            - generic [ref=e226]:
+              - generic [ref=e227]: 01 / EXPEDITION BRIEF
+              - generic [ref=e228]: AVAILABLE
+            - heading "GEM RUNNER" [level=3] [ref=e230]
+            - paragraph [ref=e231]: Collect 12 gems and escape alive.
+            - button "Enter ruins" [ref=e232] [cursor=pointer]
+        - article [ref=e236]:
+          - generic [ref=e242]:
+            - generic [ref=e243]:
+              - generic [ref=e244]: 02 / EXPEDITION BRIEF
+              - generic [ref=e245]: AVAILABLE
+            - heading "CHEST HUNTER" [level=3] [ref=e247]
+            - paragraph [ref=e248]: Open 4 chests and finish alive.
+            - button "Enter ruins" [ref=e249] [cursor=pointer]
+        - article [ref=e253]:
+          - generic [ref=e258]:
+            - generic [ref=e259]:
+              - generic [ref=e260]: 03 / EXPEDITION BRIEF
+              - generic [ref=e261]: AVAILABLE
+            - heading "VAULT BREAKER" [level=3] [ref=e263]
+            - paragraph [ref=e264]: Find the Temple Key, reach the Vault, and seal the treasure.
+            - button "Enter ruins" [ref=e265] [cursor=pointer]
+    - region [ref=e269]:
+      - generic [ref=e271]:
+        - generic [ref=e272]: WORLD SELECT
+        - heading "Choose your ruins" [level=2] [ref=e273]
+      - article [ref=e274]:
+        - img "Angkor Ruins temple path in the jungle" [ref=e275]
+        - generic [ref=e276]:
+          - generic [ref=e277]: WORLD 01 · AVAILABLE
+          - strong [ref=e278]: ANGKOR RUINS
+      - generic "Locked worlds" [ref=e279]:
+        - generic [ref=e280]:
+          - generic [ref=e285]: BAVARIA
+          - generic [ref=e286]: COMING SOON
+        - generic [ref=e287]:
+          - generic [ref=e292]: SIBERIA
+          - generic [ref=e293]: COMING SOON
+  - navigation "Mini App navigation" [ref=e154]:
+    - button "Hunt" [ref=e155] [cursor=pointer]
+    - button "Missions" [active] [ref=e159] [cursor=pointer]
+    - button "Heroes" [ref=e163] [cursor=pointer]
+  - generic [ref=e170]: Built for Nimiq Pay · shell preview

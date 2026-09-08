@@ -1,0 +1,63 @@
+import Phaser from 'phaser'
+import { createGameConfig } from './config/createGameConfig'
+import {
+  createGameBridge,
+  createInitialHUDState,
+  type NimHuntBridgeListener,
+  type PlayerHUDState,
+} from './events/gameEvents'
+import type { Direction } from './world/grid'
+
+export interface NimHuntGameInstance {
+  game: Phaser.Game
+  move: (direction: Direction) => void
+  reset: () => void
+  getState: () => PlayerHUDState
+  subscribe: (listener: NimHuntBridgeListener) => () => void
+  destroy: () => void
+}
+
+/**
+ * Creates and initializes the NimHunt Phaser Game instance.
+ * Encapsulates the React-to-Phaser bridge and handles clean teardown.
+ */
+export function createNimHuntGame(container: HTMLElement): NimHuntGameInstance {
+  // 1. Ensure container is empty before attaching Phaser canvas (prevents StrictMode duplicates)
+  container.replaceChildren()
+
+  const initialHUDState = createInitialHUDState()
+
+  const bridge = createGameBridge(initialHUDState)
+  const config = createGameConfig(container, bridge)
+  const game = new Phaser.Game(config)
+  game.registry.set('bridge', bridge)
+
+  const move = (direction: Direction) => {
+    game.events.emit('cmd_move', direction)
+  }
+
+  const reset = () => {
+    game.events.emit('cmd_reset')
+  }
+
+  const destroy = () => {
+    bridge.destroy()
+    try {
+      // true removes the canvas from DOM and cleans up all scenes and renderers
+      // false for noReturn allows safe re-instantiation on future mounts
+      game.destroy(true, false)
+    } catch {
+      // Ignore teardown errors if RAF queue was already purged
+    }
+    container.replaceChildren()
+  }
+
+  return {
+    game,
+    move,
+    reset,
+    getState: bridge.getState,
+    subscribe: bridge.subscribe,
+    destroy,
+  }
+}

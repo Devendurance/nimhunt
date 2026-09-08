@@ -1,0 +1,208 @@
+- generic [ref=f17e3]:
+  - link "Skip to content" [ref=f17e4] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=f17e5]:
+    - link "NimHunt home" [ref=f17e6] [cursor=pointer]:
+      - /url: "#top"
+    - button "Hunt in Nimiq Pay" [ref=f17e7] [cursor=pointer]
+    - button "Open navigation" [ref=f17e8] [cursor=pointer]: ☰
+  - main [ref=f17e9]:
+    - region [ref=f17e10]:
+      - generic [ref=f17e13]:
+        - heading "Explore the ruins. Seal the treasure." [level=1] [ref=f17e14]: Explore the ruins.Seal the treasure.
+        - paragraph [ref=f17e15]: A daily skill adventure inside Nimiq Pay. Complete your mission, survive Angkor Ruins, and seal an available NIM reward before the day's treasures are gone.
+        - generic [ref=f17e16]:
+          - button "Hunt in Nimiq Pay" [ref=f17e17] [cursor=pointer]
+          - link "See today's missions" [ref=f17e20] [cursor=pointer]:
+            - /url: "#missions"
+            - text: See today's missions
+            - generic [aria-hidden] [ref=f17e21]: ↘
+        - generic [ref=f17e22]: skill task first · wallet seal last
+    - region "Hunt availability preview" [ref=f17e23]:
+      - generic [ref=f17e24]:
+        - strong [ref=f17e26]: Today’s hunt · preview
+        - generic [ref=f17e27]: Sample data · not live
+      - generic [ref=f17e28]:
+        - strong [ref=f17e29]: 43 / 69
+        - generic [ref=f17e30]: treasures remain
+      - generic [ref=f17e31]:
+        - generic [ref=f17e32]: reset in
+        - strong [ref=f17e33]: 08:42:17
+    - region [ref=f17e34]:
+      - generic [ref=f17e35]:
+        - generic [ref=f17e36]:
+          - generic [ref=f17e37]: 01 / Today's missions
+          - heading "Every run starts with a mission." [level=2] [ref=f17e38]: Every run startswith a mission.
+        - paragraph [ref=f17e39]: Collect gems, hunt chests, recover relics, or break into the Temple Vault. The task is visible before you move.
+      - generic [ref=f17e40]:
+        - article [ref=f17e41]:
+          - generic [ref=f17e42]: Expedition brief / 01
+          - heading "Gem Runner" [level=3] [ref=f17e46]
+          - paragraph [ref=f17e47]: Collect 12 gems and escape alive.
+          - generic [ref=f17e48]:
+            - generic [ref=f17e49]: Skill task
+            - generic [ref=f17e50]: Finish alive
+        - article [ref=f17e51]:
+          - generic [ref=f17e52]: Expedition brief / 02
+          - heading "Chest Hunter" [level=3] [ref=f17e57]
+          - paragraph [ref=f17e58]: Open 4 chests and finish alive.
+          - generic [ref=f17e59]:
+            - generic [ref=f17e60]: Skill task
+            - generic [ref=f17e61]: Finish alive
+        - article [ref=f17e62]:
+          - generic [ref=f17e63]: Expedition brief / 03
+          - heading "Vault Breaker" [level=3] [ref=f17e68]
+          - paragraph [ref=f17e69]: Find the Temple Key, reach the Vault, and seal the treasure.
+          - generic [ref=f17e70]:
+            - generic [ref=f17e71]: Skill task
+            - generic [ref=f17e72]: Finish alive
+      - paragraph [ref=f17e73]: Illustrative missions. Your expedition begins inside Nimiq Pay.
+    - region [ref=f17e74]:
+      - generic [ref=f17e75]: The expedition loop
+      - heading "Explore. Survive. Seal." [level=2] [ref=f17e76]
+      - list [ref=f17e77]:
+        - listitem [ref=f17e78]:
+          - generic [ref=f17e79]: "01"
+          - heading "Explore" [level=3] [ref=f17e80]
+          - paragraph [ref=f17e81]: Navigate compact rooms, find keys, push boulders, and choose your route.
+        - listitem [ref=f17e82]:
+          - generic [ref=f17e83]: "02"
+          - heading "Survive" [level=3] [ref=f17e84]
+          - paragraph [ref=f17e85]: Avoid hazards, outsmart the Goblin, and finish the mission alive.
+        - listitem [ref=f17e86]:
+          - generic [ref=f17e87]: "03"
+          - heading "Seal" [level=3] [ref=f17e88]
+          - paragraph [ref=f17e89]: Sign the claim in Nimiq Pay and watch the treasure move into your balance.
+    - region [ref=f17e90]:
+      - generic [ref=f17e91]:
+        - generic [ref=f17e92]:
+          - generic [ref=f17e93]: 02 / Beyond the gate
+          - heading "One ruin first. More worlds ahead." [level=2] [ref=f17e94]: One ruin first.More worlds ahead.
+        - paragraph [ref=f17e95]: Ancient paths. Hidden chambers.Your route is yours.
+      - article [ref=f17e96]:
+        - img "Sunlit sandstone temples, giant roots and waterfalls in the Angkor jungle" [ref=f17e97]
+        - generic [ref=f17e98]:
+          - generic [ref=f17e99]: World 01
+          - heading "Angkor Ruins" [level=3] [ref=f17e100]
+          - button "Hunt in Nimiq Pay" [ref=f17e101] [cursor=pointer]
+          - generic [ref=f17e104]: Inside Nimiq Pay · launch link coming soon
+      - generic [ref=f17e105]:
+        - article [ref=f17e106]:
+          - generic [ref=f17e107]: "02"
+          - generic [ref=f17e108]:
+            - heading "Bavaria" [level=3] [ref=f17e109]
+            - text: Coming soon
+        - article [ref=f17e113]:
+          - generic [ref=f17e114]: "03"
+          - generic [ref=f17e115]:
+            - heading "Siberia" [level=3] [ref=f17e116]
+            - text: Coming soon
+    - region [ref=f17e120]:
+      - generic [ref=f17e121]: 03 / A little company. A little trouble.
+      - heading "Meet the ruins." [level=2] [ref=f17e122]
+      - generic [ref=f17e123]:
+        - article [ref=f17e124]:
+          - generic [ref=f17e126]: The adventurer
+          - heading "Explorer" [level=3] [ref=f17e127]
+          - paragraph [ref=f17e128]: Your route. Your mission. Your seal.
+        - article [ref=f17e129]:
+          - generic [ref=f17e131]: The troublemaker
+          - heading "Goblin" [level=3] [ref=f17e132]
+          - paragraph [ref=f17e133]: The treasure thief who never stops watching.
+        - article [ref=f17e134]:
+          - generic [ref=f17e136]: The ancient guardian
+          - heading "Golem" [level=3] [ref=f17e137]
+          - paragraph [ref=f17e138]: An ancient guardian from worlds still to come.
+        - article [ref=f17e139]:
+          - generic [ref=f17e141]: The real reward
+          - heading "NIM Treasure" [level=3] [ref=f17e142]
+          - paragraph [ref=f17e143]: Real NIM, discovered as treasure and sealed through Nimiq Pay.
+    - region [ref=f17e144]:
+      - generic [ref=f17e145]:
+        - generic [ref=f17e146]: 04 / The final move is yours
+        - heading "The seal is real." [level=2] [ref=f17e147]
+        - paragraph [ref=f17e148]: When you complete an eligible task, Nimiq Pay turns the final signature into the moment the treasure is sealed. The reward state and wallet confirmation make the outcome visible.
+      - generic [ref=f17e150]:
+        - generic [ref=f17e151]: The sealing journey · illustrated
+        - list [ref=f17e152]:
+          - listitem [ref=f17e153]:
+            - generic [ref=f17e154]: "01"
+            - text: Mission completed
+          - listitem [ref=f17e155]:
+            - generic [ref=f17e156]: "02"
+            - text: Treasure available
+          - listitem [ref=f17e157]:
+            - generic [ref=f17e158]: "03"
+            - text: Choose “Seal treasure”
+          - listitem [ref=f17e159]:
+            - generic [ref=f17e160]: "04"
+            - text: Nimiq Pay signature
+          - listitem [ref=f17e161]:
+            - generic [ref=f17e162]: "05"
+            - text: Verified reward
+          - listitem [ref=f17e163]:
+            - generic [ref=f17e164]: "06"
+            - text: NIM moves toward balance
+        - paragraph [ref=f17e165]: Chest loot changes the adventure. Completing the mission is what makes a real NIM claim eligible.
+    - region [ref=f17e166]:
+      - generic [ref=f17e167]:
+        - generic [ref=f17e168]:
+          - generic [ref=f17e169]: 05 / Hall of Heroes
+          - heading "The ruins remember." [level=2] [ref=f17e170]
+        - paragraph [ref=f17e171]: Track points, streaks, chests, active expedition time, and NIM collected. Each month, the leaders become Monthly Heroes.
+      - generic [ref=f17e172]:
+        - generic [ref=f17e173]:
+          - generic [ref=f17e174]:
+            - heading "Most Points" [level=3] [ref=f17e175]
+            - generic [ref=f17e176]: Demo rankings
+          - list [ref=f17e177]:
+            - listitem [ref=f17e178]:
+              - generic [ref=f17e179]: "01"
+              - generic [ref=f17e180]: Demo Explorer 01
+              - strong [ref=f17e181]: 2,480 points
+            - listitem [ref=f17e182]:
+              - generic [ref=f17e183]: "02"
+              - generic [ref=f17e184]: Demo Explorer 02
+              - strong [ref=f17e185]: 2,160 points
+            - listitem [ref=f17e186]:
+              - generic [ref=f17e187]: "03"
+              - generic [ref=f17e188]: Demo Explorer 03
+              - strong [ref=f17e189]: 1,940 points
+          - paragraph [ref=f17e190]: No heroes crowned yet.The next name could be yours.
+        - generic [ref=f17e191]:
+          - generic [ref=f17e192]: Six ways to be remembered
+          - list [ref=f17e193]:
+            - listitem [ref=f17e194]:
+              - heading "The Pathfinder" [level=3] [ref=f17e195]
+              - text: Most Active Expedition Time
+            - listitem [ref=f17e196]:
+              - heading "The Relic Keeper" [level=3] [ref=f17e197]
+              - text: Most Points
+            - listitem [ref=f17e198]:
+              - heading "The Unbroken" [level=3] [ref=f17e199]
+              - text: Highest Streak
+            - listitem [ref=f17e200]:
+              - heading "The Golden Hand" [level=3] [ref=f17e201]
+              - text: Most NIM Collected
+            - listitem [ref=f17e202]:
+              - heading "The Chestbreaker" [level=3] [ref=f17e203]
+              - text: Most Chests Opened
+            - listitem [ref=f17e204]:
+              - heading "The Fallen Legend" [level=3] [ref=f17e205]
+              - text: Most Expeditions Failed
+      - paragraph [ref=f17e206]: Public Hero Names are opt-in. Wallet addresses are not displayed by default.
+    - region [ref=f17e207]:
+      - generic [ref=f17e208]:
+        - generic [ref=f17e209]: Explore. Survive. Seal.
+        - heading "The next expedition is waiting." [level=2] [ref=f17e210]: The next expeditionis waiting.
+        - button "Hunt in Nimiq Pay" [ref=f17e211] [cursor=pointer]
+        - paragraph [ref=f17e214]: Mobile-first. Three free reward-eligible expeditions each day. Skill task required.
+      - generic [ref=f17e215]:
+        - strong [ref=f17e216]: Your adventure.Inside Nimiq Pay.
+        - generic [ref=f17e217]: Scan-to-play arrives at launch.
+  - contentinfo [ref=f17e218]:
+    - link "NimHunt" [ref=f17e219] [cursor=pointer]:
+      - /url: "#top"
+    - generic [ref=f17e220]: Built for Nimiq Pay
+    - link "Back to the missions ↑" [ref=f17e221] [cursor=pointer]:
+      - /url: "#missions"

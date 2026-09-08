@@ -1,0 +1,138 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - link "NimHunt hunt home" [ref=e6] [cursor=pointer]:
+      - /url: /play
+      - img "NimHunt" [ref=e7]
+    - generic [ref=e8]: ANGKOR RUINS
+  - main [ref=e9]:
+    - region [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]: NIMHUNT · DAILY EXPEDITION
+        - heading "Today's hunt" [level=1] [ref=e13]
+        - paragraph [ref=e14]: Choose your task, enter the ruins, and make it out alive.
+      - generic [ref=e15]:
+        - img "Angkor Ruins" [ref=e16]
+        - generic [ref=e17]: ANGKOR RUINS · AVAILABLE
+    - region "TODAY'S HUNT" [ref=e18]:
+      - generic [ref=e19]:
+        - generic [ref=e21]: TODAY'S HUNT
+        - generic [ref=e22]: SAMPLE DATA · NOT LIVE
+      - generic [ref=e23]:
+        - generic [ref=e24]:
+          - strong [ref=e25]:
+            - text: "43"
+            - generic [ref=e26]: / 69
+          - text: treasures remain
+        - generic [ref=e27]:
+          - strong [ref=e28]: "3"
+          - generic [ref=e29]: expeditions left
+        - generic [ref=e30]:
+          - strong [ref=e31]: 08:42:17
+          - generic [ref=e32]: reset preview
+    - region [ref=e33]:
+      - generic [ref=e34]:
+        - generic [ref=e35]:
+          - generic [ref=e36]: THE DAILY BOARD
+          - heading "Today's missions" [level=2] [ref=e37]
+        - generic [ref=e38]: 3 AVAILABLE
+      - generic [ref=e39]:
+        - article [ref=e40]:
+          - generic [ref=e45]:
+            - generic [ref=e46]:
+              - generic [ref=e47]: 01 / EXPEDITION BRIEF
+              - generic [ref=e48]: AVAILABLE
+            - heading "GEM RUNNER" [level=3] [ref=e50]
+            - paragraph [ref=e51]: Collect 12 gems and escape alive.
+            - button "Enter ruins" [ref=e52] [cursor=pointer]
+        - article [ref=e56]:
+          - generic [ref=e62]:
+            - generic [ref=e63]:
+              - generic [ref=e64]: 02 / EXPEDITION BRIEF
+              - generic [ref=e65]: AVAILABLE
+            - heading "CHEST HUNTER" [level=3] [ref=e67]
+            - paragraph [ref=e68]: Open 4 chests and finish alive.
+            - button "Enter ruins" [ref=e69] [cursor=pointer]
+        - article [ref=e73]:
+          - generic [ref=e78]:
+            - generic [ref=e79]:
+              - generic [ref=e80]: 03 / EXPEDITION BRIEF
+              - generic [ref=e81]: AVAILABLE
+            - heading "VAULT BREAKER" [level=3] [ref=e83]
+            - paragraph [ref=e84]: Find the Temple Key, reach the Vault, and seal the treasure.
+            - button "Enter ruins" [ref=e85] [cursor=pointer]
+    - region [ref=e89]:
+      - generic [ref=e91]:
+        - generic [ref=e92]: YOUR EXPEDITION LOG
+        - heading "Progress" [level=2] [ref=e93]
+      - generic [ref=e94]:
+        - generic [ref=e95]:
+          - strong [ref=e100]: "148"
+          - generic [ref=e101]: gems
+        - generic [ref=e102]:
+          - strong [ref=e106]: 2,480
+          - generic [ref=e107]: points
+        - generic [ref=e108]:
+          - strong [ref=e112]: "4"
+          - generic [ref=e113]: day streak
+      - paragraph [ref=e114]: Gems are not redeemable for NIM in the current build.
+    - region [ref=e115]:
+      - generic [ref=e116]:
+        - generic [ref=e117]:
+          - generic [ref=e118]: HALL OF HEROES
+          - heading "Your place in the ruins" [level=2] [ref=e119]
+        - generic [ref=e120]: PREVIEW
+      - generic [ref=e121]:
+        - generic [ref=e122]:
+          - text: SAMPLE HERO NAME
+          - strong [ref=e123]: Demo Explorer
+        - generic [ref=e124]:
+          - text: SAMPLE RANK
+          - strong [ref=e125]: "#12"
+        - generic [ref=e126]:
+          - text: POINTS · STREAK
+          - strong [ref=e127]: 2,480 · 4 days
+      - paragraph [ref=e128]: Demo ranking preview · no real identity or wallet address is connected.
+    - region [ref=e129]:
+      - generic [ref=e131]:
+        - generic [ref=e132]: WORLD SELECT
+        - heading "Choose your ruins" [level=2] [ref=e133]
+      - article [ref=e134]:
+        - img "Angkor Ruins temple path in the jungle" [ref=e135]
+        - generic [ref=e136]:
+          - generic [ref=e137]: WORLD 01 · AVAILABLE
+          - strong [ref=e138]: ANGKOR RUINS
+      - generic "Locked worlds" [ref=e139]:
+        - generic [ref=e140]:
+          - generic [ref=e145]: BAVARIA
+          - generic [ref=e146]: COMING SOON
+        - generic [ref=e147]:
+          - generic [ref=e152]: SIBERIA
+          - generic [ref=e153]: COMING SOON
+  - navigation "Mini App navigation" [ref=e154]:
+    - button "Hunt" [ref=e155] [cursor=pointer]
+    - button "Missions" [ref=e159] [cursor=pointer]
+    - button "Heroes" [ref=e163] [cursor=pointer]
+  - dialog [ref=e171]:
+    - generic [ref=e172]:
+      - generic [ref=e174]:
+        - generic [ref=e175]:
+          - generic [ref=e176]: MISSION BRIEF · PREVIEW
+          - generic [ref=e177]: SAMPLE DATA
+        - heading "GEM RUNNER" [active] [level=2] [ref=e178]
+        - paragraph [ref=e179]: Collect 12 gems and escape alive.
+        - generic [ref=e180]:
+          - generic [ref=e181]:
+            - strong [ref=e182]: "100"
+            - text: HP
+          - generic [ref=e183]:
+            - strong [ref=e184]: "3"
+            - text: expeditions left
+          - generic [ref=e185]: ANGKOR RUINS
+        - generic [ref=e186]:
+          - strong [ref=e187]: Before you enter
+          - paragraph [ref=e188]: Complete the task alive to become reward-eligible while NIM treasures remain.
+          - paragraph [ref=e189]: Chest contents do not determine NIM eligibility.
+      - generic [ref=e190]:
+        - button "Back" [ref=e191] [cursor=pointer]
+        - button "Start expedition" [ref=e194] [cursor=pointer]
+  - generic [ref=e170]: Built for Nimiq Pay · shell preview

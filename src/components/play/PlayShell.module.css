@@ -1,0 +1,153 @@
+.shell {
+  min-height: 100dvh;
+  background: #0d211d;
+  color: #f3ead7;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.viewport {
+  position: relative;
+  width: min(100%, 430px);
+  min-height: 100dvh;
+  margin: 0 auto;
+  overflow: clip;
+  background: #132a26;
+  box-shadow: 0 0 64px rgba(0, 0, 0, .28);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 72px;
+  padding: calc(12px + env(safe-area-inset-top)) 18px 12px;
+  border-bottom: 1px solid rgba(243, 234, 215, .15);
+  background: rgba(19, 42, 38, .96);
+}
+
+.wordmark { display: flex; align-items: center; min-width: 44px; min-height: 44px; }
+.wordmark img { width: 142px; height: auto; }
+.headerContext { color: #a9b9aa; font-size: 9px; font-weight: 700; letter-spacing: 1.3px; }
+
+.main { padding: 16px 16px calc(92px + env(safe-area-inset-bottom)); }
+.hero { margin-bottom: 16px; }
+.heroCopy { padding: 6px 4px 14px; }
+.kicker { display: block; color: #8fb5a3; font-size: 9px; font-weight: 700; letter-spacing: 1.5px; }
+.hero h1, .pageIntro h1 { margin: 8px 0 6px; color: #f3ead7; font: 400 40px/42px 'Jungle Fever', 'Trade Winds', Impact, sans-serif; text-transform: uppercase; }
+.heroCopy p, .pageIntro p { max-width: 330px; color: #b5c2b5; font-size: 13px; line-height: 1.55; }
+.heroScene { position: relative; height: 158px; overflow: hidden; border: 1px solid rgba(243, 234, 215, .16); border-radius: 18px; background: #0d211d; }
+.heroScene > img:first-child { width: 100%; height: 100%; object-fit: cover; object-position: center 54%; filter: saturate(.8) brightness(.68); }
+.heroScene::after { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(13, 33, 29, .08), rgba(13, 33, 29, .76)); content: ''; }
+.heroExplorer { position: absolute; z-index: 1; bottom: -35%; left: 3%; width: 44%; height: auto; filter: drop-shadow(0 10px 10px rgba(0, 0, 0, .3)); }
+.sceneTag { position: absolute; z-index: 2; right: 12px; bottom: 11px; color: #ffd86a; font-size: 9px; font-weight: 700; letter-spacing: 1px; }
+
+.status, .progressSection, .heroesSection, .worldSection, .missionSection, .missionSectionCompact { margin-top: 18px; }
+.status { padding: 16px; border: 1px solid rgba(243, 234, 215, .17); border-radius: 18px; background: #1b3833; }
+.statusEyebrow, .sectionHeading, .missionMeta, .sheetTopline { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.statusEyebrow { color: #f3ead7; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; }
+.statusDot { width: 7px; height: 7px; margin-right: -6px; border-radius: 50%; background: #3e88f7; box-shadow: 0 0 10px rgba(62, 136, 247, .7); }
+.fixtureBadge, .sampleLabel { color: #8fb5a3; font-size: 8px; font-weight: 700; letter-spacing: 1px; }
+.fixtureBadge { white-space: nowrap; }
+.statusGrid { display: grid; grid-template-columns: 1.25fr .8fr 1.1fr; gap: 8px; margin-top: 18px; }
+.statusGrid > div { min-width: 0; }
+.treasureMetric strong { display: block; color: #ffd86a; font: 400 40px/38px 'Jungle Fever', Impact, sans-serif; }
+.treasureMetric strong span { color: #f3ead7; font-size: 22px; }
+.statusMetric { display: flex; flex-direction: column; justify-content: end; padding-bottom: 2px; }
+.statusMetric strong { color: #f3ead7; font: 400 21px/24px 'Jungle Fever', Impact, sans-serif; white-space: nowrap; }
+.statusGrid span { color: #b5c2b5; font-size: 9px; line-height: 1.3; }
+
+.sectionHeading { align-items: end; }
+.sectionHeading h2 { margin: 6px 0 0; color: #f3ead7; font: 400 26px/30px 'Jungle Fever', Impact, sans-serif; text-transform: uppercase; }
+.sectionIntro { margin: 10px 0 14px; color: #b5c2b5; font-size: 12px; line-height: 1.5; }
+.missionList { display: grid; gap: 10px; margin-top: 14px; }
+.missionCard { display: grid; grid-template-columns: 42px 1fr; gap: 12px; padding: 14px 12px; border: 1px solid rgba(243, 234, 215, .15); border-radius: 16px; background: rgba(27, 56, 51, .76); }
+.missionIcon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; color: #3e88f7; background: rgba(62, 136, 247, .12); }
+.missionIcon svg, .progressIcon svg, .lockedWorlds svg, .navItem svg, .navItemActive svg, .enterButton svg, .sheetPrimary svg, .sheetSecondary svg, .devNoteIcon svg { display: block; flex: 0 0 auto; }
+.missionIcon svg { width: 22px; height: 22px; }
+.missionBody { min-width: 0; }
+.missionMeta { align-items: start; color: #8fb5a3; font-size: 8px; font-weight: 700; letter-spacing: .75px; }
+.available { display: inline-flex; align-items: center; gap: 4px; color: #9bc8b2; }
+.available i { width: 5px; height: 5px; border-radius: 50%; background: #3e88f7; }
+.missionCard h3 { margin: 8px 0 4px; color: #f3ead7; font: 400 20px/23px 'Jungle Fever', Impact, sans-serif; letter-spacing: .2px; }
+.missionCard p { margin: 0; color: #b5c2b5; font-size: 12px; line-height: 1.45; }
+.enterButton, .sheetPrimary, .sheetSecondary { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; border-radius: 9999px; font: 400 13px/18px 'Jungle Fever', Impact, sans-serif; letter-spacing: .35px; text-transform: uppercase; }
+.enterButton { margin-top: 12px; padding: 8px 14px; border: 1px solid rgba(62, 136, 247, .58); color: #d7e6ff; background: transparent; }
+.enterButton svg { color: #3e88f7; }
+
+.progressStrip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
+.progressStrip > div { display: grid; grid-template-columns: 22px 1fr; column-gap: 7px; align-items: center; padding: 11px 8px; border-radius: 14px; background: #1b3833; }
+.progressIcon { grid-row: span 2; display: grid; place-items: center; width: 22px; height: 22px; color: #3e88f7; }
+.pointsIcon { color: #8fb5a3; }
+.streakIcon { color: #ffd86a; }
+.progressStrip strong { color: #f3ead7; font-size: 13px; line-height: 15px; }
+.progressStrip span:last-child { color: #9cae9f; font-size: 8px; }
+.disclosure { margin: 10px 2px 0; color: #91a398; font-size: 10px; line-height: 1.5; }
+
+.heroPreviewCard { display: grid; grid-template-columns: 1.2fr .7fr 1fr; gap: 8px; margin-top: 14px; padding: 14px 12px; border: 1px solid rgba(243, 234, 215, .15); border-radius: 16px; background: #1b3833; }
+.heroPreviewCard > div { min-width: 0; }
+.heroPreviewCard strong { display: block; margin-top: 6px; overflow: hidden; color: #f3ead7; font-size: 12px; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+.heroesSectionCompact .heroPreviewCard { margin-top: 12px; }
+
+.worldAvailable { position: relative; height: 144px; margin-top: 14px; overflow: hidden; border-radius: 16px; background: #0d211d; }
+.worldAvailable img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.75) brightness(.7); }
+.worldOverlay { position: absolute; right: 14px; bottom: 13px; left: 14px; display: grid; gap: 4px; }
+.worldOverlay span { color: #ffd86a; font-size: 8px; font-weight: 700; letter-spacing: 1px; }
+.worldOverlay strong { color: #f3ead7; font: 400 22px/24px 'Jungle Fever', Impact, sans-serif; }
+.lockedWorlds { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+.lockedWorlds > div { display: grid; grid-template-columns: 20px 1fr; align-items: center; column-gap: 7px; padding: 11px; border: 1px solid rgba(243, 234, 215, .12); border-radius: 14px; color: #697f76; }
+.lockedWorlds svg { grid-row: span 2; width: 17px; height: 17px; }
+.lockedWorlds span { font-size: 11px; font-weight: 700; letter-spacing: .8px; }
+.lockedWorlds small { color: #788b82; font-size: 7px; letter-spacing: .8px; }
+
+.pageIntro { padding: 12px 4px 16px; }
+.pageIntro h1 { margin-top: 10px; }
+.pageIntro p { margin-top: 8px; }
+.heroesSection { margin-top: 4px; }
+
+.bottomNav { position: fixed; z-index: 10; right: 0; bottom: 0; left: 50%; display: grid; grid-template-columns: repeat(3, 1fr); width: min(100%, 430px); padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); transform: translateX(-50%); border-top: 1px solid rgba(243, 234, 215, .14); background: rgba(19, 42, 38, .97); backdrop-filter: blur(14px); }
+.navItem, .navItemActive { display: grid; min-height: 44px; place-items: center; gap: 3px; border: 0; color: #8fa59a; background: transparent; font-size: 10px; font-weight: 700; }
+.navItem svg, .navItemActive svg { width: 17px; height: 17px; }
+.navItemActive { color: #ffd86a; }
+
+.sheetDialog { position: fixed; z-index: 30; inset: 0; width: min(100%, 430px); max-width: 430px; height: 100%; max-height: none; margin: 0 auto; padding: 0; border: 0; color: #f3ead7; background: transparent; }
+.sheetDialog::backdrop { background: rgba(7, 23, 19, .76); }
+.sheet { position: absolute; right: 0; bottom: 0; left: 0; display: flex; flex-direction: column; max-height: calc(100dvh - env(safe-area-inset-top) - 16px); overflow: hidden; border: 1px solid rgba(243, 234, 215, .19); border-bottom: 0; border-radius: 22px 22px 0 0; background: #132a26; box-shadow: 0 -18px 42px rgba(0, 0, 0, .32); }
+.sheetHandle { flex: 0 0 auto; width: 42px; height: 4px; margin: 10px auto 0; border-radius: 9999px; background: rgba(243, 234, 215, .34); }
+.sheetBody { min-height: 0; padding: 12px 20px 18px; overflow-y: auto; }
+.sheetTopline { align-items: start; }
+.sheetBody h2 { margin: 16px 0 8px; color: #f3ead7; font: 400 30px/32px 'Jungle Fever', Impact, sans-serif; text-transform: uppercase; }
+.sheetBody h2:focus-visible { outline: 3px solid #3e88f7; outline-offset: 6px; }
+.sheetObjective { margin: 0; color: #d3dbd1; font-size: 15px; line-height: 1.5; }
+.runStats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 18px; }
+.runStats span { display: grid; min-height: 54px; align-content: center; padding: 8px; border-radius: 12px; background: #1b3833; color: #aab8ac; font-size: 9px; line-height: 1.3; }
+.runStats strong { color: #ffd86a; font-size: 18px; }
+.eligibility, .devNote { margin-top: 14px; padding: 13px; border-left: 2px solid #3e88f7; background: rgba(62, 136, 247, .09); }
+.eligibility strong { color: #d7e6ff; font-size: 11px; letter-spacing: .7px; text-transform: uppercase; }
+.eligibility p, .devNote p { margin: 7px 0 0; color: #b5c2b5; font-size: 11px; line-height: 1.5; }
+.devNote { display: flex; gap: 10px; border-left-color: #ffd86a; }
+.devNoteIcon { display: grid; place-items: center; flex: 0 0 auto; color: #ffd86a; }
+.sheetActions { display: grid; grid-template-columns: .7fr 1.3fr; gap: 8px; flex: 0 0 auto; padding: 12px 20px calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid rgba(243, 234, 215, .13); background: #132a26; }
+.sheetPrimary, .sheetSecondary { padding: 11px 12px; }
+.sheetPrimary { border: 0; color: #132a26; background: linear-gradient(110deg, #f2c14e, #ffd86a); }
+.sheetSecondary { border: 1px solid rgba(243, 234, 215, .28); color: #f3ead7; background: transparent; }
+
+.footerMark { padding: 0 16px calc(73px + env(safe-area-inset-bottom)); color: #647c72; font-size: 8px; letter-spacing: .8px; text-align: center; }
+.visuallyHidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (min-width: 431px) {
+  .main { padding-right: 20px; padding-left: 20px; }
+}
+
+@media (max-width: 350px) {
+  .header { padding-right: 14px; padding-left: 14px; }
+  .wordmark img { width: 128px; }
+  .statusGrid { grid-template-columns: 1.1fr .8fr 1.1fr; }
+  .treasureMetric strong { font-size: 36px; }
+  .hero h1, .pageIntro h1 { font-size: 34px; line-height: 37px; }
+  .sheetBody { padding-right: 16px; padding-left: 16px; }
+  .sheetActions { padding-right: 16px; padding-left: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet, .sheetDialog::backdrop { transition: none; }
+}

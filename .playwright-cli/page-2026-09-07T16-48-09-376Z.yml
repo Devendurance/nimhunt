@@ -1,0 +1,46 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - link "NimHunt hunt home" [ref=e6] [cursor=pointer]:
+      - /url: /play
+      - img "NimHunt" [ref=e7]
+    - generic [ref=e8]: ANGKOR RUINS
+  - main [ref=e9]:
+    - region [ref=e294]:
+      - generic [ref=e295]: SAMPLE RANKING · NOT LIVE
+      - heading "Hall of Heroes" [level=1] [ref=e296]
+      - paragraph [ref=e297]: Leave a mark in the ruins with points, streaks, and completed expeditions.
+    - region [ref=e298]:
+      - generic [ref=e300]:
+        - generic [ref=e301]: HALL OF HEROES
+        - heading "Your place in the ruins" [level=2] [ref=e302]
+      - generic [ref=e303]:
+        - generic [ref=e304]:
+          - text: SAMPLE HERO NAME
+          - strong [ref=e305]: Demo Explorer
+        - generic [ref=e306]:
+          - text: SAMPLE RANK
+          - strong [ref=e307]: "#12"
+        - generic [ref=e308]:
+          - text: POINTS · STREAK
+          - strong [ref=e309]: 2,480 · 4 days
+      - paragraph [ref=e310]: Demo ranking preview · no real identity or wallet address is connected.
+    - region [ref=e311]:
+      - generic [ref=e313]:
+        - generic [ref=e314]: YOUR EXPEDITION LOG
+        - heading "Progress" [level=2] [ref=e315]
+      - generic [ref=e316]:
+        - generic [ref=e317]:
+          - strong [ref=e322]: "148"
+          - generic [ref=e323]: gems
+        - generic [ref=e324]:
+          - strong [ref=e328]: 2,480
+          - generic [ref=e329]: points
+        - generic [ref=e330]:
+          - strong [ref=e334]: "4"
+          - generic [ref=e335]: day streak
+      - paragraph [ref=e336]: Gems are not redeemable for NIM in the current build.
+  - navigation "Mini App navigation" [ref=e154]:
+    - button "Hunt" [ref=e155] [cursor=pointer]
+    - button "Missions" [ref=e159] [cursor=pointer]
+    - button "Heroes" [active] [ref=e163] [cursor=pointer]
+  - generic [ref=e170]: Built for Nimiq Pay · shell preview
