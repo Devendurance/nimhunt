@@ -4,6 +4,7 @@ import {
   type GridCoord,
   tileToPixel,
 } from '../world/grid'
+import { ANGKOR_DEPTH } from '../assets/angkorAssets'
 
 export class Player {
   public gridX: number
@@ -27,23 +28,23 @@ export class Player {
 
     const { x, y } = tileToPixel(startCoord)
 
-    // Shadow at player feet
-    this.shadow = scene.add.ellipse(0, 10, 20, 8, 0x000000, 0.4)
+    // Grounded shadow at player feet
+    this.shadow = scene.add.ellipse(0, 12, 20, 7, 0x000000, 0.35)
 
-    // Explorer character sprite (or dev fallback if texture not present)
-    if (scene.textures.exists('explorer_framed')) {
+    // Explorer character sprite: 29px visible height grounded to tile
+    if (scene.textures?.exists('explorer_framed')) {
       const spr = scene.add.sprite(0, 0, 'explorer_framed')
-      spr.setScale(24 / spr.height)
+      spr.setScale(29 / spr.height)
       this.sprite = spr
     } else {
       // Fallback dev explorer box
-      const rect = scene.add.rectangle(0, 0, 22, 22, 0x2D8C73)
+      const rect = scene.add.rectangle(0, 0, 26, 26, 0x2D8C73)
       rect.setStrokeStyle(1.5, 0xF3EAD7)
       this.sprite = rect
     }
 
     // Direction/facing indicator (Gem Blue dot)
-    this.facingDot = scene.add.circle(0, 13, 3, 0x3E88F7)
+    this.facingDot = scene.add.circle(0, 14, 2.5, 0x3E88F7)
     this.facingDot.setStrokeStyle(1, 0xF3EAD7, 0.8)
 
     // Group into an atomic container
@@ -52,9 +53,13 @@ export class Player {
       this.sprite,
       this.facingDot,
     ])
-    this.container.setDepth(10)
+    this.container.setDepth(ANGKOR_DEPTH.PLAYER)
 
     this.updateFacingVisual(this.facing)
+  }
+
+  public getContainer(): Phaser.GameObjects.Container {
+    return this.container
   }
 
   public moveTo(

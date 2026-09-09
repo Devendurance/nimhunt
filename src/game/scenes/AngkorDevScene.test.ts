@@ -20,6 +20,18 @@ vi.mock('../entities/Player', () => ({
     reset() { this.gridX = 3; this.gridY = 3; this.facing = 'DOWN'; this.isMoving = false }
     showHit() {}
     destroy() {}
+    getContainer() { return {} }
+  },
+}))
+vi.mock('../entities/Goblin', () => ({
+  Goblin: class {
+    gridX = 7; gridY = 4; facing = 'DOWN'; isMoving = false; aiState = 'PATROL'
+    moveTo(to: { x: number; y: number }, facing: string, done?: () => void) {
+      this.gridX = to.x; this.gridY = to.y; this.facing = facing; done?.()
+    }
+    setAIState(state: string) { this.aiState = state }
+    reset() { this.gridX = 7; this.gridY = 4; this.facing = 'DOWN'; this.aiState = 'PATROL' }
+    destroy() {}
   },
 }))
 vi.mock('phaser', () => ({
@@ -29,6 +41,7 @@ vi.mock('phaser', () => ({
       game = { events: { on: vi.fn(), off: vi.fn() } }
       tweens = { add: (config: { onComplete?: () => void }) => { if (config.onComplete) pending.tweens.push(config.onComplete) }, killTweensOf: vi.fn() }
       time = { delayedCall: (_ms: number, callback: () => void) => { pending.timers.push(callback); return { remove: vi.fn() } } }
+      textures = { exists: vi.fn(() => false) }
     },
     Scenes: { Events: { SHUTDOWN: 'shutdown' } },
   },
@@ -43,9 +56,9 @@ function setup() {
   const internals = scene as unknown as {
     player: { gridX: number; gridY: number }
     puzzle: PuzzleState
-    renderRoomTiles(): void; renderContents(): void; renderPuzzle(): void; renderGems(): void
+    renderRoomTiles(): void; renderContents(): void; renderPuzzle(): void; renderGems(): void; renderOverlays(): void; renderItems(): void; renderChests(): void
   }
-  for (const method of ['renderRoomTiles', 'renderContents', 'renderPuzzle', 'renderGems'] as const) vi.spyOn(internals, method).mockImplementation(() => {})
+  for (const method of ['renderRoomTiles', 'renderContents', 'renderPuzzle', 'renderGems', 'renderOverlays', 'renderItems', 'renderChests'] as const) vi.spyOn(internals, method).mockImplementation(() => {})
   scene.create()
   return { scene, internals, bridge }
 }

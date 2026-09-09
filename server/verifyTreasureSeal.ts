@@ -1,25 +1,24 @@
-import { Address, Hash, PublicKey, Signature } from '@nimiq/core'
 import {
   isCanonicalTreasureSeal,
   parseTreasureSealJson,
   TEST_SEAL_ENVIRONMENT,
   TEST_SEAL_TYPE,
 } from '../src/domain/treasureSeal.ts'
+import { isCanonicalVaultSeal, parseVaultSealJson, VAULT_SEAL_TYPE } from '../src/domain/vaultSeal.ts'
 import type {
   VerifyTreasureSealReason,
   VerifyTreasureSealRequest,
   VerifyTreasureSealResult,
 } from '../src/integrations/nimiq/verifySealTypes.ts'
+import { verifyNimiqSignedCanonicalMessage } from './expeditions/crypto.ts'
 
 export { DEV_VERIFY_PATH } from '../src/integrations/nimiq/verifySealTypes.ts'
+export { nimiqSignedMessageHash } from './expeditions/crypto.ts'
 export const MAX_VERIFY_BODY_BYTES = 12_288
 export const MAX_PAYLOAD_CHARS = 8_192
 export const MAX_WALLET_CHARS = 80
 export const MAX_PUBLIC_KEY_CHARS = 130
 export const MAX_SIGNATURE_CHARS = 258
-
-const SIGNED_MESSAGE_PREFIX = '\x16Nimiq Signed Message:\n'
-const encoder = new TextEncoder()
 
 const rejected = (
   reason: VerifyTreasureSealReason,
@@ -36,66 +35,75 @@ export function verifyTreasureSeal(input: unknown): VerifyTreasureSealResult {
   const request = readRequest(input)
   if (!request.ok) return rejected(request.reason)
 
+  const messageType = readMessageType(request.value.payload)
+  if (!messageType) return rejected('MALFORMED_PAYLOAD')
+  if (messageType !== TEST_SEAL_TYPE && messageType !== VAULT_SEAL_TYPE) {
+    return rejected('UNSUPPORTED_MESSAGE_TYPE')
+  }
+
+  if (messageType === VAULT_SEAL_TYPE) {
+    const parsed = parseVaultSealJson(request.value.payload)
+    if (!parsed) return rejected('MALFORMED_PAYLOAD')
+    if (!isCanonicalVaultSeal(request.value.payload, parsed)) return rejected('PAYLOAD_TAMPERED')
+    return verifySealCrypto({
+      payload: request.value.payload,
+      requestWallet: request.value.wallet,
+      payloadWallet: parsed.wallet,
+      publicKeyHex: request.value.publicKey,
+      signatureHex: request.value.signature,
+    })
+  }
+
   const parsed = parseTreasureSealJson(request.value.payload)
   if (!parsed) return rejected('MALFORMED_PAYLOAD')
   if (parsed.type !== TEST_SEAL_TYPE) return rejected('UNSUPPORTED_MESSAGE_TYPE')
   if (parsed.environment !== TEST_SEAL_ENVIRONMENT) return rejected('MALFORMED_PAYLOAD')
   if (!isCanonicalTreasureSeal(request.value.payload, parsed)) return rejected('PAYLOAD_TAMPERED')
-
-  let expectedAddress: Address
-  let payloadAddress: Address
-  try {
-    expectedAddress = Address.fromString(request.value.wallet)
-    payloadAddress = Address.fromString(parsed.wallet)
-  } catch {
-    return rejected('INVALID_WALLET')
-  }
-
-  let publicKey: PublicKey
-  try {
-    publicKey = PublicKey.fromHex(normalizeHex(request.value.publicKey, 64))
-  } catch {
-    return rejected('INVALID_PUBLIC_KEY')
-  }
-
-  const derivedAddress = publicKey.toAddress()
-  const addressMatches = derivedAddress.equals(expectedAddress) && derivedAddress.equals(payloadAddress)
-  const wallet = derivedAddress.toUserFriendlyAddress()
-  const payloadHash = toHex(Hash.computeSha256(encoder.encode(request.value.payload)))
-
-  let signature: Signature
-  try {
-    signature = Signature.fromHex(normalizeHex(request.value.signature, 128))
-  } catch {
-    return rejected('INVALID_SIGNATURE', { addressMatches, payloadHash, wallet })
-  }
-
-  const signatureValid = publicKey.verify(signature, nimiqSignedMessageHash(request.value.payload))
-
-  if (!addressMatches) {
-    return rejected('ADDRESS_MISMATCH', { addressMatches: false, payloadHash, signatureValid, wallet })
-  }
-
-  if (!signatureValid) {
-    return rejected('INVALID_SIGNATURE', { addressMatches: true, payloadHash, signatureValid: false, wallet })
-  }
-
-  return {
-    valid: true,
-    signatureValid: true,
-    addressMatches: true,
-    payloadHash,
-    wallet,
-  }
+  return verifySealCrypto({
+    payload: request.value.payload,
+    requestWallet: request.value.wallet,
+    payloadWallet: parsed.wallet,
+    publicKeyHex: request.value.publicKey,
+    signatureHex: request.value.signature,
+  })
 }
 
-export function nimiqSignedMessageHash(message: string): Uint8Array {
-  const messageBytes = encoder.encode(message)
-  const prefixBytes = encoder.encode(`${SIGNED_MESSAGE_PREFIX}${messageBytes.byteLength}`)
-  const prefixed = new Uint8Array(prefixBytes.byteLength + messageBytes.byteLength)
-  prefixed.set(prefixBytes)
-  prefixed.set(messageBytes, prefixBytes.byteLength)
-  return Hash.computeSha256(prefixed)
+function verifySealCrypto(input: {
+  payload: string
+  requestWallet: string
+  payloadWallet: string
+  publicKeyHex: string
+  signatureHex: string
+}): VerifyTreasureSealResult {
+  const result = verifyNimiqSignedCanonicalMessage({
+    payload: input.payload,
+    wallet: input.requestWallet,
+    payloadWallet: input.payloadWallet,
+    publicKey: input.publicKeyHex,
+    signature: input.signatureHex,
+  })
+  if (result.reason === 'INVALID_WALLET' || result.reason === 'INVALID_PUBLIC_KEY') return rejected(result.reason)
+  if (result.reason) {
+    return rejected(result.reason, {
+      addressMatches: result.addressMatches,
+      payloadHash: result.payloadHash,
+      signatureValid: result.signatureValid,
+      wallet: result.wallet,
+    })
+  }
+  return result
+}
+
+function readMessageType(payload: string): string | null {
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(payload)
+  } catch {
+    return null
+  }
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return null
+  const type = (parsed as Record<string, unknown>).type
+  return typeof type === 'string' ? type : null
 }
 
 function readRequest(input: unknown): { ok: true; value: VerifyTreasureSealRequest } | { ok: false; reason: VerifyTreasureSealReason } {
@@ -122,16 +130,4 @@ function readRequest(input: unknown): { ok: true; value: VerifyTreasureSealReque
 
 function isBoundedString(value: unknown, maxChars: number): value is string {
   return typeof value === 'string' && value.length > 0 && value.length <= maxChars
-}
-
-function normalizeHex(value: string, expectedLength: number): string {
-  const hex = value.startsWith('0x') || value.startsWith('0X') ? value.slice(2) : value
-  if (hex.length !== expectedLength || !/^[0-9a-fA-F]+$/.test(hex)) {
-    throw new Error('Invalid hex encoding')
-  }
-  return hex
-}
-
-function toHex(bytes: Uint8Array): string {
-  return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')
 }

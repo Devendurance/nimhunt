@@ -6,7 +6,7 @@ import {
   getTileAt,
   isWalkableTile,
   isWithinBounds,
-} from '../world/grid'
+} from '../world/grid.ts'
 
 export interface MoveResult {
   readonly success: boolean

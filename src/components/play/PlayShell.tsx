@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { playAssets } from '../../data/assets'
 import { playMissions } from '../../data/play'
 import { playFixture } from '../../data/play.fixtures'
 import type { Mission, MissionId, PlayTab } from '../../types/play'
+import { isMissionLaunchable } from './expeditionFlow'
 import { HeroesPreview } from './HeroesPreview'
 import { HuntHeader } from './HuntHeader'
 import { HuntStatus } from './HuntStatus'
@@ -16,8 +18,7 @@ import styles from './PlayShell.module.css'
 export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
   const [activeTab, setActiveTab] = useState<PlayTab>(initialTab)
   const [selectedMissionId, setSelectedMissionId] = useState<MissionId | null>(null)
-  const [sheetMode, setSheetMode] = useState<'brief' | 'development'>('brief')
-  const sourceTab = useRef<PlayTab>('hunt')
+  const [, setSearchParams] = useSearchParams()
   const trigger = useRef<HTMLButtonElement | null>(null)
   const dialogRef = useRef<HTMLDialogElement>(null)
   const selectedMission = playMissions.find(mission => mission.id === selectedMissionId) ?? null
@@ -27,9 +28,7 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
   }, [selectedMission])
 
   const openMission = (mission: Mission, button: HTMLButtonElement) => {
-    sourceTab.current = activeTab
     trigger.current = button
-    setSheetMode('brief')
     setSelectedMissionId(mission.id)
   }
 
@@ -37,13 +36,16 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
 
   const handleClose = () => {
     setSelectedMissionId(null)
-    setSheetMode('brief')
     requestAnimationFrame(() => trigger.current?.focus())
   }
 
-  const handleReturnToMissions = () => {
-    setActiveTab(sourceTab.current)
+  const handleStartExpedition = (mission: Mission) => {
+    // Local launch only. Server startExpedition is not wired here so browser/dev play
+    // does not consume daily attempts and /play does not prompt for a Nimiq account.
+    if (!isMissionLaunchable(mission.id)) return
     closeSheet()
+    setSelectedMissionId(null)
+    setSearchParams({ run: mission.id })
   }
 
   return <div className={styles.shell}>
@@ -73,7 +75,7 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
         </>}
       </main>
       <PlayBottomNav activeTab={activeTab} onChange={setActiveTab} />
-      {selectedMission && <MissionBrief mission={selectedMission} mode={sheetMode} dialogRef={dialogRef} onBack={sheetMode === 'brief' ? closeSheet : () => setSheetMode('brief')} onStart={() => setSheetMode('development')} onReturnToMissions={handleReturnToMissions} onClose={handleClose} />}
+      {selectedMission && <MissionBrief mission={selectedMission} dialogRef={dialogRef} onBack={closeSheet} onStartExpedition={handleStartExpedition} onClose={handleClose} />}
       <div className={styles.footerMark}>Built for Nimiq Pay · shell preview</div>
     </div>
   </div>

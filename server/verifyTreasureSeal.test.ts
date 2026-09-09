@@ -6,6 +6,7 @@ import {
   serializeTreasureSeal,
   tamperTestSealMission,
 } from '../src/domain/treasureSeal.ts'
+import { buildVaultSealPayload, serializeVaultSeal, tamperVaultSealMission } from '../src/domain/vaultSeal.ts'
 import { nimiqSignedMessageHash, verifyTreasureSeal } from './verifyTreasureSeal.ts'
 
 describe('server-side treasure-seal verification', () => {
@@ -139,6 +140,58 @@ describe('server-side treasure-seal verification', () => {
   })
 })
 
+describe('server-side vault-seal preview verification', () => {
+  it('accepts a valid vault preview seal', () => {
+    const fixture = createVaultOnlySeal()
+    const result = verifyTreasureSeal(fixture.request)
+
+    expect(result).toMatchObject({
+      valid: true,
+      signatureValid: true,
+      addressMatches: true,
+      wallet: fixture.wallet,
+    })
+    expect(result.payloadHash).toMatch(/^[0-9a-f]{64}$/)
+    expect(result.reason).toBeUndefined()
+  })
+
+  it('rejects a tampered vault payload with the original signature', () => {
+    const fixture = createVaultOnlySeal()
+    const result = verifyTreasureSeal({
+      ...fixture.request,
+      payload: tamperVaultSealMission(fixture.request.payload),
+    })
+
+    expect(result.valid).toBe(false)
+    expect(result.reason).toBe('INVALID_SIGNATURE')
+    expect(result.signatureValid).toBe(false)
+  })
+
+  it('rejects a vault seal bound to a different wallet', () => {
+    const fixture = createVaultOnlySeal()
+    const other = createVaultOnlySeal()
+    const result = verifyTreasureSeal({
+      ...fixture.request,
+      wallet: other.wallet,
+    })
+
+    expect(result.valid).toBe(false)
+    expect(result.reason).toBe('ADDRESS_MISMATCH')
+    expect(result.addressMatches).toBe(false)
+  })
+
+  it('rejects a malformed vault wallet', () => {
+    const fixture = createVaultOnlySeal()
+    const result = verifyTreasureSeal({
+      ...fixture.request,
+      wallet: 'not-an-address',
+    })
+
+    expect(result.valid).toBe(false)
+    expect(result.reason).toBe('INVALID_WALLET')
+  })
+})
+
 describe('canonical treasure-seal serialization', () => {
   it('remains stable for the development payload', () => {
     const wallet = 'NQ07 TEST 0000 0000 0000 0000 0000 0000 0000'
@@ -158,6 +211,25 @@ function createTestOnlySeal() {
   const keyPair = KeyPair.generate()
   const wallet = keyPair.toAddress().toUserFriendlyAddress()
   const payload = serializeTestTreasureSeal(buildTestTreasureSealPayload(wallet))
+  const signature = keyPair.sign(nimiqSignedMessageHash(payload))
+
+  return {
+    wallet,
+    publicKey: keyPair.publicKey.toHex(),
+    request: {
+      payload,
+      wallet,
+      publicKey: keyPair.publicKey.toHex(),
+      signature: signature.toHex(),
+    },
+  }
+}
+
+function createVaultOnlySeal() {
+  // Test-only generated key. Never reuse for treasury or reward activity.
+  const keyPair = KeyPair.generate()
+  const wallet = keyPair.toAddress().toUserFriendlyAddress()
+  const payload = serializeVaultSeal(buildVaultSealPayload(wallet))
   const signature = keyPair.sign(nimiqSignedMessageHash(payload))
 
   return {

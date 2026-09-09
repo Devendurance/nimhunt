@@ -1,17 +1,23 @@
 import { createPuzzleState, type PuzzleState } from '../systems/puzzle'
 import type { Direction } from '../world/grid'
 import { createRunState, type MissionStatus, type RunStatus } from '../domain/runState'
-import { GEM_RUNNER_TARGET } from '../domain/mission'
+import { CHEST_HUNTER_TARGET, GEM_RUNNER_TARGET, parseMissionParam, type MissionType } from '../domain/mission'
 import { ANGKOR_ROOM_01, ROOM_01_PUZZLE } from '../world/room01'
+import type { GoblinAIState } from '../systems/goblin'
 
 export interface PlayerHUDState {
   readonly hasTempleKey: boolean
+  readonly hasSword: boolean
+  readonly goblinState: GoblinAIState
   readonly gateState: PuzzleState['gateState']
   readonly objectiveReached: boolean
   readonly notice: string
   readonly hp: number
   readonly gemsCollected: number
   readonly gemTarget: number
+  readonly chestsOpened: number
+  readonly chestTarget: number
+  readonly selectedMission: MissionType
   readonly missionStatus: MissionStatus
   readonly runStatus: RunStatus
   readonly gridX: number
@@ -22,10 +28,15 @@ export interface PlayerHUDState {
   readonly roomName: string
 }
 
-export function createInitialHUDState(): PlayerHUDState {
-  const { hp, gemsCollected, missionStatus, runStatus } = createRunState()
+export function createInitialHUDState(mission: MissionType = 'gem-runner'): PlayerHUDState {
+  const { hp, gemsCollected, chestsOpened, missionStatus, runStatus } = createRunState()
   const { hasTempleKey, gateState, objectiveReached } = createPuzzleState(ROOM_01_PUZZLE)
-  return { hasTempleKey, gateState, objectiveReached, notice: '', hp, gemsCollected, missionStatus, runStatus, gemTarget: GEM_RUNNER_TARGET, gridX: ANGKOR_ROOM_01.playerStart.x, gridY: ANGKOR_ROOM_01.playerStart.y, facing: 'DOWN', isMoving: false, stepCount: 0, roomName: ANGKOR_ROOM_01.name }
+  return { hasTempleKey, hasSword: false, goblinState: 'PATROL', gateState, objectiveReached, notice: '', hp, gemsCollected, missionStatus, runStatus, gemTarget: GEM_RUNNER_TARGET, chestsOpened, chestTarget: CHEST_HUNTER_TARGET, selectedMission: mission, gridX: ANGKOR_ROOM_01.playerStart.x, gridY: ANGKOR_ROOM_01.playerStart.y, facing: 'DOWN', isMoving: false, stepCount: 0, roomName: ANGKOR_ROOM_01.name }
+}
+
+export function createInitialHUDStateFromSearch(search: string): PlayerHUDState {
+  const params = new URLSearchParams(search.startsWith('?') ? search : `?${search}`)
+  return createInitialHUDState(parseMissionParam(params.get('mission')))
 }
 
 export interface NimHuntBridgeListener {

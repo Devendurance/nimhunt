@@ -6,6 +6,7 @@ import {
   type NimHuntBridgeListener,
   type PlayerHUDState,
 } from './events/gameEvents'
+import { parseMissionParam, type MissionType } from './domain/mission'
 import type { Direction } from './world/grid'
 
 export interface NimHuntGameInstance {
@@ -17,15 +18,20 @@ export interface NimHuntGameInstance {
   destroy: () => void
 }
 
+export interface CreateGameOptions {
+  readonly mission?: MissionType | string | null
+}
+
 /**
  * Creates and initializes the NimHunt Phaser Game instance.
  * Encapsulates the React-to-Phaser bridge and handles clean teardown.
  */
-export function createNimHuntGame(container: HTMLElement): NimHuntGameInstance {
+export function createNimHuntGame(container: HTMLElement, options: CreateGameOptions = {}): NimHuntGameInstance {
   // 1. Ensure container is empty before attaching Phaser canvas (prevents StrictMode duplicates)
   container.replaceChildren()
 
-  const initialHUDState = createInitialHUDState()
+  const mission = parseMissionParam(typeof options.mission === 'string' ? options.mission : (options.mission ?? null))
+  const initialHUDState = createInitialHUDState(mission)
 
   const bridge = createGameBridge(initialHUDState)
   const config = createGameConfig(container, bridge)

@@ -38,6 +38,11 @@ export function serializeTreasureSeal(payload: CanonicalTreasureSeal): string {
     environment: payload.environment,
   }
 
+  return serializeCanonicalSeal(canonical)
+}
+
+/** One shared deterministic serializer for every seal payload shape. */
+export function serializeCanonicalSeal(canonical: Record<string, string | number>): string {
   return JSON.stringify(canonical, null, 2)
 }
 

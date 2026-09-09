@@ -10,7 +10,7 @@ import { DIRECTION_VECTORS, getTileAt, isWalkableTile, type GridCoord } from '..
 
 describe('Development Gem Runner', () => {
   it('starts fresh with 100 HP and a deterministic target of six', () => {
-    expect(createRunState()).toEqual({ hp: 100, gemsCollected: 0, collectedGemIds: [], missionStatus: 'IN_PROGRESS', runStatus: 'PLAYING' })
+    expect(createRunState()).toEqual({ hp: 100, gemsCollected: 0, collectedGemIds: [], chestsOpened: 0, openedChestIds: [], missionStatus: 'IN_PROGRESS', runStatus: 'PLAYING' })
     expect(GEM_RUNNER_TARGET).toBe(6)
     expect(createRunState().collectedGemIds).not.toBe(createRunState().collectedGemIds)
   })

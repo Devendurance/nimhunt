@@ -1,7 +1,8 @@
-import type { PlayerRunState } from '../domain/runState'
-import type { Direction, GridCoord, GridRoom } from '../world/grid'
-import { calculateMove, type MoveResult } from './movement'
-import { resolveTileEntry, type RoomContents } from './tileEntry'
+import type { PlayerRunState } from '../domain/runState.ts'
+import type { MissionType } from '../domain/mission.ts'
+import type { Direction, GridCoord, GridRoom } from '../world/grid.ts'
+import { calculateMove, type MoveResult } from './movement.ts'
+import { resolveTileEntry, type RoomContents } from './tileEntry.ts'
 
 export interface BoulderPosition extends GridCoord { readonly id: string }
 export interface PuzzleObjects {
@@ -28,7 +29,7 @@ export function createPuzzleState(objects: PuzzleObjects): PuzzleState {
 }
 
 /** Static movement stays authoritative; puzzle objects form a separate blocking layer. */
-export function resolvePuzzleMove(room: GridRoom, contents: RoomContents, objects: PuzzleObjects, run: PlayerRunState, puzzle: PuzzleState, from: GridCoord, direction: Direction): PuzzleMove {
+export function resolvePuzzleMove(room: GridRoom, contents: RoomContents, objects: PuzzleObjects, run: PlayerRunState, puzzle: PuzzleState, from: GridCoord, direction: Direction, chestTiles: readonly GridCoord[] = [], mission: MissionType = 'gem-runner'): PuzzleMove {
   const move = calculateMove(room, from, direction)
   const blocked = (reason: string): PuzzleMove => ({ move: { ...move, success: false, to: from }, blockedReason: reason, opensGate: false })
   if (run.runStatus !== 'PLAYING') return blocked('RUN_ENDED')
@@ -42,19 +43,21 @@ export function resolvePuzzleMove(room: GridRoom, contents: RoomContents, object
       ...puzzle.boulderPositions,
       ...contents.gems.filter(g => !run.collectedGemIds.includes(g.id)),
       ...contents.hazards,
+      ...chestTiles,
       ...(!puzzle.hasTempleKey ? [objects.key] : []),
       objects.gate, objects.shrine,
     ].some(item => sameTile(item, push.to))
     if (!push.success || occupied) return blocked('BOULDER_BLOCKED')
     return { move, pushed: { id: boulder.id, to: push.to }, opensGate: false }
   }
+  void mission
   return { move, opensGate: atGate && puzzle.gateState === 'LOCKED' }
 }
 
 /** Commit once after animation, preserving hazard → gem → mission evaluation. */
-export function commitPuzzleMove(run: PlayerRunState, puzzle: PuzzleState, transition: PuzzleMove, contents: RoomContents, objects: PuzzleObjects): { run: PlayerRunState; puzzle: PuzzleState } {
+export function commitPuzzleMove(run: PlayerRunState, puzzle: PuzzleState, transition: PuzzleMove, contents: RoomContents, objects: PuzzleObjects, mission: MissionType = 'gem-runner'): { run: PlayerRunState; puzzle: PuzzleState } {
   if (run.runStatus !== 'PLAYING' || !transition.move.success || sameTile(transition.move.from, transition.move.to)) return { run, puzzle }
-  const nextRun = resolveTileEntry(run, transition.move, contents)
+  const nextRun = resolveTileEntry(run, transition.move, contents, mission)
   return {
     run: nextRun,
     puzzle: {

@@ -48,6 +48,7 @@
 .statusDot { width: 7px; height: 7px; margin-right: -6px; border-radius: 50%; background: #3e88f7; box-shadow: 0 0 10px rgba(62, 136, 247, .7); }
 .fixtureBadge, .sampleLabel { color: #8fb5a3; font-size: 8px; font-weight: 700; letter-spacing: 1px; }
 .fixtureBadge { white-space: nowrap; }
+.statusEyebrow .fixtureBadge { white-space: normal; text-align: right; max-width: 54%; }
 .statusGrid { display: grid; grid-template-columns: 1.25fr .8fr 1.1fr; gap: 8px; margin-top: 18px; }
 .statusGrid > div { min-width: 0; }
 .treasureMetric strong { display: block; color: #ffd86a; font: 400 40px/38px 'Jungle Fever', Impact, sans-serif; }
@@ -68,6 +69,10 @@
 .missionMeta { align-items: start; color: #8fb5a3; font-size: 8px; font-weight: 700; letter-spacing: .75px; }
 .available { display: inline-flex; align-items: center; gap: 4px; color: #9bc8b2; }
 .available i { width: 5px; height: 5px; border-radius: 50%; background: #3e88f7; }
+.comingNext { display: inline-flex; align-items: center; gap: 4px; color: #8f9d8e; }
+.comingNext i { width: 5px; height: 5px; border-radius: 50%; background: #8f9d8e; }
+.enterButton:disabled { border-color: rgba(243, 234, 215, .18); color: #8f9d8e; background: transparent; cursor: not-allowed; }
+.enterButton:disabled svg { color: #8f9d8e; }
 .missionCard h3 { margin: 8px 0 4px; color: #f3ead7; font: 400 20px/23px 'Jungle Fever', Impact, sans-serif; letter-spacing: .2px; }
 .missionCard p { margin: 0; color: #b5c2b5; font-size: 12px; line-height: 1.45; }
 .enterButton, .sheetPrimary, .sheetSecondary { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; border-radius: 9999px; font: 400 13px/18px 'Jungle Fever', Impact, sans-serif; letter-spacing: .35px; text-transform: uppercase; }

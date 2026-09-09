@@ -5,7 +5,7 @@ export const playMissions: readonly Mission[] = [
     id: 'gem-runner',
     number: '01',
     title: 'GEM RUNNER',
-    objective: 'Collect 12 gems and escape alive.',
+    objective: 'Collect 6 gems and stay alive.',
     icon: 'gem',
     status: 'available',
   },

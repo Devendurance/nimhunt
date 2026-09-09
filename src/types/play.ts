@@ -4,7 +4,7 @@ export type MissionId = 'gem-runner' | 'chest-hunter' | 'vault-breaker'
 
 export type MissionIcon = 'gem' | 'chest' | 'key'
 
-export type MissionStatus = 'available'
+export type MissionStatus = 'available' | 'coming-next'
 
 export type Mission = {
   id: MissionId

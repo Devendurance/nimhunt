@@ -3,13 +3,14 @@
 .header { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px; }
 .kicker { color:#a9c8bb; font-size:10px; font-weight:600; letter-spacing:.06em; }
 .title { margin:4px 0 0; color:#f3ead7; font:400 18px/24px 'Jungle Fever',Impact,sans-serif; }
-.exitBtn, .actions button { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:44px; border:1px solid #79988b; border-radius:9999px; background:#1b3833; color:#f3ead7; padding:8px 14px; font:500 13px/18px Inter,sans-serif; cursor:pointer; }
-.hudCard { padding:12px; border:1px solid #486258; border-radius:12px; margin-bottom:12px; background:#1b3833; }
+.exitBtn, .actions button { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:44px; border:1px solid #79988b; border-radius:9999px; background:#1b3833; color:#f3ead7; padding:8px 14px; font:500 13px/18px Inter,sans-serif; cursor:pointer; flex-shrink:0; white-space:nowrap; }
+.hudCard { padding:10px 12px; border:1px solid #486258; border-radius:12px; margin-bottom:10px; background:#1b3833; }
 .missionLabel { font:400 18px/22px 'Jungle Fever',Impact,sans-serif; }
 .missionLabel > span { display:block; margin-top:2px; font:400 12px/18px Inter,sans-serif; color:#c0d0c6; }
-.metrics { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:10px; font-size:12px; font-variant-numeric:tabular-nums; }
-.metrics > div { flex:1; }
-.metrics span, .legend span { display:flex; align-items:center; gap:6px; }
+.metrics { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:8px; font-size:12px; font-variant-numeric:tabular-nums; }
+.metrics > div { flex:1; min-width:0; }
+.metrics > span { flex:none; white-space:nowrap; }
+.metrics span, .legend span { display:flex; align-items:center; gap:6px; white-space:nowrap; }
 .metrics strong { font-size:14px; white-space:nowrap; }
 .metrics svg { color:#81b4ff; flex:none; }
 .metrics progress { display:block; width:100%; height:5px; margin-top:6px; border:0; border-radius:4px; overflow:hidden; background:#132a26; accent-color:#6ed2ad; }
@@ -37,9 +38,10 @@
 .actions button:first-child { background:#f2c14e; border-color:#f2c14e; color:#132a26; }
 @media (max-width:350px) { .title { font-size:16px; line-height:20px; } .metrics { gap:8px; font-size:11px; } .metrics strong { font-size:13px; } }
 
-.keyState { display:flex; align-items:center; flex-wrap:wrap; gap:5px; min-height:20px; margin-top:7px; font-size:11px; line-height:16px; }
-.keyState svg { color:#81b4ff; }
-.keyState > span { margin-left:auto; color:#c0d0c6; }
+.keyState { display:flex; align-items:center; flex-wrap:wrap; gap:8px; min-height:20px; margin-top:7px; font-size:11px; line-height:16px; }
+.keyState svg { color:#81b4ff; flex:none; }
+.keyState .itemBadge { display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
+.keyState .notice { margin-left:auto; color:#c0d0c6; white-space:nowrap; }
 .dpadCenter { align-content:center; gap:2px; font:500 9px/12px Inter,sans-serif; }
 .chamber { margin:8px 0; padding:10px 12px; border:1px solid #81b4ff; border-radius:10px; background:#1b3833; }
 .chamber h2 { margin:0 0 4px; font:400 18px/22px 'Jungle Fever',Impact,sans-serif; }

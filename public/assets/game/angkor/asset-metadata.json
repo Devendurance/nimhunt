@@ -1,0 +1,152 @@
+{
+  "floor-clean": {
+    "logicalFootprint": "1×1",
+    "recommendedAnchor": "top-left tile origin",
+    "collisionType": "walkable",
+    "animationStateRelationship": "static"
+  },
+  "floor-variation-a": {
+    "logicalFootprint": "1×1",
+    "recommendedAnchor": "top-left tile origin",
+    "collisionType": "walkable",
+    "animationStateRelationship": "static variation"
+  },
+  "floor-variation-b": {
+    "logicalFootprint": "1×1",
+    "recommendedAnchor": "top-left tile origin",
+    "collisionType": "walkable",
+    "animationStateRelationship": "static variation"
+  },
+  "floor-cracked": {
+    "logicalFootprint": "1×1",
+    "recommendedAnchor": "top-left tile origin",
+    "collisionType": "walkable",
+    "animationStateRelationship": "static variation"
+  },
+  "floor-mossy": {
+    "logicalFootprint": "1×1",
+    "recommendedAnchor": "top-left tile origin",
+    "collisionType": "walkable",
+    "animationStateRelationship": "static variation"
+  },
+  "wall-straight": {
+    "logicalFootprint": "1×1",
+    "recommendedAnchor": "bottom-center",
+    "collisionType": "solid / blocked",
+    "animationStateRelationship": "static"
+  },
+  "wall-corner": {
+    "logicalFootprint": "1×1",
+    "recommendedAnchor": "bottom-center",
+    "collisionType": "solid / blocked",
+    "animationStateRelationship": "static"
+  },
+  "wall-inner-pillar": {
+    "logicalFootprint": "1×1",
+    "recommendedAnchor": "bottom-center",
+    "collisionType": "solid / blocked",
+    "animationStateRelationship": "static"
+  },
+  "wall-edge": {
+    "logicalFootprint": "1×1",
+    "recommendedAnchor": "bottom-center",
+    "collisionType": "solid / blocked",
+    "animationStateRelationship": "static"
+  },
+  "overlay-moss": {
+    "logicalFootprint": "1×1 overlay",
+    "recommendedAnchor": "top-left tile origin",
+    "collisionType": "none / decorative overlay",
+    "animationStateRelationship": "static"
+  },
+  "overlay-roots": {
+    "logicalFootprint": "1×1 overlay",
+    "recommendedAnchor": "top-left tile origin",
+    "collisionType": "none / decorative overlay",
+    "animationStateRelationship": "static"
+  },
+  "overlay-cracks": {
+    "logicalFootprint": "1×1 overlay",
+    "recommendedAnchor": "top-left tile origin",
+    "collisionType": "none / decorative overlay",
+    "animationStateRelationship": "static"
+  },
+  "overlay-foliage": {
+    "logicalFootprint": "1×1 overlay",
+    "recommendedAnchor": "top-left tile origin",
+    "collisionType": "none / decorative overlay",
+    "animationStateRelationship": "static"
+  },
+  "blue-gem": {
+    "logicalFootprint": "1×1",
+    "recommendedAnchor": "center",
+    "collisionType": "collectible trigger",
+    "animationStateRelationship": "static"
+  },
+  "pushable-boulder": {
+    "logicalFootprint": "1×1",
+    "recommendedAnchor": "bottom-center",
+    "collisionType": "solid / pushable",
+    "animationStateRelationship": "slide between tiles"
+  },
+  "temple-key": {
+    "logicalFootprint": "1×1",
+    "recommendedAnchor": "center",
+    "collisionType": "collectible trigger",
+    "animationStateRelationship": "static"
+  },
+  "temple-gate-locked": {
+    "logicalFootprint": "1×1 doorway collision",
+    "recommendedAnchor": "bottom-center",
+    "collisionType": "solid / locked",
+    "animationStateRelationship": "swaps to temple-gate-open"
+  },
+  "temple-gate-open": {
+    "logicalFootprint": "same footprint",
+    "recommendedAnchor": "bottom-center",
+    "collisionType": "walkable / passage",
+    "animationStateRelationship": "paired with locked gate"
+  },
+  "inner-shrine": {
+    "logicalFootprint": "1×1 interaction tile; visual may exceed tile",
+    "recommendedAnchor": "bottom-center",
+    "collisionType": "objective / interaction trigger",
+    "animationStateRelationship": "static"
+  },
+  "spike-trap": {
+    "logicalFootprint": "1×1",
+    "recommendedAnchor": "center",
+    "collisionType": "hazard / damage",
+    "animationStateRelationship": "optional pop-up animation"
+  },
+  "poison-hazard": {
+    "logicalFootprint": "1×1",
+    "recommendedAnchor": "center",
+    "collisionType": "hazard / damage",
+    "animationStateRelationship": "optional bubbling animation"
+  },
+  "chest-closed": {
+    "logicalFootprint": "1×1",
+    "recommendedAnchor": "bottom-center",
+    "collisionType": "interactable / solid",
+    "animationStateRelationship": "swaps to chest-open"
+  },
+  "chest-open": {
+    "logicalFootprint": "same footprint",
+    "recommendedAnchor": "bottom-center",
+    "collisionType": "interactable / non-blocking",
+    "animationStateRelationship": "paired with chest-closed"
+  },
+  "sword": {
+    "logicalFootprint": "1×1",
+    "recommendedAnchor": "center",
+    "collisionType": "collectible / weapon pickup",
+    "animationStateRelationship": "static"
+  },
+  "potion": {
+    "logicalFootprint": "1×1",
+    "recommendedAnchor": "center",
+    "collisionType": "collectible / healing pickup",
+    "animationStateRelationship": "static"
+  }
+}

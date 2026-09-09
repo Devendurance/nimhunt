@@ -1,0 +1,26 @@
+asset name,logical footprint,recommended anchor,collision type,animation/state relationship
+floor-clean,1×1,top-left tile origin,walkable,static
+floor-variation-a,1×1,top-left tile origin,walkable,static variation
+floor-variation-b,1×1,top-left tile origin,walkable,static variation
+floor-cracked,1×1,top-left tile origin,walkable,static variation
+floor-mossy,1×1,top-left tile origin,walkable,static variation
+wall-straight,1×1,bottom-center,solid / blocked,static
+wall-corner,1×1,bottom-center,solid / blocked,static
+wall-inner-pillar,1×1,bottom-center,solid / blocked,static
+wall-edge,1×1,bottom-center,solid / blocked,static
+overlay-moss,1×1 overlay,top-left tile origin,none / decorative overlay,static
+overlay-roots,1×1 overlay,top-left tile origin,none / decorative overlay,static
+overlay-cracks,1×1 overlay,top-left tile origin,none / decorative overlay,static
+overlay-foliage,1×1 overlay,top-left tile origin,none / decorative overlay,static
+blue-gem,1×1,center,collectible trigger,static
+pushable-boulder,1×1,bottom-center,solid / pushable,slide between tiles
+temple-key,1×1,center,collectible trigger,static
+temple-gate-locked,1×1 doorway collision,bottom-center,solid / locked,swaps to temple-gate-open
+temple-gate-open,same footprint,bottom-center,walkable / passage,paired with locked gate
+inner-shrine,1×1 interaction tile; visual may exceed tile,bottom-center,objective / interaction trigger,static
+spike-trap,1×1,center,hazard / damage,optional pop-up animation
+poison-hazard,1×1,center,hazard / damage,optional bubbling animation
+chest-closed,1×1,bottom-center,interactable / solid,swaps to chest-open
+chest-open,same footprint,bottom-center,interactable / non-blocking,paired with chest-closed
+sword,1×1,center,collectible / weapon pickup,static
+potion,1×1,center,collectible / healing pickup,static
