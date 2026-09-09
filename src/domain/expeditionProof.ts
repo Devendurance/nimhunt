@@ -1,10 +1,11 @@
-import type { ExpeditionBlueprint, MissionType, RewardClaimPayload } from '../game/replay/types.ts'
+import type { ExpeditionBlueprint, ExpeditionCheckpoint, MissionType, ReplayState, RewardClaimPayload } from '../game/replay/types.ts'
 
 export const START_CHALLENGE_PATH = '/api/expeditions/start-challenge'
 export const START_EXPEDITION_PATH = '/api/expeditions/start'
 export const CHECKPOINT_PATH = '/api/expeditions/checkpoint'
 export const VERIFY_EXPEDITION_PATH = '/api/expeditions/verify'
 export const ACTIVE_EXPEDITION_PATH = '/api/expeditions/active'
+export const GAMEPLAY_START_PATH = '/api/expeditions/gameplay-start'
 export const PRODUCT_VAULT_SEAL_PATH = '/api/expeditions/vault-seal'
 export const PREPARE_REWARD_PATH = '/api/rewards/prepare'
 export const CLAIM_REWARD_PATH = '/api/rewards/claim'
@@ -48,6 +49,8 @@ export type ExpeditionProofErrorCode =
   | 'PROOF_UNAVAILABLE'
   | 'SOLD_OUT'
   | 'ALREADY_REWARDED'
+  | 'RUN_SESSION_INVALID'
+  | 'ACTIVE_RUN_UNAVAILABLE'
 
 export type ProductGameplayState =
   | 'READY'
@@ -82,6 +85,7 @@ export type ProductReservationOutcome =
   | { readonly status: 'CLAIM_WINDOW_EXPIRED' }
 
 export type StartChallengeResponse = {
+  readonly wallet: string
   readonly challenge: string
   readonly blueprintId: string
   readonly blueprintHash: string
@@ -101,6 +105,29 @@ export type StartResult = {
   readonly blueprint: ExpeditionBlueprint
   readonly dayKey: string
   readonly nextResetAt: string
+}
+
+export type ProductActiveExpedition = {
+  readonly runId: string
+  readonly dayKey: string
+  readonly mission: MissionType
+  readonly status: 'STARTED'
+  readonly startedAt: string
+  readonly expiresAt: string
+  readonly gameplayStartedAt: string | null
+  readonly rulesVersion: string
+  readonly roomVersion: string
+  readonly blueprintVersion: string
+  readonly blueprintId: string
+  readonly blueprintHash: string
+  readonly blueprint: ExpeditionBlueprint
+  readonly state: ReplayState
+  readonly checkpoint: ExpeditionCheckpoint
+}
+
+export type ProductGameplayStartResponse = {
+  readonly runId: string
+  readonly outcome: 'GAMEPLAY_STARTED' | 'GAMEPLAY_ALREADY_STARTED'
 }
 
 export type PreparedClaim = {

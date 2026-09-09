@@ -1,6 +1,10 @@
 import { randomBytes, randomUUID } from 'node:crypto'
 import { DAILY_EXPEDITION_LIMIT } from '../../src/domain/dailyLedger.ts'
-import type { StartResult } from '../../src/domain/expeditionProof.ts'
+import type {
+  ProductActiveExpedition,
+  ProductGameplayStartResponse,
+  StartResult,
+} from '../../src/domain/expeditionProof.ts'
 import { hashBlueprint, hashCheckpoint, hashReplayState, hashTranscript } from '../../src/game/replay/canonical.ts'
 import { createInitialRun } from '../../src/game/replay/engine.ts'
 import { CHECKPOINT_VERSION, TRANSCRIPT_VERSION } from '../../src/game/replay/versions.ts'
@@ -49,9 +53,7 @@ class AsyncMutex {
 export function createMemoryProofService(options: {
   readonly clock?: Clock
   readonly blueprints?: readonly ExpeditionBlueprint[]
-} = {}): MemoryProofService & {
-  authenticateSession(raw: string): RunSessionRecord
-} {
+} = {}): MemoryProofService {
   const clock = options.clock ?? { now: () => new Date() }
   const mutex = new AsyncMutex()
   const blueprints = new Map<string, ExpeditionBlueprint>()
@@ -60,7 +62,7 @@ export function createMemoryProofService(options: {
   const sessions = new Map<string, RunSessionRecord>()
   const attempts = new Map<string, number>()
 
-  const service: MemoryProofService & { authenticateSession(raw: string): RunSessionRecord } = {
+  const service: MemoryProofService = {
     registerBlueprint(blueprint) {
       const existing = blueprints.get(blueprint.blueprintId)
       if (existing && isPublishedOrRetired(existing)) {
@@ -126,6 +128,7 @@ export function createMemoryProofService(options: {
         response: null,
       })
       return {
+        wallet: normalizedWallet,
         challenge,
         blueprintId: blueprint.blueprintId,
         blueprintHash: blueprint.blueprintHash,
@@ -165,6 +168,8 @@ export function createMemoryProofService(options: {
         dayKey,
         expeditionsStarted,
         expeditionsRemaining: DAILY_EXPEDITION_LIMIT - expeditionsStarted,
+        rewardAlreadyReserved: false,
+        nextResetAt: nextUtcResetAt(dayKey),
       }
     },
 
@@ -188,6 +193,44 @@ export function createMemoryProofService(options: {
         }
         throw error
       }
+    },
+
+    getActiveExpedition(runId, session) {
+      const { run, now } = requireAuthenticatedRun(runId, session)
+      if (run.gameplayStartedAt || run.status !== 'STARTED' || now.getTime() >= new Date(run.expiresAt).getTime()) {
+        throw new ProofError('ACTIVE_RUN_UNAVAILABLE')
+      }
+      if (!isRecoverableInitialRun(run)) throw new ProofError('ACTIVE_RUN_UNAVAILABLE')
+
+      return {
+        runId: run.runId,
+        dayKey: run.dayKey,
+        mission: run.mission,
+        status: run.status,
+        startedAt: run.startedAt,
+        expiresAt: run.expiresAt,
+        gameplayStartedAt: run.gameplayStartedAt,
+        rulesVersion: run.blueprint.rulesVersion,
+        roomVersion: run.blueprint.roomVersion,
+        blueprintVersion: run.blueprint.blueprintVersion,
+        blueprintId: run.blueprint.blueprintId,
+        blueprintHash: run.blueprint.blueprintHash,
+        blueprint: cloneBlueprint(run.blueprint),
+        state: cloneReplayState(run.state),
+        checkpoint: { ...run.checkpoint },
+      } satisfies ProductActiveExpedition
+    },
+
+    markGameplayStarted(runId, session) {
+      const { run, now } = requireAuthenticatedRun(runId, session)
+      if (run.status !== 'STARTED' || now.getTime() >= new Date(run.expiresAt).getTime()) {
+        throw new ProofError('RUN_SESSION_INVALID')
+      }
+      if (run.gameplayStartedAt) return { runId, outcome: 'GAMEPLAY_ALREADY_STARTED' } satisfies ProductGameplayStartResponse
+      if (!isRecoverableInitialRun(run)) throw new ProofError('ACTIVE_RUN_UNAVAILABLE')
+
+      runs.set(runId, { ...run, gameplayStartedAt: now.toISOString() })
+      return { runId, outcome: 'GAMEPLAY_STARTED' } satisfies ProductGameplayStartResponse
     },
   }
 
@@ -266,6 +309,7 @@ export function createMemoryProofService(options: {
       status: 'STARTED',
       startedAt: now.toISOString(),
       expiresAt: nextResetAt,
+      gameplayStartedAt: null,
       runChallenge,
       blueprint: cloneBlueprint(blueprint),
       state: initialState,
@@ -344,6 +388,24 @@ export function createMemoryProofService(options: {
     )
     if (existing) throw new ProofError('BLUEPRINT_ALREADY_PUBLISHED')
   }
+
+  function requireAuthenticatedRun(runId: string, session: RunSessionRecord): { run: DurableExpeditionRun; now: Date } {
+    const now = clock.now()
+    const storedSession = sessions.get(session.sessionHash)
+    const run = runs.get(runId)
+    if (!storedSession
+      || storedSession.runId !== runId
+      || storedSession.runId !== session.runId
+      || storedSession.wallet !== session.wallet
+      || storedSession.revokedAt
+      || now.getTime() >= new Date(storedSession.expiresAt).getTime()
+      || !run
+      || run.runId !== storedSession.runId
+      || run.wallet !== storedSession.wallet) {
+      throw new ProofError('RUN_SESSION_INVALID')
+    }
+    return { run, now }
+  }
 }
 
 function validateForPublication(blueprint: ExpeditionBlueprint): void {
@@ -418,6 +480,32 @@ function cloneRun(run: DurableExpeditionRun): DurableExpeditionRun {
   }
 }
 
+function cloneReplayState(state: DurableExpeditionRun['state']): DurableExpeditionRun['state'] {
+  return JSON.parse(JSON.stringify(state)) as DurableExpeditionRun['state']
+}
+
 function cloneStart(start: StartResult): StartResult {
   return { ...start, blueprint: cloneBlueprint(start.blueprint) }
+}
+
+function isRecoverableInitialRun(run: DurableExpeditionRun): boolean {
+  const state = run.state
+  const checkpoint = run.checkpoint
+  return run.blueprint.blueprintId === state.blueprintId
+    && run.blueprint.blueprintHash === state.blueprintHash
+    && run.blueprint.mission === run.mission
+    && state.seq === 0
+    && state.run.runStatus === 'PLAYING'
+    && state.run.missionStatus === 'IN_PROGRESS'
+    && checkpoint.runId === run.runId
+    && checkpoint.runChallenge === run.runChallenge
+    && checkpoint.seq === 0
+    && checkpoint.previousCheckpointHash === null
+    && checkpoint.stateHash === run.initialStateHash
+    && checkpoint.transcriptHash === run.initialTranscriptHash
+    && checkpoint.checkpointHash === run.initialCheckpointHash
+    && checkpoint.checkpointHash === run.checkpointHash
+    && hashReplayState(state) === run.initialStateHash
+    && hashCheckpoint(checkpoint) === checkpoint.checkpointHash
+    && hashBlueprint(run.blueprint) === run.blueprint.blueprintHash
 }

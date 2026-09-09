@@ -1,4 +1,10 @@
-import type { StartChallengeResponse, StartResult } from '../../src/domain/expeditionProof.ts'
+import type {
+  ProductActiveExpedition,
+  ProductGameplayStartResponse,
+  StartChallengeResponse,
+  StartResult,
+} from '../../src/domain/expeditionProof.ts'
+import type { WalletDailyStatus } from '../../src/domain/dailyLedger.ts'
 import type { ExpeditionBlueprint, ExpeditionCheckpoint, MissionType, ReplayState } from '../../src/game/replay/types.ts'
 import type { Clock } from '../ledger/types.ts'
 import type { RunSessionRecord } from './session.ts'
@@ -28,6 +34,7 @@ export type DurableExpeditionRun = {
   readonly status: 'STARTED'
   readonly startedAt: string
   readonly expiresAt: string
+  readonly gameplayStartedAt: string | null
   readonly runChallenge: string
   readonly blueprint: ExpeditionBlueprint
   readonly state: ReplayState
@@ -60,7 +67,10 @@ export type MemoryProofService = {
   getPublishedBlueprint(dayKey: string, mission: MissionType): ExpeditionBlueprint | null
   issueStartChallenge(wallet: string, mission: MissionType): Promise<StartChallengeResponse>
   authorizeStart(input: { readonly payload: string; readonly publicKey: string; readonly signature: string }): Promise<StartAuthorizationResult>
+  authenticateSession(raw: string): RunSessionRecord
+  getActiveExpedition(runId: string, session: RunSessionRecord): ProductActiveExpedition
+  markGameplayStarted(runId: string, session: RunSessionRecord): ProductGameplayStartResponse
   getRun(runId: string): DurableExpeditionRun | null
-  getWalletDailyStatus(wallet: string): { readonly dayKey: string; readonly expeditionsStarted: number; readonly expeditionsRemaining: number }
+  getWalletDailyStatus(wallet: string): WalletDailyStatus
   snapshot(): MemoryProofSnapshot
 }

@@ -71,6 +71,7 @@ describe('atomic signed expedition start', () => {
   it('bounds a challenge to five minutes and the next UTC midnight', async () => {
     const first = fixture({ now: '2026-09-09T12:00:00.000Z' })
     const midday = await first.service.issueStartChallenge(first.wallet, 'gem-runner')
+    expect(midday.wallet).toBe(first.wallet)
     expect(midday.expiresAt).toBe('2026-09-09T12:05:00.000Z')
 
     const boundary = fixture({ now: '2026-09-09T23:58:00.000Z' })
