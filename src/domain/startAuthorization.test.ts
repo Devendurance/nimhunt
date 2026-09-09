@@ -1,6 +1,5 @@
 import { KeyPair } from '@nimiq/core'
 import { describe, expect, it } from 'vitest'
-import { parseStartPayload } from '../../server/expeditions/canonical.ts'
 import {
   serializeStartPayload,
   START_EXPEDITION_TYPE,
@@ -37,23 +36,4 @@ describe('shared authenticated start contract', () => {
 }`)
   })
 
-  it('accepts only the shared serializer output on the server', () => {
-    const value = payload()
-    const serialized = serializeStartPayload(value)
-    const parsed = JSON.parse(serialized) as Record<string, unknown>
-
-    expect(parseStartPayload(serialized)).toEqual(value)
-    expect(parseStartPayload(JSON.stringify({ ...parsed, extra: true }))).toBeNull()
-    expect(parseStartPayload(JSON.stringify({
-      type: parsed.type,
-      version: parsed.version,
-      wallet: parsed.wallet,
-      mission: parsed.mission,
-      dayKey: parsed.dayKey,
-      challenge: parsed.challenge,
-      blueprintId: parsed.blueprintId,
-      blueprintHash: parsed.blueprintHash,
-    }))).toBeNull()
-    expect(parseStartPayload(serialized.replace('"mission": "gem-runner"', '"mission":"gem-runner"'))).toBeNull()
-  })
 })

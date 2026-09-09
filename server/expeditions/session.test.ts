@@ -28,4 +28,16 @@ describe('authenticated run sessions', () => {
     expect(parseRunSessionCookie(cookie)).toBe(capability)
     expect(parseRunSessionCookie(`other=1; nimhunt_run_session=${capability}; ignored=2`)).toBe(capability)
   })
+
+  it('uses the API path, explicit expiry, and omits Secure only for local HTTP', () => {
+    const capability = createRunSessionCapability().raw
+    const now = new Date('2026-09-09T01:02:03.000Z')
+    const expiresAt = new Date('2026-09-09T02:02:03.000Z')
+    const cookie = serializeRunSessionCookie(capability, expiresAt, now, false)
+
+    expect(cookie).toContain('Path=/api')
+    expect(cookie).toContain('Max-Age=3600')
+    expect(cookie).toContain('Expires=Wed, 09 Sep 2026 02:02:03 GMT')
+    expect(cookie).not.toContain('; Secure')
+  })
 })

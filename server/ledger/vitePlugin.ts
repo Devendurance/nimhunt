@@ -6,8 +6,6 @@ import {
   DAILY_HUNT_STATUS_PATH,
   FAIL_EXPEDITION_PATH,
   RESERVE_REWARD_PATH,
-  START_EXPEDITION_PATH,
-  WALLET_DAILY_STATUS_PATH,
 } from '../../src/domain/dailyLedger.ts'
 import { createSupabaseAdminClient, readServerSupabaseConfig } from './config.ts'
 import { dispatchLedgerHttp, MAX_LEDGER_BODY_BYTES } from './http.ts'
@@ -16,8 +14,6 @@ import type { DailyLedger } from './types.ts'
 
 const LEDGER_PATHS = new Set([
   DAILY_HUNT_STATUS_PATH,
-  WALLET_DAILY_STATUS_PATH,
-  START_EXPEDITION_PATH,
   COMPLETE_EXPEDITION_PATH,
   FAIL_EXPEDITION_PATH,
   ABANDON_EXPEDITION_PATH,

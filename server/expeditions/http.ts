@@ -1,7 +1,8 @@
-import { START_CHALLENGE_PATH, START_EXPEDITION_PATH } from '../../src/domain/expeditionProof.ts'
+import { ACTIVE_EXPEDITION_PATH, GAMEPLAY_START_PATH, START_CHALLENGE_PATH, START_EXPEDITION_PATH } from '../../src/domain/expeditionProof.ts'
+import { WALLET_DAILY_STATUS_PATH } from '../../src/domain/dailyLedger.ts'
 import { ProofError, isProofError } from './errors.ts'
 import { parseStartPayload, type SignedStartRequest } from './canonical.ts'
-import { serializeRunSessionCookie } from './session.ts'
+import { parseRunSessionCookie, serializeRunSessionCookie, type RunSessionRecord } from './session.ts'
 import type { MemoryProofService } from './types.ts'
 
 export const MAX_EXPEDITION_BODY_BYTES = 16 * 1024
@@ -9,8 +10,18 @@ export const MAX_EXPEDITION_BODY_BYTES = 16 * 1024
 export type ExpeditionHttpRequest = {
   readonly method: string
   readonly path: string
+  readonly headers?: Readonly<Record<string, string | undefined>>
+  readonly host?: string
+  readonly protocol?: 'http' | 'https'
   readonly body?: unknown
   readonly rawBody?: string
+}
+
+export type ExpeditionHttpSecurity = {
+  readonly expectedOrigin: string
+  readonly expectedHost: string
+  readonly expectedProtocol: 'http' | 'https'
+  readonly secureCookie: boolean
 }
 
 export type ExpeditionHttpResponse = {
@@ -19,55 +30,130 @@ export type ExpeditionHttpResponse = {
   readonly headers?: Readonly<Record<string, string>>
 }
 
+const BASE_HEADERS = {
+  'cache-control': 'no-store',
+  'content-type': 'application/json; charset=utf-8',
+  'x-content-type-options': 'nosniff',
+}
+
 export async function dispatchExpeditionHttp(
   service: MemoryProofService | null,
   request: ExpeditionHttpRequest,
+  security: ExpeditionHttpSecurity,
 ): Promise<ExpeditionHttpResponse> {
-  const method = request.method.toUpperCase()
-  const path = request.path.split('?')[0] ?? request.path
-  const headers = {
-    'cache-control': 'no-store',
-    'content-type': 'application/json; charset=utf-8',
-    'x-content-type-options': 'nosniff',
-  }
+  const url = parseRequestUrl(request.path, security.expectedOrigin)
+  if (!url) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
+
+  const path = url.pathname
+  if (!isExpeditionPath(path)) return response(404, { ok: false, error: 'MALFORMED_REQUEST' })
+  if (!isAllowedRequest(request, path, security)) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
 
   if (request.rawBody !== undefined && Buffer.byteLength(request.rawBody, 'utf8') > MAX_EXPEDITION_BODY_BYTES) {
-    return { status: 413, body: { ok: false, error: 'MALFORMED_REQUEST' }, headers }
+    return response(413, { ok: false, error: 'MALFORMED_REQUEST' })
   }
-  if (path !== START_CHALLENGE_PATH && path !== START_EXPEDITION_PATH) {
-    return { status: 404, body: { ok: false, error: 'MALFORMED_REQUEST' }, headers }
-  }
-  if (method === 'OPTIONS') return { status: 204, body: null, headers }
-  if (method !== 'POST') return { status: 405, body: { ok: false, error: 'MALFORMED_REQUEST' }, headers }
-  if (!service) return { status: 503, body: { ok: false, error: 'PROOF_UNAVAILABLE' }, headers }
+
+  const method = request.method.toUpperCase()
+  if (method === 'OPTIONS') return { status: 204, body: null, headers: BASE_HEADERS }
+  if (!isExpectedMethod(path, method)) return response(405, { ok: false, error: 'MALFORMED_REQUEST' })
+  if (method === 'POST' && !isJsonRequest(request)) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
+  if (!service) return response(503, { ok: false, error: 'PROOF_UNAVAILABLE' })
 
   try {
-    const body = readJsonBody(request)
     if (path === START_CHALLENGE_PATH) {
-      const challenge = await service.issueStartChallenge(asString(body.wallet), asMission(body.mission))
-      return { status: 200, body: { ok: true, ...challenge }, headers }
+      const body = readChallengeRequest(readJsonBody(request))
+      const challenge = await service.issueStartChallenge(body.wallet, body.mission)
+      return response(200, { ok: true, ...challenge })
     }
 
-    const signed = readSignedStart(body)
-    if (!parseStartPayload(signed.payload)) throw new ProofError('START_CHALLENGE_INVALID')
-    const started = await service.authorizeStart(signed)
-    return {
-      status: 200,
-      body: { ok: true, outcome: started.outcome, ...started.start },
-      headers: {
-        ...headers,
-        'set-cookie': serializeRunSessionCookie(
-          started.sessionCapability,
-          new Date(started.session.expiresAt),
-          new Date(started.session.createdAt),
-        ),
-      },
+    if (path === WALLET_DAILY_STATUS_PATH) {
+      const body = readWalletDailyStatusRequest(readJsonBody(request))
+      const status = service.getWalletDailyStatus(body.wallet)
+      return response(200, { ok: true, ...status })
     }
+
+    if (path === START_EXPEDITION_PATH) {
+      const signed = readSignedStart(readJsonBody(request))
+      if (!parseStartPayload(signed.payload)) throw new ProofError('START_CHALLENGE_INVALID')
+      const started = await service.authorizeStart(signed)
+      return {
+        ...response(200, { ok: true, outcome: started.outcome, ...started.start }),
+        headers: {
+          ...BASE_HEADERS,
+          'set-cookie': serializeRunSessionCookie(
+            started.sessionCapability,
+            new Date(started.session.expiresAt),
+            new Date(started.session.createdAt),
+            security.secureCookie,
+          ),
+        },
+      }
+    }
+
+    if (path === ACTIVE_EXPEDITION_PATH) {
+      const runId = readActiveRunId(url)
+      const session = authenticateSession(service, request)
+      const active = service.getActiveExpedition(runId, session)
+      return response(200, { ok: true, ...active })
+    }
+
+    const session = authenticateSession(service, request)
+    const runId = readGameplayStartRequest(readJsonBody(request)).runId
+    const gameplayStart = service.markGameplayStarted(runId, session)
+    return response(200, { ok: true, ...gameplayStart })
   } catch (error) {
-    if (isProofError(error)) return { status: statusFor(error.code), body: { ok: false, error: error.code }, headers }
-    if (error instanceof SyntaxError) return { status: 400, body: { ok: false, error: 'MALFORMED_REQUEST' }, headers }
-    return { status: 400, body: { ok: false, error: 'MALFORMED_REQUEST' }, headers }
+    if (isProofError(error)) return response(statusFor(error.code), { ok: false, error: publicErrorCode(error.code) })
+    if (error instanceof SyntaxError) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
+    return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
   }
+}
+
+function parseRequestUrl(path: string, expectedOrigin: string): URL | null {
+  if (!path.startsWith('/')) return null
+  try {
+    return new URL(path, expectedOrigin)
+  } catch {
+    return null
+  }
+}
+
+function isExpeditionPath(path: string): boolean {
+  return path === START_CHALLENGE_PATH
+    || path === START_EXPEDITION_PATH
+    || path === ACTIVE_EXPEDITION_PATH
+    || path === GAMEPLAY_START_PATH
+    || path === WALLET_DAILY_STATUS_PATH
+}
+
+function isExpectedMethod(path: string, method: string): boolean {
+  return path === ACTIVE_EXPEDITION_PATH ? method === 'GET' : method === 'POST'
+}
+
+function isAllowedRequest(request: ExpeditionHttpRequest, path: string, security: ExpeditionHttpSecurity): boolean {
+  const host = request.host ?? getHeader(request, 'host')
+  const protocol = request.protocol ?? getProtocolHeader(request)
+  if (host !== security.expectedHost || protocol !== security.expectedProtocol) return false
+
+  const origin = getHeader(request, 'origin')
+  const isRead = path === ACTIVE_EXPEDITION_PATH && request.method.toUpperCase() === 'GET'
+  return isRead ? origin === undefined || origin === security.expectedOrigin : origin === security.expectedOrigin
+}
+
+function isJsonRequest(request: ExpeditionHttpRequest): boolean {
+  const contentType = getHeader(request, 'content-type')
+  return contentType?.split(';', 1)[0]?.trim().toLowerCase() === 'application/json'
+}
+
+function getProtocolHeader(request: ExpeditionHttpRequest): 'http' | 'https' | undefined {
+  const protocol = getHeader(request, 'protocol')
+  return protocol === 'http' || protocol === 'https' ? protocol : undefined
+}
+
+function getHeader(request: ExpeditionHttpRequest, name: string): string | undefined {
+  const expected = name.toLowerCase()
+  for (const [key, value] of Object.entries(request.headers ?? {})) {
+    if (key.toLowerCase() === expected) return value
+  }
+  return undefined
 }
 
 function readJsonBody(request: ExpeditionHttpRequest): Record<string, unknown> {
@@ -81,15 +167,58 @@ function readJsonBody(request: ExpeditionHttpRequest): Record<string, unknown> {
   return request.body
 }
 
+function readChallengeRequest(body: Record<string, unknown>): { wallet: string; mission: 'gem-runner' | 'chest-hunter' | 'vault-breaker' } {
+  requireExactKeys(body, ['wallet', 'mission'])
+  if (!isBoundedString(body.wallet, 80)) throw new ProofError('START_CHALLENGE_INVALID')
+  return { wallet: body.wallet, mission: asMission(body.mission) }
+}
+
 function readSignedStart(body: Record<string, unknown>): SignedStartRequest {
+  requireExactKeys(body, ['payload', 'publicKey', 'signature'])
   if (!isBoundedString(body.payload, 4_096) || !isBoundedString(body.publicKey, 130) || !isBoundedString(body.signature, 258)) {
     throw new ProofError('START_CHALLENGE_INVALID')
   }
   return { payload: body.payload, publicKey: body.publicKey, signature: body.signature }
 }
 
-function asString(value: unknown): string {
-  return typeof value === 'string' ? value : ''
+function readGameplayStartRequest(body: Record<string, unknown>): { runId: string } {
+  requireExactKeys(body, ['runId'])
+  if (!isBoundedString(body.runId, 128)) throw new ProofError('START_CHALLENGE_INVALID')
+  return { runId: body.runId }
+}
+
+function readWalletDailyStatusRequest(body: Record<string, unknown>): { wallet: string } {
+  requireExactKeys(body, ['wallet'])
+  if (!isBoundedString(body.wallet, 80)) throw new ProofError('START_CHALLENGE_INVALID')
+  return { wallet: body.wallet }
+}
+
+function readActiveRunId(url: URL): string {
+  const entries = [...url.searchParams.entries()]
+  if (entries.length !== 1 || entries[0]?.[0] !== 'runId' || !isBoundedString(entries[0][1], 128)) {
+    throw new ProofError('START_CHALLENGE_INVALID')
+  }
+  return entries[0][1]
+}
+
+function requireExactKeys(body: Record<string, unknown>, expected: readonly string[]): void {
+  const keys = Object.keys(body)
+  if (keys.length !== expected.length || expected.some(key => !keys.includes(key))) {
+    throw new ProofError('START_CHALLENGE_INVALID')
+  }
+}
+
+function authenticateSession(service: MemoryProofService, request: ExpeditionHttpRequest): RunSessionRecord {
+  const raw = parseRunSessionCookie(getHeader(request, 'cookie'))
+  if (!raw) throw new ProofError('RUN_SESSION_INVALID')
+  try {
+    return service.authenticateSession(raw)
+  } catch (error) {
+    if (isProofError(error) && (error.code === 'INVALID_SESSION' || error.code === 'SESSION_EXPIRED' || error.code === 'SESSION_REVOKED')) {
+      throw new ProofError('RUN_SESSION_INVALID')
+    }
+    throw error
+  }
 }
 
 function asMission(value: unknown): 'gem-runner' | 'chest-hunter' | 'vault-breaker' {
@@ -107,6 +236,17 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function statusFor(code: string): number {
   if (code === 'PROOF_UNAVAILABLE' || code === 'DAILY_BLUEPRINT_UNAVAILABLE') return 503
+  if (code === 'RUN_SESSION_INVALID') return 401
+  if (code === 'ACTIVE_RUN_UNAVAILABLE') return 409
   if (code === 'DAILY_EXPEDITION_LIMIT_REACHED' || code === 'START_CHALLENGE_EXPIRED' || code === 'START_CHALLENGE_DAY_EXPIRED') return 409
   return 400
+}
+
+function publicErrorCode(code: string): string {
+  if (code === 'INVALID_SESSION' || code === 'SESSION_EXPIRED' || code === 'SESSION_REVOKED') return 'RUN_SESSION_INVALID'
+  return code
+}
+
+function response(status: number, body: unknown): ExpeditionHttpResponse {
+  return { status, body, headers: BASE_HEADERS }
 }

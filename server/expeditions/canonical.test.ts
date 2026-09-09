@@ -39,7 +39,18 @@ describe('canonical signed start payload', () => {
     expect(parseStartPayload(serialized)).toEqual(value)
     expect(isCanonicalStartPayload(serialized, value)).toBe(true)
     expect(parseStartPayload(JSON.stringify({ ...value, extra: true }))).toBeNull()
+    expect(parseStartPayload(JSON.stringify({
+      type: value.type,
+      version: value.version,
+      wallet: value.wallet,
+      mission: value.mission,
+      dayKey: value.dayKey,
+      challenge: value.challenge,
+      blueprintId: value.blueprintId,
+      blueprintHash: value.blueprintHash,
+    }))).toBeNull()
     expect(isCanonicalStartPayload(serialized.replace('"mission": "gem-runner"', '"mission":"gem-runner"'), value)).toBe(false)
+    expect(parseStartPayload(serialized.replace('"mission": "gem-runner"', '"mission":"gem-runner"'))).toBeNull()
   })
 
   it('rejects invalid UTC days, missions, and non-canonical wallets', () => {

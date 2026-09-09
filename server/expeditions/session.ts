@@ -26,9 +26,13 @@ export function hashRunSessionCapability(raw: string): string {
   return createHash('sha256').update(raw, 'utf8').digest('hex')
 }
 
-export function serializeRunSessionCookie(raw: string, expiresAt: Date, now = new Date()): string {
-  const maxAge = Math.max(0, Math.floor((expiresAt.getTime() - now.getTime()) / 1_000))
-  return `${RUN_SESSION_COOKIE}=${encodeURIComponent(raw)}; Path=/; Max-Age=${Math.min(maxAge, RUN_SESSION_MAX_AGE_SECONDS)}; Secure; HttpOnly; SameSite=Strict`
+export function serializeRunSessionCookie(raw: string, expiresAt: Date, now = new Date(), secureCookie = true): string {
+  const maximumExpiry = now.getTime() + RUN_SESSION_MAX_AGE_SECONDS * 1_000
+  const expiryTime = Math.min(expiresAt.getTime(), maximumExpiry)
+  const effectiveExpiry = new Date(Number.isFinite(expiryTime) ? expiryTime : maximumExpiry)
+  const maxAge = Math.max(0, Math.floor((effectiveExpiry.getTime() - now.getTime()) / 1_000))
+  const secure = secureCookie ? '; Secure' : ''
+  return `${RUN_SESSION_COOKIE}=${encodeURIComponent(raw)}; Path=/api; Max-Age=${maxAge}; Expires=${effectiveExpiry.toUTCString()}; HttpOnly; SameSite=Strict${secure}`
 }
 
 export function parseRunSessionCookie(cookieHeader: string | undefined): string | null {
