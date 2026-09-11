@@ -37,6 +37,12 @@ export function isSupportedRulesV1Blueprint(blueprint: ExpeditionBlueprint): boo
     && blueprint.missionParameters.chestTarget === CHEST_HUNTER_TARGET
 }
 
+type SearchNode = {
+  readonly state: ReplayState
+  readonly parent: number
+  readonly direction: MoveAction['direction'] | null
+}
+
 export function validateExpeditionBlueprint(
   blueprint: ExpeditionBlueprint,
   options: { readonly maxActions?: number } = {},
@@ -57,12 +63,15 @@ export function validateExpeditionBlueprint(
     blueprint,
   }
   const initial = createInitialRun(initialInput)
-  const queue: Array<{ readonly state: ReplayState; readonly actions: readonly MoveAction[] }> = [{ state: initial, actions: [] }]
+  const nodes: SearchNode[] = [{ state: initial, parent: -1, direction: null }]
   const visited = new Set<string>([stateSearchKey(initial)])
+  let head = 0
   let reachedActionLimit = false
-  while (queue.length > 0) {
-    const current = queue.shift()!
-    if (isWinningState(current.state)) return { valid: true, winningSequence: current.actions }
+  while (head < nodes.length) {
+    const index = head
+    const current = nodes[index]!
+    head += 1
+    if (isWinningState(current.state)) return { valid: true, winningSequence: reconstructWinningSequence(nodes, index) }
     if (current.state.seq >= maxActions) {
       reachedActionLimit = true
       continue
@@ -77,11 +86,23 @@ export function validateExpeditionBlueprint(
       const key = stateSearchKey(next.state)
       if (visited.has(key)) continue
       visited.add(key)
-      queue.push({ state: next.state, actions: [...current.actions, action] })
+      nodes.push({ state: next.state, parent: index, direction })
     }
   }
 
   return { valid: false, reason: reachedActionLimit ? 'ACTION_LIMIT_EXCEEDED' : 'NO_WINNING_SEQUENCE' }
+}
+
+function reconstructWinningSequence(nodes: readonly SearchNode[], index: number): readonly MoveAction[] {
+  const directions: Array<MoveAction['direction']> = []
+  let current = index
+  while (current >= 0) {
+    const node = nodes[current]!
+    if (node.direction) directions.push(node.direction)
+    current = node.parent
+  }
+  directions.reverse()
+  return directions.map((direction, seq) => ({ seq: seq + 1, type: 'MOVE', direction }))
 }
 
 function isWinningState(state: ReplayState): boolean {

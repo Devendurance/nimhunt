@@ -1,7 +1,7 @@
 import Phaser from 'phaser'
 import { Player } from '../entities/Player'
 import { Goblin } from '../entities/Goblin'
-import { createPuzzleState, resolvePuzzleMove, commitPuzzleMove } from '../systems/puzzle'
+import { createPuzzleState, resolvePuzzleMove, commitPuzzleMove, type PuzzleObjects } from '../systems/puzzle'
 import { PUZZLE_TEXTURES } from '../rendering/puzzleArtwork'
 import { ANGKOR_TEXTURES, ANGKOR_DEPTH } from '../assets/angkorAssets'
 import {
@@ -36,7 +36,13 @@ import {
   tileToPixel,
   TILE_SIZE,
 } from '../world/grid'
+import type { RoomContents } from '../systems/tileEntry.ts'
+import type { ChestPlacement } from '../systems/chests.ts'
+import type { GoblinSpawnConfig } from '../world/room01.ts'
 import type { NimHuntGameBridge, PlayerHUDState } from '../events/gameEvents'
+import type { ReplayState } from '../replay/types.ts'
+import type { CreateGameOptions } from '../createNimHuntGame'
+import { mapProductBlueprint } from '../productBlueprint.ts'
 
 interface OverlayItem {
   readonly x: number
@@ -81,6 +87,17 @@ export class AngkorDevScene extends Phaser.Scene {
   private run = createRunState()
   private generation = 0
   private puzzle = createPuzzleState(ROOM_01_PUZZLE)
+  private roomContents: RoomContents = ROOM_01_CONTENTS
+  private puzzleObjects: PuzzleObjects = ROOM_01_PUZZLE
+  private goblinConfig: GoblinSpawnConfig | null = ROOM_01_GOBLIN
+  private chestPlacements: readonly ChestPlacement[] = ROOM_01_CHESTS
+  private swordCoord: GridCoord | null = ROOM_01_SWORD
+  private potionCoord: GridCoord | null = ROOM_01_POTION
+  private spawnCoord: GridCoord = ANGKOR_ROOM_01.playerStart
+  private gemTarget = GEM_RUNNER_TARGET
+  private chestTarget = CHEST_HUNTER_TARGET
+  private initialState: ReplayState | null = null
+  private productMode = false
   private transitioning = false
   private notice = ''
   private puzzleSprites = new Map<string, Phaser.GameObjects.Image>()
@@ -91,9 +108,27 @@ export class AngkorDevScene extends Phaser.Scene {
   private readonly onMove = (direction: Direction) => this.handleMove(direction)
   private readonly onReset = () => this.handleReset()
 
-  constructor(bridge?: NimHuntGameBridge) {
+  constructor(bridge?: NimHuntGameBridge, options?: CreateGameOptions) {
     super('AngkorDevScene')
     this.bridge = bridge
+    if (options?.mode === 'product') {
+      const runtime = mapProductBlueprint(options.blueprint)
+      this.productMode = true
+      this.initialState = options.initialState
+      this.roomContents = runtime.contents
+      this.puzzleObjects = runtime.puzzle
+      this.goblinConfig = runtime.goblin
+      this.chestPlacements = runtime.chests
+      this.swordCoord = runtime.sword
+      this.potionCoord = runtime.potion
+      this.spawnCoord = runtime.spawn
+      this.gemTarget = runtime.gemTarget
+      this.chestTarget = runtime.chestTarget
+      this.puzzle = createPuzzleState(runtime.puzzle)
+      this.chests = createChestStates(runtime.chests)
+      this.goblinState = runtime.goblin ? createGoblinState(runtime.goblin.spawn) : createGoblinState(runtime.spawn)
+      this.mission = options.mission
+    }
   }
 
   private hasTexture(key: string): boolean {
@@ -104,14 +139,14 @@ export class AngkorDevScene extends Phaser.Scene {
     if (!this.bridge) {
       this.bridge = this.game.registry.get('bridge') as NimHuntGameBridge | undefined
     }
-    this.mission = this.bridge?.getState().selectedMission ?? 'gem-runner'
+    this.mission = this.initialState?.mission ?? this.bridge?.getState().selectedMission ?? this.mission
 
-    this.stepCount = 0
-    this.run = createRunState()
-    this.puzzle = createPuzzleState(ROOM_01_PUZZLE)
-    this.items = createInitialItemState()
-    this.chests = createChestStates(ROOM_01_CHESTS)
-    this.goblinState = createGoblinState(ROOM_01_GOBLIN.spawn)
+    this.stepCount = this.initialState?.seq ?? 0
+    this.run = this.initialState?.run ?? createRunState()
+    this.puzzle = this.initialState?.puzzle ?? createPuzzleState(this.puzzleObjects)
+    this.items = this.initialState?.items ?? createInitialItemState()
+    this.chests = this.initialState?.chests.map(chest => ({ ...chest })) ?? createChestStates(this.chestPlacements)
+    this.goblinState = this.initialState?.goblins[0] ?? (this.goblinConfig ? createGoblinState(this.goblinConfig.spawn) : createGoblinState(this.spawnCoord))
     this.transitioning = false
     this.notice = ''
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this)
@@ -131,10 +166,14 @@ export class AngkorDevScene extends Phaser.Scene {
     this.renderChests()
 
     // 5. Spawn Goblin
-    this.goblin = new Goblin(this, ROOM_01_GOBLIN.spawn)
+    if (this.goblinConfig) {
+      const goblinStart = this.initialState?.goblins[0]
+      this.goblin = new Goblin(this, goblinStart ? { x: goblinStart.gridX, y: goblinStart.gridY } : this.goblinConfig.spawn)
+      this.goblin.setAIState(this.goblinState.state)
+    }
 
     // 6. Spawn Player at deterministic start position
-    this.player = new Player(this, ANGKOR_ROOM_01.playerStart)
+    this.player = new Player(this, this.initialState?.player ?? this.spawnCoord)
 
     // 5. Setup Camera: zoom to ~8.5-9 tiles horizontally and follow Explorer smoothly
     if (this.cameras?.main && this.player) {
@@ -142,7 +181,7 @@ export class AngkorDevScene extends Phaser.Scene {
       cam.setBounds(0, 0, ANGKOR_ROOM_01.width * TILE_SIZE, ANGKOR_ROOM_01.height * TILE_SIZE)
       cam.setZoom(1.35)
       cam.startFollow(this.player.getContainer(), true, 0.09, 0.09)
-      const startPixel = tileToPixel(ANGKOR_ROOM_01.playerStart)
+      const startPixel = tileToPixel({ x: this.player.gridX, y: this.player.gridY })
       cam.centerOn(startPixel.x, startPixel.y)
     }
 
@@ -157,7 +196,7 @@ export class AngkorDevScene extends Phaser.Scene {
   public handleMove(direction: Direction): void {
     if (!this.player || this.transitioning || this.player.isMoving || this.run.runStatus !== 'PLAYING') return
     const chestTiles = this.chests.filter(c => c.state === 'CLOSED').map(c => ({ x: c.x, y: c.y }))
-    const transition = resolvePuzzleMove(ANGKOR_ROOM_01, ROOM_01_CONTENTS, ROOM_01_PUZZLE, this.run, this.puzzle, { x: this.player.gridX, y: this.player.gridY }, direction, chestTiles, this.mission)
+    const transition = resolvePuzzleMove(ANGKOR_ROOM_01, this.roomContents, this.puzzleObjects, this.run, this.puzzle, { x: this.player.gridX, y: this.player.gridY }, direction, chestTiles, this.mission)
     const generation = this.generation
     this.notice = ''
     if (!transition.move.success) {
@@ -174,7 +213,7 @@ export class AngkorDevScene extends Phaser.Scene {
         if (generation !== this.generation || --remaining !== 0) return
         const previousHP = this.run.hp
         const hadKey = this.puzzle.hasTempleKey
-        const next = commitPuzzleMove(this.run, this.puzzle, transition, ROOM_01_CONTENTS, ROOM_01_PUZZLE, this.mission)
+        const next = commitPuzzleMove(this.run, this.puzzle, transition, this.roomContents, this.puzzleObjects, this.mission)
         this.run = next.run
         this.puzzle = next.puzzle
         this.stepCount += 1
@@ -189,7 +228,9 @@ export class AngkorDevScene extends Phaser.Scene {
         if (this.run.hp < previousHP) this.player?.showHit()
 
         // Check sword pickup
-        const swordRes = checkSwordPickup(this.items, transition.move.to, ROOM_01_SWORD)
+        const swordRes = this.swordCoord
+          ? checkSwordPickup(this.items, transition.move.to, this.swordCoord)
+          : { nextItems: this.items, collected: false, notice: '' }
         if (swordRes.collected) {
           this.items = swordRes.nextItems
           this.swordSprite?.destroy()
@@ -198,7 +239,9 @@ export class AngkorDevScene extends Phaser.Scene {
         }
 
         // Check potion consumption
-        const potionRes = checkPotionConsumption(this.run, this.items, transition.move.to, ROOM_01_POTION)
+        const potionRes = this.potionCoord
+          ? checkPotionConsumption(this.run, this.items, transition.move.to, this.potionCoord)
+          : { nextRun: this.run, nextItems: this.items, consumed: false, notice: '' }
         if (potionRes.consumed) {
           this.run = potionRes.nextRun
           this.items = potionRes.nextItems
@@ -241,7 +284,8 @@ export class AngkorDevScene extends Phaser.Scene {
               this.puzzle,
               this.goblinState,
               transition.move.to,
-              ROOM_01_GOBLIN.patrolRoute
+              this.goblinConfig?.patrolRoute ?? [],
+              this.puzzleObjects.gate,
             )
             this.goblinState = nextGoblin
             this.goblin.setAIState(nextGoblin.state)
@@ -281,25 +325,25 @@ export class AngkorDevScene extends Phaser.Scene {
   }
 
   public handleReset(): void {
-    if (!this.player) return
+    if (this.productMode || !this.player) return
     this.generation++
     this.gateTimer?.remove(false)
     this.gateTimer = undefined
     this.transitioning = false
     this.notice = ''
-    this.puzzle = createPuzzleState(ROOM_01_PUZZLE)
+    this.puzzle = createPuzzleState(this.puzzleObjects)
     this.renderPuzzle()
     this.run = createRunState()
     this.renderGems()
     this.items = createInitialItemState()
     this.renderItems()
-    this.chests = createChestStates(ROOM_01_CHESTS)
+    this.chests = createChestStates(this.chestPlacements)
     this.renderChests()
-    this.goblinState = createGoblinState(ROOM_01_GOBLIN.spawn)
-    this.goblin?.reset(ROOM_01_GOBLIN.spawn)
-    this.player.reset(ANGKOR_ROOM_01.playerStart)
+    this.goblinState = createGoblinState(this.goblinConfig?.spawn ?? this.spawnCoord)
+    this.goblin?.reset(this.goblinConfig?.spawn ?? this.spawnCoord)
+    this.player.reset(this.spawnCoord)
     if (this.cameras?.main) {
-      const startPixel = tileToPixel(ANGKOR_ROOM_01.playerStart)
+      const startPixel = tileToPixel(this.spawnCoord)
       this.cameras.main.centerOn(startPixel.x, startPixel.y)
     }
     this.stepCount = 0
@@ -357,7 +401,7 @@ export class AngkorDevScene extends Phaser.Scene {
         ? ANGKOR_TEXTURES.KEY
         : PUZZLE_TEXTURES.key
       const keyScale = this.hasTexture(ANGKOR_TEXTURES.KEY) ? (24 / 256) : 1
-      const { x, y } = tileToPixel(ROOM_01_PUZZLE.key)
+      const { x, y } = tileToPixel(this.puzzleObjects.key)
       const sprite = this.add.image(x, y, keyTexture)
         .setOrigin(0.5, 0.5)
         .setScale(keyScale)
@@ -366,7 +410,7 @@ export class AngkorDevScene extends Phaser.Scene {
     }
 
     // 3. Temple Gate (Locked or Open, ~1.8 tiles tall, bottom-center anchored)
-    const gateCoord = ROOM_01_PUZZLE.gate
+    const gateCoord = this.puzzleObjects.gate
     const gatePixel = tileToPixel(gateCoord)
     const isGateProd = this.hasTexture(ANGKOR_TEXTURES.GATE_LOCKED)
     const gateScale = isGateProd ? (58 / 512) : 1
@@ -393,7 +437,7 @@ export class AngkorDevScene extends Phaser.Scene {
     }
 
     // 4. Inner Shrine (1.5 tiles tall, bottom-center anchored)
-    const shrineCoord = ROOM_01_PUZZLE.shrine
+    const shrineCoord = this.puzzleObjects.shrine
     const shrinePixel = tileToPixel(shrineCoord)
     const isShrineProd = this.hasTexture(ANGKOR_TEXTURES.SHRINE)
     const shrineTexture = isShrineProd
@@ -415,7 +459,7 @@ export class AngkorDevScene extends Phaser.Scene {
     const useProdGem = this.hasTexture(ANGKOR_TEXTURES.BLUE_GEM)
     const useFramedSapphire = this.hasTexture('sapphire_collectible')
 
-    for (const gem of ROOM_01_CONTENTS.gems) {
+    for (const gem of this.roomContents.gems) {
       const { x, y } = tileToPixel(gem)
       let sprite: Phaser.GameObjects.Image | Phaser.GameObjects.Arc
 
@@ -452,7 +496,7 @@ export class AngkorDevScene extends Phaser.Scene {
     // Fallback graphics layer if production hazard textures aren't loaded
     let fallbackGraphics: Phaser.GameObjects.Graphics | null = null
 
-    for (const hazard of ROOM_01_CONTENTS.hazards) {
+    for (const hazard of this.roomContents.hazards) {
       const { x, y } = tileToPixel(hazard)
 
       if (hazard.type === 'SPIKES') {
@@ -496,22 +540,22 @@ export class AngkorDevScene extends Phaser.Scene {
     this.potionSprite?.destroy()
     this.potionSprite = undefined
 
-    if (!this.items.swordPickedUp) {
+    if (!this.items.swordPickedUp && this.swordCoord) {
       const swordTexture = this.hasTexture(ANGKOR_TEXTURES.SWORD)
         ? ANGKOR_TEXTURES.SWORD
         : PUZZLE_TEXTURES.key
-      const { x, y } = tileToPixel(ROOM_01_SWORD)
+      const { x, y } = tileToPixel(this.swordCoord)
       this.swordSprite = this.add.image(x, y, swordTexture)
         .setOrigin(0.5, 0.5)
         .setScale(24 / 256)
         .setDepth(ANGKOR_DEPTH.COLLECTIBLES)
     }
 
-    if (!this.items.potionConsumed) {
+    if (!this.items.potionConsumed && this.potionCoord) {
       const potionTexture = this.hasTexture(ANGKOR_TEXTURES.POTION)
         ? ANGKOR_TEXTURES.POTION
         : PUZZLE_TEXTURES.shrine
-      const { x, y } = tileToPixel(ROOM_01_POTION)
+      const { x, y } = tileToPixel(this.potionCoord)
       this.potionSprite = this.add.image(x, y, potionTexture)
         .setOrigin(0.5, 0.5)
         .setScale(24 / 256)
@@ -681,9 +725,9 @@ export class AngkorDevScene extends Phaser.Scene {
       notice: this.notice,
       hp: this.run.hp,
       gemsCollected: this.run.gemsCollected,
-      gemTarget: GEM_RUNNER_TARGET,
+      gemTarget: this.gemTarget,
       chestsOpened: this.run.chestsOpened ?? 0,
-      chestTarget: CHEST_HUNTER_TARGET,
+      chestTarget: this.chestTarget,
       selectedMission: this.mission,
       missionStatus: this.run.missionStatus,
       runStatus: this.run.runStatus,

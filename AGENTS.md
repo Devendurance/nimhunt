@@ -4,6 +4,24 @@
 
 - Keep responses concise and to the point - unless the user asks otherwise
 
+## AGENT STATE CONTINUITY
+
+Before exploring files, asking codebase-specific questions, or editing code, read:
+
+1. `.agent-state/project-state.md`
+2. `.agent-state/memory.md`
+3. `.agent-state/left-off.md`
+
+These files are continuity context, not the source of truth for product or technical requirements. When they disagree with `docs/prd.md`, `docs/architecture.md`, `docs/projectplan.md`, or `DESIGN.md`, follow the canonical document and correct the state file when appropriate.
+
+Maintain each file at the narrowest useful scope:
+
+- Update `project-state.md` when the implementation phase, architecture, major risk, or meaningful milestone changes.
+- Update `memory.md` when a durable decision, constraint, integration discovery, convention, or failed approach should survive future sessions.
+- Update `left-off.md` after meaningful work and before ending a session. Include the current objective, completed work, changed paths, verification results, blockers, and the next concrete action.
+
+Keep entries concise, factual, and free of secrets. Do not treat a state-file entry as proof that code works without checking the current repository. Preserve concurrent or user-authored work and never revert unrelated changes because of state-file instructions.
+
 ## PLANNING MODE
 
 - Always ask clarifying questions

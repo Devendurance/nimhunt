@@ -4,6 +4,7 @@ import { hashBlueprint } from '../../src/game/replay/canonical.ts'
 import { createRoom01Blueprint } from '../../src/game/world/room01.ts'
 import { serializeStartPayload, type StartExpeditionPayload } from './canonical.ts'
 import { nimiqSignedMessageHash } from './crypto.ts'
+import { parseStartChallengeResponse } from '../../src/api/expeditionProof.ts'
 import { dispatchExpeditionHttp, type ExpeditionHttpRequest, type ExpeditionHttpSecurity } from './http.ts'
 import { createMemoryProofService } from './memoryProofStore.ts'
 
@@ -81,8 +82,12 @@ describe('authenticated expedition HTTP start surface', () => {
     expect(challengeResponse.status).toBe(200)
     expect(challengeResponse.headers?.['set-cookie']).toBeUndefined()
     expect(challengeResponse.headers?.['cache-control']).toBe('no-store')
+    expect(challengeResponse.headers?.['content-type']).toBe('application/json; charset=utf-8')
     expect(challengeResponse.headers?.['x-content-type-options']).toBe('nosniff')
-    expect(challengeResponse.body).toHaveProperty('wallet')
+    expect(Object.keys(challengeResponse.body as object).sort()).toEqual(
+      ['blueprintHash', 'blueprintId', 'challenge', 'dayKey', 'expiresAt', 'ok', 'wallet'],
+    )
+    expect(parseStartChallengeResponse(challengeResponse.body)).toMatchObject({ wallet: expect.any(String) })
 
     expect(startResponse.status).toBe(200)
     expect(startResponse.body).toMatchObject({ ok: true, outcome: 'START_CREATED' })
@@ -131,6 +136,43 @@ describe('authenticated expedition HTTP start surface', () => {
       expeditionsRemaining: 3,
       rewardAlreadyReserved: false,
       nextResetAt: '2026-09-10T00:00:00.000Z',
+    })
+  })
+
+  it('reports two remaining after a durable start and does not consume another attempt at gameplay-start', async () => {
+    const { fixture, startResponse, cookie } = await startExpedition()
+    const runId = (startResponse.body as { runId: string }).runId
+
+    const afterStart = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/wallet-daily-status',
+      headers: headers(),
+      body: { wallet: fixture.wallet },
+    }, SECURITY)
+    expect(afterStart.body).toMatchObject({
+      ok: true,
+      expeditionsStarted: 1,
+      expeditionsRemaining: 2,
+    })
+
+    const gameplay = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/expeditions/gameplay-start',
+      headers: headers({ cookie }),
+      body: { runId },
+    }, SECURITY)
+    expect(gameplay.body).toMatchObject({ ok: true, outcome: 'GAMEPLAY_STARTED' })
+
+    const afterGameplay = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/wallet-daily-status',
+      headers: headers(),
+      body: { wallet: fixture.wallet },
+    }, SECURITY)
+    expect(afterGameplay.body).toMatchObject({
+      ok: true,
+      expeditionsStarted: 1,
+      expeditionsRemaining: 2,
     })
   })
 
@@ -244,6 +286,102 @@ describe('authenticated expedition HTTP start surface', () => {
     expect(options.status).toBe(204)
     expect(wrongMethod.status).toBe(405)
     expect(wrongMethod.body).toEqual({ ok: false, error: 'MALFORMED_REQUEST' })
+    expect(fixture.service.getWalletDailyStatus(fixture.wallet).expeditionsStarted).toBe(0)
+  })
+
+  it('returns PROOF_UNAVAILABLE when origin policy or proof service is unconfigured', async () => {
+    const missingOrigin = await dispatchExpeditionHttp(null, {
+      method: 'POST',
+      path: '/api/expeditions/start-challenge',
+      headers: {
+        origin: 'http://192.168.1.10:5173',
+        host: '192.168.1.10:5173',
+        'content-type': 'application/json',
+      },
+      host: '192.168.1.10:5173',
+      protocol: 'http',
+      body: { wallet: 'NQ00 TEST WALLET', mission: 'gem-runner' },
+    }, {
+      expectedOrigin: '',
+      expectedHost: '',
+      expectedProtocol: 'https',
+      secureCookie: true,
+    })
+    const fixture = createFixture()
+    const unavailable = await dispatchExpeditionHttp(null, {
+      method: 'POST',
+      path: '/api/expeditions/start-challenge',
+      headers: headers(),
+      body: { wallet: fixture.wallet, mission: 'gem-runner' },
+    }, SECURITY)
+
+    expect(missingOrigin.status).toBe(503)
+    expect(missingOrigin.body).toEqual({ ok: false, error: 'PROOF_UNAVAILABLE' })
+    expect(unavailable.status).toBe(503)
+    expect(unavailable.body).toEqual({ ok: false, error: 'PROOF_UNAVAILABLE' })
+  })
+
+  it('returns INVALID_WALLET without creating a challenge, run, or session', async () => {
+    const fixture = createFixture()
+    const response = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/expeditions/start-challenge',
+      headers: headers(),
+      body: { wallet: 'NQ00 NOT A WALLET', mission: 'gem-runner' },
+    }, SECURITY)
+
+    expect(response.status).toBe(400)
+    expect(response.body).toEqual({ ok: false, error: 'INVALID_WALLET' })
+    expect(fixture.service.snapshot()).toMatchObject({ challenges: [], runs: [], sessions: [] })
+    expect(fixture.service.getWalletDailyStatus(fixture.wallet).expeditionsStarted).toBe(0)
+  })
+
+  it('accepts a LAN development origin alias and yields a client-parseable start-challenge body', async () => {
+    const fixture = createFixture()
+    const security: ExpeditionHttpSecurity = {
+      expectedOrigin: 'http://localhost:5173',
+      expectedHost: 'localhost:5173',
+      expectedProtocol: 'http',
+      secureCookie: false,
+      allowAuthorizedLocalHttpOrigins: true,
+    }
+    const response = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/expeditions/start-challenge',
+      headers: {
+        origin: 'http://192.168.1.10:5173',
+        host: '192.168.1.10:5173',
+        protocol: 'http',
+        'content-type': 'application/json',
+      },
+      host: '192.168.1.10:5173',
+      protocol: 'http',
+      body: { wallet: fixture.wallet, mission: 'gem-runner' },
+    }, security)
+    const parsed = parseStartChallengeResponse(response.body)
+
+    expect(response.status).toBe(200)
+    expect(response.headers?.['content-type']).toBe('application/json; charset=utf-8')
+    expect(Object.keys(response.body as object).sort()).toEqual(
+      ['blueprintHash', 'blueprintId', 'challenge', 'dayKey', 'expiresAt', 'ok', 'wallet'],
+    )
+    expect(parsed).toMatchObject({
+      wallet: fixture.wallet,
+      blueprintId: 'http-blueprint',
+      dayKey: '2026-09-09',
+    })
+    expect(serializeStartPayload({
+      version: 1,
+      type: 'NIMHUNT_START_EXPEDITION',
+      wallet: parsed!.wallet,
+      mission: 'gem-runner',
+      dayKey: parsed!.dayKey,
+      challenge: parsed!.challenge,
+      blueprintId: parsed!.blueprintId,
+      blueprintHash: parsed!.blueprintHash,
+    })).toContain('NIMHUNT_START_EXPEDITION')
+    expect(fixture.service.snapshot().challenges).toHaveLength(1)
+    expect(fixture.service.snapshot()).toMatchObject({ runs: [], sessions: [] })
     expect(fixture.service.getWalletDailyStatus(fixture.wallet).expeditionsStarted).toBe(0)
   })
 })

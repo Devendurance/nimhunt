@@ -1,6 +1,6 @@
 import { CHEST_HUNTER_TARGET, GEM_RUNNER_TARGET, parseMissionParam, type MissionType } from '../../game/domain/mission'
 import type { PlayerHUDState } from '../../game/events/gameEvents'
-import type { MissionId } from '../../types/play'
+import type { Mission, MissionId } from '../../types/play'
 
 export type PlayableMission = 'gem-runner' | 'chest-hunter' | 'vault-breaker'
 
@@ -16,14 +16,21 @@ export function isMissionLaunchable(id: MissionId): id is PlayableMission {
 export type PlayRoute =
   | { readonly view: 'nimiq' }
   | { readonly view: 'dev-game'; readonly mission: MissionType }
-  | { readonly view: 'expedition'; readonly mission: PlayableMission }
+  | { readonly view: 'product-expedition'; readonly mission: PlayableMission; readonly runId: string }
+  | { readonly view: 'invalid-product'; readonly reason: 'RUN_ID_REQUIRED' }
+  | { readonly view: 'practice'; readonly mission: PlayableMission }
   | { readonly view: 'shell' }
 
-export function resolvePlayRoute(query: { dev: string | null; run: string | null; mission: string | null }): PlayRoute {
+export function resolvePlayRoute(query: { dev: string | null; run: string | null; runId: string | null; practice: string | null; mission: string | null }): PlayRoute {
   if (query.dev === 'nimiq') return { view: 'nimiq' }
   if (query.dev === 'game') return { view: 'dev-game', mission: parseMissionParam(query.mission) }
   const run = parseRunParam(query.run)
-  if (run) return { view: 'expedition', mission: run }
+  if (run) {
+    if (!isBoundedRunId(query.runId)) return { view: 'invalid-product', reason: 'RUN_ID_REQUIRED' }
+    return { view: 'product-expedition', mission: run, runId: query.runId }
+  }
+  const practice = parseRunParam(query.practice)
+  if (practice) return { view: 'practice', mission: practice }
   return { view: 'shell' }
 }
 
@@ -35,6 +42,11 @@ export interface BriefState {
 export function getBriefState(missionId: MissionId): BriefState {
   if (isMissionLaunchable(missionId)) return { canStart: true, badge: 'AVAILABLE' }
   return { canStart: false, badge: 'COMING NEXT' }
+}
+
+export function getMissionBoardCountLabel(missions: readonly Pick<Mission, 'status'>[]): string {
+  const count = missions.filter(mission => mission.status === 'available').length
+  return `${count} MISSIONS`
 }
 
 export type ExpeditionResult =
@@ -87,6 +99,11 @@ export const DEV_HUD_MODE: HudMode = { showDebug: true, showResetAction: true }
 export function clearRunFromSearch(search: string): string {
   const params = new URLSearchParams(search.startsWith('?') ? search : search ? `?${search}` : '')
   params.delete('run')
+  params.delete('runId')
   const rest = params.toString()
   return rest ? `?${rest}` : ''
+}
+
+function isBoundedRunId(value: string | null): value is string {
+  return value !== null && value.length > 0 && value.length <= 128
 }

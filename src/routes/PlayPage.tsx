@@ -3,6 +3,7 @@ import { useSearchParams, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { NimiqDevPanel } from '../components/play/NimiqDevPanel'
 import { PlayShell } from '../components/play/PlayShell'
+import { ProductExpeditionGate } from '../components/play/ProductExpeditionGate'
 import { resolvePlayRoute } from '../components/play/expeditionFlow'
 
 const GameDevView = lazy(() =>
@@ -15,7 +16,7 @@ const ExpeditionView = lazy(() =>
 
 export function PlayPage() {
   const [params] = useSearchParams()
-  const route = resolvePlayRoute({ dev: params.get('dev'), run: params.get('run'), mission: params.get('mission') })
+  const route = resolvePlayRoute({ dev: params.get('dev'), run: params.get('run'), runId: params.get('runId'), practice: params.get('practice'), mission: params.get('mission') })
   const navigate = useNavigate()
 
   if (route.view === 'nimiq') return <NimiqDevPanel />
@@ -26,14 +27,24 @@ export function PlayPage() {
       </Suspense>
     )
   }
-  if (route.view === 'expedition') {
+  if (route.view === 'product-expedition') {
     const mission = route.mission
     // Navigating to plain /play unmounts the run view, whose cleanup destroys the Phaser instance.
     const backToMissions = () => navigate('/play', { state: { initialTab: 'missions' } })
     const returnToHunt = () => navigate('/play', { state: { initialTab: 'hunt' } })
+    return <ProductExpeditionGate mission={mission} runId={route.runId} onBackToMissions={backToMissions}>
+      {active => <Suspense fallback={<div style={{ minHeight: '100vh', background: '#132a26' }} />}>
+        <ExpeditionView key={`${mission}:${route.runId}`} mode="product" active={active} mission={mission} onBackToMissions={backToMissions} onReturnToHunt={returnToHunt} />
+      </Suspense>}
+    </ProductExpeditionGate>
+  }
+  if (route.view === 'practice') {
+    const mission = route.mission
+    const backToMissions = () => navigate('/play', { state: { initialTab: 'missions' } })
+    const returnToHunt = () => navigate('/play', { state: { initialTab: 'hunt' } })
     return (
       <Suspense fallback={<div style={{ minHeight: '100vh', background: '#132a26' }} />}>
-        <ExpeditionView key={mission} mission={mission} onBackToMissions={backToMissions} onReturnToHunt={returnToHunt} />
+        <ExpeditionView key={`practice:${mission}`} mode="practice" mission={mission} onBackToMissions={backToMissions} onReturnToHunt={returnToHunt} />
       </Suspense>
     )
   }

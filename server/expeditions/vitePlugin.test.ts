@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { resolveExpeditionRuntime } from './vitePlugin.ts'
+import { createProofBackendLoader, resolveExpeditionRuntime } from './vitePlugin.ts'
+import type { MemoryProofService } from './types.ts'
 
 describe('expedition proof runtime policy', () => {
   it('enables memory proof only for explicit local development', () => {
@@ -13,6 +14,7 @@ describe('expedition proof runtime policy', () => {
       expectedHost: 'localhost:5173',
       expectedProtocol: 'http',
       secureCookie: false,
+      allowAuthorizedLocalHttpOrigins: true,
     })
   })
 
@@ -38,6 +40,7 @@ describe('expedition proof runtime policy', () => {
       expectedOrigin: 'https://hunt.example',
       expectedHost: 'hunt.example',
       expectedProtocol: 'https',
+      allowAuthorizedLocalHttpOrigins: false,
     })
   })
 
@@ -59,11 +62,70 @@ describe('expedition proof runtime policy', () => {
       mode: 'development',
       backend: 'memory',
       appOrigin: 'http://192.168.1.10:5173',
-    })).toMatchObject({ backend: 'memory', secureCookie: false })
+    })).toMatchObject({ backend: 'memory', secureCookie: false, allowAuthorizedLocalHttpOrigins: true })
     expect(resolveExpeditionRuntime({
       mode: 'test',
       backend: 'memory',
       appOrigin: 'http://hunt.example',
     })).toMatchObject({ backend: 'memory', secureCookie: true })
+  })
+})
+
+describe('lazy development proof backend', () => {
+  it('does not construct a memory backend for preview or production', async () => {
+    let created = 0
+    const createService = () => {
+      created += 1
+      throw new Error('memory backend must stay disabled')
+    }
+
+    const preview = createProofBackendLoader(
+      () => resolveExpeditionRuntime({
+        mode: 'preview',
+        backend: 'memory',
+        appOrigin: 'https://hunt.example',
+      }),
+      createService,
+    )
+    const production = createProofBackendLoader(
+      () => resolveExpeditionRuntime({
+        mode: 'production',
+        backend: 'memory',
+        appOrigin: 'https://hunt.example',
+      }),
+      createService,
+    )
+
+    expect(await preview.ensure()).toBeNull()
+    expect(await production.ensure()).toBeNull()
+    expect(created).toBe(0)
+    expect(preview.peek()).toBeNull()
+    expect(production.peek()).toBeNull()
+  })
+
+  it('initializes the development memory backend once under concurrent first requests', async () => {
+    let created = 0
+    const service = { id: 'memory-once' } as unknown as MemoryProofService
+    const loader = createProofBackendLoader(
+      () => resolveExpeditionRuntime({
+        mode: 'development',
+        backend: 'memory',
+        appOrigin: 'http://localhost:5173',
+      }),
+      async () => {
+        created += 1
+        await new Promise(resolve => setTimeout(resolve, 20))
+        return service
+      },
+    )
+
+    const [first, second, third] = await Promise.all([loader.ensure(), loader.ensure(), loader.ensure()])
+    expect(first).toBe(service)
+    expect(second).toBe(service)
+    expect(third).toBe(service)
+    expect(created).toBe(1)
+    expect(loader.initCount()).toBe(1)
+    expect(await loader.ensure()).toBe(service)
+    expect(created).toBe(1)
   })
 })

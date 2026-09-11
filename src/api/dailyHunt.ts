@@ -8,6 +8,8 @@ export async function fetchDailyHuntStatus(fetcher: typeof fetch = fetch): Promi
   try {
     const response = await fetcher(DAILY_HUNT_STATUS_PATH, {
       method: 'GET',
+      credentials: 'same-origin',
+      cache: 'no-store',
       headers: { accept: 'application/json' },
     })
     const data: unknown = await response.json()
@@ -27,6 +29,8 @@ export async function fetchWalletDailyStatus(
   try {
     const response = await fetcher(WALLET_DAILY_STATUS_PATH, {
       method: 'POST',
+      credentials: 'same-origin',
+      cache: 'no-store',
       headers: { 'content-type': 'application/json', accept: 'application/json' },
       body: JSON.stringify({ wallet }),
     })

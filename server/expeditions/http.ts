@@ -22,6 +22,7 @@ export type ExpeditionHttpSecurity = {
   readonly expectedHost: string
   readonly expectedProtocol: 'http' | 'https'
   readonly secureCookie: boolean
+  readonly allowAuthorizedLocalHttpOrigins?: boolean
 }
 
 export type ExpeditionHttpResponse = {
@@ -41,11 +42,19 @@ export async function dispatchExpeditionHttp(
   request: ExpeditionHttpRequest,
   security: ExpeditionHttpSecurity,
 ): Promise<ExpeditionHttpResponse> {
+  const pathHint = request.path.split('?')[0] ?? ''
+  if (!security.expectedOrigin || !security.expectedHost) {
+    return isExpeditionPath(pathHint)
+      ? response(503, { ok: false, error: 'PROOF_UNAVAILABLE' })
+      : response(400, { ok: false, error: 'MALFORMED_REQUEST' })
+  }
+
   const url = parseRequestUrl(request.path, security.expectedOrigin)
   if (!url) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
 
   const path = url.pathname
   if (!isExpeditionPath(path)) return response(404, { ok: false, error: 'MALFORMED_REQUEST' })
+  if (!service) return response(503, { ok: false, error: 'PROOF_UNAVAILABLE' })
   if (!isAllowedRequest(request, path, security)) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
 
   if (request.rawBody !== undefined && Buffer.byteLength(request.rawBody, 'utf8') > MAX_EXPEDITION_BODY_BYTES) {
@@ -56,7 +65,6 @@ export async function dispatchExpeditionHttp(
   if (method === 'OPTIONS') return { status: 204, body: null, headers: BASE_HEADERS }
   if (!isExpectedMethod(path, method)) return response(405, { ok: false, error: 'MALFORMED_REQUEST' })
   if (method === 'POST' && !isJsonRequest(request)) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
-  if (!service) return response(503, { ok: false, error: 'PROOF_UNAVAILABLE' })
 
   try {
     if (path === START_CHALLENGE_PATH) {
@@ -131,11 +139,64 @@ function isExpectedMethod(path: string, method: string): boolean {
 function isAllowedRequest(request: ExpeditionHttpRequest, path: string, security: ExpeditionHttpSecurity): boolean {
   const host = request.host ?? getHeader(request, 'host')
   const protocol = request.protocol ?? getProtocolHeader(request)
-  if (host !== security.expectedHost || protocol !== security.expectedProtocol) return false
-
   const origin = getHeader(request, 'origin')
   const isRead = path === ACTIVE_EXPEDITION_PATH && request.method.toUpperCase() === 'GET'
-  return isRead ? origin === undefined || origin === security.expectedOrigin : origin === security.expectedOrigin
+  if (!host || !protocol) return false
+
+  if (host === security.expectedHost && protocol === security.expectedProtocol) {
+    return isRead ? origin === undefined || origin === security.expectedOrigin : origin === security.expectedOrigin
+  }
+
+  return isAuthorizedLocalHttpAlias(host, protocol, origin, isRead, security)
+}
+
+function isAuthorizedLocalHttpAlias(
+  host: string,
+  protocol: 'http' | 'https',
+  origin: string | undefined,
+  isRead: boolean,
+  security: ExpeditionHttpSecurity,
+): boolean {
+  if (!security.allowAuthorizedLocalHttpOrigins || protocol !== 'http' || security.expectedProtocol !== 'http') return false
+  if (hostPort(host) !== hostPort(security.expectedHost) || !isLocalHttpHost(host)) return false
+  if (isRead && origin === undefined) return true
+  const parsed = parseOriginHeader(origin)
+  return parsed !== null && parsed.protocol === 'http' && parsed.host === host && isLocalHttpHost(parsed.host)
+}
+
+function parseOriginHeader(origin: string | undefined): { host: string; protocol: 'http' | 'https' } | null {
+  if (!origin) return null
+  try {
+    const parsed = new URL(origin)
+    if ((parsed.protocol !== 'http:' && parsed.protocol !== 'https:') || parsed.origin !== origin.replace(/\/$/, '')) return null
+    return { host: parsed.host, protocol: parsed.protocol === 'https:' ? 'https' : 'http' }
+  } catch {
+    return null
+  }
+}
+
+function isLocalHttpHost(host: string): boolean {
+  return isLoopbackHost(host) || isPrivateIpv4Host(host)
+}
+
+function isLoopbackHost(host: string): boolean {
+  const hostname = host.split(':')[0]?.replace('[', '').replace(']', '')
+  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1'
+}
+
+function isPrivateIpv4Host(host: string): boolean {
+  const hostname = host.split(':')[0] ?? ''
+  const octets = hostname.split('.').map(Number)
+  if (octets.length !== 4 || octets.some(octet => !Number.isInteger(octet) || octet < 0 || octet > 255)) return false
+  return octets[0] === 10
+    || (octets[0] === 172 && (octets[1] ?? -1) >= 16 && (octets[1] ?? -1) <= 31)
+    || (octets[0] === 192 && octets[1] === 168)
+}
+
+function hostPort(host: string): string {
+  const index = host.lastIndexOf(':')
+  if (index <= 0 || host.endsWith(']')) return ''
+  return host.slice(index + 1)
 }
 
 function isJsonRequest(request: ExpeditionHttpRequest): boolean {

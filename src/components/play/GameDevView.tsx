@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Gem, Heart, LogOut, RotateCcw, Triangle, Droplets, KeyRound, Sword, Package } from 'lucide-react'
 import { getMissionObjective, getMissionTitle, parseMissionParam } from '../../game/domain/mission'
@@ -19,7 +19,8 @@ export function GameDevView() {
   const mission = parseMissionParam(params.get('mission'))
   const isChestHunter = mission === 'chest-hunter'
   const isVault = mission === 'vault-breaker'
-  const { containerRef: canvasContainerRef, hud, move, reset } = useAngkorRun(mission)
+  const gameOptions = useMemo(() => ({ mode: 'dev' as const, mission }), [mission])
+  const { containerRef: canvasContainerRef, hud, move, reset } = useAngkorRun(gameOptions)
   const headingRef = useRef<HTMLHeadingElement>(null)
   const upRef = useRef<HTMLButtonElement>(null)
   const previousStatus = useRef('PLAYING')

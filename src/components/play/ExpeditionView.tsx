@@ -1,13 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Droplets, Gem, Heart, KeyRound, Package, Sword, Triangle } from 'lucide-react'
 import { getMissionObjective, getMissionTitle } from '../../game/domain/mission'
 import type { Direction } from '../../game/world/grid'
-import { shortenNimiqAddress } from '../../integrations/nimiq/treasureSeal'
+import type { ProductActiveExpedition } from '../../domain/expeditionProof.ts'
+import type { CreateGameOptions } from '../../game/createNimHuntGame'
 import { getExpeditionResult, type PlayableMission } from './expeditionFlow'
 import { useAngkorRun } from './useAngkorRun'
-import { useVaultSeal } from './useVaultSeal'
-import { isVaultBreakerComplete, shouldShowVaultOverlay } from './vaultSeal'
-import { VaultSealOverlay } from './VaultSealOverlay'
 import styles from './ExpeditionView.module.css'
 
 const directions = [
@@ -21,21 +19,25 @@ type ExpeditionViewProps = {
   mission: PlayableMission
   onBackToMissions: () => void
   onReturnToHunt: () => void
-}
+} & (
+  | { mode: 'product'; active: ProductActiveExpedition }
+  | { mode: 'practice' }
+)
 
-export function ExpeditionView({ mission, onBackToMissions, onReturnToHunt }: ExpeditionViewProps) {
-  const { containerRef, hud, move } = useAngkorRun(mission)
-  const { seal, sealTreasure } = useVaultSeal()
+export function ExpeditionView(props: ExpeditionViewProps) {
+  const { mission, mode, onBackToMissions, onReturnToHunt } = props
+  const active = props.mode === 'product' ? props.active : null
+  const gameOptions = useMemo<CreateGameOptions>(() => {
+    if (mode === 'practice') return { mode: 'dev', mission }
+    if (!active) throw new Error('PRODUCT_ACTIVE_EXPEDITION_REQUIRED')
+    return { mode: 'product', mission, blueprint: active.blueprint, initialState: active.state }
+  }, [active, mission, mode])
+  const { containerRef, hud, move } = useAngkorRun(gameOptions)
   const terminal = hud.runStatus !== 'PLAYING'
   const result = getExpeditionResult(hud)
   const isChestHunter = mission === 'chest-hunter'
   const isVault = mission === 'vault-breaker'
-  const vaultOverlayOpen = shouldShowVaultOverlay(hud, mission) && seal.status !== 'VERIFIED'
-  const vaultComplete = isVaultBreakerComplete({
-    vaultReached: hud.objectiveReached && hud.hp > 0,
-    sealVerified: seal.status === 'VERIFIED',
-  })
-  const inputLocked = terminal || vaultOverlayOpen || vaultComplete
+  const inputLocked = terminal
   const [confirmingLeave, setConfirmingLeave] = useState(false)
   const headingRef = useRef<HTMLHeadingElement>(null)
   const leaveButtonRef = useRef<HTMLButtonElement>(null)
@@ -48,10 +50,6 @@ export function ExpeditionView({ mission, onBackToMissions, onReturnToHunt }: Ex
     else if (previousStatus.current !== 'PLAYING') upRef.current?.focus({ preventScroll: true })
     previousStatus.current = hud.runStatus
   }, [hud.runStatus])
-
-  useEffect(() => {
-    if (vaultComplete) headingRef.current?.focus({ preventScroll: true })
-  }, [vaultComplete])
 
   useEffect(() => {
     if (confirmingLeave) confirmHeadingRef.current?.focus({ preventScroll: true })
@@ -77,7 +75,7 @@ export function ExpeditionView({ mission, onBackToMissions, onReturnToHunt }: Ex
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.target instanceof HTMLElement && (event.target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName))) return
-      if (confirmingLeave || vaultOverlayOpen) return
+      if (confirmingLeave) return
       const mapping: Record<string, Direction> = { ArrowUp: 'UP', w: 'UP', ArrowDown: 'DOWN', s: 'DOWN', ArrowLeft: 'LEFT', a: 'LEFT', ArrowRight: 'RIGHT', d: 'RIGHT' }
       const direction = mapping[event.key] ?? mapping[event.key.toLowerCase()]
       if (direction) {
@@ -90,7 +88,7 @@ export function ExpeditionView({ mission, onBackToMissions, onReturnToHunt }: Ex
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [move, inputLocked, confirmingLeave, vaultOverlayOpen])
+  }, [move, inputLocked, confirmingLeave])
 
   const missionTitle = getMissionTitle(mission)
   const missionObjective = getMissionObjective(mission)
@@ -100,6 +98,11 @@ export function ExpeditionView({ mission, onBackToMissions, onReturnToHunt }: Ex
       <div><span className={styles.kicker}>ANGKOR RUINS</span><h1 className={styles.title}>{missionTitle}</h1></div>
       <button ref={leaveButtonRef} type="button" className={styles.leaveBtn} onClick={() => setConfirmingLeave(true)}>Leave expedition</button>
     </header>
+    {mode === 'practice' && <section className={styles.practiceNotice} aria-label="Practice run status">
+      <strong>PRACTICE RUN</strong>
+      <span>No daily expedition used.</span>
+      <span>No NIM reward can be reserved.</span>
+    </section>}
     <section className={styles.hudCard} aria-label={`${missionTitle} mission progress`}>
       <p className={styles.objective}>{missionObjective}</p>
       <div className={styles.metrics}>
@@ -119,17 +122,7 @@ export function ExpeditionView({ mission, onBackToMissions, onReturnToHunt }: Ex
     <div className={styles.canvasWrapper}><div ref={containerRef} className={styles.canvasInner} role="img" aria-label="Angkor Ruins expedition. Use the directional controls to move." /></div>
     <p className={styles.legend}><span><Triangle size={14} aria-hidden="true" />Spikes −25 HP</span><span><Droplets size={14} aria-hidden="true" />Poison −20 HP</span></p>
     <div className={styles.controlsArea}>
-      {vaultComplete ? <section className={styles.outcome} aria-labelledby="run-outcome">
-        <h2 id="run-outcome" ref={headingRef} tabIndex={-1}>MISSION COMPLETE</h2>
-        <><strong>Vault Breaker</strong><p>Temple Vault reached</p><p>Treasure seal verified</p><p><strong>TREASURE SEALED</strong> — Your Nimiq signature was verified.</p>
-          <div className={styles.sealProof}>
-            {seal.wallet && <p><span>WALLET</span> {shortenNimiqAddress(seal.wallet)}</p>}
-            {seal.verification?.payloadHash && <p><span>SEAL HASH</span> {seal.verification.payloadHash.slice(0, 12)}…</p>}
-            <p><span>STATUS</span> Verified ✓</p>
-          </div>
-          <p className={styles.subtle}>No NIM has been awarded in this build yet.</p></>
-        <div className={styles.actions}><button type="button" onClick={onBackToMissions}>Back to missions</button><button type="button" onClick={onReturnToHunt}>Return to Hunt</button></div>
-      </section> : terminal && result.status !== 'playing' ? <section className={styles.outcome} aria-labelledby="run-outcome">
+      {terminal && result.status !== 'playing' ? <section className={styles.outcome} aria-labelledby="run-outcome">
         <h2 id="run-outcome" ref={headingRef} tabIndex={-1}>{result.status === 'complete' ? 'MISSION COMPLETE' : 'EXPEDITION FAILED'}</h2>
         {result.status === 'complete'
           ? <><strong>{result.title}</strong><p>{result.detail}</p><p>You survived the expedition.</p><p className={styles.subtle}>NIM reward sealing is not enabled in this build yet.</p></>
@@ -140,11 +133,10 @@ export function ExpeditionView({ mission, onBackToMissions, onReturnToHunt }: Ex
         <span className={styles.dpadCenter} aria-hidden="true" />
       </div>}
     </div>
-    {vaultOverlayOpen && <VaultSealOverlay seal={seal} onSealTreasure={sealTreasure} onLeaveUnsealed={onBackToMissions} />}
     {confirmingLeave && <div className={styles.confirmBackdrop} onClick={event => { if (event.target === event.currentTarget) closeConfirm() }}>
       <section className={styles.confirm} role="alertdialog" aria-modal="true" aria-labelledby="leave-heading" aria-describedby="leave-description">
         <h2 id="leave-heading" ref={confirmHeadingRef} tabIndex={-1}>Leave this expedition?</h2>
-        <p id="leave-description">Leaving ends this local run. Nothing is consumed or saved yet.</p>
+        <p id="leave-description">{mode === 'product' ? 'Leaving exits this expedition. The reward attempt remains recorded.' : 'Leaving ends this local run. Nothing is consumed or saved yet.'}</p>
         <div className={styles.actions}>
           <button type="button" className={styles.stayBtn} onClick={closeConfirm}>Stay</button>
           <button type="button" onClick={onBackToMissions}>Leave</button>

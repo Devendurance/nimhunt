@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { createNimHuntGame, type NimHuntGameInstance } from '../../game/createNimHuntGame'
-import { createInitialHUDState } from '../../game/events/gameEvents'
-import type { MissionType } from '../../game/domain/mission'
+import { createNimHuntGame, type CreateGameOptions, type NimHuntGameInstance } from '../../game/createNimHuntGame'
+import { createInitialHUDState, createInitialHUDStateFromReplay } from '../../game/events/gameEvents'
 import type { Direction } from '../../game/world/grid'
 
 /**
@@ -10,15 +9,15 @@ import type { Direction } from '../../game/world/grid'
  * setup/teardown: the container is emptied before attach and the game
  * is fully destroyed (canvas removed) on unmount or mission change.
  */
-export function useAngkorRun(mission: MissionType) {
+export function useAngkorRun(options: CreateGameOptions) {
   const containerRef = useRef<HTMLDivElement>(null)
   const instanceRef = useRef<NimHuntGameInstance | null>(null)
-  const [hud, setHud] = useState(() => createInitialHUDState(mission))
+  const [hud, setHud] = useState(() => initialHud(options))
 
   useEffect(() => {
     if (!containerRef.current) return
-    setHud(createInitialHUDState(mission))
-    const game = createNimHuntGame(containerRef.current, { mission })
+    setHud(initialHud(options))
+    const game = createNimHuntGame(containerRef.current, options)
     instanceRef.current = game
     const unsubscribe = game.subscribe(setHud)
     return () => {
@@ -26,7 +25,7 @@ export function useAngkorRun(mission: MissionType) {
       game.destroy()
       instanceRef.current = null
     }
-  }, [mission])
+  }, [options])
 
   const move = useCallback((direction: Direction) => {
     instanceRef.current?.move(direction)
@@ -37,4 +36,8 @@ export function useAngkorRun(mission: MissionType) {
   }, [])
 
   return { containerRef, hud, move, reset }
+}
+
+function initialHud(options: CreateGameOptions) {
+  return options.mode === 'product' ? createInitialHUDStateFromReplay(options.initialState) : createInitialHUDState(options.mission)
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createRoom01Blueprint } from '../world/room01'
 import { hashBlueprint } from './canonical'
+import { replayActions } from './engine'
 import { validateExpeditionBlueprint } from './validator'
 import type { ExpeditionBlueprint } from './types'
 
@@ -21,7 +22,16 @@ describe('expedition blueprint validation', () => {
     const result = validateExpeditionBlueprint(validBlueprint)
 
     expect(result.valid).toBe(true)
-    if (result.valid) expect(result.winningSequence.length).toBeGreaterThan(0)
+    if (!result.valid) return
+    expect(result.winningSequence.length).toBeGreaterThan(0)
+    const final = replayActions({
+      mission: validBlueprint.mission,
+      rulesVersion: validBlueprint.rulesVersion,
+      roomVersion: validBlueprint.roomVersion,
+      blueprint: validBlueprint,
+    }, result.winningSequence)
+    expect(final.run.hp).toBeGreaterThan(0)
+    expect(final.run.gemsCollected).toBeGreaterThanOrEqual(validBlueprint.missionParameters.gemTarget)
   })
 
   it('rejects a blueprint with no surviving mission solution', () => {

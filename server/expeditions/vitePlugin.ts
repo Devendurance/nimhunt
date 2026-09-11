@@ -1,9 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { loadEnv, type Plugin } from 'vite'
-import { utcDayKey } from '../ledger/utcDay.ts'
-import { createPublishedBootstrapBlueprints } from './blueprintBootstrap.ts'
-import { dispatchExpeditionHttp } from './http.ts'
-import { createMemoryProofService } from './memoryProofStore.ts'
+import { createLazyValue, type LazyValue } from './lazyValue.ts'
 import type { MemoryProofService } from './types.ts'
 
 export type ExpeditionRuntimeInput = {
@@ -19,6 +16,7 @@ export type ExpeditionRuntime = {
   readonly expectedHost: string
   readonly expectedProtocol: 'http' | 'https'
   readonly secureCookie: boolean
+  readonly allowAuthorizedLocalHttpOrigins: boolean
 }
 
 const UNAVAILABLE_RUNTIME: ExpeditionRuntime = {
@@ -28,6 +26,7 @@ const UNAVAILABLE_RUNTIME: ExpeditionRuntime = {
   expectedHost: '',
   expectedProtocol: 'https',
   secureCookie: true,
+  allowAuthorizedLocalHttpOrigins: false,
 }
 
 export function resolveExpeditionRuntime(input: ExpeditionRuntimeInput): ExpeditionRuntime {
@@ -43,12 +42,32 @@ export function resolveExpeditionRuntime(input: ExpeditionRuntimeInput): Expedit
     expectedHost: origin.host,
     expectedProtocol: origin.protocol,
     secureCookie: enabled ? !isAuthorizedHttpOrigin(origin, input.mode) : true,
+    allowAuthorizedLocalHttpOrigins: enabled && origin.protocol === 'http' && isAuthorizedHttpOrigin(origin, input.mode),
   }
+}
+
+export function createProofBackendLoader(
+  getRuntime: () => ExpeditionRuntime,
+  createService: () => MemoryProofService | Promise<MemoryProofService> = createDevelopmentMemoryProofService,
+): LazyValue<MemoryProofService | null> {
+  return createLazyValue(async () => {
+    if (getRuntime().backend !== 'memory') return null
+    return createService()
+  })
+}
+
+export async function createDevelopmentMemoryProofService(): Promise<MemoryProofService> {
+  const { utcDayKey } = await import('../ledger/utcDay.ts')
+  const { createPublishedBootstrapBlueprints } = await import('./blueprintBootstrap.ts')
+  const { createMemoryProofService } = await import('./memoryProofStore.ts')
+  return createMemoryProofService({
+    blueprints: createPublishedBootstrapBlueprints(utcDayKey(new Date())),
+  })
 }
 
 export function expeditionProofPlugin(): Plugin {
   let runtime = UNAVAILABLE_RUNTIME
-  let service: MemoryProofService | null = null
+  const backend = createProofBackendLoader(() => runtime)
 
   return {
     name: 'nimhunt-expedition-proof',
@@ -59,23 +78,21 @@ export function expeditionProofPlugin(): Plugin {
         backend: env.NIMHUNT_PROOF_BACKEND,
         appOrigin: env.NIMHUNT_APP_ORIGIN,
       })
-      service = runtime.backend === 'memory'
-        ? createMemoryProofService({ blueprints: createPublishedBootstrapBlueprints(utcDayKey(new Date())) })
-        : null
     },
     configureServer(server) {
-      server.middlewares.use(createHandler(() => service, () => runtime))
+      server.middlewares.use(createHandler(() => backend.ensure(), () => runtime))
     },
     configurePreviewServer(server) {
-      server.middlewares.use(createHandler(() => null, () => runtime))
+      server.middlewares.use(createHandler(async () => null, () => runtime))
     },
   }
 }
 
 function createHandler(
-  getService: () => MemoryProofService | null,
+  getService: () => MemoryProofService | null | Promise<MemoryProofService | null>,
   getRuntime: () => ExpeditionRuntime,
 ) {
+  let dispatch: typeof import('./http.ts').dispatchExpeditionHttp | undefined
   return async (req: IncomingMessage, res: ServerResponse, next: () => void): Promise<void> => {
     const path = req.url?.split('?')[0] ?? ''
     if (!isOwnedPath(path)) {
@@ -86,7 +103,9 @@ function createHandler(
     const runtime = getRuntime()
     try {
       const rawBody = req.method === 'GET' || req.method === 'OPTIONS' ? undefined : await readBody(req)
-      const response = await dispatchExpeditionHttp(getService(), {
+      if (!dispatch) ({ dispatchExpeditionHttp: dispatch } = await import('./http.ts'))
+      const service = await getService()
+      const response = await dispatch(service, {
         method: req.method ?? 'GET',
         path: req.url ?? path,
         headers: readHeaders(req),
@@ -94,6 +113,7 @@ function createHandler(
         protocol: isTlsRequest(req) ? 'https' : 'http',
         rawBody,
       }, runtime)
+      traceStartChallengeHttp(path, req, runtime, response, service)
       writeJson(res, response.status, response.body, response.headers)
     } catch (error) {
       const tooLarge = error instanceof Error && error.message === 'REQUEST_TOO_LARGE'
@@ -112,6 +132,36 @@ function isOwnedPath(path: string): boolean {
     || path === '/api/expeditions/active'
     || path === '/api/expeditions/gameplay-start'
     || path === '/api/wallet-daily-status'
+}
+
+function traceStartChallengeHttp(
+  path: string,
+  req: IncomingMessage,
+  runtime: ExpeditionRuntime,
+  response: { readonly status: number; readonly body: unknown; readonly headers?: Readonly<Record<string, string>> },
+  service: MemoryProofService | null,
+): void {
+  if (path !== '/api/expeditions/start-challenge') return
+  if (process.env.VITEST === 'true' || process.env.NODE_ENV === 'test') return
+
+  const body = response.body
+  const fields = isPlainObject(body) ? Object.keys(body) : []
+  const error = isPlainObject(body) && typeof body.error === 'string' ? body.error : undefined
+  const contentType = response.headers?.['content-type'] ?? 'application/json; charset=utf-8'
+  console.info(
+    `[product-proof] START_CHALLENGE_HTTP_STATUS method=${req.method ?? 'GET'} status=${response.status} contentType=${contentType} fields=[${fields.join(',')}]`
+    + `${error ? ` error=${error}` : ''} originPresent=${req.headers.origin ? 'yes' : 'no'} host=${req.headers.host ?? 'missing'} expectedHost=${runtime.expectedHost || 'missing'} allowLocalAlias=${runtime.allowAuthorizedLocalHttpOrigins}`,
+  )
+  if (!service) {
+    console.info('[product-proof] PROOF_STORE_COUNTS service=null')
+    return
+  }
+  const snapshot = service.snapshot()
+  console.info(`[product-proof] PROOF_STORE_COUNTS challenges=${snapshot.challenges.length} runs=${snapshot.runs.length} sessions=${snapshot.sessions.length}`)
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 function readHeaders(req: IncomingMessage): Record<string, string | undefined> {

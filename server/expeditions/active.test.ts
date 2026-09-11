@@ -75,6 +75,28 @@ describe('authenticated active expedition recovery', () => {
     })
   })
 
+  it('consumes the daily attempt at durable start, not gameplay start or later leave', async () => {
+    const fixture = createFixture()
+    expect(fixture.service.getWalletDailyStatus(fixture.wallet)).toMatchObject({
+      expeditionsStarted: 0,
+      expeditionsRemaining: 3,
+    })
+
+    const started = await signedStart(fixture.service, fixture.keyPair, fixture.wallet)
+    expect(fixture.service.getWalletDailyStatus(fixture.wallet)).toMatchObject({
+      expeditionsStarted: 1,
+      expeditionsRemaining: 2,
+    })
+
+    const session = fixture.service.authenticateSession(started.result.sessionCapability)
+    fixture.service.markGameplayStarted(started.result.start.runId, session)
+    expect(() => fixture.service.getActiveExpedition(started.result.start.runId, session)).toThrow('ACTIVE_RUN_UNAVAILABLE')
+    expect(fixture.service.getWalletDailyStatus(fixture.wallet)).toMatchObject({
+      expeditionsStarted: 1,
+      expeditionsRemaining: 2,
+    })
+  })
+
   it('rejects active recovery after gameplay has started', async () => {
     const fixture = createFixture()
     const started = await signedStart(fixture.service, fixture.keyPair, fixture.wallet)

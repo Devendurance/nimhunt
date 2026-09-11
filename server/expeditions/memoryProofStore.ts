@@ -15,6 +15,7 @@ import type {
 } from '../../src/game/replay/types.ts'
 import { validateExpeditionBlueprint } from '../../src/game/replay/validator.ts'
 import { ProofError } from './errors.ts'
+import { isPrevalidatedRoom01Bootstrap } from './room01BootstrapPrevalidation.ts'
 import {
   fingerprintStartAuthorization,
   hashChallenge,
@@ -39,6 +40,23 @@ import { nextUtcResetAt, utcDayKey } from '../ledger/utcDay.ts'
 import { normalizeNimiqWallet } from '../ledger/wallet.ts'
 
 const validatedBlueprintHashes = new Set<string>()
+let publicationValidationRuns = 0
+let publicationValidationCacheHits = 0
+let publicationValidationPrevalidatedHits = 0
+
+export function publicationValidationStats(): {
+  readonly runs: number
+  readonly cacheHits: number
+  readonly prevalidatedHits: number
+  readonly cachedHashes: number
+} {
+  return {
+    runs: publicationValidationRuns,
+    cacheHits: publicationValidationCacheHits,
+    prevalidatedHits: publicationValidationPrevalidatedHits,
+    cachedHashes: validatedBlueprintHashes.size,
+  }
+}
 
 class AsyncMutex {
   private tail: Promise<void> = Promise.resolve()
@@ -101,7 +119,12 @@ export function createMemoryProofService(options: {
     },
 
     async issueStartChallenge(wallet, mission) {
-      const normalizedWallet = normalizeNimiqWallet(wallet)
+      let normalizedWallet: string
+      try {
+        normalizedWallet = normalizeNimiqWallet(wallet)
+      } catch {
+        throw new ProofError('INVALID_WALLET')
+      }
       const now = clock.now()
       const dayKey = utcDayKey(now)
       const blueprint = service.getPublishedBlueprint(dayKey, mission)
@@ -411,7 +434,16 @@ export function createMemoryProofService(options: {
 function validateForPublication(blueprint: ExpeditionBlueprint): void {
   const expectedHash = hashBlueprint(blueprint)
   if (blueprint.blueprintHash !== expectedHash) throw new ProofError('BLUEPRINT_INVALID')
-  if (validatedBlueprintHashes.has(expectedHash)) return
+  if (validatedBlueprintHashes.has(expectedHash)) {
+    publicationValidationCacheHits += 1
+    return
+  }
+  if (isPrevalidatedRoom01Bootstrap(blueprint)) {
+    publicationValidationPrevalidatedHits += 1
+    validatedBlueprintHashes.add(expectedHash)
+    return
+  }
+  publicationValidationRuns += 1
   if (!validateExpeditionBlueprint(blueprint).valid) throw new ProofError('BLUEPRINT_INVALID')
   validatedBlueprintHashes.add(expectedHash)
 }

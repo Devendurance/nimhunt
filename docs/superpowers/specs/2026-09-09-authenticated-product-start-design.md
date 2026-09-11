@@ -230,6 +230,24 @@ Missing, invalid, expired, revoked, mismatched, or already-started recovery retu
 
 It does not create a run, consume an attempt, issue a session, change a blueprint, or perform proof/reward work. Once this marker exists, this slice cannot restore eligible gameplay from the initial state after a reload. `/active` reports recovery unavailable instead.
 
+Gameplay-start idempotency clarification:
+
+If POST /api/expeditions/gameplay-start commits successfully but its response is lost, an exact retry from the same authenticated pre-mount route attempt must return a stable successful result such as GAMEPLAY_ALREADY_STARTED and must not mutate anything again.
+
+This permits:
+  /active succeeded in current SPA memory
+  -> gameplay-start committed
+  -> response lost
+  -> exact gameplay-start retry
+  -> same success
+  -> mount Phaser once
+
+This does NOT permit mid-run reload recovery.
+
+After a browser/WebView reload, the client no longer possesses the trusted pre-mount /active response in memory and must call /active again. Because gameplayStartedAt already exists, /active returns ACTIVE_RUN_UNAVAILABLE and the eligible game does not remount.
+
+gameplay-start must never return blueprint/run recovery data that would let a fresh reload bypass /active.
+
 ## 7. Blueprint and Phaser Handoff
 
 The typed browser API client strictly parses `/start` and `/active` responses. It rejects missing run IDs, unsupported rules/room/blueprint versions, malformed blueprints, missing blueprint IDs/hashes, mission mismatches, invalid run state, and incomplete blueprint-owned fields.
@@ -387,6 +405,21 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 The current committed `.env.example` contains a service-role-shaped JWT and project-specific URL. It must be treated as `POTENTIAL CREDENTIAL EXPOSURE` until proven otherwise. Do not print the values. Scrubbing the latest file is insufficient if the values were usable; they must be rotated/revoked in Supabase without committing the replacement. History rewriting is not required unless repository policy demands it.
 
 Run a safe tracked-file/diff scan for service-role keys, JWT-shaped credentials, private keys, seed phrases, bearer/session capabilities, Nimiq private material, accidental `.env` files, and `VITE_*` service-role variables. Confirm `.env` remains ignored and untracked. Report only classifications and paths, never secret contents.
+
+Repository Security Gate timing:
+
+The `.env.example` credential classification/scrub is Implementation Task 0, before feature changes.
+
+- Inspect without printing secret contents.
+- Determine whether the committed service-role-shaped value was usable.
+- If usable or uncertain, rotate/revoke it immediately in Supabase.
+- Replace tracked values with placeholders.
+- Confirm `.env` is ignored/untracked.
+- Check the relevant git history/path for the exposed value.
+- Never commit the replacement credential.
+
+Feature implementation may continue only after the repository no longer depends on any potentially exposed credential.
+
 
 ## 12. Implementation File Boundaries
 

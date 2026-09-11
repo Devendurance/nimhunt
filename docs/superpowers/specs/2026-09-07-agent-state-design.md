@@ -2,7 +2,7 @@
 
 ## Status
 
-Approved direction; implementation plan pending user review of this specification.
+Approved direction; written specification pending user review before the implementation plan.
 
 ## Goal
 
@@ -10,9 +10,9 @@ Give future coding sessions a compact, reliable handoff that survives context co
 
 ## Scope
 
-Add a tracked-by-convention `.agent-state/` folder containing three Markdown files and extend the repository-level `AGENTS.md` with read and maintenance instructions.
+Add a Git-tracked `.agent-state/` folder containing three Markdown files and extend the repository-level `AGENTS.md` with read and maintenance instructions.
 
-The project is not currently a Git repository. This setup will not initialize Git or create a commit. The files remain ordinary project files and can be tracked when Git is introduced later.
+The project is already a Git repository. The current `.gitignore` entry for `.agent-state/` will be removed so the continuity files are available to fresh sessions and collaborators.
 
 ## Non-goals
 
@@ -89,9 +89,9 @@ The root `AGENTS.md` will instruct agents to:
 
 The initial state content will summarize the existing project rather than invent new product decisions:
 
-- `project-state.md` will reflect the React/Vite baseline, the planned Nimiq Treasure Hunt phases, and the current architecture boundaries from `docs/projectplan.md` and `docs/architecture.md`.
-- `memory.md` will capture the already-locked Cycle 2 decisions and security invariants, with links to the canonical docs.
-- `left-off.md` will identify this state-memory setup as the current objective and state that application implementation has not yet begun in this workspace.
+- `project-state.md` will reflect the current React/Vite baseline, the active `/play?dev=game` Phaser development route, the implemented Room 01 Goblin/sword/potion milestone, and the architecture boundaries from `docs/projectplan.md` and `docs/architecture.md`.
+- `memory.md` will capture the already-locked Cycle 2 decisions, gameplay invariants, security invariants, and conventions visible in the current implementation, with links to the canonical docs.
+- `left-off.md` will identify the next gameplay-development objective, summarize the latest completed milestone and changed areas, record the repository verification state, and list concrete next steps.
 
 ## Acceptance Criteria
 
@@ -100,15 +100,16 @@ The initial state content will summarize the existing project rather than invent
 - The files have clearly different responsibilities and do not contradict the existing planning docs.
 - `AGENTS.md` defines when to read and update each file.
 - No scripts, secrets, Git initialization, or application-code changes are introduced.
-- The setup remains valid if the project is later placed under Git.
+- The setup remains valid across fresh clones, branches, and future sessions.
 
 ## Verification
 
 Verify the resulting file paths and contents manually, then run the existing project quality checks required for repository changes:
 
 ```text
+npm test
 npm run lint
 npm run build
 ```
 
-These checks are expected to validate that the documentation and `AGENTS.md` changes did not affect the application build.
+These checks are expected to validate that the documentation and `AGENTS.md` changes did not affect the application behavior or build.

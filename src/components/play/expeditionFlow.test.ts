@@ -1,41 +1,46 @@
 import { describe, expect, it } from 'vitest'
+import { playMissions } from '../../data/play'
 import {
   clearRunFromSearch,
   DEV_HUD_MODE,
   getBriefState,
   getExpeditionResult,
+  getMissionBoardCountLabel,
   isMissionLaunchable,
   parseRunParam,
   PRODUCT_HUD_MODE,
   resolvePlayRoute,
 } from './expeditionFlow'
 import { createInitialHUDState } from '../../game/events/gameEvents'
+import { MissionList } from './MissionList'
 
 describe('Real /play expedition flow', () => {
   it('launches a real game for Gem Runner', () => {
     expect(parseRunParam('gem-runner')).toBe('gem-runner')
     expect(isMissionLaunchable('gem-runner')).toBe(true)
-    expect(resolvePlayRoute({ dev: null, run: 'gem-runner', mission: null })).toEqual({
-      view: 'expedition',
+    expect(resolvePlayRoute({ dev: null, run: 'gem-runner', runId: 'run-1', practice: null, mission: null })).toEqual({
+      view: 'product-expedition',
       mission: 'gem-runner',
+      runId: 'run-1',
     })
   })
 
   it('launches a real game for Chest Hunter', () => {
     expect(parseRunParam('chest-hunter')).toBe('chest-hunter')
     expect(isMissionLaunchable('chest-hunter')).toBe(true)
-    expect(resolvePlayRoute({ dev: null, run: 'chest-hunter', mission: null })).toEqual({
-      view: 'expedition',
+    expect(resolvePlayRoute({ dev: null, run: 'chest-hunter', runId: 'run-2', practice: null, mission: null })).toEqual({
+      view: 'product-expedition',
       mission: 'chest-hunter',
+      runId: 'run-2',
     })
   })
 
   it('passes the selected mission through to Phaser', () => {
-    expect(resolvePlayRoute({ dev: 'game', run: null, mission: 'chest-hunter' })).toEqual({
+    expect(resolvePlayRoute({ dev: 'game', run: null, runId: null, practice: null, mission: 'chest-hunter' })).toEqual({
       view: 'dev-game',
       mission: 'chest-hunter',
     })
-    expect(resolvePlayRoute({ dev: 'game', run: null, mission: null })).toEqual({
+    expect(resolvePlayRoute({ dev: 'game', run: null, runId: null, practice: null, mission: null })).toEqual({
       view: 'dev-game',
       mission: 'gem-runner',
     })
@@ -44,9 +49,10 @@ describe('Real /play expedition flow', () => {
   it('launches a real game for Vault Breaker', () => {
     expect(parseRunParam('vault-breaker')).toBe('vault-breaker')
     expect(isMissionLaunchable('vault-breaker')).toBe(true)
-    expect(resolvePlayRoute({ dev: null, run: 'vault-breaker', mission: null })).toEqual({
-      view: 'expedition',
+    expect(resolvePlayRoute({ dev: null, run: 'vault-breaker', runId: 'run-3', practice: null, mission: null })).toEqual({
+      view: 'product-expedition',
       mission: 'vault-breaker',
+      runId: 'run-3',
     })
   })
 
@@ -54,6 +60,33 @@ describe('Real /play expedition flow', () => {
     expect(getBriefState('gem-runner')).toMatchObject({ canStart: true, badge: 'AVAILABLE' })
     expect(getBriefState('chest-hunter')).toMatchObject({ canStart: true, badge: 'AVAILABLE' })
     expect(getBriefState('vault-breaker')).toMatchObject({ canStart: true, badge: 'AVAILABLE' })
+  })
+
+  it('labels the mission board by mission count, not wallet attempts', () => {
+    expect(getMissionBoardCountLabel(playMissions)).toBe('3 MISSIONS')
+    expect(getMissionBoardCountLabel(playMissions)).not.toContain('AVAILABLE')
+    expect(getBriefState('gem-runner').canStart).toBe(true)
+  })
+
+  it('keeps mission cards and the attempt counter semantically separate', () => {
+    const board = MissionList({
+      missions: playMissions,
+      onEnter: () => undefined,
+      expeditionsLeftToday: '2 EXPEDITIONS LEFT TODAY',
+    })
+    const text = collectText(board).join(' ')
+    expect(text).toContain('3 MISSIONS')
+    expect(text).not.toContain('AVAILABLE')
+    expect(text).toContain('2 EXPEDITIONS LEFT TODAY')
+    expect(getMissionBoardCountLabel(playMissions)).not.toBe('2 EXPEDITIONS LEFT TODAY')
+  })
+
+  it('does not invent wallet attempts on the mission board before a wallet is known', () => {
+    const board = MissionList({ missions: playMissions, onEnter: () => undefined })
+    const text = collectText(board).join(' ')
+    expect(text).toContain('3 MISSIONS')
+    expect(text).not.toContain('3 AVAILABLE')
+    expect(text).not.toContain('EXPEDITIONS LEFT')
   })
 
   it('transitions a Gem Runner completion to the product result', () => {
@@ -92,8 +125,8 @@ describe('Real /play expedition flow', () => {
   })
 
   it('clears the run param when leaving back to the board', () => {
-    expect(clearRunFromSearch('?run=gem-runner')).toBe('')
-    expect(clearRunFromSearch('?run=chest-hunter&foo=bar')).toBe('?foo=bar')
+    expect(clearRunFromSearch('?run=gem-runner&runId=run-1')).toBe('')
+    expect(clearRunFromSearch('?run=chest-hunter&runId=run-2&foo=bar')).toBe('?foo=bar')
     expect(clearRunFromSearch('')).toBe('')
   })
 
@@ -105,12 +138,37 @@ describe('Real /play expedition flow', () => {
   })
 
   it('keeps /play?dev=nimiq routing intact', () => {
-    expect(resolvePlayRoute({ dev: 'nimiq', run: null, mission: null })).toEqual({ view: 'nimiq' })
-    expect(resolvePlayRoute({ dev: 'nimiq', run: 'gem-runner', mission: null })).toEqual({ view: 'nimiq' })
+    expect(resolvePlayRoute({ dev: 'nimiq', run: null, runId: null, practice: null, mission: null })).toEqual({ view: 'nimiq' })
+    expect(resolvePlayRoute({ dev: 'nimiq', run: 'gem-runner', runId: 'run-1', practice: null, mission: null })).toEqual({ view: 'nimiq' })
   })
 
   it('falls back to the shell for unknown params', () => {
-    expect(resolvePlayRoute({ dev: null, run: null, mission: null })).toEqual({ view: 'shell' })
-    expect(resolvePlayRoute({ dev: 'other', run: null, mission: null })).toEqual({ view: 'shell' })
+    expect(resolvePlayRoute({ dev: null, run: null, runId: null, practice: null, mission: null })).toEqual({ view: 'shell' })
+    expect(resolvePlayRoute({ dev: 'other', run: null, runId: null, practice: null, mission: null })).toEqual({ view: 'shell' })
+  })
+
+  it('never mounts product gameplay without a server run id', () => {
+    expect(resolvePlayRoute({ dev: null, run: 'gem-runner', runId: null, practice: null, mission: null })).toEqual({
+      view: 'invalid-product',
+      reason: 'RUN_ID_REQUIRED',
+    })
+  })
+
+  it('keeps Practice as an explicit local route', () => {
+    expect(resolvePlayRoute({ dev: null, run: null, runId: null, practice: 'gem-runner', mission: null })).toEqual({
+      view: 'practice',
+      mission: 'gem-runner',
+    })
   })
 })
+
+function collectText(value: unknown): string[] {
+  if (typeof value === 'string' || typeof value === 'number') return [String(value)]
+  if (Array.isArray(value)) return value.flatMap(collectText)
+  if (!isRecord(value) || !isRecord(value.props)) return []
+  return collectText(value.props.children)
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}

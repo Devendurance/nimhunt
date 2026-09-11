@@ -4,10 +4,12 @@ import { AngkorDevScene } from '../scenes/AngkorDevScene'
 import { ANGKOR_ROOM_01 } from '../world/room01'
 import { TILE_SIZE } from '../world/grid'
 import type { NimHuntGameBridge } from '../events/gameEvents'
+import type { CreateGameOptions } from '../createNimHuntGame'
 
 export function createGameConfig(
   parent: HTMLElement,
   bridge: NimHuntGameBridge,
+  options: CreateGameOptions,
 ): Phaser.Types.Core.GameConfig {
   const gameWidth = ANGKOR_ROOM_01.width * TILE_SIZE // 384px
   const gameHeight = ANGKOR_ROOM_01.height * TILE_SIZE // 320px
@@ -34,6 +36,6 @@ export function createGameConfig(
       roundPixels: true,
       antialias: true,
     },
-    scene: [BootScene, new AngkorDevScene(bridge)],
+    scene: [BootScene, new AngkorDevScene(bridge, options)],
   }
 }

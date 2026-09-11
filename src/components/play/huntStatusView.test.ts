@@ -1,13 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import { playFixture } from '../../data/play.fixtures'
-import { formatResetCountdown, resolveHuntStatusView } from './huntStatusView.ts'
+import { formatExpeditionsLeftToday, formatResetCountdown, resolveHuntStatusView } from './huntStatusView.ts'
 
 describe('HuntStatus live treasure view', () => {
   it('does not present the fixture treasure count as live while loading or unavailable', () => {
-    expect(resolveHuntStatusView({ kind: 'loading' }, playFixture).treasuresRemaining).toBe('—')
-    expect(resolveHuntStatusView({ kind: 'unavailable' }, playFixture).treasuresRemaining).toBe('—')
-    expect(resolveHuntStatusView({ kind: 'unavailable' }, playFixture).badge).toBe('TREASURE COUNT UNAVAILABLE')
-    expect(resolveHuntStatusView({ kind: 'loading' }, playFixture).badge).toBe('LOADING')
+    const loading = resolveHuntStatusView({ kind: 'loading', walletStatus: null }, playFixture)
+    const unavailable = resolveHuntStatusView({ kind: 'unavailable', walletStatus: null }, playFixture)
+    expect(loading.treasuresRemaining).toBe('—')
+    expect(unavailable.treasuresRemaining).toBe('—')
+    expect(unavailable.badge).toBe('TREASURE COUNT UNAVAILABLE')
+    expect(loading.badge).toBe('LOADING')
+    expect(loading.expeditionsRemaining).toBe('—')
+    expect(loading.expeditionsLabel).toBe('wallet required')
   })
 
   it('uses the server remaining count when the daily hunt is live', () => {
@@ -17,6 +21,7 @@ describe('HuntStatus live treasure view', () => {
         remainingSlots: 21,
         totalSlots: 69,
         nextResetAt: '2026-09-09T00:00:00.000Z',
+        walletStatus: null,
       },
       playFixture,
     )
@@ -24,6 +29,56 @@ describe('HuntStatus live treasure view', () => {
     expect(view.treasuresTotal).toBe('69')
     expect(view.badge).toBe('LIVE · SERVER')
     expect(view.treasuresRemaining).not.toBe(String(playFixture.treasuresRemaining))
+    expect(view.expeditionsRemaining).toBe('—')
+  })
+
+  it('uses wallet attempts only after a deliberate product start provides a wallet', () => {
+    const view = resolveHuntStatusView(
+      {
+        kind: 'live',
+        remainingSlots: 21,
+        totalSlots: 69,
+        nextResetAt: '2026-09-09T00:00:00.000Z',
+        walletStatus: {
+          dayKey: '2026-09-09',
+          expeditionsStarted: 1,
+          expeditionsRemaining: 2,
+          rewardAlreadyReserved: false,
+          nextResetAt: '2026-09-10T00:00:00.000Z',
+        },
+      },
+      playFixture,
+    )
+    expect(view.expeditionsRemaining).toBe('2')
+    expect(view.expeditionsLabel).toBe('expeditions left today')
+    expect(formatExpeditionsLeftToday({
+      dayKey: '2026-09-09',
+      expeditionsStarted: 1,
+      expeditionsRemaining: 2,
+      rewardAlreadyReserved: false,
+      nextResetAt: '2026-09-10T00:00:00.000Z',
+    })).toBe('2 EXPEDITIONS LEFT TODAY')
+  })
+
+  it('keeps attempts unknown before a wallet is known and shows 0 after three starts', () => {
+    expect(formatExpeditionsLeftToday(null)).toBeNull()
+    const empty = resolveHuntStatusView({ kind: 'live', remainingSlots: 21, totalSlots: 69, nextResetAt: '2026-09-09T00:00:00.000Z', walletStatus: null }, playFixture)
+    expect(empty.expeditionsRemaining).toBe('—')
+    expect(empty.expeditionsLabel).toBe('wallet required')
+    expect(formatExpeditionsLeftToday({
+      dayKey: '2026-09-09',
+      expeditionsStarted: 3,
+      expeditionsRemaining: 0,
+      rewardAlreadyReserved: false,
+      nextResetAt: '2026-09-10T00:00:00.000Z',
+    })).toBe('0 EXPEDITIONS LEFT TODAY')
+    expect(formatExpeditionsLeftToday({
+      dayKey: '2026-09-09',
+      expeditionsStarted: 2,
+      expeditionsRemaining: 1,
+      rewardAlreadyReserved: false,
+      nextResetAt: '2026-09-10T00:00:00.000Z',
+    })).toBe('1 EXPEDITION LEFT TODAY')
   })
 
   it('formats the UTC reset countdown from the server timestamp', () => {

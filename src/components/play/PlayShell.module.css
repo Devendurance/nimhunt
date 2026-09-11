@@ -60,6 +60,7 @@
 .sectionHeading { align-items: end; }
 .sectionHeading h2 { margin: 6px 0 0; color: #f3ead7; font: 400 26px/30px 'Jungle Fever', Impact, sans-serif; text-transform: uppercase; }
 .sectionIntro { margin: 10px 0 14px; color: #b5c2b5; font-size: 12px; line-height: 1.5; }
+.attemptsCopy { margin: 10px 0 0; color: #f3ead7; font: 400 16px/20px 'Jungle Fever', Impact, sans-serif; letter-spacing: .5px; text-transform: uppercase; }
 .missionList { display: grid; gap: 10px; margin-top: 14px; }
 .missionCard { display: grid; grid-template-columns: 42px 1fr; gap: 12px; padding: 14px 12px; border: 1px solid rgba(243, 234, 215, .15); border-radius: 16px; background: rgba(27, 56, 51, .76); }
 .missionIcon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; color: #3e88f7; background: rgba(62, 136, 247, .12); }
@@ -135,6 +136,27 @@
 .sheetPrimary, .sheetSecondary { padding: 11px 12px; }
 .sheetPrimary { border: 0; color: #132a26; background: linear-gradient(110deg, #f2c14e, #ffd86a); }
 .sheetSecondary { border: 1px solid rgba(243, 234, 215, .28); color: #f3ead7; background: transparent; }
+.productPanel { display: grid; gap: 14px; }
+.productPanel h2 { margin: 2px 0 0; color: #f3ead7; font: 400 30px/32px 'Jungle Fever', Impact, sans-serif; text-transform: uppercase; }
+.productIntro { color: #d3dbd1; font-size: 14px; line-height: 1.5; }
+.productStatus { margin: 16px 0 2px; color: #ffd86a; font: 400 20px/24px 'Jungle Fever', Impact, sans-serif; }
+.accountList { display: grid; gap: 8px; }
+.accountButton { display: grid; gap: 3px; min-height: 56px; padding: 10px 12px; border: 1px solid rgba(62, 136, 247, .5); border-radius: 12px; color: #f3ead7; background: rgba(62, 136, 247, .08); text-align: left; }
+.accountButton:hover { border-color: #3e88f7; background: rgba(62, 136, 247, .14); }
+.accountButton span { font: 400 16px/20px 'Jungle Fever', Impact, sans-serif; text-transform: uppercase; }
+.accountButton small { overflow: hidden; color: #aab8ac; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.canonicalPayload { max-height: 190px; margin: 0; padding: 12px; overflow: auto; border: 1px solid rgba(243, 234, 215, .16); border-radius: 12px; color: #d7e6ff; background: #0d211d; font: 11px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.productNotice, .productError { padding: 13px; border-left: 2px solid #3e88f7; background: rgba(62, 136, 247, .09); }
+.productNotice strong, .productError strong { color: #d7e6ff; font-size: 12px; letter-spacing: .35px; }
+.productNotice p, .productError p { margin-top: 7px; color: #b5c2b5; font-size: 11px; line-height: 1.5; }
+.productError { border-left-color: #a56c43; background: rgba(165, 108, 67, .12); }
+.productError strong { color: #ffd3a7; }
+.productActions { display: grid; gap: 8px; margin-top: 2px; }
+.productActions .sheetPrimary, .productActions .sheetSecondary { width: 100%; }
+.gateCard { display: grid; gap: 16px; margin-top: 24px; padding: 20px 16px; border: 1px solid rgba(243, 234, 215, .17); border-radius: 18px; background: #1b3833; }
+.gateCard h1 { color: #f3ead7; font: 400 30px/32px 'Jungle Fever', Impact, sans-serif; text-transform: uppercase; }
+.gateStatus { color: #ffd86a; font: 400 20px/24px 'Jungle Fever', Impact, sans-serif; }
+.gateCard .sheetPrimary, .gateCard .sheetSecondary { width: 100%; min-height: 44px; }
 
 .footerMark { padding: 0 16px calc(73px + env(safe-area-inset-bottom)); color: #647c72; font-size: 8px; letter-spacing: .8px; text-align: center; }
 .visuallyHidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
