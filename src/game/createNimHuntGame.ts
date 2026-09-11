@@ -8,7 +8,10 @@ import {
   type PlayerHUDState,
 } from './events/gameEvents'
 import type { ExpeditionBlueprint, MissionType, ReplayState } from './replay/types.ts'
+import type { ProductProofBridge } from './productProof.ts'
 import type { Direction } from './world/grid'
+
+export type { ProductProofBridge }
 
 export interface NimHuntGameInstance {
   game: Phaser.Game
@@ -26,6 +29,7 @@ export type CreateGameOptions =
     readonly mission: MissionType
     readonly blueprint: ExpeditionBlueprint
     readonly initialState: ReplayState
+    readonly proof?: ProductProofBridge
   }
 
 /**

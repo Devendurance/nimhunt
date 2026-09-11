@@ -5,6 +5,12 @@ import type { Direction } from '../../game/world/grid'
 import type { ProductActiveExpedition } from '../../domain/expeditionProof.ts'
 import type { CreateGameOptions } from '../../game/createNimHuntGame'
 import { getExpeditionResult, type PlayableMission } from './expeditionFlow'
+import {
+  PROOF_LOST_DETAIL,
+  PROOF_LOST_TITLE,
+  SYNCING_COPY,
+  useProductCheckpoint,
+} from './productCheckpoint'
 import { useAngkorRun } from './useAngkorRun'
 import styles from './ExpeditionView.module.css'
 
@@ -27,17 +33,18 @@ type ExpeditionViewProps = {
 export function ExpeditionView(props: ExpeditionViewProps) {
   const { mission, mode, onBackToMissions, onReturnToHunt } = props
   const active = props.mode === 'product' ? props.active : null
+  const checkpoint = useProductCheckpoint(active)
   const gameOptions = useMemo<CreateGameOptions>(() => {
     if (mode === 'practice') return { mode: 'dev', mission }
     if (!active) throw new Error('PRODUCT_ACTIVE_EXPEDITION_REQUIRED')
-    return { mode: 'product', mission, blueprint: active.blueprint, initialState: active.state }
-  }, [active, mission, mode])
+    return { mode: 'product', mission, blueprint: active.blueprint, initialState: active.state, proof: checkpoint.proof }
+  }, [active, checkpoint.proof, mission, mode])
   const { containerRef, hud, move } = useAngkorRun(gameOptions)
   const terminal = hud.runStatus !== 'PLAYING'
   const result = getExpeditionResult(hud)
   const isChestHunter = mission === 'chest-hunter'
   const isVault = mission === 'vault-breaker'
-  const inputLocked = terminal
+  const inputLocked = terminal || checkpoint.view.movementPaused
   const [confirmingLeave, setConfirmingLeave] = useState(false)
   const headingRef = useRef<HTMLHeadingElement>(null)
   const leaveButtonRef = useRef<HTMLButtonElement>(null)
@@ -59,6 +66,10 @@ export function ExpeditionView(props: ExpeditionViewProps) {
     setConfirmingLeave(false)
     requestAnimationFrame(() => leaveButtonRef.current?.focus())
   }, [])
+
+  const leaveExpedition = useCallback(() => {
+    void checkpoint.flushPending().finally(onBackToMissions)
+  }, [checkpoint, onBackToMissions])
 
   useEffect(() => {
     if (!confirmingLeave) return
@@ -103,6 +114,11 @@ export function ExpeditionView(props: ExpeditionViewProps) {
       <span>No daily expedition used.</span>
       <span>No NIM reward can be reserved.</span>
     </section>}
+    {checkpoint.view.proofLost && <section className={styles.proofLost} role="status" aria-label="Reward proof interrupted">
+      <strong>{PROOF_LOST_TITLE}</strong>
+      <span>{PROOF_LOST_DETAIL}</span>
+    </section>}
+    {checkpoint.view.syncing && !checkpoint.view.proofLost && <p className={styles.syncNotice} role="status">{SYNCING_COPY}</p>}
     <section className={styles.hudCard} aria-label={`${missionTitle} mission progress`}>
       <p className={styles.objective}>{missionObjective}</p>
       <div className={styles.metrics}>
@@ -139,7 +155,7 @@ export function ExpeditionView(props: ExpeditionViewProps) {
         <p id="leave-description">{mode === 'product' ? 'Leaving exits this expedition. The reward attempt remains recorded.' : 'Leaving ends this local run. Nothing is consumed or saved yet.'}</p>
         <div className={styles.actions}>
           <button type="button" className={styles.stayBtn} onClick={closeConfirm}>Stay</button>
-          <button type="button" onClick={onBackToMissions}>Leave</button>
+          <button type="button" onClick={leaveExpedition}>Leave</button>
         </div>
       </section>
     </div>}

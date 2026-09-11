@@ -14,6 +14,7 @@ import type {
   ExpeditionTranscript,
 } from '../../src/game/replay/types.ts'
 import { validateExpeditionBlueprint } from '../../src/game/replay/validator.ts'
+import { applyCheckpointBatch } from './checkpoint.ts'
 import { ProofError } from './errors.ts'
 import { isPrevalidatedRoom01Bootstrap } from './room01BootstrapPrevalidation.ts'
 import {
@@ -255,6 +256,21 @@ export function createMemoryProofService(options: {
       runs.set(runId, { ...run, gameplayStartedAt: now.toISOString() })
       return { runId, outcome: 'GAMEPLAY_STARTED' } satisfies ProductGameplayStartResponse
     },
+
+    appendCheckpoint(input) {
+      return mutex.run(() => {
+        const { run, now } = requireAuthenticatedRun(input.runId, input.session)
+        if (!run.gameplayStartedAt || run.status !== 'STARTED' || now.getTime() >= new Date(run.expiresAt).getTime()) {
+          throw new ProofError('RUN_NOT_ACTIVE')
+        }
+        const result = applyCheckpointBatch(run, {
+          previousCheckpointHash: input.previousCheckpointHash,
+          actions: input.actions,
+        })
+        runs.set(input.runId, result.run)
+        return result.acknowledgement
+      })
+    },
   }
 
   for (const blueprint of options.blueprints ?? []) service.registerBlueprint(blueprint)
@@ -342,6 +358,8 @@ export function createMemoryProofService(options: {
       initialCheckpointHash: checkpoint.checkpointHash,
       checkpointHash: checkpoint.checkpointHash,
       seq: 0,
+      actions: [],
+      batches: [],
     }
     const start: StartResult = {
       runId,
@@ -509,6 +527,12 @@ function cloneRun(run: DurableExpeditionRun): DurableExpeditionRun {
     blueprint: cloneBlueprint(run.blueprint),
     state: JSON.parse(JSON.stringify(run.state)) as DurableExpeditionRun['state'],
     checkpoint: { ...run.checkpoint },
+    actions: run.actions.map(action => ({ ...action })),
+    batches: run.batches.map(batch => ({
+      ...batch,
+      actions: batch.actions.map(action => ({ ...action })),
+      acknowledgement: { ...batch.acknowledgement },
+    })),
   }
 }
 

@@ -1,10 +1,13 @@
 import {
   ACTIVE_EXPEDITION_PATH,
+  CHECKPOINT_PATH,
   GAMEPLAY_START_PATH,
   START_CHALLENGE_PATH,
   START_EXPEDITION_PATH,
 } from '../domain/expeditionProof.ts'
 import type {
+  CheckpointAcknowledgement,
+  CheckpointRequest,
   ExpeditionProofErrorCode,
   ProductActiveExpedition,
   ProductGameplayStartResponse,
@@ -87,6 +90,19 @@ export async function markGameplayStarted(
   fetcher: typeof fetch = fetch,
 ): Promise<ProductGameplayStartResponse> {
   return requestJson(fetcher, GAMEPLAY_START_PATH, postRequest({ runId }), parseGameplayStartResponse)
+}
+
+export async function submitCheckpoint(
+  request: CheckpointRequest,
+  fetcher: typeof fetch = fetch,
+): Promise<CheckpointAcknowledgement> {
+  const seqStart = request.actions[0]?.seq
+  const seqEnd = request.actions[request.actions.length - 1]?.seq
+  traceCheckpoint(
+    'CHECKPOINT_REQUEST_BEGIN',
+    `url=${CHECKPOINT_PATH} seq=${seqStart ?? '?'}-${seqEnd ?? '?'} prev=${truncateHash(request.previousCheckpointHash)} actionCount=${request.actions.length} dirs=${request.actions.map(action => action.direction).join(',')}`,
+  )
+  return requestJson(fetcher, CHECKPOINT_PATH, postRequest(request), parseCheckpointAcknowledgement)
 }
 
 export function parseStartChallengeResponse(value: unknown): StartChallengeResponse | null {
@@ -191,6 +207,71 @@ export function parseGameplayStartResponse(value: unknown): ProductGameplayStart
   return { runId: value.runId, outcome: value.outcome }
 }
 
+export function parseCheckpointAcknowledgement(value: unknown): CheckpointAcknowledgement | null {
+  if (!isRecord(value) || !hasExactKeys(value, [
+    'ok',
+    'runId',
+    'acknowledgedSeq',
+    'seqStart',
+    'seqEnd',
+    'previousCheckpointHash',
+    'checkpointHash',
+    'transcriptHash',
+    'stateHash',
+    'batchFingerprint',
+    'hp',
+    'gemsCollected',
+    'chestsOpened',
+    'hasTempleKey',
+    'objectiveReached',
+    'missionSatisfied',
+    'dead',
+  ])) return null
+  if (value.ok !== true
+    || !isBoundedString(value.runId, 128)
+    || !isPositiveInteger(value.acknowledgedSeq)
+    || !isPositiveInteger(value.seqStart)
+    || !isPositiveInteger(value.seqEnd)
+    || value.seqEnd < value.seqStart
+    || value.acknowledgedSeq !== value.seqEnd
+    || !isHash(value.previousCheckpointHash)
+    || !isHash(value.checkpointHash)
+    || !isHash(value.transcriptHash)
+    || !isHash(value.stateHash)
+    || !isHash(value.batchFingerprint)
+    || !isFiniteNumber(value.hp)
+    || value.hp < 0
+    || value.hp > 100
+    || !isNonNegativeInteger(value.gemsCollected)
+    || !isNonNegativeInteger(value.chestsOpened)
+    || typeof value.hasTempleKey !== 'boolean'
+    || typeof value.objectiveReached !== 'boolean'
+    || typeof value.missionSatisfied !== 'boolean'
+    || typeof value.dead !== 'boolean') return null
+  return {
+    runId: value.runId,
+    acknowledgedSeq: value.acknowledgedSeq,
+    seqStart: value.seqStart,
+    seqEnd: value.seqEnd,
+    previousCheckpointHash: value.previousCheckpointHash,
+    checkpointHash: value.checkpointHash,
+    transcriptHash: value.transcriptHash,
+    stateHash: value.stateHash,
+    batchFingerprint: value.batchFingerprint,
+    hp: value.hp,
+    gemsCollected: value.gemsCollected,
+    chestsOpened: value.chestsOpened,
+    hasTempleKey: value.hasTempleKey,
+    objectiveReached: value.objectiveReached,
+    missionSatisfied: value.missionSatisfied,
+    dead: value.dead,
+  }
+}
+
+function isPositiveInteger(value: unknown): value is number {
+  return isNonNegativeInteger(value) && value >= 1
+}
+
 async function requestJson<T>(
   fetcher: typeof fetch,
   path: string,
@@ -198,31 +279,42 @@ async function requestJson<T>(
   parser: (value: unknown) => T | null,
 ): Promise<T> {
   const startChallenge = path === START_CHALLENGE_PATH
+  const checkpoint = path === CHECKPOINT_PATH
   let response: Response
   try {
     response = await fetcher(path, init)
   } catch {
+    if (checkpoint) traceCheckpoint('CHECKPOINT_ERROR_CODE', 'code=NETWORK_ERROR')
     throw new ExpeditionProofApiError('NETWORK_ERROR')
   }
 
   const status = response.status
   const contentType = response.headers?.get?.('content-type') ?? 'missing'
   if (startChallenge) traceStartChallenge('START_CHALLENGE_HTTP_STATUS', `status=${status} contentType=${contentType}`)
+  if (checkpoint) traceCheckpoint('CHECKPOINT_HTTP_STATUS', `status=${status} contentType=${contentType}`)
 
   let data: unknown
   try {
     data = await response.json()
   } catch {
     if (startChallenge) traceStartChallenge('START_CHALLENGE_PARSE_FAILURE', `status=${status} contentType=${contentType} json=false`)
+    if (checkpoint) traceCheckpoint('CHECKPOINT_PARSE_FAILURE', `status=${status} contentType=${contentType} json=false`)
     throw new ExpeditionProofApiError('MALFORMED_RESPONSE')
   }
   if (startChallenge) {
     traceStartChallenge('START_CHALLENGE_RESPONSE_RECEIVED', `status=${status} contentType=${contentType} fields=[${fieldNames(data)}]`)
   }
+  if (checkpoint) {
+    traceCheckpoint('CHECKPOINT_RESPONSE_FIELDS', `status=${status} contentType=${contentType} fields=[${fieldNames(data)}]`)
+  }
   if (!response.ok) {
     const errorCode = readErrorCode(data)
     if (startChallenge && !errorCode) {
       traceStartChallenge('START_CHALLENGE_PARSE_FAILURE', `status=${status} parserMissing=knownError`)
+    }
+    if (checkpoint) {
+      traceCheckpoint('CHECKPOINT_ERROR_CODE', `code=${errorCode ?? 'MALFORMED_RESPONSE'} status=${status}`)
+      if (!errorCode) traceCheckpoint('CHECKPOINT_PARSE_FAILURE', `status=${status} parserMissing=knownError`)
     }
     throw new ExpeditionProofApiError(errorCode ?? 'MALFORMED_RESPONSE')
   }
@@ -231,9 +323,11 @@ async function requestJson<T>(
   const parsed = parser(data)
   if (!parsed) {
     if (startChallenge) traceStartChallenge('START_CHALLENGE_PARSE_FAILURE', diagnoseStartChallengeParse(data))
+    if (checkpoint) traceCheckpoint('CHECKPOINT_PARSE_FAILURE', diagnoseCheckpointParse(data))
     throw new ExpeditionProofApiError('MALFORMED_RESPONSE')
   }
   if (startChallenge) traceStartChallenge('START_CHALLENGE_PARSE_SUCCESS', `fields=[${fieldNames(data)}]`)
+  if (checkpoint) traceCheckpoint('CHECKPOINT_PARSE_SUCCESS', `fields=[${fieldNames(data)}]`)
   return parsed
 }
 
@@ -245,6 +339,49 @@ function traceStartChallenge(boundary: string, details = ''): void {
 
 function fieldNames(value: unknown): string {
   return isRecord(value) ? Object.keys(value).join(',') : typeof value
+}
+
+function diagnoseCheckpointParse(value: unknown): string {
+  const expected = [
+    'ok',
+    'runId',
+    'acknowledgedSeq',
+    'seqStart',
+    'seqEnd',
+    'previousCheckpointHash',
+    'checkpointHash',
+    'transcriptHash',
+    'stateHash',
+    'batchFingerprint',
+    'hp',
+    'gemsCollected',
+    'chestsOpened',
+    'hasTempleKey',
+    'objectiveReached',
+    'missionSatisfied',
+    'dead',
+  ]
+  if (!isRecord(value)) return `parserMissing=object actual=${typeof value}`
+  const keys = Object.keys(value)
+  const missing = expected.filter(key => !keys.includes(key))
+  const extra = keys.filter(key => !expected.includes(key))
+  if (missing.length > 0 || extra.length > 0) {
+    return [
+      missing.length > 0 ? `parserMissing=${missing.join(',')}` : '',
+      extra.length > 0 ? `parserExtra=${extra.join(',')}` : '',
+    ].filter(Boolean).join(' ')
+  }
+  return 'parserInvalid=value'
+}
+
+function truncateHash(value: string): string {
+  return /^[0-9a-f]{64}$/.test(value) ? `${value.slice(0, 8)}…` : 'invalid'
+}
+
+function traceCheckpoint(boundary: string, details = ''): void {
+  const env = (import.meta as ImportMeta & { env?: { DEV?: boolean; MODE?: string } }).env
+  if (!env?.DEV || env.MODE === 'test') return
+  console.info(`[product-checkpoint] ${boundary}${details ? ` ${details}` : ''}`)
 }
 
 function diagnoseStartChallengeParse(value: unknown): string {

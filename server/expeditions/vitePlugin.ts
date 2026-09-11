@@ -1,7 +1,28 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { loadEnv, type Plugin } from 'vite'
+import { WALLET_DAILY_STATUS_PATH } from '../../src/domain/dailyLedger.ts'
+import {
+  ACTIVE_EXPEDITION_PATH,
+  CHECKPOINT_PATH,
+  GAMEPLAY_START_PATH,
+  START_CHALLENGE_PATH,
+  START_EXPEDITION_PATH,
+} from '../../src/domain/expeditionProof.ts'
 import { createLazyValue, type LazyValue } from './lazyValue.ts'
 import type { MemoryProofService } from './types.ts'
+
+const OWNED_EXPEDITION_PATHS = new Set([
+  START_CHALLENGE_PATH,
+  START_EXPEDITION_PATH,
+  ACTIVE_EXPEDITION_PATH,
+  GAMEPLAY_START_PATH,
+  CHECKPOINT_PATH,
+  WALLET_DAILY_STATUS_PATH,
+])
+
+export function isOwnedExpeditionPath(path: string): boolean {
+  return OWNED_EXPEDITION_PATHS.has(path)
+}
 
 export type ExpeditionRuntimeInput = {
   readonly mode: string
@@ -95,7 +116,7 @@ function createHandler(
   let dispatch: typeof import('./http.ts').dispatchExpeditionHttp | undefined
   return async (req: IncomingMessage, res: ServerResponse, next: () => void): Promise<void> => {
     const path = req.url?.split('?')[0] ?? ''
-    if (!isOwnedPath(path)) {
+    if (!isOwnedExpeditionPath(path)) {
       next()
       return
     }
@@ -114,6 +135,7 @@ function createHandler(
         rawBody,
       }, runtime)
       traceStartChallengeHttp(path, req, runtime, response, service)
+      traceCheckpointHttp(path, req, runtime, response, service, rawBody)
       writeJson(res, response.status, response.body, response.headers)
     } catch (error) {
       const tooLarge = error instanceof Error && error.message === 'REQUEST_TOO_LARGE'
@@ -126,12 +148,63 @@ function createHandler(
   }
 }
 
-function isOwnedPath(path: string): boolean {
-  return path === '/api/expeditions/start-challenge'
-    || path === '/api/expeditions/start'
-    || path === '/api/expeditions/active'
-    || path === '/api/expeditions/gameplay-start'
-    || path === '/api/wallet-daily-status'
+function traceCheckpointHttp(
+  path: string,
+  req: IncomingMessage,
+  runtime: ExpeditionRuntime,
+  response: { readonly status: number; readonly body: unknown; readonly headers?: Readonly<Record<string, string>> },
+  service: MemoryProofService | null,
+  rawBody: string | undefined,
+): void {
+  if (path !== CHECKPOINT_PATH) return
+  if (process.env.VITEST === 'true' || process.env.NODE_ENV === 'test') return
+
+  const body = response.body
+  const fields = isPlainObject(body) ? Object.keys(body) : []
+  const error = isPlainObject(body) && typeof body.error === 'string' ? body.error : undefined
+  const contentType = response.headers?.['content-type'] ?? 'application/json; charset=utf-8'
+  console.info(
+    `[product-proof] CHECKPOINT_HTTP_STATUS method=${req.method ?? 'POST'} status=${response.status} contentType=${contentType} fields=[${fields.join(',')}]`
+    + `${error ? ` error=${error}` : ''} cookiePresent=${req.headers.cookie ? 'yes' : 'no'} originPresent=${req.headers.origin ? 'yes' : 'no'} host=${req.headers.host ?? 'missing'} expectedHost=${runtime.expectedHost || 'missing'} allowLocalAlias=${runtime.allowAuthorizedLocalHttpOrigins}`,
+  )
+  console.info(`[product-proof] CHECKPOINT_REQUEST ${summarizeCheckpointRequest(rawBody)} ${summarizeServerCheckpoint(service, rawBody)}`)
+}
+
+function summarizeCheckpointRequest(rawBody: string | undefined): string {
+  const parsed = readSafeJsonObject(rawBody)
+  if (!parsed) return 'body=unparsed'
+  const actions = Array.isArray(parsed.actions) ? parsed.actions : []
+  const seqs = actions.map(action => (isPlainObject(action) && typeof action.seq === 'number' ? action.seq : '?'))
+  const dirs = actions.map(action => (isPlainObject(action) && typeof action.direction === 'string' ? action.direction : '?'))
+  return `seq=${seqs[0] ?? '?'}-${seqs[seqs.length - 1] ?? '?'} prev=${truncateHash(parsed.previousCheckpointHash)} dirs=${dirs.join(',')} actionCount=${actions.length}`
+}
+
+function summarizeServerCheckpoint(service: MemoryProofService | null, rawBody: string | undefined): string {
+  if (!service) return 'service=null'
+  const parsed = readSafeJsonObject(rawBody)
+  const runId = parsed && typeof parsed.runId === 'string' ? parsed.runId : null
+  if (!runId) return 'run=unknown'
+  const run = service.getRun(runId)
+  if (!run) return 'run=missing'
+  // Compared after dispatch: client previousCheckpointHash is pre-append; run.checkpointHash is post-append.
+  const clientPreviousCheckpointHash = parsed ? parsed.previousCheckpointHash : undefined
+  const serverCheckpointHashAfterDispatch = run.checkpointHash
+  const prevEqualsCurrent = clientPreviousCheckpointHash === serverCheckpointHashAfterDispatch ? 'yes' : 'no'
+  return `serverSeq=${run.seq} clientPrev=${truncateHash(clientPreviousCheckpointHash)} serverAfterDispatch=${truncateHash(serverCheckpointHashAfterDispatch)} prevEqualsCurrent=${prevEqualsCurrent}`
+}
+
+function readSafeJsonObject(rawBody: string | undefined): Record<string, unknown> | null {
+  if (!rawBody) return null
+  try {
+    const parsed: unknown = JSON.parse(rawBody)
+    return isPlainObject(parsed) ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+function truncateHash(value: unknown): string {
+  return typeof value === 'string' && /^[0-9a-f]{64}$/.test(value) ? `${value.slice(0, 8)}…` : 'invalid'
 }
 
 function traceStartChallengeHttp(

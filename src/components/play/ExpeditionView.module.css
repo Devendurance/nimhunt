@@ -6,6 +6,9 @@
 .leaveBtn { display:inline-flex; align-items:center; justify-content:center; min-height:44px; border:1px solid #79988b; border-radius:9999px; background:#1b3833; color:#f3ead7; padding:8px 14px; font:500 12px/18px Inter,sans-serif; cursor:pointer; flex-shrink:0; white-space:nowrap; }
 .practiceNotice { display:grid; gap:2px; margin-bottom:10px; padding:9px 12px; border:1px solid #486258; border-radius:12px; background:#1b3833; color:#c0d0c6; font-size:11px; line-height:16px; }
 .practiceNotice strong { color:#81b4ff; font-size:10px; letter-spacing:.08em; }
+.syncNotice { margin-bottom:10px; padding:8px 12px; border:1px solid #486258; border-radius:12px; background:#1b3833; color:#c0d0c6; font-size:12px; line-height:16px; }
+.proofLost { display:grid; gap:2px; margin-bottom:10px; padding:9px 12px; border:1px solid #8a5858; border-radius:12px; background:#2a1b1b; color:#f0a3a3; font-size:12px; line-height:16px; }
+.proofLost strong { color:#f3ead7; }
 .hudCard { padding:10px 12px; border:1px solid #486258; border-radius:12px; margin-bottom:10px; background:#1b3833; }
 .objective { margin:0; font:400 12px/18px Inter,sans-serif; color:#c0d0c6; }
 .metrics { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:8px; font-size:12px; font-variant-numeric:tabular-nums; }

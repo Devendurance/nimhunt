@@ -42,6 +42,7 @@ import type { GoblinSpawnConfig } from '../world/room01.ts'
 import type { NimHuntGameBridge, PlayerHUDState } from '../events/gameEvents'
 import type { ReplayState } from '../replay/types.ts'
 import type { CreateGameOptions } from '../createNimHuntGame'
+import type { ProductProofBridge } from '../productProof.ts'
 import { mapProductBlueprint } from '../productBlueprint.ts'
 
 interface OverlayItem {
@@ -98,6 +99,8 @@ export class AngkorDevScene extends Phaser.Scene {
   private chestTarget = CHEST_HUNTER_TARGET
   private initialState: ReplayState | null = null
   private productMode = false
+  private proof: ProductProofBridge | null = null
+  private vaultFlushNotified = false
   private transitioning = false
   private notice = ''
   private puzzleSprites = new Map<string, Phaser.GameObjects.Image>()
@@ -114,6 +117,7 @@ export class AngkorDevScene extends Phaser.Scene {
     if (options?.mode === 'product') {
       const runtime = mapProductBlueprint(options.blueprint)
       this.productMode = true
+      this.proof = options.proof ?? null
       this.initialState = options.initialState
       this.roomContents = runtime.contents
       this.puzzleObjects = runtime.puzzle
@@ -195,6 +199,7 @@ export class AngkorDevScene extends Phaser.Scene {
 
   public handleMove(direction: Direction): void {
     if (!this.player || this.transitioning || this.player.isMoving || this.run.runStatus !== 'PLAYING') return
+    if (this.productMode && this.proof && !this.proof.canAcceptMove()) return
     const chestTiles = this.chests.filter(c => c.state === 'CLOSED').map(c => ({ x: c.x, y: c.y }))
     const transition = resolvePuzzleMove(ANGKOR_ROOM_01, this.roomContents, this.puzzleObjects, this.run, this.puzzle, { x: this.player.gridX, y: this.player.gridY }, direction, chestTiles, this.mission)
     const generation = this.generation
@@ -205,6 +210,7 @@ export class AngkorDevScene extends Phaser.Scene {
       this.emitState()
       return
     }
+    this.proof?.recordAcceptedMove(direction)
     this.transitioning = true
     const beginStep = () => {
       if (generation !== this.generation || !this.player) return
@@ -305,6 +311,7 @@ export class AngkorDevScene extends Phaser.Scene {
         }
 
         this.emitState()
+        this.notifyProductTerminal()
       }
       if (transition.pushed) {
         const sprite = this.puzzleSprites.get(transition.pushed.id)
@@ -740,6 +747,22 @@ export class AngkorDevScene extends Phaser.Scene {
     }
 
     this.bridge.emitState(state)
+  }
+
+  private notifyProductTerminal(): void {
+    if (!this.productMode || !this.proof) return
+    if (this.run.hp === 0 || this.run.runStatus === 'FAILED') {
+      this.proof.notifyGameplayEvent('DEATH')
+      return
+    }
+    if (this.run.runStatus === 'MISSION_COMPLETE') {
+      this.proof.notifyGameplayEvent('MISSION_COMPLETE')
+      return
+    }
+    if (this.puzzle.objectiveReached && !this.vaultFlushNotified) {
+      this.vaultFlushNotified = true
+      this.proof.notifyGameplayEvent('VAULT_REACHED')
+    }
   }
 
   shutdown(): void {

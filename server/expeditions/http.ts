@@ -1,4 +1,6 @@
-import { ACTIVE_EXPEDITION_PATH, GAMEPLAY_START_PATH, START_CHALLENGE_PATH, START_EXPEDITION_PATH } from '../../src/domain/expeditionProof.ts'
+import { ACTIVE_EXPEDITION_PATH, CHECKPOINT_PATH, GAMEPLAY_START_PATH, START_CHALLENGE_PATH, START_EXPEDITION_PATH } from '../../src/domain/expeditionProof.ts'
+import type { MoveAction } from '../../src/game/replay/types.ts'
+import { MAX_CHECKPOINT_BATCH_ACTIONS } from '../../src/game/replay/versions.ts'
 import { WALLET_DAILY_STATUS_PATH } from '../../src/domain/dailyLedger.ts'
 import { ProofError, isProofError } from './errors.ts'
 import { parseStartPayload, type SignedStartRequest } from './canonical.ts'
@@ -104,10 +106,22 @@ export async function dispatchExpeditionHttp(
       return response(200, { ok: true, ...active })
     }
 
+    if (path === GAMEPLAY_START_PATH) {
+      const session = authenticateSession(service, request)
+      const runId = readGameplayStartRequest(readJsonBody(request)).runId
+      const gameplayStart = service.markGameplayStarted(runId, session)
+      return response(200, { ok: true, ...gameplayStart })
+    }
+
     const session = authenticateSession(service, request)
-    const runId = readGameplayStartRequest(readJsonBody(request)).runId
-    const gameplayStart = service.markGameplayStarted(runId, session)
-    return response(200, { ok: true, ...gameplayStart })
+    const checkpointRequest = readCheckpointRequest(readJsonBody(request))
+    const acknowledgement = await service.appendCheckpoint({
+      runId: checkpointRequest.runId,
+      session,
+      previousCheckpointHash: checkpointRequest.previousCheckpointHash,
+      actions: checkpointRequest.actions,
+    })
+    return response(200, { ok: true, ...acknowledgement })
   } catch (error) {
     if (isProofError(error)) return response(statusFor(error.code), { ok: false, error: publicErrorCode(error.code) })
     if (error instanceof SyntaxError) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
@@ -129,6 +143,7 @@ function isExpeditionPath(path: string): boolean {
     || path === START_EXPEDITION_PATH
     || path === ACTIVE_EXPEDITION_PATH
     || path === GAMEPLAY_START_PATH
+    || path === CHECKPOINT_PATH
     || path === WALLET_DAILY_STATUS_PATH
 }
 
@@ -248,6 +263,46 @@ function readGameplayStartRequest(body: Record<string, unknown>): { runId: strin
   return { runId: body.runId }
 }
 
+function readCheckpointRequest(body: Record<string, unknown>): {
+  runId: string
+  previousCheckpointHash: string
+  actions: readonly MoveAction[]
+} {
+  const keys = Object.keys(body)
+  if (keys.length !== 3 || !keys.includes('runId') || !keys.includes('previousCheckpointHash') || !keys.includes('actions')) {
+    throw new ProofError('MALFORMED_REQUEST')
+  }
+  if (!isBoundedString(body.runId, 128) || !isHash(body.previousCheckpointHash) || !Array.isArray(body.actions)) {
+    throw new ProofError('MALFORMED_REQUEST')
+  }
+  if (body.actions.length === 0 || body.actions.length > MAX_CHECKPOINT_BATCH_ACTIONS) {
+    throw new ProofError('MALFORMED_REQUEST')
+  }
+  return {
+    runId: body.runId,
+    previousCheckpointHash: body.previousCheckpointHash,
+    actions: body.actions.map(readCheckpointAction),
+  }
+}
+
+function readCheckpointAction(value: unknown): MoveAction {
+  if (!isRecord(value)) throw new ProofError('MALFORMED_REQUEST')
+  const keys = Object.keys(value)
+  if (keys.length !== 3 || !keys.includes('seq') || !keys.includes('type') || !keys.includes('direction')) {
+    throw new ProofError('MALFORMED_REQUEST')
+  }
+  if (typeof value.seq !== 'number' || !Number.isInteger(value.seq) || value.seq < 1) throw new ProofError('INVALID_SEQUENCE')
+  if (value.type !== 'MOVE') throw new ProofError('INVALID_ACTION')
+  if (value.direction !== 'UP' && value.direction !== 'DOWN' && value.direction !== 'LEFT' && value.direction !== 'RIGHT') {
+    throw new ProofError('INVALID_ACTION')
+  }
+  return { seq: value.seq, type: 'MOVE', direction: value.direction }
+}
+
+function isHash(value: unknown): value is string {
+  return typeof value === 'string' && /^[0-9a-f]{64}$/.test(value)
+}
+
 function readWalletDailyStatusRequest(body: Record<string, unknown>): { wallet: string } {
   requireExactKeys(body, ['wallet'])
   if (!isBoundedString(body.wallet, 80)) throw new ProofError('START_CHALLENGE_INVALID')
@@ -298,7 +353,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function statusFor(code: string): number {
   if (code === 'PROOF_UNAVAILABLE' || code === 'DAILY_BLUEPRINT_UNAVAILABLE') return 503
   if (code === 'RUN_SESSION_INVALID') return 401
-  if (code === 'ACTIVE_RUN_UNAVAILABLE') return 409
+  if (code === 'ACTIVE_RUN_UNAVAILABLE' || code === 'CHECKPOINT_MISMATCH' || code === 'PROOF_LOST' || code === 'RUN_NOT_ACTIVE') return 409
   if (code === 'DAILY_EXPEDITION_LIMIT_REACHED' || code === 'START_CHALLENGE_EXPIRED' || code === 'START_CHALLENGE_DAY_EXPIRED') return 409
   return 400
 }

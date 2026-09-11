@@ -1,4 +1,4 @@
-import type { ExpeditionBlueprint, ExpeditionCheckpoint, MissionType, ReplayState, RewardClaimPayload } from '../game/replay/types.ts'
+import type { ExpeditionBlueprint, ExpeditionCheckpoint, MissionType, MoveAction, ReplayState, RewardClaimPayload } from '../game/replay/types.ts'
 
 export const START_CHALLENGE_PATH = '/api/expeditions/start-challenge'
 export const START_EXPEDITION_PATH = '/api/expeditions/start'
@@ -130,6 +130,36 @@ export type ProductActiveExpedition = {
 export type ProductGameplayStartResponse = {
   readonly runId: string
   readonly outcome: 'GAMEPLAY_STARTED' | 'GAMEPLAY_ALREADY_STARTED'
+}
+
+export type CheckpointMoveAction = MoveAction
+
+export type CheckpointRequest = {
+  readonly runId: string
+  readonly previousCheckpointHash: string
+  readonly actions: readonly CheckpointMoveAction[]
+}
+
+export type CheckpointProgress = {
+  readonly acknowledgedSeq: number
+  readonly checkpointHash: string
+  readonly hp: number
+  readonly gemsCollected: number
+  readonly chestsOpened: number
+  readonly hasTempleKey: boolean
+  readonly objectiveReached: boolean
+  readonly missionSatisfied: boolean
+  readonly dead: boolean
+}
+
+export type CheckpointAcknowledgement = CheckpointProgress & {
+  readonly runId: string
+  readonly seqStart: number
+  readonly seqEnd: number
+  readonly previousCheckpointHash: string
+  readonly transcriptHash: string
+  readonly stateHash: string
+  readonly batchFingerprint: string
 }
 
 export type PreparedClaim = {

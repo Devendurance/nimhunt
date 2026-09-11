@@ -10,6 +10,7 @@ import {
   fetchActiveExpedition,
   markGameplayStarted,
   requestStartChallenge,
+  submitCheckpoint,
 } from '../../api/expeditionProof.ts'
 import { fetchDailyHuntStatus, fetchWalletDailyStatus } from '../../api/dailyHunt'
 import type { ProductActiveExpedition } from '../../domain/expeditionProof.ts'
@@ -152,6 +153,7 @@ vi.mock('../../api/expeditionProof.ts', async () => {
     fetchActiveExpedition: vi.fn(),
     markGameplayStarted: vi.fn(),
     requestStartChallenge: vi.fn(),
+    submitCheckpoint: vi.fn(),
   }
 })
 
@@ -781,6 +783,7 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
   const requestChallenge = vi.mocked(requestStartChallenge)
   const fetchActive = vi.mocked(fetchActiveExpedition)
   const gameplayStart = vi.mocked(markGameplayStarted)
+  const checkpoint = vi.mocked(submitCheckpoint)
   const createGame = vi.mocked(createNimHuntGame)
   const productStart = vi.mocked(authorizeStart)
   const submitStart = vi.mocked(authorizeStart)
@@ -875,6 +878,40 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
     expect(gameplayStart).toHaveBeenCalledTimes(1)
     expect(createGame).toHaveBeenCalledTimes(1)
 
+    harness.unmount()
+    expect(game.destroy).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps one product Phaser instance when checkpoint proof is wired and sends no traffic before moves', async () => {
+    const active = createActiveExpedition()
+    const game = createFakeGame()
+    createGame.mockReturnValue(game)
+    const harness = createHookHarness(() => ExpeditionView({
+      mode: 'product',
+      mission: 'gem-runner',
+      active,
+      onBackToMissions: vi.fn(),
+      onReturnToHunt: vi.fn(),
+    }))
+    harness.rerender()
+    await settle()
+
+    expect(createGame).toHaveBeenCalledTimes(1)
+    expect(createGame.mock.calls[0]?.[1]).toEqual(expect.objectContaining({
+      mode: 'product',
+      mission: 'gem-runner',
+      blueprint: active.blueprint,
+      initialState: active.state,
+      proof: expect.objectContaining({
+        canAcceptMove: expect.any(Function),
+        recordAcceptedMove: expect.any(Function),
+        notifyGameplayEvent: expect.any(Function),
+      }),
+    }))
+    expect(checkpoint).not.toHaveBeenCalled()
+    harness.rerender()
+    await settle()
+    expect(createGame).toHaveBeenCalledTimes(1)
     harness.unmount()
     expect(game.destroy).toHaveBeenCalledTimes(1)
   })
@@ -981,6 +1018,7 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
     expect(productStart).not.toHaveBeenCalled()
     expect(fetchPublicStatus).not.toHaveBeenCalled()
     expect(fetchWalletStatus).not.toHaveBeenCalled()
+    expect(checkpoint).not.toHaveBeenCalled()
     expect(collectText(harness.current).join(' ')).toContain('PRACTICE RUN')
     expect(collectText(harness.current).join(' ')).toContain('No daily expedition used.')
     expect(collectText(harness.current).join(' ')).toContain('No NIM reward can be reserved.')
@@ -1012,6 +1050,7 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
     expect(productStart).not.toHaveBeenCalled()
     expect(fetchPublicStatus).not.toHaveBeenCalled()
     expect(fetchWalletStatus).not.toHaveBeenCalled()
+    expect(checkpoint).not.toHaveBeenCalled()
     expect(collectText(harness.current).join(' ')).toContain('PRACTICE RUN')
     harness.unmount()
     expect(game.destroy).toHaveBeenCalledTimes(1)

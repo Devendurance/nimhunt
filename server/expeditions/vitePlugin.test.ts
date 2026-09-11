@@ -1,8 +1,22 @@
 import { describe, expect, it } from 'vitest'
-import { createProofBackendLoader, resolveExpeditionRuntime } from './vitePlugin.ts'
+import {
+  createProofBackendLoader,
+  isOwnedExpeditionPath,
+  resolveExpeditionRuntime,
+} from './vitePlugin.ts'
 import type { MemoryProofService } from './types.ts'
 
 describe('expedition proof runtime policy', () => {
+  it('owns every proof HTTP path including product checkpoint', () => {
+    expect(isOwnedExpeditionPath('/api/expeditions/start-challenge')).toBe(true)
+    expect(isOwnedExpeditionPath('/api/expeditions/start')).toBe(true)
+    expect(isOwnedExpeditionPath('/api/expeditions/active')).toBe(true)
+    expect(isOwnedExpeditionPath('/api/expeditions/gameplay-start')).toBe(true)
+    expect(isOwnedExpeditionPath('/api/expeditions/checkpoint')).toBe(true)
+    expect(isOwnedExpeditionPath('/api/wallet-daily-status')).toBe(true)
+    expect(isOwnedExpeditionPath('/api/expeditions/verify')).toBe(false)
+  })
+
   it('enables memory proof only for explicit local development', () => {
     expect(resolveExpeditionRuntime({
       mode: 'development',

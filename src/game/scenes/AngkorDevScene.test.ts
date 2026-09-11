@@ -46,6 +46,9 @@ vi.mock('phaser', () => ({
     Scenes: { Events: { SHUTDOWN: 'shutdown' } },
   },
 }))
+import type { ProductProofBridge } from '../productProof.ts'
+import { createInitialRun } from '../replay/engine.ts'
+import { createRoom01Blueprint } from '../world/room01.ts'
 import { AngkorDevScene } from './AngkorDevScene'
 
 function setup() {
@@ -53,6 +56,35 @@ function setup() {
   vi.stubGlobal('window', { matchMedia: () => ({ matches: true }) })
   const bridge = createGameBridge(createInitialHUDState())
   const scene = new AngkorDevScene(bridge)
+  const internals = scene as unknown as {
+    player: { gridX: number; gridY: number }
+    puzzle: PuzzleState
+    renderRoomTiles(): void; renderContents(): void; renderPuzzle(): void; renderGems(): void; renderOverlays(): void; renderItems(): void; renderChests(): void
+  }
+  for (const method of ['renderRoomTiles', 'renderContents', 'renderPuzzle', 'renderGems', 'renderOverlays', 'renderItems', 'renderChests'] as const) vi.spyOn(internals, method).mockImplementation(() => {})
+  scene.create()
+  return { scene, internals, bridge }
+}
+
+function setupProduct(proof: ProductProofBridge) {
+  pending.steps = []; pending.tweens = []; pending.timers = []
+  vi.stubGlobal('window', { matchMedia: () => ({ matches: true }) })
+  const source = createRoom01Blueprint('2026-09-09', 'gem-runner', 'scene-checkpoint')
+  const blueprint = { ...source, status: 'PUBLISHED' as const, blueprintHash: 'a'.repeat(64) }
+  const initialState = createInitialRun({
+    mission: blueprint.mission,
+    rulesVersion: blueprint.rulesVersion,
+    roomVersion: blueprint.roomVersion,
+    blueprint,
+  })
+  const bridge = createGameBridge(createInitialHUDState())
+  const scene = new AngkorDevScene(bridge, {
+    mode: 'product',
+    mission: 'gem-runner',
+    blueprint,
+    initialState,
+    proof,
+  })
   const internals = scene as unknown as {
     player: { gridX: number; gridY: number }
     puzzle: PuzzleState
@@ -116,6 +148,31 @@ describe('Puzzle scene transition lifecycle', () => {
     pending.timers[0]()
     expect(pending.steps).toHaveLength(0)
     expect(bridge.getState()).toEqual(createInitialHUDState())
+  })
+
+  it('records the first accepted product move at seq 1 and ignores blocked input', () => {
+    const recorded: string[] = []
+    const { scene } = setupProduct({
+      canAcceptMove: () => true,
+      recordAcceptedMove: direction => { recorded.push(direction) },
+      notifyGameplayEvent: vi.fn(),
+    })
+    scene.handleMove('UP')
+    expect(recorded).toEqual([])
+    scene.handleMove('LEFT')
+    expect(recorded).toEqual(['LEFT'])
+  })
+
+  it('does not accept new product movement while the proof queue is paused', () => {
+    const recorded: string[] = []
+    const { scene, internals } = setupProduct({
+      canAcceptMove: () => false,
+      recordAcceptedMove: direction => { recorded.push(direction) },
+      notifyGameplayEvent: vi.fn(),
+    })
+    scene.handleMove('LEFT')
+    expect(recorded).toEqual([])
+    expect(internals.player).toMatchObject({ gridX: 3, gridY: 3 })
   })
 
   it('reset during the gate step discards its pending commit', () => {

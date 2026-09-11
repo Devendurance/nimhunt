@@ -7,10 +7,12 @@ import {
   fetchActiveExpedition,
   markGameplayStarted,
   parseActiveExpedition,
+  parseCheckpointAcknowledgement,
   parseGameplayStartResponse,
   parseStartChallengeResponse,
   parseStartResult,
   requestStartChallenge,
+  submitCheckpoint,
   ExpeditionProofApiError,
 } from './expeditionProof.ts'
 
@@ -232,5 +234,61 @@ describe('expedition proof browser API', () => {
     expect(startFetcher).toHaveBeenCalledWith('/api/expeditions/start', expect.objectContaining({
       body: JSON.stringify(signed),
     }))
+  })
+
+  it('parses a server-derived checkpoint acknowledgement and rejects extra fields', async () => {
+    const body = {
+      ok: true,
+      runId: 'run-1',
+      acknowledgedSeq: 1,
+      seqStart: 1,
+      seqEnd: 1,
+      previousCheckpointHash: 'a'.repeat(64),
+      checkpointHash: 'b'.repeat(64),
+      transcriptHash: 'c'.repeat(64),
+      stateHash: 'd'.repeat(64),
+      batchFingerprint: 'e'.repeat(64),
+      hp: 100,
+      gemsCollected: 1,
+      chestsOpened: 0,
+      hasTempleKey: false,
+      objectiveReached: false,
+      missionSatisfied: false,
+      dead: false,
+    }
+    expect(parseCheckpointAcknowledgement(body)).toMatchObject({ runId: 'run-1', acknowledgedSeq: 1, gemsCollected: 1 })
+    expect(parseCheckpointAcknowledgement({ ...body, hp: 1, extra: true })).toBeNull()
+
+    const fetcher = vi.fn().mockResolvedValue(response(body))
+    await submitCheckpoint({
+      runId: 'run-1',
+      previousCheckpointHash: 'a'.repeat(64),
+      actions: [{ seq: 1, type: 'MOVE', direction: 'LEFT' }],
+    }, fetcher)
+    expect(fetcher).toHaveBeenCalledWith('/api/expeditions/checkpoint', expect.objectContaining({
+      credentials: 'same-origin',
+      cache: 'no-store',
+      body: JSON.stringify({
+        runId: 'run-1',
+        previousCheckpointHash: 'a'.repeat(64),
+        actions: [{ seq: 1, type: 'MOVE', direction: 'LEFT' }],
+      }),
+    }))
+  })
+
+  it('treats a non-JSON checkpoint response as MALFORMED_RESPONSE', async () => {
+    const html = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: { get: () => 'text/html' },
+      json: async () => {
+        throw new SyntaxError('Unexpected token <')
+      },
+    } as unknown as Response)
+    await expect(submitCheckpoint({
+      runId: 'run-1',
+      previousCheckpointHash: 'a'.repeat(64),
+      actions: [{ seq: 1, type: 'MOVE', direction: 'LEFT' }],
+    }, html)).rejects.toMatchObject({ code: 'MALFORMED_RESPONSE' })
   })
 })
