@@ -9,6 +9,8 @@ import {
   parseActiveExpedition,
   parseCheckpointAcknowledgement,
   parseGameplayStartResponse,
+  parseVerifyExpeditionResult,
+  verifyExpedition,
   parseStartChallengeResponse,
   parseStartResult,
   requestStartChallenge,
@@ -290,5 +292,36 @@ describe('expedition proof browser API', () => {
       previousCheckpointHash: 'a'.repeat(64),
       actions: [{ seq: 1, type: 'MOVE', direction: 'LEFT' }],
     }, html)).rejects.toMatchObject({ code: 'MALFORMED_RESPONSE' })
+  })
+
+  it('parses a server-derived verify result and rejects extra HUD fields', async () => {
+    const body = {
+      ok: true,
+      runId: 'run-1',
+      checkpointHash: 'a'.repeat(64),
+      outcome: 'VERIFIED_ELIGIBLE',
+      status: 'COMPLETED',
+      rewardStatus: 'ELIGIBLE',
+      finalHp: 80,
+      gemsCollected: 6,
+      chestsOpened: 0,
+      objectiveReached: false,
+      hasTempleKey: false,
+      missionSatisfied: true,
+      finalSeq: 15,
+      transcriptHash: 'b'.repeat(64),
+      stateHash: 'c'.repeat(64),
+      verifiedAt: '2026-09-09T12:10:00.000Z',
+    }
+    expect(parseVerifyExpeditionResult(body)).toMatchObject({ outcome: 'VERIFIED_ELIGIBLE', finalHp: 80 })
+    expect(parseVerifyExpeditionResult({ ...body, hp: 100 })).toBeNull()
+    expect(parseVerifyExpeditionResult({ ...body, extra: true })).toBeNull()
+
+    const fetcher = vi.fn().mockResolvedValue(response(body))
+    await verifyExpedition({ runId: 'run-1', checkpointHash: 'a'.repeat(64) }, fetcher)
+    expect(fetcher).toHaveBeenCalledWith('/api/expeditions/verify', expect.objectContaining({
+      credentials: 'same-origin',
+      body: JSON.stringify({ runId: 'run-1', checkpointHash: 'a'.repeat(64) }),
+    }))
   })
 })

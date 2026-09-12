@@ -4,6 +4,7 @@ export const START_CHALLENGE_PATH = '/api/expeditions/start-challenge'
 export const START_EXPEDITION_PATH = '/api/expeditions/start'
 export const CHECKPOINT_PATH = '/api/expeditions/checkpoint'
 export const VERIFY_EXPEDITION_PATH = '/api/expeditions/verify'
+export const ABANDON_EXPEDITION_PATH = '/api/expeditions/abandon'
 export const ACTIVE_EXPEDITION_PATH = '/api/expeditions/active'
 export const GAMEPLAY_START_PATH = '/api/expeditions/gameplay-start'
 export const PRODUCT_VAULT_SEAL_PATH = '/api/expeditions/vault-seal'
@@ -53,6 +54,7 @@ export type ExpeditionProofErrorCode =
   | 'ALREADY_REWARDED'
   | 'RUN_SESSION_INVALID'
   | 'ACTIVE_RUN_UNAVAILABLE'
+  | 'RUN_INCOMPLETE'
 
 export type ProductGameplayState =
   | 'READY'
@@ -71,6 +73,7 @@ export type ProductProofState =
   | 'PROOF_LOST'
   | 'VERIFYING'
   | 'VERIFIED_ELIGIBLE'
+  | 'VAULT_GAMEPLAY_VERIFIED'
   | 'CLAIM_PREPARED'
   | 'AWAITING_CLAIM_SIGNATURE'
   | 'CLAIM_VERIFYING'
@@ -160,6 +163,42 @@ export type CheckpointAcknowledgement = CheckpointProgress & {
   readonly transcriptHash: string
   readonly stateHash: string
   readonly batchFingerprint: string
+}
+
+export type VerifyExpeditionRequest = {
+  readonly runId: string
+  readonly checkpointHash: string
+}
+
+export type VerifyExpeditionOutcome = 'VERIFIED_ELIGIBLE' | 'VAULT_GAMEPLAY_VERIFIED' | 'FAILED'
+
+export type TrustedFinalSummary = {
+  readonly finalHp: number
+  readonly gemsCollected: number
+  readonly chestsOpened: number
+  readonly objectiveReached: boolean
+  readonly hasTempleKey: boolean
+  readonly missionSatisfied: boolean
+  readonly finalSeq: number
+  readonly transcriptHash: string
+  readonly stateHash: string
+  readonly verifiedAt: string
+}
+
+export type VerifyExpeditionResult = TrustedFinalSummary & {
+  readonly runId: string
+  readonly checkpointHash: string
+  readonly outcome: VerifyExpeditionOutcome
+  readonly status: 'STARTED' | 'COMPLETED' | 'FAILED'
+  readonly rewardStatus: 'NONE' | 'ELIGIBLE'
+}
+
+export type AbandonExpeditionResult = {
+  readonly runId: string
+  readonly checkpointHash: string
+  readonly outcome: 'ABANDONED' | 'FAILED'
+  readonly status: 'ABANDONED' | 'FAILED'
+  readonly rewardStatus: 'NONE'
 }
 
 export type PreparedClaim = {

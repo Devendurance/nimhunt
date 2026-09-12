@@ -1,8 +1,8 @@
 # NimHunt — Project State
 
-> **Last updated**: 2026-09-11
-> **Phase**: Cycle 2 authenticated product start works end-to-end on device; `/play` attempt-status UX fixed; Vite ready and first proof request no longer run built-in Room 01 BFS. Checkpoint/replay not started.
-> **Latest milestone**: Built-in Room 01 bootstrap publication skips BFS only on exact prevalidated template-hash match. Cold `npm run dev` ready in 2739 ms / 2758 ms; first proof request 322–395 ms (was ~21 s).
+> **Last updated**: 2026-09-12
+> **Phase**: Cycle 2 authenticated product start, checkpoint chain, and server final replay verification are in. Claims, Vault product seal, and Postgres proof adapter are not started.
+> **Latest milestone**: Post-verify UX keeps `VERIFIED_ELIGIBLE` mounted as a terminal client session. `/active` still rejects completed/already-started runs on fresh reload. Claims, Vault product seal, and Postgres proof adapter are not started.
 
 ---
 
@@ -142,7 +142,7 @@ src/
 
 ## Test Inventory
 
-**41 test files passed + 1 skipped Postgres integration, 327 passing — verified 2026-09-11.**
+**46 test files passed + 1 skipped Postgres integration, 379 passing — verified 2026-09-11.**
 
 | File | Tests |
 |------|-------|
@@ -245,7 +245,7 @@ src/
 
 ## Next Milestone
 
-Authenticated product start, `/play` attempt-status UX, Vite ready, and first-proof-request bootstrap prevalidation are in place. Do not implement checkpoints, replay finalization, claims, NIM payout, treasury handling, Postgres proof integration, device validation, or new gameplay mechanics until explicitly requested.
+Server final replay verification is in. Do not implement vault product seal, claims, 69-slot reservation, NIM transfer, payout, Postgres proof integration, or new gameplay mechanics until explicitly requested.
 
 ## Canonical References
 

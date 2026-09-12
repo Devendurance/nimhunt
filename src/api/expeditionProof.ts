@@ -1,11 +1,14 @@
 import {
+  ABANDON_EXPEDITION_PATH,
   ACTIVE_EXPEDITION_PATH,
   CHECKPOINT_PATH,
   GAMEPLAY_START_PATH,
   START_CHALLENGE_PATH,
   START_EXPEDITION_PATH,
+  VERIFY_EXPEDITION_PATH,
 } from '../domain/expeditionProof.ts'
 import type {
+  AbandonExpeditionResult,
   CheckpointAcknowledgement,
   CheckpointRequest,
   ExpeditionProofErrorCode,
@@ -13,6 +16,8 @@ import type {
   ProductGameplayStartResponse,
   StartChallengeResponse,
   StartResult,
+  VerifyExpeditionRequest,
+  VerifyExpeditionResult,
 } from '../domain/expeditionProof.ts'
 import {
   BLUEPRINT_VERSION,
@@ -103,6 +108,20 @@ export async function submitCheckpoint(
     `url=${CHECKPOINT_PATH} seq=${seqStart ?? '?'}-${seqEnd ?? '?'} prev=${truncateHash(request.previousCheckpointHash)} actionCount=${request.actions.length} dirs=${request.actions.map(action => action.direction).join(',')}`,
   )
   return requestJson(fetcher, CHECKPOINT_PATH, postRequest(request), parseCheckpointAcknowledgement)
+}
+
+export async function verifyExpedition(
+  request: VerifyExpeditionRequest,
+  fetcher: typeof fetch = fetch,
+): Promise<VerifyExpeditionResult> {
+  return requestJson(fetcher, VERIFY_EXPEDITION_PATH, postRequest(request), parseVerifyExpeditionResult)
+}
+
+export async function abandonExpedition(
+  request: VerifyExpeditionRequest,
+  fetcher: typeof fetch = fetch,
+): Promise<AbandonExpeditionResult> {
+  return requestJson(fetcher, ABANDON_EXPEDITION_PATH, postRequest(request), parseAbandonExpeditionResult)
 }
 
 export function parseStartChallengeResponse(value: unknown): StartChallengeResponse | null {
@@ -265,6 +284,83 @@ export function parseCheckpointAcknowledgement(value: unknown): CheckpointAcknow
     objectiveReached: value.objectiveReached,
     missionSatisfied: value.missionSatisfied,
     dead: value.dead,
+  }
+}
+
+export function parseVerifyExpeditionResult(value: unknown): VerifyExpeditionResult | null {
+  if (!isRecord(value) || !hasExactKeys(value, [
+    'ok',
+    'runId',
+    'checkpointHash',
+    'outcome',
+    'status',
+    'rewardStatus',
+    'finalHp',
+    'gemsCollected',
+    'chestsOpened',
+    'objectiveReached',
+    'hasTempleKey',
+    'missionSatisfied',
+    'finalSeq',
+    'transcriptHash',
+    'stateHash',
+    'verifiedAt',
+  ])) return null
+  if (value.ok !== true
+    || !isBoundedString(value.runId, 128)
+    || !isHash(value.checkpointHash)
+    || (value.outcome !== 'VERIFIED_ELIGIBLE' && value.outcome !== 'VAULT_GAMEPLAY_VERIFIED' && value.outcome !== 'FAILED')
+    || (value.status !== 'STARTED' && value.status !== 'COMPLETED' && value.status !== 'FAILED')
+    || (value.rewardStatus !== 'NONE' && value.rewardStatus !== 'ELIGIBLE')
+    || !isFiniteNumber(value.finalHp)
+    || value.finalHp < 0
+    || value.finalHp > 100
+    || !isNonNegativeInteger(value.gemsCollected)
+    || !isNonNegativeInteger(value.chestsOpened)
+    || typeof value.objectiveReached !== 'boolean'
+    || typeof value.hasTempleKey !== 'boolean'
+    || typeof value.missionSatisfied !== 'boolean'
+    || !isNonNegativeInteger(value.finalSeq)
+    || !isHash(value.transcriptHash)
+    || !isHash(value.stateHash)
+    || !isIsoTimestamp(value.verifiedAt)) return null
+  if (value.outcome === 'VERIFIED_ELIGIBLE' && (value.status !== 'COMPLETED' || value.rewardStatus !== 'ELIGIBLE' || !value.missionSatisfied)) return null
+  if (value.outcome === 'VAULT_GAMEPLAY_VERIFIED' && (value.status !== 'STARTED' || value.rewardStatus !== 'NONE' || value.missionSatisfied)) return null
+  if (value.outcome === 'FAILED' && (value.status !== 'FAILED' || value.rewardStatus !== 'NONE' || value.missionSatisfied || value.finalHp !== 0)) return null
+  return {
+    runId: value.runId,
+    checkpointHash: value.checkpointHash,
+    outcome: value.outcome,
+    status: value.status,
+    rewardStatus: value.rewardStatus,
+    finalHp: value.finalHp,
+    gemsCollected: value.gemsCollected,
+    chestsOpened: value.chestsOpened,
+    objectiveReached: value.objectiveReached,
+    hasTempleKey: value.hasTempleKey,
+    missionSatisfied: value.missionSatisfied,
+    finalSeq: value.finalSeq,
+    transcriptHash: value.transcriptHash,
+    stateHash: value.stateHash,
+    verifiedAt: value.verifiedAt,
+  }
+}
+
+export function parseAbandonExpeditionResult(value: unknown): AbandonExpeditionResult | null {
+  if (!isRecord(value) || !hasExactKeys(value, ['ok', 'runId', 'checkpointHash', 'outcome', 'status', 'rewardStatus'])) return null
+  if (value.ok !== true
+    || !isBoundedString(value.runId, 128)
+    || !isHash(value.checkpointHash)
+    || (value.outcome !== 'ABANDONED' && value.outcome !== 'FAILED')
+    || value.status !== value.outcome
+    || value.rewardStatus !== 'NONE') return null
+  const outcome = value.outcome === 'FAILED' ? 'FAILED' as const : 'ABANDONED' as const
+  return {
+    runId: value.runId,
+    checkpointHash: value.checkpointHash,
+    outcome,
+    status: outcome,
+    rewardStatus: 'NONE',
   }
 }
 
@@ -798,4 +894,5 @@ const KNOWN_ERROR_CODES = new Set<string>([
   'ALREADY_REWARDED',
   'RUN_SESSION_INVALID',
   'ACTIVE_RUN_UNAVAILABLE',
+  'RUN_INCOMPLETE',
 ])

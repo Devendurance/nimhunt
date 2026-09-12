@@ -6,9 +6,17 @@ import type { ProductActiveExpedition } from '../../domain/expeditionProof.ts'
 import type { CreateGameOptions } from '../../game/createNimHuntGame'
 import { getExpeditionResult, type PlayableMission } from './expeditionFlow'
 import {
+  CLAIM_NOT_ENABLED_COPY,
+  MISSION_COMPLETE_COPY,
   PROOF_LOST_DETAIL,
   PROOF_LOST_TITLE,
   SYNCING_COPY,
+  VAULT_GAMEPLAY_VERIFIED_DETAIL,
+  VAULT_GAMEPLAY_VERIFIED_TITLE,
+  VERIFIED_TITLE,
+  VERIFY_REJECTED_DETAIL,
+  VERIFY_REJECTED_TITLE,
+  VERIFYING_COPY,
   useProductCheckpoint,
 } from './productCheckpoint'
 import { useAngkorRun } from './useAngkorRun'
@@ -68,8 +76,8 @@ export function ExpeditionView(props: ExpeditionViewProps) {
   }, [])
 
   const leaveExpedition = useCallback(() => {
-    void checkpoint.flushPending().finally(onBackToMissions)
-  }, [checkpoint, onBackToMissions])
+    void (mode === 'product' ? checkpoint.leaveAndAbandon() : checkpoint.flushPending()).finally(onBackToMissions)
+  }, [checkpoint, mode, onBackToMissions])
 
   useEffect(() => {
     if (!confirmingLeave) return
@@ -114,11 +122,16 @@ export function ExpeditionView(props: ExpeditionViewProps) {
       <span>No daily expedition used.</span>
       <span>No NIM reward can be reserved.</span>
     </section>}
-    {checkpoint.view.proofLost && <section className={styles.proofLost} role="status" aria-label="Reward proof interrupted">
+    {checkpoint.view.verifyRejected && <section className={styles.proofLost} role="status" aria-label="Expedition verification failed">
+      <strong>{VERIFY_REJECTED_TITLE}</strong>
+      <span>{VERIFY_REJECTED_DETAIL}</span>
+    </section>}
+    {checkpoint.view.proofLost && !checkpoint.view.verifyRejected && <section className={styles.proofLost} role="status" aria-label="Reward proof interrupted">
       <strong>{PROOF_LOST_TITLE}</strong>
       <span>{PROOF_LOST_DETAIL}</span>
     </section>}
-    {checkpoint.view.syncing && !checkpoint.view.proofLost && <p className={styles.syncNotice} role="status">{SYNCING_COPY}</p>}
+    {checkpoint.view.verifying && <p className={styles.syncNotice} role="status">{VERIFYING_COPY}</p>}
+    {checkpoint.view.syncing && !checkpoint.view.proofLost && !checkpoint.view.verifying && <p className={styles.syncNotice} role="status">{SYNCING_COPY}</p>}
     <section className={styles.hudCard} aria-label={`${missionTitle} mission progress`}>
       <p className={styles.objective}>{missionObjective}</p>
       <div className={styles.metrics}>
@@ -138,11 +151,30 @@ export function ExpeditionView(props: ExpeditionViewProps) {
     <div className={styles.canvasWrapper}><div ref={containerRef} className={styles.canvasInner} role="img" aria-label="Angkor Ruins expedition. Use the directional controls to move." /></div>
     <p className={styles.legend}><span><Triangle size={14} aria-hidden="true" />Spikes −25 HP</span><span><Droplets size={14} aria-hidden="true" />Poison −20 HP</span></p>
     <div className={styles.controlsArea}>
-      {terminal && result.status !== 'playing' ? <section className={styles.outcome} aria-labelledby="run-outcome">
+      {checkpoint.view.verifyRejected ? <section className={styles.outcome} aria-labelledby="run-outcome">
+        <h2 id="run-outcome" ref={headingRef} tabIndex={-1}>{VERIFY_REJECTED_TITLE}</h2>
+        <p>{VERIFY_REJECTED_DETAIL}</p>
+        <div className={styles.actions}><button type="button" onClick={onBackToMissions}>Back to missions</button><button type="button" onClick={onReturnToHunt}>Return to Hunt</button></div>
+      </section> : checkpoint.view.verifiedEligible ? <section className={styles.outcome} aria-labelledby="run-outcome">
+        <h2 id="run-outcome" ref={headingRef} tabIndex={-1}>{VERIFIED_TITLE}</h2>
+        {result.status === 'complete' ? <><strong>{MISSION_COMPLETE_COPY}</strong><p>{result.title}</p><p>{result.detail}</p></> : null}
+        <p className={styles.subtle}>{CLAIM_NOT_ENABLED_COPY}</p>
+        <div className={styles.actions}><button type="button" onClick={onBackToMissions}>Back to missions</button><button type="button" onClick={onReturnToHunt}>Return to Hunt</button></div>
+      </section> : checkpoint.view.vaultGameplayVerified ? <section className={styles.outcome} aria-labelledby="run-outcome">
+        <h2 id="run-outcome" ref={headingRef} tabIndex={-1}>{VAULT_GAMEPLAY_VERIFIED_TITLE}</h2>
+        <p className={styles.subtle}>{VAULT_GAMEPLAY_VERIFIED_DETAIL}</p>
+        <div className={styles.actions}><button type="button" onClick={onBackToMissions}>Back to missions</button><button type="button" onClick={onReturnToHunt}>Return to Hunt</button></div>
+      </section> : checkpoint.view.verifying || (mode === 'product' && result.status === 'complete') ? <section className={styles.outcome} aria-labelledby="run-outcome">
+        <h2 id="run-outcome" ref={headingRef} tabIndex={-1}>{VERIFYING_COPY}</h2>
+      </section> : mode === 'practice' && terminal && result.status !== 'playing' ? <section className={styles.outcome} aria-labelledby="run-outcome">
         <h2 id="run-outcome" ref={headingRef} tabIndex={-1}>{result.status === 'complete' ? 'MISSION COMPLETE' : 'EXPEDITION FAILED'}</h2>
         {result.status === 'complete'
-          ? <><strong>{result.title}</strong><p>{result.detail}</p><p>You survived the expedition.</p><p className={styles.subtle}>NIM reward sealing is not enabled in this build yet.</p></>
+          ? <><strong>{result.title}</strong><p>{result.detail}</p><p>You survived the expedition.</p></>
           : <><p>{result.title}</p><p>{result.detail}</p></>}
+        <div className={styles.actions}><button type="button" onClick={onBackToMissions}>Back to missions</button><button type="button" onClick={onReturnToHunt}>Return to Hunt</button></div>
+      </section> : terminal && result.status === 'failed' ? <section className={styles.outcome} aria-labelledby="run-outcome">
+        <h2 id="run-outcome" ref={headingRef} tabIndex={-1}>EXPEDITION FAILED</h2>
+        <p>{result.title}</p><p>{result.detail}</p>
         <div className={styles.actions}><button type="button" onClick={onBackToMissions}>Back to missions</button><button type="button" onClick={onReturnToHunt}>Return to Hunt</button></div>
       </section> : <div className={styles.dpad} role="group" aria-label="Directional Controls" onContextMenu={event => event.preventDefault()}>
         {directions.map(({ direction, label, Icon }) => <button key={direction} ref={direction === 'UP' ? upRef : undefined} type="button" className={styles.dpadBtn + ' ' + styles[direction.toLowerCase()]} aria-label={'Move ' + label} onPointerDown={event => { if (event.button !== 0 || inputLocked) return; event.preventDefault(); move(direction) }} onClick={event => { if (event.detail === 0 && !inputLocked) move(direction) }}><Icon size={24} aria-hidden="true" /></button>)}

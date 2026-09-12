@@ -11,6 +11,8 @@ import {
   markGameplayStarted,
   requestStartChallenge,
   submitCheckpoint,
+  verifyExpedition,
+  abandonExpedition,
 } from '../../api/expeditionProof.ts'
 import { fetchDailyHuntStatus, fetchWalletDailyStatus } from '../../api/dailyHunt'
 import type { ProductActiveExpedition } from '../../domain/expeditionProof.ts'
@@ -23,12 +25,13 @@ import {
   listNimiqAccounts,
   signNimiqMessage,
 } from '../../integrations/nimiq/nimiqClient'
-import { resolvePlayRoute } from './expeditionFlow'
+import { resolvePlayRoute, type PlayableMission } from './expeditionFlow'
 import { ExpeditionView } from './ExpeditionView'
 import { resolveHuntStatusView } from './huntStatusView'
 import { PlayShell } from './PlayShell'
 import { ProductExpeditionGate } from './ProductExpeditionGate'
 import { clearRememberedProductWallet, getRememberedProductWallet, rememberProductWallet } from './productWallet'
+import { clearRememberedProductTerminal } from './productRunSession.ts'
 import { useAngkorRun } from './useAngkorRun'
 import { useDailyHuntStatus } from './useDailyHuntStatus'
 import { useProductStart } from './useProductStart'
@@ -154,6 +157,8 @@ vi.mock('../../api/expeditionProof.ts', async () => {
     markGameplayStarted: vi.fn(),
     requestStartChallenge: vi.fn(),
     submitCheckpoint: vi.fn(),
+    verifyExpedition: vi.fn(),
+    abandonExpedition: vi.fn(),
   }
 })
 
@@ -280,6 +285,7 @@ describe('actual product-start coordinator', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     resetHookRuntime()
+    clearRememberedProductTerminal()
     initialize.mockResolvedValue(provider)
     listAccounts.mockResolvedValue(['NQ00 FIRST ACCOUNT'])
     sign.mockResolvedValue(signed)
@@ -674,8 +680,8 @@ describe('actual product-start coordinator', () => {
   })
 })
 
-function createActiveExpedition(): ProductActiveExpedition {
-  const source = createRoom01Blueprint('2026-09-09', 'gem-runner', 'active-blueprint')
+function createActiveExpedition(mission: PlayableMission = 'gem-runner'): ProductActiveExpedition {
+  const source = createRoom01Blueprint('2026-09-09', mission, 'active-blueprint')
   const blueprint = { ...source, status: 'PUBLISHED' as const, blueprintHash: 'b'.repeat(64) }
   const state = createInitialRun({
     mission: blueprint.mission,
@@ -686,7 +692,7 @@ function createActiveExpedition(): ProductActiveExpedition {
   return {
     runId: 'run-1',
     dayKey: '2026-09-09',
-    mission: 'gem-runner',
+    mission,
     status: 'STARTED',
     startedAt: '2026-09-09T12:00:00.000Z',
     expiresAt: '2026-09-10T00:00:00.000Z',
@@ -752,6 +758,22 @@ function findButton(value: unknown): { readonly onClick?: () => void } | null {
   return findButton(value.props.children)
 }
 
+function findButtonWithText(value: unknown, text: string): { readonly onClick?: () => void } | null {
+  if (Array.isArray(value)) {
+    for (const child of value) {
+      const button = findButtonWithText(child, text)
+      if (button) return button
+    }
+    return null
+  }
+  if (!isRecord(value) || !isRecord(value.props)) return null
+  if (typeof value.type === 'function') return findButtonWithText(value.type(value.props), text)
+  if (value.type === 'button' && collectText(value).join(' ').includes(text)) {
+    return value.props as { readonly onClick?: () => void }
+  }
+  return findButtonWithText(value.props.children, text)
+}
+
 function findPropsWith(value: unknown, property: string): Record<string, unknown> | null {
   if (Array.isArray(value)) {
     for (const child of value) {
@@ -769,6 +791,7 @@ function collectText(value: unknown): string[] {
   if (typeof value === 'string') return [value]
   if (Array.isArray(value)) return value.flatMap(collectText)
   if (!isRecord(value) || !isRecord(value.props)) return []
+  if (typeof value.type === 'function') return collectText(value.type(value.props))
   return collectText(value.props.children)
 }
 
@@ -784,6 +807,8 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
   const fetchActive = vi.mocked(fetchActiveExpedition)
   const gameplayStart = vi.mocked(markGameplayStarted)
   const checkpoint = vi.mocked(submitCheckpoint)
+  const verify = vi.mocked(verifyExpedition)
+  const abandon = vi.mocked(abandonExpedition)
   const createGame = vi.mocked(createNimHuntGame)
   const productStart = vi.mocked(authorizeStart)
   const submitStart = vi.mocked(authorizeStart)
@@ -794,6 +819,7 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
     vi.clearAllMocks()
     resetHookRuntime()
     clearRememberedProductWallet()
+    clearRememberedProductTerminal()
     initialize.mockResolvedValue(provider)
     listAccounts.mockResolvedValue(['NQ00 FIRST ACCOUNT'])
     sign.mockResolvedValue(signed)
@@ -852,6 +878,7 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
       mission: 'gem-runner',
       runId: active.runId,
       onBackToMissions: vi.fn(),
+      onReturnToHunt: vi.fn(),
       children: value => ProductGameProbe({ active: value }),
     }))
     harness.rerender()
@@ -909,6 +936,8 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
       }),
     }))
     expect(checkpoint).not.toHaveBeenCalled()
+    expect(verify).not.toHaveBeenCalled()
+    expect(abandon).not.toHaveBeenCalled()
     harness.rerender()
     await settle()
     expect(createGame).toHaveBeenCalledTimes(1)
@@ -929,6 +958,7 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
       mission: 'gem-runner',
       runId: active.runId,
       onBackToMissions: vi.fn(),
+      onReturnToHunt: vi.fn(),
       children: value => ProductGameProbe({ active: value }),
     }))
     await settle()
@@ -958,6 +988,7 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
       mission: 'gem-runner',
       runId: active.runId,
       onBackToMissions: vi.fn(),
+      onReturnToHunt: vi.fn(),
       children: value => ProductGameProbe({ active: value }),
     }))
     await settle()
@@ -976,6 +1007,7 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
       mission: 'gem-runner',
       runId: active.runId,
       onBackToMissions: vi.fn(),
+      onReturnToHunt: vi.fn(),
       children: value => ProductGameProbe({ active: value }),
     }))
     await settle()
@@ -984,6 +1016,175 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
     expect(gameplayStart).not.toHaveBeenCalled()
     expect(createGame).not.toHaveBeenCalled()
     expect(collectText(harness.current).join(' ')).toContain('no longer ready to enter')
+  })
+
+  it('keeps a Gem VERIFIED_ELIGIBLE result mounted without calling /active or remounting Phaser', async () => {
+    const active = createActiveExpedition()
+    const game = createFakeGame()
+    const onBackToMissions = vi.fn()
+    const onReturnToHunt = vi.fn()
+    fetchActive.mockResolvedValue(active)
+    gameplayStart.mockResolvedValue({ runId: active.runId, outcome: 'GAMEPLAY_STARTED' })
+    createGame.mockReturnValue(game)
+    verify.mockResolvedValue({
+      runId: active.runId,
+      checkpointHash: active.checkpoint.checkpointHash,
+      outcome: 'VERIFIED_ELIGIBLE',
+      status: 'COMPLETED',
+      rewardStatus: 'ELIGIBLE',
+      finalHp: 100,
+      gemsCollected: 6,
+      chestsOpened: 0,
+      objectiveReached: false,
+      hasTempleKey: false,
+      missionSatisfied: true,
+      finalSeq: 8,
+      transcriptHash: '4'.repeat(64),
+      stateHash: '5'.repeat(64),
+      verifiedAt: '2026-09-09T12:05:00.000Z',
+    })
+
+    const renderGate = () => ProductExpeditionGate({
+      mission: 'gem-runner',
+      runId: active.runId,
+      onBackToMissions,
+      onReturnToHunt,
+      children: value => ExpeditionView({
+        mode: 'product',
+        mission: 'gem-runner',
+        active: value,
+        onBackToMissions,
+        onReturnToHunt,
+      }),
+    })
+    const harness = createHookHarness(renderGate)
+    await settle()
+
+    expect(fetchActive).toHaveBeenCalledTimes(1)
+    expect(createGame).toHaveBeenCalledTimes(1)
+    const mounted = createGame.mock.calls[0]?.[1]
+    if (!mounted || mounted.mode !== 'product' || !mounted.proof) throw new Error('PRODUCT_PROOF_MISSING')
+    mounted.proof.notifyGameplayEvent('MISSION_COMPLETE')
+    await settle()
+
+    expect(verify).toHaveBeenCalledTimes(1)
+    expect(verify).toHaveBeenCalledWith({ runId: active.runId, checkpointHash: active.checkpoint.checkpointHash })
+    const verifiedText = collectText(harness.current).join(' ')
+    expect(verifiedText).toContain('Expedition verified')
+    expect(verifiedText).toContain('Reward claim is not enabled in this build yet.')
+    expect(findButtonWithText(harness.current, 'Back to missions')).not.toBeNull()
+    expect(findButtonWithText(harness.current, 'Return to Hunt')).not.toBeNull()
+    expect(fetchActive).toHaveBeenCalledTimes(1)
+    expect(createGame).toHaveBeenCalledTimes(1)
+
+    harness.rerender()
+    await settle()
+    expect(fetchActive).toHaveBeenCalledTimes(1)
+    expect(createGame).toHaveBeenCalledTimes(1)
+    expect(collectText(harness.current).join(' ')).toContain('Expedition verified')
+
+    harness.unmount()
+    resetHookRuntime()
+    fetchActive.mockRejectedValue(new ExpeditionProofApiError('ACTIVE_RUN_UNAVAILABLE'))
+    const remounted = createHookHarness(renderGate)
+    await settle()
+
+    expect(fetchActive).toHaveBeenCalledTimes(1)
+    expect(createGame).toHaveBeenCalledTimes(1)
+    expect(gameplayStart).toHaveBeenCalledTimes(1)
+    expect(collectText(remounted.current).join(' ')).toContain('Expedition verified')
+    expect(collectText(remounted.current).join(' ')).toContain('MISSION COMPLETE')
+    expect(collectText(remounted.current).join(' ')).toContain('Gem Runner')
+    expect(collectText(remounted.current).join(' ')).toContain('6 / 6 gems collected')
+    expect(collectText(remounted.current).join(' ')).not.toContain('no longer ready to enter')
+    expect(collectText(remounted.current).join(' ')).not.toContain('Preparing the ruins')
+
+    const back = findButtonWithText(remounted.current, 'Back to missions')
+    expect(back).not.toBeNull()
+    back?.onClick?.()
+    expect(onBackToMissions).toHaveBeenCalledTimes(1)
+
+    remounted.unmount()
+    resetHookRuntime()
+    clearRememberedProductTerminal()
+    const fresh = createHookHarness(renderGate)
+    await settle()
+
+    expect(fetchActive).toHaveBeenCalledTimes(2)
+    expect(createGame).toHaveBeenCalledTimes(1)
+    expect(collectText(fresh.current).join(' ')).toContain('no longer ready to enter')
+    expect(collectText(fresh.current).join(' ')).not.toContain('Expedition verified')
+    fresh.unmount()
+  })
+
+  it('keeps a Chest VERIFIED_ELIGIBLE result without recovering completed gameplay through /active', async () => {
+    const active = createActiveExpedition('chest-hunter')
+    const game = createFakeGame()
+    fetchActive.mockResolvedValue(active)
+    gameplayStart.mockResolvedValue({ runId: active.runId, outcome: 'GAMEPLAY_STARTED' })
+    createGame.mockReturnValue(game)
+    verify.mockResolvedValue({
+      runId: active.runId,
+      checkpointHash: active.checkpoint.checkpointHash,
+      outcome: 'VERIFIED_ELIGIBLE',
+      status: 'COMPLETED',
+      rewardStatus: 'ELIGIBLE',
+      finalHp: 70,
+      gemsCollected: 0,
+      chestsOpened: 4,
+      objectiveReached: false,
+      hasTempleKey: false,
+      missionSatisfied: true,
+      finalSeq: 12,
+      transcriptHash: '4'.repeat(64),
+      stateHash: '5'.repeat(64),
+      verifiedAt: '2026-09-09T12:05:00.000Z',
+    })
+
+    const renderGate = () => ProductExpeditionGate({
+      mission: 'chest-hunter',
+      runId: active.runId,
+      onBackToMissions: vi.fn(),
+      onReturnToHunt: vi.fn(),
+      children: value => ExpeditionView({
+        mode: 'product',
+        mission: 'chest-hunter',
+        active: value,
+        onBackToMissions: vi.fn(),
+        onReturnToHunt: vi.fn(),
+      }),
+    })
+    const harness = createHookHarness(renderGate)
+    await settle()
+    const mounted = createGame.mock.calls[0]?.[1]
+    if (!mounted || mounted.mode !== 'product' || !mounted.proof) throw new Error('PRODUCT_PROOF_MISSING')
+    mounted.proof.notifyGameplayEvent('MISSION_COMPLETE')
+    await settle()
+
+    expect(collectText(harness.current).join(' ')).toContain('Expedition verified')
+    expect(findButtonWithText(harness.current, 'Back to missions')).not.toBeNull()
+    expect(findButtonWithText(harness.current, 'Return to Hunt')).not.toBeNull()
+    harness.unmount()
+    resetHookRuntime()
+    fetchActive.mockRejectedValue(new ExpeditionProofApiError('ACTIVE_RUN_UNAVAILABLE'))
+    const remounted = createHookHarness(renderGate)
+    await settle()
+    expect(fetchActive).toHaveBeenCalledTimes(1)
+    expect(createGame).toHaveBeenCalledTimes(1)
+    expect(collectText(remounted.current).join(' ')).toContain('Expedition verified')
+    expect(collectText(remounted.current).join(' ')).toContain('Chest Hunter')
+    expect(collectText(remounted.current).join(' ')).toContain('4 / 4 chests opened')
+    expect(collectText(remounted.current).join(' ')).not.toContain('no longer ready to enter')
+    remounted.unmount()
+    resetHookRuntime()
+    clearRememberedProductTerminal()
+    const fresh = createHookHarness(renderGate)
+    await settle()
+    expect(fetchActive).toHaveBeenCalledTimes(2)
+    expect(createGame).toHaveBeenCalledTimes(1)
+    expect(collectText(fresh.current).join(' ')).toContain('no longer ready to enter')
+    expect(collectText(fresh.current).join(' ')).not.toContain('Expedition verified')
+    fresh.unmount()
   })
 
   it('keeps Practice local and proof-free while mounting the local game', async () => {
@@ -1019,6 +1220,8 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
     expect(fetchPublicStatus).not.toHaveBeenCalled()
     expect(fetchWalletStatus).not.toHaveBeenCalled()
     expect(checkpoint).not.toHaveBeenCalled()
+    expect(verify).not.toHaveBeenCalled()
+    expect(abandon).not.toHaveBeenCalled()
     expect(collectText(harness.current).join(' ')).toContain('PRACTICE RUN')
     expect(collectText(harness.current).join(' ')).toContain('No daily expedition used.')
     expect(collectText(harness.current).join(' ')).toContain('No NIM reward can be reserved.')
@@ -1051,6 +1254,8 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
     expect(fetchPublicStatus).not.toHaveBeenCalled()
     expect(fetchWalletStatus).not.toHaveBeenCalled()
     expect(checkpoint).not.toHaveBeenCalled()
+    expect(verify).not.toHaveBeenCalled()
+    expect(abandon).not.toHaveBeenCalled()
     expect(collectText(harness.current).join(' ')).toContain('PRACTICE RUN')
     harness.unmount()
     expect(game.destroy).toHaveBeenCalledTimes(1)

@@ -8,14 +8,17 @@ import {
 import type { ProductActiveExpedition } from '../../domain/expeditionProof.ts'
 import type { PlayableMission } from './expeditionFlow'
 import { HuntHeader } from './HuntHeader'
+import { ExpeditionVerifiedPanel } from './ExpeditionVerifiedPanel'
 import { createProductGateAttemptGuard, canMountProduct, reduceProductGate, validateProductActive, INITIAL_PRODUCT_GATE_STATE } from './productGateState.ts'
+import { getRememberedProductTerminal } from './productRunSession.ts'
 import styles from './PlayShell.module.css'
 import type { ProductGateError } from './productGateState.ts'
 
-export function ProductExpeditionGate({ mission, runId, onBackToMissions, children }: {
+export function ProductExpeditionGate({ mission, runId, onBackToMissions, onReturnToHunt, children }: {
   readonly mission: PlayableMission
   readonly runId: string
   readonly onBackToMissions: () => void
+  readonly onReturnToHunt: () => void
   readonly children: (active: ProductActiveExpedition) => ReactNode
 }) {
   const [state, dispatch] = useReducer(reduceProductGate, INITIAL_PRODUCT_GATE_STATE)
@@ -40,6 +43,8 @@ export function ProductExpeditionGate({ mission, runId, onBackToMissions, childr
   }, [routeKey])
 
   useEffect(() => {
+    // VERIFIED_ELIGIBLE is a current-session terminal. Do not re-resolve /active after the run completes.
+    if (getRememberedProductTerminal(mission, runId)) return
     if (!attemptGuardRef.current.begin(routeKey)) return
     dispatch({ type: 'RESET' })
     void loadGate()
@@ -88,6 +93,10 @@ export function ProductExpeditionGate({ mission, runId, onBackToMissions, childr
   }, [isCurrent, state])
 
   if (canMountProduct(state) && state.active) return <>{children(state.active)}</>
+  const remembered = getRememberedProductTerminal(mission, runId)
+  if (remembered) {
+    return <ExpeditionVerifiedPanel mission={mission} result={remembered.result} onBackToMissions={onBackToMissions} onReturnToHunt={onReturnToHunt} />
+  }
 
   return <div className={styles.shell}><div className={styles.viewport}>
     <HuntHeader />

@@ -5,6 +5,7 @@ import { NimiqDevPanel } from '../components/play/NimiqDevPanel'
 import { PlayShell } from '../components/play/PlayShell'
 import { ProductExpeditionGate } from '../components/play/ProductExpeditionGate'
 import { resolvePlayRoute } from '../components/play/expeditionFlow'
+import { clearRememberedProductTerminal } from '../components/play/productRunSession.ts'
 
 const GameDevView = lazy(() =>
   import('../components/play/GameDevView').then(m => ({ default: m.GameDevView }))
@@ -18,6 +19,10 @@ export function PlayPage() {
   const [params] = useSearchParams()
   const route = resolvePlayRoute({ dev: params.get('dev'), run: params.get('run'), runId: params.get('runId'), practice: params.get('practice'), mission: params.get('mission') })
   const navigate = useNavigate()
+  const leaveTo = (tab: 'missions' | 'hunt') => {
+    clearRememberedProductTerminal()
+    navigate('/play', { state: { initialTab: tab } })
+  }
 
   if (route.view === 'nimiq') return <NimiqDevPanel />
   if (route.view === 'dev-game') {
@@ -30,9 +35,9 @@ export function PlayPage() {
   if (route.view === 'product-expedition') {
     const mission = route.mission
     // Navigating to plain /play unmounts the run view, whose cleanup destroys the Phaser instance.
-    const backToMissions = () => navigate('/play', { state: { initialTab: 'missions' } })
-    const returnToHunt = () => navigate('/play', { state: { initialTab: 'hunt' } })
-    return <ProductExpeditionGate mission={mission} runId={route.runId} onBackToMissions={backToMissions}>
+    const backToMissions = () => leaveTo('missions')
+    const returnToHunt = () => leaveTo('hunt')
+    return <ProductExpeditionGate mission={mission} runId={route.runId} onBackToMissions={backToMissions} onReturnToHunt={returnToHunt}>
       {active => <Suspense fallback={<div style={{ minHeight: '100vh', background: '#132a26' }} />}>
         <ExpeditionView key={`${mission}:${route.runId}`} mode="product" active={active} mission={mission} onBackToMissions={backToMissions} onReturnToHunt={returnToHunt} />
       </Suspense>}
@@ -40,8 +45,8 @@ export function PlayPage() {
   }
   if (route.view === 'practice') {
     const mission = route.mission
-    const backToMissions = () => navigate('/play', { state: { initialTab: 'missions' } })
-    const returnToHunt = () => navigate('/play', { state: { initialTab: 'hunt' } })
+    const backToMissions = () => leaveTo('missions')
+    const returnToHunt = () => leaveTo('hunt')
     return (
       <Suspense fallback={<div style={{ minHeight: '100vh', background: '#132a26' }} />}>
         <ExpeditionView key={`practice:${mission}`} mode="practice" mission={mission} onBackToMissions={backToMissions} onReturnToHunt={returnToHunt} />

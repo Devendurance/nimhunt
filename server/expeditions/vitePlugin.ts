@@ -2,11 +2,13 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { loadEnv, type Plugin } from 'vite'
 import { WALLET_DAILY_STATUS_PATH } from '../../src/domain/dailyLedger.ts'
 import {
+  ABANDON_EXPEDITION_PATH,
   ACTIVE_EXPEDITION_PATH,
   CHECKPOINT_PATH,
   GAMEPLAY_START_PATH,
   START_CHALLENGE_PATH,
   START_EXPEDITION_PATH,
+  VERIFY_EXPEDITION_PATH,
 } from '../../src/domain/expeditionProof.ts'
 import { createLazyValue, type LazyValue } from './lazyValue.ts'
 import type { MemoryProofService } from './types.ts'
@@ -17,6 +19,8 @@ const OWNED_EXPEDITION_PATHS = new Set([
   ACTIVE_EXPEDITION_PATH,
   GAMEPLAY_START_PATH,
   CHECKPOINT_PATH,
+  VERIFY_EXPEDITION_PATH,
+  ABANDON_EXPEDITION_PATH,
   WALLET_DAILY_STATUS_PATH,
 ])
 

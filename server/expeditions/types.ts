@@ -1,9 +1,11 @@
 import type {
+  AbandonExpeditionResult,
   CheckpointAcknowledgement,
   ProductActiveExpedition,
   ProductGameplayStartResponse,
   StartChallengeResponse,
   StartResult,
+  VerifyExpeditionResult,
 } from '../../src/domain/expeditionProof.ts'
 import type { WalletDailyStatus } from '../../src/domain/dailyLedger.ts'
 import type { ExpeditionBlueprint, ExpeditionCheckpoint, MissionType, MoveAction, ReplayState } from '../../src/game/replay/types.ts'
@@ -39,12 +41,20 @@ export type DurableCheckpointBatch = {
   readonly acknowledgement: CheckpointAcknowledgement
 }
 
+export type DurableRunStatus = 'STARTED' | 'COMPLETED' | 'FAILED' | 'ABANDONED'
+export type DurableRewardStatus = 'NONE' | 'ELIGIBLE'
+
+export type DurableRunTerminal =
+  | { readonly type: 'VERIFIED'; readonly result: VerifyExpeditionResult }
+  | { readonly type: 'ABANDONED'; readonly result: AbandonExpeditionResult }
+
 export type DurableExpeditionRun = {
   readonly runId: string
   readonly dayKey: string
   readonly wallet: string
   readonly mission: MissionType
-  readonly status: 'STARTED'
+  readonly status: DurableRunStatus
+  readonly rewardStatus: DurableRewardStatus
   readonly startedAt: string
   readonly expiresAt: string
   readonly gameplayStartedAt: string | null
@@ -59,6 +69,7 @@ export type DurableExpeditionRun = {
   readonly seq: number
   readonly actions: readonly MoveAction[]
   readonly batches: readonly DurableCheckpointBatch[]
+  readonly terminal: DurableRunTerminal | null
 }
 
 export type StartAuthorizationResult = {
@@ -91,6 +102,16 @@ export type MemoryProofService = {
     readonly previousCheckpointHash: string
     readonly actions: readonly MoveAction[]
   }): Promise<CheckpointAcknowledgement>
+  verifyExpedition(input: {
+    readonly runId: string
+    readonly session: RunSessionRecord
+    readonly checkpointHash: string
+  }): Promise<VerifyExpeditionResult>
+  abandonExpedition(input: {
+    readonly runId: string
+    readonly session: RunSessionRecord
+    readonly checkpointHash: string
+  }): Promise<AbandonExpeditionResult>
   getRun(runId: string): DurableExpeditionRun | null
   getWalletDailyStatus(wallet: string): WalletDailyStatus
   snapshot(): MemoryProofSnapshot

@@ -15,6 +15,7 @@ import type {
 } from '../../src/game/replay/types.ts'
 import { validateExpeditionBlueprint } from '../../src/game/replay/validator.ts'
 import { applyCheckpointBatch } from './checkpoint.ts'
+import { abandonExpeditionRun, verifyExpeditionRun } from './verify.ts'
 import { ProofError } from './errors.ts'
 import { isPrevalidatedRoom01Bootstrap } from './room01BootstrapPrevalidation.ts'
 import {
@@ -32,6 +33,7 @@ import {
 import type {
   Clock,
   DurableExpeditionRun,
+  DurableRunTerminal,
   DurableStartChallenge,
   MemoryProofService,
   MemoryProofSnapshot,
@@ -260,7 +262,7 @@ export function createMemoryProofService(options: {
     appendCheckpoint(input) {
       return mutex.run(() => {
         const { run, now } = requireAuthenticatedRun(input.runId, input.session)
-        if (!run.gameplayStartedAt || run.status !== 'STARTED' || now.getTime() >= new Date(run.expiresAt).getTime()) {
+        if (!run.gameplayStartedAt || run.status !== 'STARTED' || run.terminal || now.getTime() >= new Date(run.expiresAt).getTime()) {
           throw new ProofError('RUN_NOT_ACTIVE')
         }
         const result = applyCheckpointBatch(run, {
@@ -269,6 +271,30 @@ export function createMemoryProofService(options: {
         })
         runs.set(input.runId, result.run)
         return result.acknowledgement
+      })
+    },
+
+    verifyExpedition(input) {
+      return mutex.run(() => {
+        const { run, now } = requireAuthenticatedRun(input.runId, input.session)
+        if (now.getTime() >= new Date(run.expiresAt).getTime() && !run.terminal) {
+          throw new ProofError('RUN_NOT_ACTIVE')
+        }
+        const result = verifyExpeditionRun(run, { checkpointHash: input.checkpointHash, now })
+        runs.set(input.runId, result.run)
+        return result.result
+      })
+    },
+
+    abandonExpedition(input) {
+      return mutex.run(() => {
+        const { run, now } = requireAuthenticatedRun(input.runId, input.session)
+        if (now.getTime() >= new Date(run.expiresAt).getTime() && !run.terminal) {
+          throw new ProofError('RUN_NOT_ACTIVE')
+        }
+        const result = abandonExpeditionRun(run, { checkpointHash: input.checkpointHash, now })
+        runs.set(input.runId, result.run)
+        return result.result
       })
     },
   }
@@ -346,6 +372,7 @@ export function createMemoryProofService(options: {
       wallet: challenge.wallet,
       mission: challenge.mission,
       status: 'STARTED',
+      rewardStatus: 'NONE',
       startedAt: now.toISOString(),
       expiresAt: nextResetAt,
       gameplayStartedAt: null,
@@ -360,6 +387,7 @@ export function createMemoryProofService(options: {
       seq: 0,
       actions: [],
       batches: [],
+      terminal: null,
     }
     const start: StartResult = {
       runId,
@@ -533,7 +561,14 @@ function cloneRun(run: DurableExpeditionRun): DurableExpeditionRun {
       actions: batch.actions.map(action => ({ ...action })),
       acknowledgement: { ...batch.acknowledgement },
     })),
+    terminal: cloneTerminal(run.terminal),
   }
+}
+
+function cloneTerminal(terminal: DurableRunTerminal | null): DurableRunTerminal | null {
+  if (!terminal) return null
+  if (terminal.type === 'VERIFIED') return { type: 'VERIFIED', result: { ...terminal.result } }
+  return { type: 'ABANDONED', result: { ...terminal.result } }
 }
 
 function cloneReplayState(state: DurableExpeditionRun['state']): DurableExpeditionRun['state'] {

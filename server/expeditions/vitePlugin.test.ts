@@ -13,8 +13,10 @@ describe('expedition proof runtime policy', () => {
     expect(isOwnedExpeditionPath('/api/expeditions/active')).toBe(true)
     expect(isOwnedExpeditionPath('/api/expeditions/gameplay-start')).toBe(true)
     expect(isOwnedExpeditionPath('/api/expeditions/checkpoint')).toBe(true)
+    expect(isOwnedExpeditionPath('/api/expeditions/verify')).toBe(true)
+    expect(isOwnedExpeditionPath('/api/expeditions/abandon')).toBe(true)
     expect(isOwnedExpeditionPath('/api/wallet-daily-status')).toBe(true)
-    expect(isOwnedExpeditionPath('/api/expeditions/verify')).toBe(false)
+    expect(isOwnedExpeditionPath('/api/rewards/prepare')).toBe(false)
   })
 
   it('enables memory proof only for explicit local development', () => {

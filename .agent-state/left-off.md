@@ -1,43 +1,45 @@
 # NimHunt - Left Off
 
-> Updated: 2026-09-11
+> Updated: 2026-09-12
 
 ## Current Objective
 
-STOP. Static Room 01 bootstrap prevalidation is in. Do not begin checkpoint/replay work.
+STOP before Vault product seal. Request one final real-phone Gem Runner verification of the post-verify result screen.
 
 ## Completed
 
-- First proof-request BFS skip for the three immutable Room 01 bootstrap templates only.
-- Runtime recomputes the frozen-day canonical template hash and skips BFS iff it exactly matches a checked-in constant.
-- Tests still run `validateExpeditionBlueprint()` and replay stored winning sequences. Hash mismatch disables the fast path. Dynamic/invalid blueprints still cannot publish.
-- Preview/production still cannot construct the memory backend.
+- Identified post-verify UX bug: `/verify` persists `COMPLETED` / `VERIFIED_ELIGIBLE`; ProductExpeditionGate then re-resolved `/active` for the same URL. `/active` correctly rejects COMPLETED/already-started runs, so the verified screen was replaced with "This expedition is no longer ready to enter."
+- `/active` semantics unchanged.
+- Successful verify is a terminal client session. Same-tab remount keeps the trusted `/verify` result without `/active` or Phaser remount. Deliberate Back to missions / Return to Hunt navigates to `/play` and clears the remembered terminal. Fresh reload/direct visit of the completed URL still fail-closes.
 
 ## Changed Paths
 
-- `server/expeditions/room01BootstrapPrevalidation.ts`
-- `server/expeditions/room01BootstrapPrevalidation.test.ts`
-- `server/expeditions/memoryProofStore.ts`
-- `server/expeditions/blueprint.test.ts`
-- `server/expeditions/blueprintBootstrap.ts`
+- `src/components/play/productRunSession.ts`
+- `src/components/play/productRunSession.test.ts`
+- `src/components/play/ExpeditionVerifiedPanel.tsx`
+- `src/components/play/productCheckpoint.ts`
+- `src/components/play/productCheckpoint.test.ts`
+- `src/components/play/ProductExpeditionGate.tsx`
+- `src/components/play/ExpeditionView.tsx`
+- `src/components/play/useProductStart.integration.test.ts`
+- `src/routes/PlayPage.tsx`
 
 ## Verification
 
-- Targeted blueprint/bootstrap tests: PASS — 4 files, 25 passed.
-- `npm test`: PASS — 41 files passed + 1 skipped, 327 passed, 1 skipped.
-- `npm run lint`: PASS.
-- `npx tsc -b --force`: PASS.
-- `npm run build`: PASS; existing large Phaser chunk warning remains.
-- `git diff --check`: PASS; existing CRLF warnings only.
-- Cold `npm run dev`: ready in 2739 ms / 2758 ms (earlier sample 1324 ms).
-- First proof request (chest-hunter start-challenge, initializes memory backend): 395 ms / 322 ms (was ~21 s).
-- Second proof request: 49 ms / 103 ms.
+- Targeted product verify/navigation tests: PASS
+- `npm test`: 379 passed, 1 skipped
+- `npm run lint`: PASS
+- `npx tsc -b --force`: PASS
+- `npm run build`: PASS
+- `git diff --check`: PASS (CRLF warnings only)
 
 ## Blockers / Gates
 
-- None for this optimization. Next product gate remains checkpoint/replay, which must not start yet.
+- Vault still needs future run-bound `NIMHUNT_VAULT_SEAL_V1`. Do not reuse the preview seal.
+- Postgres proof adapter still pending.
 
 ## Next Session
 
-1. Do not implement checkpoints or replay.
-2. No further general BFS redesign unless dynamic validation itself is unusable.
+1. Real-phone Gem Runner: signed Start → checkpoints → 6 gems alive → `/verify` → `Expedition verified` MUST STAY until Back to missions / Return to Hunt.
+2. Confirm Back to missions lands on `/play` with correct remaining attempts.
+3. Do not implement claims, reservation, NIM transfer, payout, or product Vault seal until explicitly requested.
