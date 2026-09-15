@@ -9,9 +9,11 @@ import {
   ExpeditionProofApiError,
   fetchActiveExpedition,
   markGameplayStarted,
+  prepareProductVaultSeal,
   requestStartChallenge,
   submitCheckpoint,
   verifyExpedition,
+  verifyProductVaultSeal,
   abandonExpedition,
 } from '../../api/expeditionProof.ts'
 import { fetchDailyHuntStatus, fetchWalletDailyStatus } from '../../api/dailyHunt'
@@ -159,6 +161,8 @@ vi.mock('../../api/expeditionProof.ts', async () => {
     submitCheckpoint: vi.fn(),
     verifyExpedition: vi.fn(),
     abandonExpedition: vi.fn(),
+    prepareProductVaultSeal: vi.fn(),
+    verifyProductVaultSeal: vi.fn(),
   }
 })
 
@@ -809,6 +813,8 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
   const checkpoint = vi.mocked(submitCheckpoint)
   const verify = vi.mocked(verifyExpedition)
   const abandon = vi.mocked(abandonExpedition)
+  const prepareVaultSeal = vi.mocked(prepareProductVaultSeal)
+  const verifyVaultSeal = vi.mocked(verifyProductVaultSeal)
   const createGame = vi.mocked(createNimHuntGame)
   const productStart = vi.mocked(authorizeStart)
   const submitStart = vi.mocked(authorizeStart)
@@ -1187,6 +1193,239 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
     fresh.unmount()
   })
 
+  it('keeps Chest Hunter playable after shrine reach without verify or reservation copy', async () => {
+    const active = createActiveExpedition('chest-hunter')
+    const game = createFakeGame()
+    fetchActive.mockResolvedValue(active)
+    gameplayStart.mockResolvedValue({ runId: active.runId, outcome: 'GAMEPLAY_STARTED' })
+    createGame.mockReturnValue(game)
+    verify.mockRejectedValue(new ExpeditionProofApiError('RUN_INCOMPLETE'))
+
+    const harness = createHookHarness(() => ProductExpeditionGate({
+      mission: 'chest-hunter',
+      runId: active.runId,
+      onBackToMissions: vi.fn(),
+      onReturnToHunt: vi.fn(),
+      children: value => ExpeditionView({
+        mode: 'product',
+        mission: 'chest-hunter',
+        active: value,
+        onBackToMissions: vi.fn(),
+        onReturnToHunt: vi.fn(),
+      }),
+    }))
+    await settle()
+    const mounted = createGame.mock.calls[0]?.[1]
+    if (!mounted || mounted.mode !== 'product' || !mounted.proof) throw new Error('PRODUCT_PROOF_MISSING')
+    mounted.proof.notifyGameplayEvent('VAULT_REACHED')
+    await settle()
+
+    const text = collectText(harness.current).join(' ')
+    expect(verify).not.toHaveBeenCalled()
+    expect(createGame).toHaveBeenCalledTimes(1)
+    expect(text).not.toContain('Expedition could not be verified')
+    expect(text).not.toContain('Reward proof does not match')
+    expect(text.toLowerCase()).not.toContain('reserve')
+    expect(text).not.toContain('Expedition verified')
+    expect(findButtonWithText(harness.current, 'Leave expedition')).not.toBeNull()
+    expect(findButtonWithText(harness.current, 'Back to missions')).toBeNull()
+    harness.unmount()
+  })
+
+  it('keeps Vault gameplay verified mounted, seals with NIMHUNT_VAULT_SEAL_V1, and does not remount Phaser', async () => {
+    const active = createActiveExpedition('vault-breaker')
+    const game = createFakeGame()
+    const onBackToMissions = vi.fn()
+    const onReturnToHunt = vi.fn()
+    const canonicalPayload = '{\n  "type": "NIMHUNT_VAULT_SEAL_V1"\n}'
+    fetchActive.mockResolvedValue(active)
+    gameplayStart.mockResolvedValue({ runId: active.runId, outcome: 'GAMEPLAY_STARTED' })
+    createGame.mockReturnValue(game)
+    verify.mockResolvedValue({
+      runId: active.runId,
+      checkpointHash: active.checkpoint.checkpointHash,
+      outcome: 'VAULT_GAMEPLAY_VERIFIED',
+      status: 'STARTED',
+      rewardStatus: 'NONE',
+      finalHp: 80,
+      gemsCollected: 0,
+      chestsOpened: 0,
+      objectiveReached: true,
+      hasTempleKey: true,
+      missionSatisfied: false,
+      finalSeq: 16,
+      transcriptHash: '4'.repeat(64),
+      stateHash: '5'.repeat(64),
+      verifiedAt: '2026-09-09T12:05:00.000Z',
+    })
+    prepareVaultSeal.mockResolvedValue({
+      runId: active.runId,
+      canonicalPayload,
+      vaultSealHash: 'ab'.repeat(32),
+    })
+    verifyVaultSeal.mockResolvedValue({
+      runId: active.runId,
+      wallet: 'NQ07 33E4 6T32 24Y7 X4BA 7SP2 27TX 32PL 54JG',
+      canonicalPayload,
+      vaultSealHash: 'ab'.repeat(32),
+      publicKey: 'public-key',
+      vaultCheckpointHash: active.checkpoint.checkpointHash,
+      verifiedAt: '2026-09-09T12:06:00.000Z',
+    })
+
+    const renderGate = () => ProductExpeditionGate({
+      mission: 'vault-breaker',
+      runId: active.runId,
+      onBackToMissions,
+      onReturnToHunt,
+      children: value => ExpeditionView({
+        mode: 'product',
+        mission: 'vault-breaker',
+        active: value,
+        onBackToMissions,
+        onReturnToHunt,
+      }),
+    })
+    const harness = createHookHarness(renderGate)
+    await settle()
+    const mounted = createGame.mock.calls[0]?.[1]
+    if (!mounted || mounted.mode !== 'product' || !mounted.proof) throw new Error('PRODUCT_PROOF_MISSING')
+    mounted.proof.notifyGameplayEvent('VAULT_REACHED')
+    await settle()
+
+    const verifiedText = collectText(harness.current).join(' ')
+    expect(verifiedText).toContain('TEMPLE VAULT REACHED')
+    expect(verifiedText).toContain('Vault gameplay verified.')
+    expect(verifiedText).not.toContain('NIM received')
+    expect(prepareVaultSeal).not.toHaveBeenCalled()
+    expect(sign).not.toHaveBeenCalled()
+    expect(createGame).toHaveBeenCalledTimes(1)
+
+    findButtonWithText(harness.current, 'Seal treasure')?.onClick?.()
+    await settle()
+    await settle()
+
+    expect(prepareVaultSeal).toHaveBeenCalledWith(active.runId)
+    expect(listAccounts).not.toHaveBeenCalled()
+    expect(sign).toHaveBeenCalledWith(provider, canonicalPayload)
+    expect(verifyVaultSeal).toHaveBeenCalledWith({
+      payload: canonicalPayload,
+      publicKey: signed.publicKey,
+      signature: signed.signature,
+    })
+    const sealedText = collectText(harness.current).join(' ')
+    expect(sealedText).toContain('TREASURE SEALED')
+    expect(sealedText).toContain('Your Nimiq signature was verified for this expedition.')
+    expect(sealedText).toContain('NQ0733…54JG')
+    expect(sealedText).toContain('abababab…')
+    expect(sealedText).toContain('Verified ✓')
+    expect(sealedText).toContain('Reward claim is not enabled in this build yet.')
+    expect(sealedText).not.toContain('NIM received')
+    expect(sealedText).not.toContain('reward reserved')
+    expect(createGame).toHaveBeenCalledTimes(1)
+
+    harness.rerender()
+    await settle()
+    expect(createGame).toHaveBeenCalledTimes(1)
+    expect(fetchActive).toHaveBeenCalledTimes(1)
+    expect(collectText(harness.current).join(' ')).toContain('TREASURE SEALED')
+
+    harness.unmount()
+    resetHookRuntime()
+    fetchActive.mockRejectedValue(new ExpeditionProofApiError('ACTIVE_RUN_UNAVAILABLE'))
+    const remounted = createHookHarness(renderGate)
+    await settle()
+    expect(fetchActive).toHaveBeenCalledTimes(1)
+    expect(createGame).toHaveBeenCalledTimes(1)
+    expect(collectText(remounted.current).join(' ')).toContain('TREASURE SEALED')
+    remounted.unmount()
+    resetHookRuntime()
+    clearRememberedProductTerminal()
+    const fresh = createHookHarness(renderGate)
+    await settle()
+    expect(fetchActive).toHaveBeenCalledTimes(2)
+    expect(createGame).toHaveBeenCalledTimes(1)
+    expect(collectText(fresh.current).join(' ')).toContain('no longer ready to enter')
+    expect(collectText(fresh.current).join(' ')).not.toContain('TREASURE SEALED')
+    fresh.unmount()
+  })
+
+  it('keeps a cancelled Vault seal retryable without consuming another attempt', async () => {
+    const active = createActiveExpedition('vault-breaker')
+    const game = createFakeGame()
+    fetchActive.mockResolvedValue(active)
+    gameplayStart.mockResolvedValue({ runId: active.runId, outcome: 'GAMEPLAY_STARTED' })
+    createGame.mockReturnValue(game)
+    verify.mockResolvedValue({
+      runId: active.runId,
+      checkpointHash: active.checkpoint.checkpointHash,
+      outcome: 'VAULT_GAMEPLAY_VERIFIED',
+      status: 'STARTED',
+      rewardStatus: 'NONE',
+      finalHp: 80,
+      gemsCollected: 0,
+      chestsOpened: 0,
+      objectiveReached: true,
+      hasTempleKey: true,
+      missionSatisfied: false,
+      finalSeq: 16,
+      transcriptHash: '4'.repeat(64),
+      stateHash: '5'.repeat(64),
+      verifiedAt: '2026-09-09T12:05:00.000Z',
+    })
+    prepareVaultSeal.mockResolvedValue({
+      runId: active.runId,
+      canonicalPayload: 'canonical-vault-seal',
+      vaultSealHash: 'ab'.repeat(32),
+    })
+    sign.mockRejectedValueOnce(createNimiqError('SIGN_CANCELLED'))
+    verifyVaultSeal.mockResolvedValue({
+      runId: active.runId,
+      wallet: 'NQ07 33E4 6T32 24Y7 X4BA 7SP2 27TX 32PL 54JG',
+      canonicalPayload: 'canonical-vault-seal',
+      vaultSealHash: 'ab'.repeat(32),
+      publicKey: 'public-key',
+      vaultCheckpointHash: active.checkpoint.checkpointHash,
+      verifiedAt: '2026-09-09T12:06:00.000Z',
+    })
+
+    const harness = createHookHarness(() => ProductExpeditionGate({
+      mission: 'vault-breaker',
+      runId: active.runId,
+      onBackToMissions: vi.fn(),
+      onReturnToHunt: vi.fn(),
+      children: value => ExpeditionView({
+        mode: 'product',
+        mission: 'vault-breaker',
+        active: value,
+        onBackToMissions: vi.fn(),
+        onReturnToHunt: vi.fn(),
+      }),
+    }))
+    await settle()
+    const mounted = createGame.mock.calls[0]?.[1]
+    if (!mounted || mounted.mode !== 'product' || !mounted.proof) throw new Error('PRODUCT_PROOF_MISSING')
+    mounted.proof.notifyGameplayEvent('VAULT_REACHED')
+    await settle()
+
+    findButtonWithText(harness.current, 'Seal treasure')?.onClick?.()
+    await settle()
+    await settle()
+    expect(collectText(harness.current).join(' ')).toContain('Signature request was cancelled.')
+    expect(collectText(harness.current).join(' ')).toContain('TEMPLE VAULT REACHED')
+    expect(verifyVaultSeal).not.toHaveBeenCalled()
+    expect(createGame).toHaveBeenCalledTimes(1)
+
+    sign.mockResolvedValue(signed)
+    findButtonWithText(harness.current, 'Seal treasure')?.onClick?.()
+    await settle()
+    await settle()
+    expect(verifyVaultSeal).toHaveBeenCalledTimes(1)
+    expect(collectText(harness.current).join(' ')).toContain('TREASURE SEALED')
+    expect(createGame).toHaveBeenCalledTimes(1)
+    harness.unmount()
+  })
+
   it('keeps Practice local and proof-free while mounting the local game', async () => {
     const game = createFakeGame()
     createGame.mockReturnValue(game)
@@ -1259,6 +1498,25 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
     expect(collectText(harness.current).join(' ')).toContain('PRACTICE RUN')
     harness.unmount()
     expect(game.destroy).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not invoke the product Vault seal from Practice', async () => {
+    const game = createFakeGame()
+    createGame.mockReturnValue(game)
+    const harness = createHookHarness(() => ExpeditionView({
+      mode: 'practice',
+      mission: 'vault-breaker',
+      onBackToMissions: vi.fn(),
+      onReturnToHunt: vi.fn(),
+    }))
+    await settle()
+    expect(createGame).toHaveBeenCalledWith(hookRuntime.nullRefValue, { mode: 'dev', mission: 'vault-breaker' })
+    expect(prepareVaultSeal).not.toHaveBeenCalled()
+    expect(verifyVaultSeal).not.toHaveBeenCalled()
+    expect(sign).not.toHaveBeenCalled()
+    expect(collectText(harness.current).join(' ')).not.toContain('Seal treasure')
+    expect(collectText(harness.current).join(' ')).not.toContain('TREASURE SEALED')
+    harness.unmount()
   })
 
   it('does not refresh wallet attempts when the real PlayShell start is cancelled', async () => {

@@ -759,7 +759,7 @@ export class AngkorDevScene extends Phaser.Scene {
       this.proof.notifyGameplayEvent('MISSION_COMPLETE')
       return
     }
-    if (this.puzzle.objectiveReached && !this.vaultFlushNotified) {
+    if (this.mission === 'vault-breaker' && this.puzzle.objectiveReached && !this.vaultFlushNotified) {
       this.vaultFlushNotified = true
       this.proof.notifyGameplayEvent('VAULT_REACHED')
     }

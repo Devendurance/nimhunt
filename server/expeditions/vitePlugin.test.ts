@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  createDefaultProofService,
   createProofBackendLoader,
   isOwnedExpeditionPath,
   resolveExpeditionRuntime,
@@ -15,6 +16,9 @@ describe('expedition proof runtime policy', () => {
     expect(isOwnedExpeditionPath('/api/expeditions/checkpoint')).toBe(true)
     expect(isOwnedExpeditionPath('/api/expeditions/verify')).toBe(true)
     expect(isOwnedExpeditionPath('/api/expeditions/abandon')).toBe(true)
+    expect(isOwnedExpeditionPath('/api/expeditions/vault-seal/prepare')).toBe(true)
+    expect(isOwnedExpeditionPath('/api/expeditions/vault-seal/verify')).toBe(true)
+    expect(isOwnedExpeditionPath('/api/expeditions/vault-seal')).toBe(false)
     expect(isOwnedExpeditionPath('/api/wallet-daily-status')).toBe(true)
     expect(isOwnedExpeditionPath('/api/rewards/prepare')).toBe(false)
   })
@@ -37,6 +41,48 @@ describe('expedition proof runtime policy', () => {
   it('allows memory proof in test mode', () => {
     expect(resolveExpeditionRuntime({
       mode: 'test',
+      backend: 'memory',
+      appOrigin: 'http://localhost:5173',
+    })).toMatchObject({ backend: 'memory' })
+  })
+
+  it('enables postgres proof for development, preview, and production', () => {
+    expect(resolveExpeditionRuntime({
+      mode: 'development',
+      backend: 'postgres',
+      appOrigin: 'http://localhost:5173',
+    })).toMatchObject({
+      backend: 'postgres',
+      secureCookie: false,
+      allowAuthorizedLocalHttpOrigins: true,
+    })
+    expect(resolveExpeditionRuntime({
+      mode: 'preview',
+      backend: 'postgres',
+      appOrigin: 'https://hunt.example',
+    })).toMatchObject({
+      backend: 'postgres',
+      expectedOrigin: 'https://hunt.example',
+      expectedHost: 'hunt.example',
+      expectedProtocol: 'https',
+      secureCookie: true,
+      allowAuthorizedLocalHttpOrigins: false,
+    })
+    expect(resolveExpeditionRuntime({
+      mode: 'production',
+      backend: 'postgres',
+      appOrigin: 'https://hunt.example',
+    })).toMatchObject({ backend: 'postgres', secureCookie: true })
+  })
+
+  it('never treats postgres as a silent memory fallback', () => {
+    expect(resolveExpeditionRuntime({
+      mode: 'development',
+      backend: undefined,
+      appOrigin: 'http://localhost:5173',
+    })).toMatchObject({ backend: 'unavailable' })
+    expect(resolveExpeditionRuntime({
+      mode: 'development',
       backend: 'memory',
       appOrigin: 'http://localhost:5173',
     })).toMatchObject({ backend: 'memory' })
@@ -143,5 +189,34 @@ describe('lazy development proof backend', () => {
     expect(loader.initCount()).toBe(1)
     expect(await loader.ensure()).toBe(service)
     expect(created).toBe(1)
+  })
+
+  it('does not construct a memory backend when postgres is configured without credentials', async () => {
+    let created = 0
+    const loader = createProofBackendLoader(
+      () => resolveExpeditionRuntime({
+        mode: 'development',
+        backend: 'postgres',
+        appOrigin: 'http://localhost:5173',
+      }),
+      async () => {
+        created += 1
+        return null
+      },
+    )
+
+    expect(await loader.ensure()).toBeNull()
+    expect(created).toBe(1)
+  })
+
+  it('fails closed for postgres when supabase env is not provided', async () => {
+    await expect(createDefaultProofService(
+      resolveExpeditionRuntime({
+        mode: 'development',
+        backend: 'postgres',
+        appOrigin: 'http://localhost:5173',
+      }),
+      {},
+    )).resolves.toBeNull()
   })
 })

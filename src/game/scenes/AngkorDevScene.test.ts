@@ -66,10 +66,10 @@ function setup() {
   return { scene, internals, bridge }
 }
 
-function setupProduct(proof: ProductProofBridge) {
+function setupProduct(proof: ProductProofBridge, mission: 'gem-runner' | 'chest-hunter' | 'vault-breaker' = 'gem-runner') {
   pending.steps = []; pending.tweens = []; pending.timers = []
   vi.stubGlobal('window', { matchMedia: () => ({ matches: true }) })
-  const source = createRoom01Blueprint('2026-09-09', 'gem-runner', 'scene-checkpoint')
+  const source = createRoom01Blueprint('2026-09-09', mission, 'scene-checkpoint')
   const blueprint = { ...source, status: 'PUBLISHED' as const, blueprintHash: 'a'.repeat(64) }
   const initialState = createInitialRun({
     mission: blueprint.mission,
@@ -77,10 +77,10 @@ function setupProduct(proof: ProductProofBridge) {
     roomVersion: blueprint.roomVersion,
     blueprint,
   })
-  const bridge = createGameBridge(createInitialHUDState())
+  const bridge = createGameBridge(createInitialHUDState(mission))
   const scene = new AngkorDevScene(bridge, {
     mode: 'product',
-    mission: 'gem-runner',
+    mission,
     blueprint,
     initialState,
     proof,
@@ -88,6 +88,8 @@ function setupProduct(proof: ProductProofBridge) {
   const internals = scene as unknown as {
     player: { gridX: number; gridY: number }
     puzzle: PuzzleState
+    run: { hp: number; runStatus: string; chestsOpened?: number; gemsCollected: number }
+    notifyProductTerminal(): void
     renderRoomTiles(): void; renderContents(): void; renderPuzzle(): void; renderGems(): void; renderOverlays(): void; renderItems(): void; renderChests(): void
   }
   for (const method of ['renderRoomTiles', 'renderContents', 'renderPuzzle', 'renderGems', 'renderOverlays', 'renderItems', 'renderChests'] as const) vi.spyOn(internals, method).mockImplementation(() => {})
@@ -185,5 +187,47 @@ describe('Puzzle scene transition lifecycle', () => {
     pending.steps[0]() // Adversarial callback: real Player also invalidates this.
     expect(bridge.getState()).toEqual(createInitialHUDState())
     expect(internals.puzzle.gateState).toBe('LOCKED')
+  })
+
+  it('does not notify VAULT_REACHED when Gem Runner or Chest Hunter reaches the shrine', () => {
+    for (const mission of ['gem-runner', 'chest-hunter'] as const) {
+      const notifyGameplayEvent = vi.fn()
+      const { internals } = setupProduct({
+        canAcceptMove: () => true,
+        recordAcceptedMove: vi.fn(),
+        notifyGameplayEvent,
+      }, mission)
+      internals.puzzle = { ...internals.puzzle, objectiveReached: true }
+      internals.notifyProductTerminal()
+      expect(notifyGameplayEvent, mission).not.toHaveBeenCalled()
+    }
+  })
+
+  it('notifies VAULT_REACHED only for Vault Breaker shrine reach while alive', () => {
+    const notifyGameplayEvent = vi.fn()
+    const { internals } = setupProduct({
+      canAcceptMove: () => true,
+      recordAcceptedMove: vi.fn(),
+      notifyGameplayEvent,
+    }, 'vault-breaker')
+    internals.puzzle = { ...internals.puzzle, objectiveReached: true }
+    internals.notifyProductTerminal()
+    expect(notifyGameplayEvent).toHaveBeenCalledWith('VAULT_REACHED')
+  })
+
+  it('notifies MISSION_COMPLETE for Chest Hunter at 4/4 alive, not shrine reach', () => {
+    const notifyGameplayEvent = vi.fn()
+    const { internals } = setupProduct({
+      canAcceptMove: () => true,
+      recordAcceptedMove: vi.fn(),
+      notifyGameplayEvent,
+    }, 'chest-hunter')
+    internals.puzzle = { ...internals.puzzle, objectiveReached: true }
+    internals.run = { ...internals.run, chestsOpened: 3, hp: 70, runStatus: 'PLAYING' }
+    internals.notifyProductTerminal()
+    expect(notifyGameplayEvent).not.toHaveBeenCalled()
+    internals.run = { ...internals.run, chestsOpened: 4, hp: 70, runStatus: 'MISSION_COMPLETE' }
+    internals.notifyProductTerminal()
+    expect(notifyGameplayEvent).toHaveBeenCalledWith('MISSION_COMPLETE')
   })
 })

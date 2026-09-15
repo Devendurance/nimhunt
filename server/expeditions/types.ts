@@ -1,10 +1,12 @@
 import type {
   AbandonExpeditionResult,
   CheckpointAcknowledgement,
+  PreparedProductVaultSeal,
   ProductActiveExpedition,
   ProductGameplayStartResponse,
   StartChallengeResponse,
   StartResult,
+  VerifiedProductVaultSeal,
   VerifyExpeditionResult,
 } from '../../src/domain/expeditionProof.ts'
 import type { WalletDailyStatus } from '../../src/domain/dailyLedger.ts'
@@ -48,6 +50,17 @@ export type DurableRunTerminal =
   | { readonly type: 'VERIFIED'; readonly result: VerifyExpeditionResult }
   | { readonly type: 'ABANDONED'; readonly result: AbandonExpeditionResult }
 
+export type DurableVaultSealProof = {
+  readonly runId: string
+  readonly wallet: string
+  readonly canonicalPayload: string
+  readonly vaultSealHash: string
+  readonly publicKey: string
+  readonly signature: string
+  readonly verifiedAt: string
+  readonly vaultCheckpointHash: string
+}
+
 export type DurableExpeditionRun = {
   readonly runId: string
   readonly dayKey: string
@@ -70,6 +83,7 @@ export type DurableExpeditionRun = {
   readonly actions: readonly MoveAction[]
   readonly batches: readonly DurableCheckpointBatch[]
   readonly terminal: DurableRunTerminal | null
+  readonly vaultSeal: DurableVaultSealProof | null
 }
 
 export type StartAuthorizationResult = {
@@ -112,7 +126,54 @@ export type MemoryProofService = {
     readonly session: RunSessionRecord
     readonly checkpointHash: string
   }): Promise<AbandonExpeditionResult>
+  prepareVaultSeal(runId: string, session: RunSessionRecord): Promise<PreparedProductVaultSeal>
+  verifyVaultSeal(input: {
+    readonly session: RunSessionRecord
+    readonly payload: string
+    readonly publicKey: string
+    readonly signature: string
+  }): Promise<VerifiedProductVaultSeal>
   getRun(runId: string): DurableExpeditionRun | null
   getWalletDailyStatus(wallet: string): WalletDailyStatus
   snapshot(): MemoryProofSnapshot
 }
+
+export type ProofService = {
+  registerBlueprint(blueprint: ExpeditionBlueprint): Promise<void>
+  publishBlueprint(blueprintId: string): Promise<void>
+  retireBlueprint(blueprintId: string): Promise<void>
+  getPublishedBlueprint(dayKey: string, mission: MissionType): Promise<ExpeditionBlueprint | null>
+  issueStartChallenge(wallet: string, mission: MissionType): Promise<StartChallengeResponse>
+  authorizeStart(input: { readonly payload: string; readonly publicKey: string; readonly signature: string }): Promise<StartAuthorizationResult>
+  authenticateSession(raw: string): Promise<RunSessionRecord>
+  getActiveExpedition(runId: string, session: RunSessionRecord): Promise<ProductActiveExpedition>
+  markGameplayStarted(runId: string, session: RunSessionRecord): Promise<ProductGameplayStartResponse>
+  appendCheckpoint(input: {
+    readonly runId: string
+    readonly session: RunSessionRecord
+    readonly previousCheckpointHash: string
+    readonly actions: readonly MoveAction[]
+  }): Promise<CheckpointAcknowledgement>
+  verifyExpedition(input: {
+    readonly runId: string
+    readonly session: RunSessionRecord
+    readonly checkpointHash: string
+  }): Promise<VerifyExpeditionResult>
+  abandonExpedition(input: {
+    readonly runId: string
+    readonly session: RunSessionRecord
+    readonly checkpointHash: string
+  }): Promise<AbandonExpeditionResult>
+  prepareVaultSeal(runId: string, session: RunSessionRecord): Promise<PreparedProductVaultSeal>
+  verifyVaultSeal(input: {
+    readonly session: RunSessionRecord
+    readonly payload: string
+    readonly publicKey: string
+    readonly signature: string
+  }): Promise<VerifiedProductVaultSeal>
+  getRun(runId: string): Promise<DurableExpeditionRun | null>
+  getWalletDailyStatus(wallet: string): Promise<WalletDailyStatus>
+  snapshot(): Promise<MemoryProofSnapshot>
+}
+
+export type ExpeditionProofService = MemoryProofService | ProofService

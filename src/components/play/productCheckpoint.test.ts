@@ -5,15 +5,18 @@ import { deriveCheckpointProgress } from '../../game/replay/checkpointProgress.t
 import { createInitialRun, replayActions } from '../../game/replay/engine.ts'
 import { createRoom01Blueprint } from '../../game/world/room01.ts'
 import {
+  MISSION_INCOMPLETE_COPY,
   PROOF_LOST_DETAIL,
   PROOF_LOST_TITLE,
   SYNCING_COPY,
+  VERIFY_REJECTED_DETAIL,
   createProductCheckpointSession,
+  shouldVerifyGameplayEvent,
 } from './productCheckpoint.ts'
 import { clearRememberedProductTerminal, getRememberedProductTerminal } from './productRunSession.ts'
 
-function active(): ProductActiveExpedition {
-  const source = createRoom01Blueprint('2026-09-09', 'gem-runner', 'checkpoint-client')
+function active(mission: ProductActiveExpedition['mission'] = 'gem-runner'): ProductActiveExpedition {
+  const source = createRoom01Blueprint('2026-09-09', mission, 'checkpoint-client')
   const blueprint = { ...source, status: 'PUBLISHED' as const, blueprintHash: 'b'.repeat(64) }
   const state = createInitialRun({
     mission: blueprint.mission,
@@ -24,7 +27,7 @@ function active(): ProductActiveExpedition {
   return {
     runId: 'run-1',
     dayKey: '2026-09-09',
-    mission: 'gem-runner',
+    mission,
     status: 'STARTED',
     startedAt: '2026-09-09T12:00:00.000Z',
     expiresAt: '2026-09-10T00:00:00.000Z',
@@ -243,6 +246,120 @@ describe('product checkpoint session', () => {
     expect(submit).toHaveBeenCalledTimes(1)
     expect(verify).not.toHaveBeenCalled()
     expect(abandonFn).toHaveBeenCalledTimes(1)
+    session.stop()
+  })
+
+  it('freezes movement after VAULT_GAMEPLAY_VERIFIED and does not abandon or keep sending checkpoints', async () => {
+    const expedition = { ...active(), mission: 'vault-breaker' as const }
+    const submit = vi.fn()
+    const verify = vi.fn(async (request: { readonly checkpointHash: string }) => ({
+      ...verified(expedition, request.checkpointHash),
+      outcome: 'VAULT_GAMEPLAY_VERIFIED' as const,
+      status: 'STARTED' as const,
+      rewardStatus: 'NONE' as const,
+      missionSatisfied: false,
+      objectiveReached: true,
+      hasTempleKey: true,
+    }))
+    const abandonFn = vi.fn()
+    const session = createProductCheckpointSession(expedition, { submit, verify, abandon: abandonFn, retryDelayMs: 0 })
+    session.notifyGameplayEvent('VAULT_REACHED')
+    await session.flushPending()
+    expect(verify).toHaveBeenCalledTimes(1)
+    expect(session.snapshot()).toMatchObject({
+      vaultGameplayVerified: true,
+      proofState: 'VAULT_GAMEPLAY_VERIFIED',
+      movementPaused: true,
+    })
+    expect(session.canAcceptMove()).toBe(false)
+    session.recordAcceptedMove('LEFT')
+    expect(submit).not.toHaveBeenCalled()
+    await session.leaveAndAbandon()
+    expect(abandonFn).not.toHaveBeenCalled()
+    expect(getRememberedProductTerminal('vault-breaker', expedition.runId)?.result.outcome).toBe('VAULT_GAMEPLAY_VERIFIED')
+    session.stop()
+  })
+
+  it('does not terminal-verify Gem Runner or Chest Hunter on VAULT_REACHED', async () => {
+    expect(shouldVerifyGameplayEvent('gem-runner', 'VAULT_REACHED')).toBe(false)
+    expect(shouldVerifyGameplayEvent('chest-hunter', 'VAULT_REACHED')).toBe(false)
+    expect(shouldVerifyGameplayEvent('vault-breaker', 'VAULT_REACHED')).toBe(true)
+    expect(shouldVerifyGameplayEvent('chest-hunter', 'MISSION_COMPLETE')).toBe(true)
+    expect(shouldVerifyGameplayEvent('gem-runner', 'DEATH')).toBe(true)
+
+    for (const mission of ['gem-runner', 'chest-hunter'] as const) {
+      const expedition = active(mission)
+      const verify = vi.fn()
+      const session = createProductCheckpointSession(expedition, { submit: vi.fn(), verify, retryDelayMs: 0, abandon: vi.fn() })
+      session.notifyGameplayEvent('VAULT_REACHED')
+      await session.flushPending()
+      expect(verify, mission).not.toHaveBeenCalled()
+      expect(session.snapshot()).toMatchObject({
+        verifying: false,
+        verifyRejected: false,
+        proofLost: false,
+        missionIncomplete: false,
+        movementPaused: false,
+      })
+      expect(session.canAcceptMove()).toBe(true)
+      session.stop()
+    }
+  })
+
+  it('verifies Chest Hunter only after MISSION_COMPLETE, not 3/4 plus shrine reach', async () => {
+    const expedition = active('chest-hunter')
+    const verify = vi.fn(async request => verified(expedition, request.checkpointHash))
+    const session = createProductCheckpointSession(expedition, { submit: vi.fn(), verify, retryDelayMs: 0, abandon: vi.fn() })
+    session.notifyGameplayEvent('VAULT_REACHED')
+    await session.flushPending()
+    expect(verify).not.toHaveBeenCalled()
+    session.notifyGameplayEvent('MISSION_COMPLETE')
+    await session.flushPending()
+    expect(verify).toHaveBeenCalledTimes(1)
+    expect(session.snapshot().verifiedEligible).toBe(true)
+    session.stop()
+  })
+
+  it('verifies Gem Runner only after MISSION_COMPLETE, not 5/6 plus shrine reach', async () => {
+    const expedition = active('gem-runner')
+    const verify = vi.fn(async request => verified(expedition, request.checkpointHash))
+    const session = createProductCheckpointSession(expedition, { submit: vi.fn(), verify, retryDelayMs: 0, abandon: vi.fn() })
+    session.notifyGameplayEvent('VAULT_REACHED')
+    await session.flushPending()
+    expect(verify).not.toHaveBeenCalled()
+    session.notifyGameplayEvent('MISSION_COMPLETE')
+    await session.flushPending()
+    expect(verify).toHaveBeenCalledTimes(1)
+    expect(session.snapshot().verifiedEligible).toBe(true)
+    session.stop()
+  })
+
+  it('restores gameplay on RUN_INCOMPLETE without proof mismatch or reservation copy', async () => {
+    const expedition = active('chest-hunter')
+    const verify = vi.fn()
+      .mockRejectedValueOnce(new ExpeditionProofApiError('RUN_INCOMPLETE'))
+      .mockResolvedValueOnce(verified(expedition, 'e'.repeat(64)))
+    const session = createProductCheckpointSession(expedition, { submit: vi.fn(), verify, retryDelayMs: 0, abandon: vi.fn() })
+    session.notifyGameplayEvent('MISSION_COMPLETE')
+    await session.flushPending()
+    expect(session.snapshot()).toMatchObject({
+      proofLost: false,
+      verifyRejected: false,
+      verifying: false,
+      missionIncomplete: true,
+      movementPaused: false,
+      verifiedEligible: false,
+    })
+    expect(session.canAcceptMove()).toBe(true)
+    expect(MISSION_INCOMPLETE_COPY).toBe('Mission objective is not complete yet.')
+    expect(VERIFY_REJECTED_DETAIL).toBe('Reward proof does not match the server record.')
+    expect(VERIFY_REJECTED_DETAIL.toLowerCase()).not.toMatch(/reserv/)
+    expect(MISSION_INCOMPLETE_COPY.toLowerCase()).not.toMatch(/reserv/)
+
+    session.notifyGameplayEvent('MISSION_COMPLETE')
+    await session.flushPending()
+    expect(verify).toHaveBeenCalledTimes(2)
+    expect(session.snapshot()).toMatchObject({ verifiedEligible: true, missionIncomplete: false })
     session.stop()
   })
 })

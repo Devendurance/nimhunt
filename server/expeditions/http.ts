@@ -1,11 +1,11 @@
-import { ABANDON_EXPEDITION_PATH, ACTIVE_EXPEDITION_PATH, CHECKPOINT_PATH, GAMEPLAY_START_PATH, START_CHALLENGE_PATH, START_EXPEDITION_PATH, VERIFY_EXPEDITION_PATH } from '../../src/domain/expeditionProof.ts'
+import { ABANDON_EXPEDITION_PATH, ACTIVE_EXPEDITION_PATH, CHECKPOINT_PATH, GAMEPLAY_START_PATH, PRODUCT_VAULT_SEAL_PREPARE_PATH, PRODUCT_VAULT_SEAL_VERIFY_PATH, START_CHALLENGE_PATH, START_EXPEDITION_PATH, VERIFY_EXPEDITION_PATH } from '../../src/domain/expeditionProof.ts'
 import type { MoveAction } from '../../src/game/replay/types.ts'
 import { MAX_CHECKPOINT_BATCH_ACTIONS } from '../../src/game/replay/versions.ts'
 import { WALLET_DAILY_STATUS_PATH } from '../../src/domain/dailyLedger.ts'
 import { ProofError, isProofError } from './errors.ts'
 import { parseStartPayload, type SignedStartRequest } from './canonical.ts'
 import { parseRunSessionCookie, serializeRunSessionCookie, type RunSessionRecord } from './session.ts'
-import type { MemoryProofService } from './types.ts'
+import type { ExpeditionProofService } from './types.ts'
 
 export const MAX_EXPEDITION_BODY_BYTES = 16 * 1024
 
@@ -40,7 +40,7 @@ const BASE_HEADERS = {
 }
 
 export async function dispatchExpeditionHttp(
-  service: MemoryProofService | null,
+  service: ExpeditionProofService | null,
   request: ExpeditionHttpRequest,
   security: ExpeditionHttpSecurity,
 ): Promise<ExpeditionHttpResponse> {
@@ -77,7 +77,7 @@ export async function dispatchExpeditionHttp(
 
     if (path === WALLET_DAILY_STATUS_PATH) {
       const body = readWalletDailyStatusRequest(readJsonBody(request))
-      const status = service.getWalletDailyStatus(body.wallet)
+      const status = await service.getWalletDailyStatus(body.wallet)
       return response(200, { ok: true, ...status })
     }
 
@@ -101,20 +101,20 @@ export async function dispatchExpeditionHttp(
 
     if (path === ACTIVE_EXPEDITION_PATH) {
       const runId = readActiveRunId(url)
-      const session = authenticateSession(service, request)
-      const active = service.getActiveExpedition(runId, session)
+      const session = await authenticateSession(service, request)
+      const active = await service.getActiveExpedition(runId, session)
       return response(200, { ok: true, ...active })
     }
 
     if (path === GAMEPLAY_START_PATH) {
-      const session = authenticateSession(service, request)
+      const session = await authenticateSession(service, request)
       const runId = readGameplayStartRequest(readJsonBody(request)).runId
-      const gameplayStart = service.markGameplayStarted(runId, session)
+      const gameplayStart = await service.markGameplayStarted(runId, session)
       return response(200, { ok: true, ...gameplayStart })
     }
 
     if (path === CHECKPOINT_PATH) {
-      const session = authenticateSession(service, request)
+      const session = await authenticateSession(service, request)
       const checkpointRequest = readCheckpointRequest(readJsonBody(request))
       const acknowledgement = await service.appendCheckpoint({
         runId: checkpointRequest.runId,
@@ -126,7 +126,7 @@ export async function dispatchExpeditionHttp(
     }
 
     if (path === VERIFY_EXPEDITION_PATH) {
-      const session = authenticateSession(service, request)
+      const session = await authenticateSession(service, request)
       const locator = readRunLocatorRequest(readJsonBody(request))
       const verified = await service.verifyExpedition({
         runId: locator.runId,
@@ -137,7 +137,7 @@ export async function dispatchExpeditionHttp(
     }
 
     if (path === ABANDON_EXPEDITION_PATH) {
-      const session = authenticateSession(service, request)
+      const session = await authenticateSession(service, request)
       const locator = readRunLocatorRequest(readJsonBody(request))
       const abandoned = await service.abandonExpedition({
         runId: locator.runId,
@@ -145,6 +145,25 @@ export async function dispatchExpeditionHttp(
         checkpointHash: locator.checkpointHash,
       })
       return response(200, { ok: true, ...abandoned })
+    }
+
+    if (path === PRODUCT_VAULT_SEAL_PREPARE_PATH) {
+      const session = await authenticateSession(service, request)
+      const runId = readGameplayStartRequest(readJsonBody(request)).runId
+      const prepared = await service.prepareVaultSeal(runId, session)
+      return response(200, { ok: true, ...prepared })
+    }
+
+    if (path === PRODUCT_VAULT_SEAL_VERIFY_PATH) {
+      const session = await authenticateSession(service, request)
+      const signed = readSignedVaultSeal(readJsonBody(request))
+      const verified = await service.verifyVaultSeal({
+        session,
+        payload: signed.payload,
+        publicKey: signed.publicKey,
+        signature: signed.signature,
+      })
+      return response(200, { ok: true, ...verified })
     }
 
     return response(404, { ok: false, error: 'MALFORMED_REQUEST' })
@@ -172,6 +191,8 @@ function isExpeditionPath(path: string): boolean {
     || path === CHECKPOINT_PATH
     || path === VERIFY_EXPEDITION_PATH
     || path === ABANDON_EXPEDITION_PATH
+    || path === PRODUCT_VAULT_SEAL_PREPARE_PATH
+    || path === PRODUCT_VAULT_SEAL_VERIFY_PATH
     || path === WALLET_DAILY_STATUS_PATH
 }
 
@@ -285,6 +306,17 @@ function readSignedStart(body: Record<string, unknown>): SignedStartRequest {
   return { payload: body.payload, publicKey: body.publicKey, signature: body.signature }
 }
 
+function readSignedVaultSeal(body: Record<string, unknown>): SignedStartRequest {
+  const keys = Object.keys(body)
+  if (keys.length !== 3 || !keys.includes('payload') || !keys.includes('publicKey') || !keys.includes('signature')) {
+    throw new ProofError('MALFORMED_REQUEST')
+  }
+  if (!isBoundedString(body.payload, 4_096) || !isBoundedString(body.publicKey, 130) || !isBoundedString(body.signature, 258)) {
+    throw new ProofError('MALFORMED_REQUEST')
+  }
+  return { payload: body.payload, publicKey: body.publicKey, signature: body.signature }
+}
+
 function readGameplayStartRequest(body: Record<string, unknown>): { runId: string } {
   requireExactKeys(body, ['runId'])
   if (!isBoundedString(body.runId, 128)) throw new ProofError('START_CHALLENGE_INVALID')
@@ -366,11 +398,11 @@ function requireExactKeys(body: Record<string, unknown>, expected: readonly stri
   }
 }
 
-function authenticateSession(service: MemoryProofService, request: ExpeditionHttpRequest): RunSessionRecord {
+async function authenticateSession(service: ExpeditionProofService, request: ExpeditionHttpRequest): Promise<RunSessionRecord> {
   const raw = parseRunSessionCookie(getHeader(request, 'cookie'))
   if (!raw) throw new ProofError('RUN_SESSION_INVALID')
   try {
-    return service.authenticateSession(raw)
+    return await service.authenticateSession(raw)
   } catch (error) {
     if (isProofError(error) && (error.code === 'INVALID_SESSION' || error.code === 'SESSION_EXPIRED' || error.code === 'SESSION_REVOKED')) {
       throw new ProofError('RUN_SESSION_INVALID')

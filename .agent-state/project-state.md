@@ -1,8 +1,8 @@
 # NimHunt — Project State
 
-> **Last updated**: 2026-09-12
-> **Phase**: Cycle 2 authenticated product start, checkpoint chain, and server final replay verification are in. Claims, Vault product seal, and Postgres proof adapter are not started.
-> **Latest milestone**: Post-verify UX keeps `VERIFIED_ELIGIBLE` mounted as a terminal client session. `/active` still rejects completed/already-started runs on fresh reload. Claims, Vault product seal, and Postgres proof adapter are not started.
+> **Last updated**: 2026-09-15
+> **Phase**: Cycle 2 authenticated product start, checkpoint chain, final replay, run-bound Vault seal, and Postgres proof adapter are in. Signed reward claim and 69-slot reservation are the next slice. NIM payout is not started.
+> **Latest milestone**: Live Supabase `001`/`002`/`003` schema, RLS/RPC privileges, signed Start, checkpoint races, Gem/Chest/Vault persistence, and real-device postgres-backed Gem Runner, Chest Hunter, and Vault Breaker + `NIMHUNT_VAULT_SEAL_V1` are verified.
 
 ---
 
@@ -24,7 +24,7 @@
 ## Routes
 
 | Route | Purpose | Status |
-|-------|---------|--------|
+|-------|--------|--------|
 | `/` | Marketing landing page | ✅ LOCKED — do not modify |
 | `/play` | Mini App shell (Hunt Home, World Select, Mission Brief) | ✅ Wallet-free board/brief; deliberate Start only |
 | `/play?run=<mission>&runId=<id>` | Authenticated product expedition | ✅ Active/gameplay-start gate precedes Phaser |
@@ -75,177 +75,29 @@ src/
 7. **Replay proof boundary**: Server-issued blueprints feed pure deterministic replay; canonical hashing stays server/test-side so the client bundle does not import the Nimiq WASM worker.
 8. **Product start boundary**: Explicit Nimiq authorization creates the run; authenticated `/active` and idempotent gameplay-start gate product Phaser, while Dev and Practice remain local.
 9. **Wallet status boundary**: Public hunt slots are wallet-free; wallet attempts remain unknown until a successful product start and are refreshed only with normalized in-memory wallet context.
+10. **Proof backends**: Memory is development/test only. Postgres is the durable adapter (`NIMHUNT_PROOF_BACKEND=postgres`) using SECURITY DEFINER RPCs. Product HTTP does not branch on backend business behavior.
 
 ---
 
-## Room 01 Layout (12×10, 32px tiles)
+## Verified Product Proof
 
-```
-############
-#.P.....#..#      P = Potion (2,1)
-#..##..##..#
-#..S.......#      S = Player start (3,3), Spikes (5,3)
-#..##...G..#      G = Goblin spawn (7,4), Gate (8,3), Shrine (9,3)
-#..#....##.#
-#W#B....##.#      W = Sword (1,6), B = Boulder (4,6), Poison (6,6)
-#..#K...#..#      K = Key (3,7)
-#.......#..#
-############
-```
-
-**Gems**: (2,3), (1,1), (5,1), (9,1), (10,4), (10,8), (5,8), (1,8) — total 8
-**Gem Runner target**: 6/8
-
-**Chests** (deterministic, step-onto open):
-- room01-chest-01 (1,2) GEMS → `Found 2 gems.`
-- room01-chest-02 (6,3) POTION → `HP restored +N.` (clamped)
-- room01-chest-03 (5,5) TRAP → `It was trapped! -30 HP`
-- room01-chest-04 (10,3) SWORD → `Ancient Blade found.` (inner chamber, requires key→gate)
-**Chest Hunter target**: 4/4 + HP > 0
+| Capability | Status |
+|------------|--------|
+| Live Supabase/Postgres proof backend | ✅ PASS |
+| Real-device Postgres Gem Runner | ✅ PASS |
+| Real-device Postgres Chest Hunter | ✅ PASS |
+| Real-device Postgres Vault Breaker + `NIMHUNT_VAULT_SEAL_V1` | ✅ PASS |
+| Attempt accounting (3/day, consumed at Start) | ✅ PASS |
+| Daily reward pool (69 slots/day) | ✅ exists |
+| One reward reservation max per wallet/day | ✅ schema/accounting exists |
+| Signed reward claim | ❌ not started |
+| NIM payout | ❌ not started |
 
 ---
-
-## Gameplay Mechanics (ALL VERIFIED)
-
-| Mechanic | Value | Status |
-|----------|-------|--------|
-| Max HP | 100 | ✅ |
-| Spike damage | −25 HP | ✅ |
-| Poison damage | −20 HP | ✅ |
-| Goblin damage (no sword) | −20 HP | ✅ |
-| Sword pickup | At (1,6), one-time | ✅ |
-| Sword effect | Defeats goblin with 0 damage | ✅ |
-| Potion healing | +25 HP, clamped to 100, not consumed at full HP | ✅ |
-| Boulder push | 1 push in movement direction | ✅ |
-| Key pickup | Opens gate | ✅ |
-| Gate | Blocks until key collected | ✅ |
-| Shrine interaction | Room completion | ✅ |
-| MissionStatus | 'IN_PROGRESS' | 'COMPLETE' | 'FAILED' |
-| Gem Runner mission | Collect ≥6 gems + stay alive | ✅ |
-| Chest Hunter mission | Open 4 chests + stay alive (`CHEST_HUNTER_TARGET=4`) | ✅ |
-| Chest loot | GEMS +2 / POTION +25 clamp / SWORD hasSword / TRAP −30 / EMPTY dust, deterministic, open-once | ✅ |
-| Reset | Full state reset including chests to CLOSED | ✅ |
-| Death | HP ≤ 0 → failure state | ✅ |
-| Camera | 1.35× zoom, follow player | ✅ |
-| Explorer sprite | ~29px (framed from source art) | ✅ |
-
-### Goblin AI
-
-- **Spawn**: (7,4)
-- **Patrol**: ping-pong along (7,4)→(7,5)→(7,6)→(7,7)
-- **Chase trigger**: Manhattan distance ≤ 3
-- **Chase rule**: Move toward player on axis reducing distance most; ties broken horizontal-first
-- **Blocked by**: walls, bounds, locked gate, boulders
-- **Defeated state**: alpha 0.35, immobile
-
----
-
-## Test Inventory
-
-**46 test files passed + 1 skipped Postgres integration, 379 passing — verified 2026-09-11.**
-
-| File | Tests |
-|------|-------|
-| `systems/movement.test.ts` | Movement validation |
-| `systems/puzzle.test.ts` | Puzzle state machine |
-| `systems/goblin.test.ts` | 13 — Goblin AI |
-| `systems/items.test.ts` | 10 — Sword + Potion |
-| `domain/runState.test.ts` | HP clamping |
-| `world/grid.test.ts` | Grid parsing/bounds |
-| `entities/Player.test.ts` | Player animation lifecycle |
-| `entities/Goblin.test.ts` | 4 — Goblin entity |
-| `events/gameEvents.test.ts` | Event bridge |
-| `scenes/AngkorDevScene.test.ts` | Scene integration |
-| `integrations/nimiq/nimiqState.test.ts` | Nimiq state transitions |
-| `integrations/nimiq/nimiqErrors.test.ts` | Error normalization |
-| _(3 more component/integration test files)_ | |
-
----
-
-## Production Assets
-
-### Source Art (in `src/assets/`)
-- `NimHunt Character.png` — Explorer (1254×1254)
-- `NimHunt Goblin.png` — Goblin (1254×1254)
-- `NimHunt Logo.png`, `NimHunt World Poster.png`, etc.
-
-### Game Tiles (in `public/assets/game/angkor/`)
-- `terrain/` — floor, wall variants (9-patch), decorative tiles
-- `props/` — boulder, key, gate, shrine, chest, sword.png, potion.png
-- `hazards/` — spikes, poison
-- `collectibles/` — gems
-- `overlays/` — moss, vines, shadows, cracks
-
-### Marketing (in `public/assets/`)
-- Hero images, world posters, character poses, icons
-
----
-
-## Important Decisions Made
-
-1. **Angkor visual polish pass** — camera zoom 1.35×, wall autotiling (9-patch), layer depths, overlays. Explorer scaled to 29px for immersive "inside the ruin" feel rather than top-down board view.
-2. **Pure/render separation** — All game logic is pure TypeScript functions testable without Phaser. Phaser is only for rendering.
-3. **Turn-based combat** — Goblin moves once per player turn. Combat resolution runs twice (after player move, after goblin move).
-4. **Conditional potion** — Potion is NOT consumed at full HP to prevent waste.
-5. **No Phaser physics** — Grid-based, no continuous physics. Movement is tile-to-tile with tween animation.
-6. **HUD in React** — Game state emitted to React via EventTarget for HUD rendering in CSS (not Phaser text).
-
----
-
-## Known Issues / Tech Debt
-
-| Issue | Severity | Notes |
-|-------|----------|-------|
-| Headless screenshots show blank initial frame | Low | Phaser WebGL init timing in headless Edge; runtime is fine |
-| No pickup particle effects | Low | Visual polish only |
-| No sound effects | Medium | Planned for P7 polish phase |
-| Goblin death animation basic | Low | Alpha fade only, could add dissolve |
-| Single room only | Expected | Per project plan, more rooms deferred |
-| Large `GameDevView` build chunk | Low | Vite warns about the current 1.4 MB minified game chunk; optimize when gameplay scope stabilizes |
-
----
-
-## File Quick Reference
-
-### Core Game Loop
-- [`AngkorDevScene.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/src/game/scenes/AngkorDevScene.ts) — Main Phaser scene (~670 lines)
-- [`BootScene.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/src/game/scenes/BootScene.ts) — Asset preloading
-- [`GameDevView.tsx`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/src/components/play/GameDevView.tsx) — React HUD wrapper
-
-### Pure Systems
-- [`movement.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/src/game/systems/movement.ts) — Direction validation
-- [`puzzle.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/src/game/systems/puzzle.ts) — Boulder/key/gate/shrine state machine
-- [`goblin.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/src/game/systems/goblin.ts) — Goblin AI
-- [`items.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/src/game/systems/items.ts) — Sword/potion logic
-- [`hazards.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/src/game/systems/hazards.ts) — Spike/poison damage
-- [`collectibles.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/src/game/systems/collectibles.ts) — Gem collection
-- [`tileEntry.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/src/game/systems/tileEntry.ts) — Tile entry resolution
-
-### World Data
-- [`room01.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/src/game/world/room01.ts) — Room layout, gem/hazard/item positions
-- [`grid.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/src/game/world/grid.ts) — Tile parsing, walkability, coordinate math
-
-### Replay Proof
-- [`replay/canonical.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/src/game/replay/canonical.ts) — Canonical proof serializers and hashes
-- [`replay/engine.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/src/game/replay/engine.ts) — Pure deterministic replay transitions
-- [`replay/validator.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/src/game/replay/validator.ts) — Rules and positive solvability validation
-
-### Durable Proof Start
-- [`server/expeditions/memoryProofStore.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/server/expeditions/memoryProofStore.ts) — Blueprint lifecycle, challenge binding, atomic memory start, initial proof, and session binding
-- [`server/expeditions/canonical.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/server/expeditions/canonical.ts) — Strict signed-start payload parser/serializer
-- [`server/expeditions/session.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/server/expeditions/session.ts) — Hash-only capability and secure cookie primitive
-- [`server/ledger/sql/002_expedition_proof.sql`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/server/ledger/sql/002_expedition_proof.sql) — Durable blueprint/challenge/session/run/checkpoint schema and atomic start RPC
-
-### Bridge
-- [`gameEvents.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/src/game/events/gameEvents.ts) — PlayerHUDState, React↔Phaser EventTarget
-
-### Config / Assets
-- [`angkorAssets.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/src/game/assets/angkorAssets.ts) — Texture manifest
-- [`createGameConfig.ts`](file:///c:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/src/game/config/createGameConfig.ts) — Phaser config factory
 
 ## Next Milestone
 
-Server final replay verification is in. Do not implement vault product seal, claims, 69-slot reservation, NIM transfer, payout, Postgres proof integration, or new gameplay mechanics until explicitly requested.
+Signed `NIMHUNT_REWARD_CLAIM_V1` prepare/finalize and atomic 69-slot reservation. Do not implement NIM transfer, treasury, payout, or payout worker.
 
 ## Canonical References
 

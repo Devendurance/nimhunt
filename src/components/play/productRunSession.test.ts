@@ -4,6 +4,7 @@ import {
   clearRememberedProductTerminal,
   getRememberedProductTerminal,
   rememberProductTerminal,
+  rememberProductVaultSeal,
   retainProductTerminalFor,
 } from './productRunSession.ts'
 
@@ -55,6 +56,16 @@ describe('product run terminal session', () => {
 
     rememberProductTerminal('vault-breaker', verified('vault-breaker'))
     expect(getRememberedProductTerminal('vault-breaker', 'run-1')?.result.outcome).toBe('VAULT_GAMEPLAY_VERIFIED')
+    rememberProductVaultSeal({
+      runId: 'run-1',
+      wallet: 'NQ07 TEST',
+      canonicalPayload: '{}',
+      vaultSealHash: 'aa'.repeat(32),
+      publicKey: 'bb'.repeat(32),
+      vaultCheckpointHash: 'e'.repeat(64),
+      verifiedAt: '2026-09-09T12:06:00.000Z',
+    })
+    expect(getRememberedProductTerminal('vault-breaker', 'run-1')?.vaultSeal?.vaultSealHash).toBe('aa'.repeat(32))
     clearRememberedProductTerminal()
     expect(getRememberedProductTerminal('vault-breaker', 'run-1')).toBeNull()
   })

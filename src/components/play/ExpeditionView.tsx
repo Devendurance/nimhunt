@@ -8,18 +8,19 @@ import { getExpeditionResult, type PlayableMission } from './expeditionFlow'
 import {
   CLAIM_NOT_ENABLED_COPY,
   MISSION_COMPLETE_COPY,
+  MISSION_INCOMPLETE_COPY,
   PROOF_LOST_DETAIL,
   PROOF_LOST_TITLE,
   SYNCING_COPY,
-  VAULT_GAMEPLAY_VERIFIED_DETAIL,
-  VAULT_GAMEPLAY_VERIFIED_TITLE,
   VERIFIED_TITLE,
   VERIFY_REJECTED_DETAIL,
   VERIFY_REJECTED_TITLE,
   VERIFYING_COPY,
   useProductCheckpoint,
 } from './productCheckpoint'
+import { ProductVaultOutcome } from './ProductVaultOutcome'
 import { useAngkorRun } from './useAngkorRun'
+import { useProductVaultSeal } from './useProductVaultSeal'
 import styles from './ExpeditionView.module.css'
 
 const directions = [
@@ -42,6 +43,10 @@ export function ExpeditionView(props: ExpeditionViewProps) {
   const { mission, mode, onBackToMissions, onReturnToHunt } = props
   const active = props.mode === 'product' ? props.active : null
   const checkpoint = useProductCheckpoint(active)
+  const vaultSeal = useProductVaultSeal({
+    enabled: mode === 'product' && mission === 'vault-breaker' && checkpoint.view.vaultGameplayVerified,
+    runId: active?.runId ?? null,
+  })
   const gameOptions = useMemo<CreateGameOptions>(() => {
     if (mode === 'practice') return { mode: 'dev', mission }
     if (!active) throw new Error('PRODUCT_ACTIVE_EXPEDITION_REQUIRED')
@@ -132,6 +137,7 @@ export function ExpeditionView(props: ExpeditionViewProps) {
     </section>}
     {checkpoint.view.verifying && <p className={styles.syncNotice} role="status">{VERIFYING_COPY}</p>}
     {checkpoint.view.syncing && !checkpoint.view.proofLost && !checkpoint.view.verifying && <p className={styles.syncNotice} role="status">{SYNCING_COPY}</p>}
+    {checkpoint.view.missionIncomplete && !checkpoint.view.verifying && !checkpoint.view.proofLost && <p className={styles.syncNotice} role="status">{MISSION_INCOMPLETE_COPY}</p>}
     <section className={styles.hudCard} aria-label={`${missionTitle} mission progress`}>
       <p className={styles.objective}>{missionObjective}</p>
       <div className={styles.metrics}>
@@ -160,11 +166,13 @@ export function ExpeditionView(props: ExpeditionViewProps) {
         {result.status === 'complete' ? <><strong>{MISSION_COMPLETE_COPY}</strong><p>{result.title}</p><p>{result.detail}</p></> : null}
         <p className={styles.subtle}>{CLAIM_NOT_ENABLED_COPY}</p>
         <div className={styles.actions}><button type="button" onClick={onBackToMissions}>Back to missions</button><button type="button" onClick={onReturnToHunt}>Return to Hunt</button></div>
-      </section> : checkpoint.view.vaultGameplayVerified ? <section className={styles.outcome} aria-labelledby="run-outcome">
-        <h2 id="run-outcome" ref={headingRef} tabIndex={-1}>{VAULT_GAMEPLAY_VERIFIED_TITLE}</h2>
-        <p className={styles.subtle}>{VAULT_GAMEPLAY_VERIFIED_DETAIL}</p>
-        <div className={styles.actions}><button type="button" onClick={onBackToMissions}>Back to missions</button><button type="button" onClick={onReturnToHunt}>Return to Hunt</button></div>
-      </section> : checkpoint.view.verifying || (mode === 'product' && result.status === 'complete') ? <section className={styles.outcome} aria-labelledby="run-outcome">
+      </section> : checkpoint.view.vaultGameplayVerified ? <ProductVaultOutcome
+        seal={vaultSeal}
+        headingRef={headingRef}
+        onSealTreasure={vaultSeal.sealTreasure}
+        onBackToMissions={onBackToMissions}
+        onReturnToHunt={onReturnToHunt}
+      /> : checkpoint.view.verifying || (mode === 'product' && result.status === 'complete') ? <section className={styles.outcome} aria-labelledby="run-outcome">
         <h2 id="run-outcome" ref={headingRef} tabIndex={-1}>{VERIFYING_COPY}</h2>
       </section> : mode === 'practice' && terminal && result.status !== 'playing' ? <section className={styles.outcome} aria-labelledby="run-outcome">
         <h2 id="run-outcome" ref={headingRef} tabIndex={-1}>{result.status === 'complete' ? 'MISSION COMPLETE' : 'EXPEDITION FAILED'}</h2>

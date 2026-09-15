@@ -43,6 +43,7 @@
 .actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
 .actions button { display:inline-flex; align-items:center; justify-content:center; min-height:44px; border:1px solid #79988b; border-radius:9999px; background:#1b3833; color:#f3ead7; padding:8px 14px; font:500 13px/18px Inter,sans-serif; cursor:pointer; }
 .actions button:first-child { background:#f2c14e; border-color:#f2c14e; color:#132a26; }
+.actions button:disabled { opacity:.6; cursor:default; }
 .confirmBackdrop { position:fixed; inset:0; z-index:30; display:grid; place-items:center; padding:20px; background:rgba(7,23,19,.76); }
 .confirm { width:min(100%,360px); padding:20px; border:1px solid rgba(243,234,215,.19); border-radius:16px; background:#132a26; }
 .confirm h2 { margin:0 0 8px; font:400 22px/26px 'Jungle Fever',Impact,sans-serif; }

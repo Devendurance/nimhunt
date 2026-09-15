@@ -8,6 +8,8 @@ export const ABANDON_EXPEDITION_PATH = '/api/expeditions/abandon'
 export const ACTIVE_EXPEDITION_PATH = '/api/expeditions/active'
 export const GAMEPLAY_START_PATH = '/api/expeditions/gameplay-start'
 export const PRODUCT_VAULT_SEAL_PATH = '/api/expeditions/vault-seal'
+export const PRODUCT_VAULT_SEAL_PREPARE_PATH = '/api/expeditions/vault-seal/prepare'
+export const PRODUCT_VAULT_SEAL_VERIFY_PATH = '/api/expeditions/vault-seal/verify'
 export const PREPARE_REWARD_PATH = '/api/rewards/prepare'
 export const CLAIM_REWARD_PATH = '/api/rewards/claim'
 
@@ -199,6 +201,22 @@ export type AbandonExpeditionResult = {
   readonly outcome: 'ABANDONED' | 'FAILED'
   readonly status: 'ABANDONED' | 'FAILED'
   readonly rewardStatus: 'NONE'
+}
+
+export type PreparedProductVaultSeal = {
+  readonly runId: string
+  readonly canonicalPayload: string
+  readonly vaultSealHash: string
+}
+
+export type VerifiedProductVaultSeal = {
+  readonly runId: string
+  readonly wallet: string
+  readonly canonicalPayload: string
+  readonly vaultSealHash: string
+  readonly publicKey: string
+  readonly vaultCheckpointHash: string
+  readonly verifiedAt: string
 }
 
 export type PreparedClaim = {

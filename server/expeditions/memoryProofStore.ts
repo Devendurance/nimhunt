@@ -1,20 +1,22 @@
 import { randomBytes, randomUUID } from 'node:crypto'
 import { DAILY_EXPEDITION_LIMIT } from '../../src/domain/dailyLedger.ts'
+import { parseProductVaultSeal } from '../../src/domain/productVaultSeal.ts'
 import type {
   ProductActiveExpedition,
   ProductGameplayStartResponse,
   StartResult,
 } from '../../src/domain/expeditionProof.ts'
-import { hashBlueprint, hashCheckpoint, hashReplayState, hashTranscript } from '../../src/game/replay/canonical.ts'
+import { hashBlueprint, hashReplayState, hashTranscript } from '../../src/game/replay/canonical.ts'
 import { createInitialRun } from '../../src/game/replay/engine.ts'
-import { CHECKPOINT_VERSION, TRANSCRIPT_VERSION } from '../../src/game/replay/versions.ts'
+import { TRANSCRIPT_VERSION } from '../../src/game/replay/versions.ts'
 import type {
   ExpeditionBlueprint,
-  ExpeditionCheckpoint,
   ExpeditionTranscript,
 } from '../../src/game/replay/types.ts'
+import { createInitialCheckpoint, isRecoverableInitialRun } from './runProof.ts'
 import { validateExpeditionBlueprint } from '../../src/game/replay/validator.ts'
 import { applyCheckpointBatch } from './checkpoint.ts'
+import { prepareProductVaultSeal, verifyProductVaultSeal } from './vaultSeal.ts'
 import { abandonExpeditionRun, verifyExpeditionRun } from './verify.ts'
 import { ProofError } from './errors.ts'
 import { isPrevalidatedRoom01Bootstrap } from './room01BootstrapPrevalidation.ts'
@@ -35,6 +37,7 @@ import type {
   DurableExpeditionRun,
   DurableRunTerminal,
   DurableStartChallenge,
+  DurableVaultSealProof,
   MemoryProofService,
   MemoryProofSnapshot,
   StartAuthorizationResult,
@@ -297,6 +300,29 @@ export function createMemoryProofService(options: {
         return result.result
       })
     },
+
+    prepareVaultSeal(runId, session) {
+      return mutex.run(() => {
+        const { run } = requireAuthenticatedRun(runId, session)
+        return prepareProductVaultSeal(run)
+      })
+    },
+
+    verifyVaultSeal(input) {
+      return mutex.run(() => {
+        const parsed = parseProductVaultSeal(input.payload)
+        if (!parsed) throw new ProofError('VAULT_SEAL_MISMATCH')
+        const { run, now } = requireAuthenticatedRun(parsed.runId, input.session)
+        const result = verifyProductVaultSeal(run, {
+          payload: input.payload,
+          publicKey: input.publicKey,
+          signature: input.signature,
+          now,
+        })
+        runs.set(run.runId, result.run)
+        return result.result
+      })
+    },
   }
 
   for (const blueprint of options.blueprints ?? []) service.registerBlueprint(blueprint)
@@ -388,6 +414,7 @@ export function createMemoryProofService(options: {
       actions: [],
       batches: [],
       terminal: null,
+      vaultSeal: null,
     }
     const start: StartResult = {
       runId,
@@ -523,20 +550,6 @@ function blueprintFingerprint(blueprint: ExpeditionBlueprint): string {
   })
 }
 
-function createInitialCheckpoint(runId: string, runChallenge: string, stateHash: string, transcriptHash: string): ExpeditionCheckpoint {
-  const base: ExpeditionCheckpoint = {
-    version: CHECKPOINT_VERSION,
-    runId,
-    runChallenge,
-    seq: 0,
-    previousCheckpointHash: null,
-    stateHash,
-    transcriptHash,
-    checkpointHash: '',
-  }
-  return { ...base, checkpointHash: hashCheckpoint(base) }
-}
-
 function walletKey(dayKey: string, wallet: string): string {
   return `${dayKey}:${wallet}`
 }
@@ -562,7 +575,12 @@ function cloneRun(run: DurableExpeditionRun): DurableExpeditionRun {
       acknowledgement: { ...batch.acknowledgement },
     })),
     terminal: cloneTerminal(run.terminal),
+    vaultSeal: cloneVaultSeal(run.vaultSeal),
   }
+}
+
+function cloneVaultSeal(proof: DurableVaultSealProof | null): DurableVaultSealProof | null {
+  return proof ? { ...proof } : null
 }
 
 function cloneTerminal(terminal: DurableRunTerminal | null): DurableRunTerminal | null {
@@ -577,26 +595,4 @@ function cloneReplayState(state: DurableExpeditionRun['state']): DurableExpediti
 
 function cloneStart(start: StartResult): StartResult {
   return { ...start, blueprint: cloneBlueprint(start.blueprint) }
-}
-
-function isRecoverableInitialRun(run: DurableExpeditionRun): boolean {
-  const state = run.state
-  const checkpoint = run.checkpoint
-  return run.blueprint.blueprintId === state.blueprintId
-    && run.blueprint.blueprintHash === state.blueprintHash
-    && run.blueprint.mission === run.mission
-    && state.seq === 0
-    && state.run.runStatus === 'PLAYING'
-    && state.run.missionStatus === 'IN_PROGRESS'
-    && checkpoint.runId === run.runId
-    && checkpoint.runChallenge === run.runChallenge
-    && checkpoint.seq === 0
-    && checkpoint.previousCheckpointHash === null
-    && checkpoint.stateHash === run.initialStateHash
-    && checkpoint.transcriptHash === run.initialTranscriptHash
-    && checkpoint.checkpointHash === run.initialCheckpointHash
-    && checkpoint.checkpointHash === run.checkpointHash
-    && hashReplayState(state) === run.initialStateHash
-    && hashCheckpoint(checkpoint) === checkpoint.checkpointHash
-    && hashBlueprint(run.blueprint) === run.blueprint.blueprintHash
 }

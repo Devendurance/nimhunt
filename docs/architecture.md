@@ -793,6 +793,32 @@ For judging, stability matters more than sophisticated analytics.
 - finalize claim,
 - idempotent payout.
 
+### Live Postgres proof status
+
+The NimHunt proof backend has been validated against the live Supabase/Postgres deployment.
+
+Validated live:
+- migrations 001, 002, and 003 applied successfully
+- proof tables and SECURITY DEFINER RPCs present
+- RLS/privilege boundaries enforced
+- authenticated clients cannot write protected proof state or invoke protected RPCs
+- signed Start persists durably
+- concurrent duplicate Start is idempotent
+- checkpoint exact-retry and stale-checkpoint race behavior pass
+- Gem Runner final replay persists VERIFIED_ELIGIBLE
+- Vault gameplay freeze persists correctly
+- run-bound Vault seal persists and is idempotent
+- proof state survives Vite/server restart
+- `NIMHUNT_PROOF_BACKEND=postgres` fails closed when credentials/config are unavailable; it never falls back to memory
+
+Current status:
+POSTGRES PROOF FLOW: LIVE-VALIDATED
+
+Remaining gate:
+REAL DEVICE POSTGRES-BACKED FLOW: PENDING
+
+Reward claims, 69-slot reservation, NIM transfer, treasury, and payout remain out of scope until the real-device Postgres-backed flow is verified.
+
 ### Mobile WebView
 Must test on real Nimiq Pay:
 - touch controls,

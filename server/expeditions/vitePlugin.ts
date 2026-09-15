@@ -6,12 +6,14 @@ import {
   ACTIVE_EXPEDITION_PATH,
   CHECKPOINT_PATH,
   GAMEPLAY_START_PATH,
+  PRODUCT_VAULT_SEAL_PREPARE_PATH,
+  PRODUCT_VAULT_SEAL_VERIFY_PATH,
   START_CHALLENGE_PATH,
   START_EXPEDITION_PATH,
   VERIFY_EXPEDITION_PATH,
 } from '../../src/domain/expeditionProof.ts'
 import { createLazyValue, type LazyValue } from './lazyValue.ts'
-import type { MemoryProofService } from './types.ts'
+import type { ExpeditionProofService, MemoryProofService } from './types.ts'
 
 const OWNED_EXPEDITION_PATHS = new Set([
   START_CHALLENGE_PATH,
@@ -21,6 +23,8 @@ const OWNED_EXPEDITION_PATHS = new Set([
   CHECKPOINT_PATH,
   VERIFY_EXPEDITION_PATH,
   ABANDON_EXPEDITION_PATH,
+  PRODUCT_VAULT_SEAL_PREPARE_PATH,
+  PRODUCT_VAULT_SEAL_VERIFY_PATH,
   WALLET_DAILY_STATUS_PATH,
 ])
 
@@ -35,7 +39,7 @@ export type ExpeditionRuntimeInput = {
 }
 
 export type ExpeditionRuntime = {
-  readonly backend: 'memory' | 'unavailable'
+  readonly backend: 'memory' | 'postgres' | 'unavailable'
   readonly appOrigin: string
   readonly expectedOrigin: string
   readonly expectedHost: string
@@ -58,26 +62,49 @@ export function resolveExpeditionRuntime(input: ExpeditionRuntimeInput): Expedit
   const origin = parseOrigin(input.appOrigin)
   if (!origin) return UNAVAILABLE_RUNTIME
 
-  const enabled = input.backend === 'memory' && (input.mode === 'development' || input.mode === 'test')
+  const memoryEnabled = input.backend === 'memory' && (input.mode === 'development' || input.mode === 'test')
+  const postgresEnabled = input.backend === 'postgres'
+  const backend = memoryEnabled ? 'memory' : postgresEnabled ? 'postgres' : 'unavailable'
+  const localHttp = origin.protocol === 'http' && isAuthorizedHttpOrigin(origin, input.mode)
 
   return {
-    backend: enabled ? 'memory' : 'unavailable',
+    backend,
     appOrigin: origin.origin,
     expectedOrigin: origin.origin,
     expectedHost: origin.host,
     expectedProtocol: origin.protocol,
-    secureCookie: enabled ? !isAuthorizedHttpOrigin(origin, input.mode) : true,
-    allowAuthorizedLocalHttpOrigins: enabled && origin.protocol === 'http' && isAuthorizedHttpOrigin(origin, input.mode),
+    secureCookie: backend === 'unavailable' ? true : !localHttp,
+    allowAuthorizedLocalHttpOrigins: backend !== 'unavailable' && localHttp,
   }
 }
 
 export function createProofBackendLoader(
   getRuntime: () => ExpeditionRuntime,
-  createService: () => MemoryProofService | Promise<MemoryProofService> = createDevelopmentMemoryProofService,
-): LazyValue<MemoryProofService | null> {
+  createService?: () => ExpeditionProofService | null | Promise<ExpeditionProofService | null>,
+): LazyValue<ExpeditionProofService | null> {
   return createLazyValue(async () => {
-    if (getRuntime().backend !== 'memory') return null
-    return createService()
+    const runtime = getRuntime()
+    if (runtime.backend === 'unavailable') return null
+    if (createService) return createService()
+    return createDefaultProofService(runtime)
+  })
+}
+
+export async function createDefaultProofService(
+  runtime: ExpeditionRuntime,
+  env: Record<string, string | undefined> = process.env,
+): Promise<ExpeditionProofService | null> {
+  if (runtime.backend === 'memory') return createDevelopmentMemoryProofService()
+  if (runtime.backend !== 'postgres') return null
+  const { readServerSupabaseConfig, createSupabaseAdminClient } = await import('../ledger/config.ts')
+  const config = readServerSupabaseConfig(env)
+  if (!config) return null
+  const { utcDayKey } = await import('../ledger/utcDay.ts')
+  const { createPublishedBootstrapBlueprints } = await import('./blueprintBootstrap.ts')
+  const { createSupabaseProofService } = await import('./postgresProofStore.ts')
+  return createSupabaseProofService({
+    client: createSupabaseAdminClient(config),
+    blueprints: createPublishedBootstrapBlueprints(utcDayKey(new Date())),
   })
 }
 
@@ -92,29 +119,33 @@ export async function createDevelopmentMemoryProofService(): Promise<MemoryProof
 
 export function expeditionProofPlugin(): Plugin {
   let runtime = UNAVAILABLE_RUNTIME
-  const backend = createProofBackendLoader(() => runtime)
+  let fileEnv: Record<string, string> = {}
+  const backend = createProofBackendLoader(
+    () => runtime,
+    () => createDefaultProofService(runtime, { ...process.env, ...fileEnv }),
+  )
 
   return {
     name: 'nimhunt-expedition-proof',
     config(_, { mode }) {
-      const env = loadEnv(mode, process.cwd(), '')
+      fileEnv = loadEnv(mode, process.cwd(), '')
       runtime = resolveExpeditionRuntime({
         mode,
-        backend: env.NIMHUNT_PROOF_BACKEND,
-        appOrigin: env.NIMHUNT_APP_ORIGIN,
+        backend: fileEnv.NIMHUNT_PROOF_BACKEND ?? process.env.NIMHUNT_PROOF_BACKEND,
+        appOrigin: fileEnv.NIMHUNT_APP_ORIGIN ?? process.env.NIMHUNT_APP_ORIGIN,
       })
     },
     configureServer(server) {
       server.middlewares.use(createHandler(() => backend.ensure(), () => runtime))
     },
     configurePreviewServer(server) {
-      server.middlewares.use(createHandler(async () => null, () => runtime))
+      server.middlewares.use(createHandler(() => backend.ensure(), () => runtime))
     },
   }
 }
 
 function createHandler(
-  getService: () => MemoryProofService | null | Promise<MemoryProofService | null>,
+  getService: () => ExpeditionProofService | null | Promise<ExpeditionProofService | null>,
   getRuntime: () => ExpeditionRuntime,
 ) {
   let dispatch: typeof import('./http.ts').dispatchExpeditionHttp | undefined
@@ -138,8 +169,8 @@ function createHandler(
         protocol: isTlsRequest(req) ? 'https' : 'http',
         rawBody,
       }, runtime)
-      traceStartChallengeHttp(path, req, runtime, response, service)
-      traceCheckpointHttp(path, req, runtime, response, service, rawBody)
+      await traceStartChallengeHttp(path, req, runtime, response, service)
+      await traceCheckpointHttp(path, req, runtime, response, service, rawBody)
       writeJson(res, response.status, response.body, response.headers)
     } catch (error) {
       const tooLarge = error instanceof Error && error.message === 'REQUEST_TOO_LARGE'
@@ -152,14 +183,14 @@ function createHandler(
   }
 }
 
-function traceCheckpointHttp(
+async function traceCheckpointHttp(
   path: string,
   req: IncomingMessage,
   runtime: ExpeditionRuntime,
   response: { readonly status: number; readonly body: unknown; readonly headers?: Readonly<Record<string, string>> },
-  service: MemoryProofService | null,
+  service: ExpeditionProofService | null,
   rawBody: string | undefined,
-): void {
+): Promise<void> {
   if (path !== CHECKPOINT_PATH) return
   if (process.env.VITEST === 'true' || process.env.NODE_ENV === 'test') return
 
@@ -171,7 +202,7 @@ function traceCheckpointHttp(
     `[product-proof] CHECKPOINT_HTTP_STATUS method=${req.method ?? 'POST'} status=${response.status} contentType=${contentType} fields=[${fields.join(',')}]`
     + `${error ? ` error=${error}` : ''} cookiePresent=${req.headers.cookie ? 'yes' : 'no'} originPresent=${req.headers.origin ? 'yes' : 'no'} host=${req.headers.host ?? 'missing'} expectedHost=${runtime.expectedHost || 'missing'} allowLocalAlias=${runtime.allowAuthorizedLocalHttpOrigins}`,
   )
-  console.info(`[product-proof] CHECKPOINT_REQUEST ${summarizeCheckpointRequest(rawBody)} ${summarizeServerCheckpoint(service, rawBody)}`)
+  console.info(`[product-proof] CHECKPOINT_REQUEST ${summarizeCheckpointRequest(rawBody)} ${await summarizeServerCheckpoint(service, rawBody)}`)
 }
 
 function summarizeCheckpointRequest(rawBody: string | undefined): string {
@@ -183,12 +214,12 @@ function summarizeCheckpointRequest(rawBody: string | undefined): string {
   return `seq=${seqs[0] ?? '?'}-${seqs[seqs.length - 1] ?? '?'} prev=${truncateHash(parsed.previousCheckpointHash)} dirs=${dirs.join(',')} actionCount=${actions.length}`
 }
 
-function summarizeServerCheckpoint(service: MemoryProofService | null, rawBody: string | undefined): string {
+async function summarizeServerCheckpoint(service: ExpeditionProofService | null, rawBody: string | undefined): Promise<string> {
   if (!service) return 'service=null'
   const parsed = readSafeJsonObject(rawBody)
   const runId = parsed && typeof parsed.runId === 'string' ? parsed.runId : null
   if (!runId) return 'run=unknown'
-  const run = service.getRun(runId)
+  const run = await service.getRun(runId)
   if (!run) return 'run=missing'
   // Compared after dispatch: client previousCheckpointHash is pre-append; run.checkpointHash is post-append.
   const clientPreviousCheckpointHash = parsed ? parsed.previousCheckpointHash : undefined
@@ -211,13 +242,13 @@ function truncateHash(value: unknown): string {
   return typeof value === 'string' && /^[0-9a-f]{64}$/.test(value) ? `${value.slice(0, 8)}…` : 'invalid'
 }
 
-function traceStartChallengeHttp(
+async function traceStartChallengeHttp(
   path: string,
   req: IncomingMessage,
   runtime: ExpeditionRuntime,
   response: { readonly status: number; readonly body: unknown; readonly headers?: Readonly<Record<string, string>> },
-  service: MemoryProofService | null,
-): void {
+  service: ExpeditionProofService | null,
+): Promise<void> {
   if (path !== '/api/expeditions/start-challenge') return
   if (process.env.VITEST === 'true' || process.env.NODE_ENV === 'test') return
 
@@ -233,7 +264,7 @@ function traceStartChallengeHttp(
     console.info('[product-proof] PROOF_STORE_COUNTS service=null')
     return
   }
-  const snapshot = service.snapshot()
+  const snapshot = await service.snapshot()
   console.info(`[product-proof] PROOF_STORE_COUNTS challenges=${snapshot.challenges.length} runs=${snapshot.runs.length} sessions=${snapshot.sessions.length}`)
 }
 

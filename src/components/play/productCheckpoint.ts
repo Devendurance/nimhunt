@@ -23,12 +23,18 @@ export const VERIFYING_COPY = 'Verifying expedition…'
 export const VERIFIED_TITLE = 'Expedition verified'
 export const MISSION_COMPLETE_COPY = 'MISSION COMPLETE'
 export const CLAIM_NOT_ENABLED_COPY = 'Reward claim is not enabled in this build yet.'
-export const VAULT_GAMEPLAY_VERIFIED_TITLE = 'Vault gameplay verified'
-export const VAULT_GAMEPLAY_VERIFIED_DETAIL = 'The product Vault seal is not enabled in this build yet.'
+export const VAULT_GAMEPLAY_VERIFIED_TITLE = 'TEMPLE VAULT REACHED'
+export const VAULT_GAMEPLAY_VERIFIED_DETAIL = 'Vault gameplay verified.'
+export const SEAL_TREASURE_COPY = 'Seal treasure'
+export const SEALING_TREASURE_COPY = 'Sealing treasure…'
+export const TREASURE_SEALED_TITLE = 'TREASURE SEALED'
+export const TREASURE_SEALED_DETAIL = 'Your Nimiq signature was verified for this expedition.'
+export const SIGNATURE_CANCELLED_COPY = 'Signature request was cancelled.'
 export const PROOF_LOST_TITLE = 'Reward proof was interrupted.'
 export const PROOF_LOST_DETAIL = "You can keep exploring, but this run can no longer reserve today's treasure."
 export const VERIFY_REJECTED_TITLE = 'Expedition could not be verified.'
-export const VERIFY_REJECTED_DETAIL = "Reward proof does not match the server record. This run cannot reserve today's treasure."
+export const VERIFY_REJECTED_DETAIL = 'Reward proof does not match the server record.'
+export const MISSION_INCOMPLETE_COPY = 'Mission objective is not complete yet.'
 
 export type ProductCheckpointView = {
   readonly proofState: ProductProofState
@@ -39,6 +45,7 @@ export type ProductCheckpointView = {
   readonly verifiedEligible: boolean
   readonly vaultGameplayVerified: boolean
   readonly verifyRejected: boolean
+  readonly missionIncomplete: boolean
   readonly verifiedResult: VerifyExpeditionResult | null
 }
 
@@ -62,6 +69,7 @@ const IDLE_VIEW: ProductCheckpointView = {
   verifiedEligible: false,
   vaultGameplayVerified: false,
   verifyRejected: false,
+  missionIncomplete: false,
   verifiedResult: null,
 }
 
@@ -99,6 +107,7 @@ export function createProductCheckpointSession(
   let overlayState: ProductProofState | null = null
   let verifiedResult: VerifyExpeditionResult | null = null
   let verifyRejected = false
+  let missionIncomplete = false
 
   const proof: ProductProofBridge = {
     canAcceptMove: () => canAcceptMove(),
@@ -137,18 +146,20 @@ export function createProductCheckpointSession(
     }
     accepted.push(action)
     localReplay = result.state
+    if (missionIncomplete) missionIncomplete = false
     emit()
     schedulePump()
   }
 
   function notifyGameplayEvent(event: 'MISSION_COMPLETE' | 'DEATH' | 'VAULT_REACHED'): void {
     if (stopped || overlayState === 'PROOF_LOST') return
+    if (!shouldVerifyGameplayEvent(active.mission, event)) return
     terminalLocked = true
     pendingVerify = true
+    missionIncomplete = false
     queue.requestFlush()
     emit()
     schedulePump()
-    void event
   }
 
   async function flushPending(): Promise<void> {
@@ -263,6 +274,15 @@ export function createProductCheckpointSession(
       emit()
     } catch (error) {
       const code = error instanceof ExpeditionProofApiError ? error.code : 'UNKNOWN'
+      if (code === 'RUN_INCOMPLETE') {
+        terminalLocked = false
+        pendingVerify = false
+        overlayState = null
+        verifyRejected = false
+        missionIncomplete = true
+        emit()
+        return
+      }
       verifyRejected = true
       loseProof(`VERIFY_ERROR:${code}`)
     }
@@ -294,9 +314,18 @@ export function createProductCheckpointSession(
       verifiedEligible: proofState === 'VERIFIED_ELIGIBLE',
       vaultGameplayVerified: proofState === 'VAULT_GAMEPLAY_VERIFIED',
       verifyRejected: verifyRejected || (proofLost && terminalLocked),
+      missionIncomplete,
       verifiedResult,
     }
   }
+}
+
+export function shouldVerifyGameplayEvent(
+  mission: ProductActiveExpedition['mission'],
+  event: 'MISSION_COMPLETE' | 'DEATH' | 'VAULT_REACHED',
+): boolean {
+  if (event === 'DEATH' || event === 'MISSION_COMPLETE') return true
+  return event === 'VAULT_REACHED' && mission === 'vault-breaker'
 }
 
 export function useProductCheckpoint(active: ProductActiveExpedition | null): {

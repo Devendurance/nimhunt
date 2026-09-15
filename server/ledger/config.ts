@@ -9,7 +9,7 @@ export function readServerSupabaseConfig(
   env: Record<string, string | undefined> = process.env,
 ): ServerSupabaseConfig | null {
   const url = env.SUPABASE_URL?.trim()
-  const serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY?.trim()
+  const serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY?.trim() || env.SUPABASE_SECRET_KEY?.trim()
   if (!url || !serviceRoleKey) return null
   return { url, serviceRoleKey }
 }

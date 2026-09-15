@@ -11,6 +11,7 @@ import { HuntHeader } from './HuntHeader'
 import { ExpeditionVerifiedPanel } from './ExpeditionVerifiedPanel'
 import { createProductGateAttemptGuard, canMountProduct, reduceProductGate, validateProductActive, INITIAL_PRODUCT_GATE_STATE } from './productGateState.ts'
 import { getRememberedProductTerminal } from './productRunSession.ts'
+import { useProductVaultSeal } from './useProductVaultSeal'
 import styles from './PlayShell.module.css'
 import type { ProductGateError } from './productGateState.ts'
 
@@ -22,6 +23,11 @@ export function ProductExpeditionGate({ mission, runId, onBackToMissions, onRetu
   readonly children: (active: ProductActiveExpedition) => ReactNode
 }) {
   const [state, dispatch] = useReducer(reduceProductGate, INITIAL_PRODUCT_GATE_STATE)
+  const remembered = getRememberedProductTerminal(mission, runId)
+  const vaultSeal = useProductVaultSeal({
+    enabled: mission === 'vault-breaker' && remembered?.result.outcome === 'VAULT_GAMEPLAY_VERIFIED',
+    runId,
+  })
   const mountedRef = useRef(true)
   const routeKeyRef = useRef(`${mission}:${runId}`)
   const attemptGuardRef = useRef(createProductGateAttemptGuard())
@@ -93,9 +99,15 @@ export function ProductExpeditionGate({ mission, runId, onBackToMissions, onRetu
   }, [isCurrent, state])
 
   if (canMountProduct(state) && state.active) return <>{children(state.active)}</>
-  const remembered = getRememberedProductTerminal(mission, runId)
   if (remembered) {
-    return <ExpeditionVerifiedPanel mission={mission} result={remembered.result} onBackToMissions={onBackToMissions} onReturnToHunt={onReturnToHunt} />
+    return <ExpeditionVerifiedPanel
+      mission={mission}
+      result={remembered.result}
+      vaultSeal={vaultSeal}
+      onSealTreasure={vaultSeal.sealTreasure}
+      onBackToMissions={onBackToMissions}
+      onReturnToHunt={onReturnToHunt}
+    />
   }
 
   return <div className={styles.shell}><div className={styles.viewport}>

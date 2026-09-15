@@ -9,14 +9,19 @@ import {
   parseActiveExpedition,
   parseCheckpointAcknowledgement,
   parseGameplayStartResponse,
+  parsePreparedProductVaultSeal,
+  parseVerifiedProductVaultSeal,
   parseVerifyExpeditionResult,
+  prepareProductVaultSeal,
   verifyExpedition,
+  verifyProductVaultSeal,
   parseStartChallengeResponse,
   parseStartResult,
   requestStartChallenge,
   submitCheckpoint,
   ExpeditionProofApiError,
 } from './expeditionProof.ts'
+import { serializeProductVaultSeal } from '../domain/productVaultSeal.ts'
 
 function blueprint(): ExpeditionBlueprint {
   const source = createRoom01Blueprint('2026-09-09', 'gem-runner', 'api-blueprint')
@@ -322,6 +327,63 @@ describe('expedition proof browser API', () => {
     expect(fetcher).toHaveBeenCalledWith('/api/expeditions/verify', expect.objectContaining({
       credentials: 'same-origin',
       body: JSON.stringify({ runId: 'run-1', checkpointHash: 'a'.repeat(64) }),
+    }))
+  })
+
+  it('parses product Vault seal prepare/verify envelopes and rejects extras', async () => {
+    const canonicalPayload = serializeProductVaultSeal({
+      version: 1,
+      type: 'NIMHUNT_VAULT_SEAL_V1',
+      wallet: 'NQ07 33E4 6T32 24Y7 X4BA 7SP2 27TX 32PL 54JG',
+      runId: 'run-1',
+      mission: 'vault-breaker',
+      world: 'ANGKOR_RUINS',
+      room: 'ROOM_01',
+      objective: 'TEMPLE_VAULT',
+      runChallenge: 'ab'.repeat(32),
+      rulesVersion: 'nimhunt-rules-v1',
+      roomVersion: 'angkor-room-01-v1',
+      blueprintVersion: 'angkor-blueprint-v1',
+      blueprintId: 'vault-blueprint',
+      blueprintHash: 'cd'.repeat(32),
+      vaultCheckpointHash: 'ef'.repeat(32),
+    })
+    const prepared = {
+      ok: true,
+      runId: 'run-1',
+      canonicalPayload,
+      vaultSealHash: '11'.repeat(32),
+    }
+    expect(parsePreparedProductVaultSeal(prepared)).toEqual({
+      runId: 'run-1',
+      canonicalPayload,
+      vaultSealHash: '11'.repeat(32),
+    })
+    expect(parsePreparedProductVaultSeal({ ...prepared, extra: true })).toBeNull()
+
+    const verified = {
+      ok: true,
+      runId: 'run-1',
+      wallet: 'NQ07 33E4 6T32 24Y7 X4BA 7SP2 27TX 32PL 54JG',
+      canonicalPayload,
+      vaultSealHash: '11'.repeat(32),
+      publicKey: 'aa'.repeat(32),
+      vaultCheckpointHash: 'ef'.repeat(32),
+      verifiedAt: '2026-09-09T12:10:00.000Z',
+    }
+    expect(parseVerifiedProductVaultSeal(verified)).toMatchObject({ runId: 'run-1', vaultCheckpointHash: 'ef'.repeat(32) })
+    expect(parseVerifiedProductVaultSeal({ ...verified, extra: true })).toBeNull()
+
+    const prepareFetcher = vi.fn().mockResolvedValue(response(prepared))
+    await prepareProductVaultSeal('run-1', prepareFetcher)
+    expect(prepareFetcher).toHaveBeenCalledWith('/api/expeditions/vault-seal/prepare', expect.objectContaining({
+      body: JSON.stringify({ runId: 'run-1' }),
+    }))
+
+    const verifyFetcher = vi.fn().mockResolvedValue(response(verified))
+    await verifyProductVaultSeal({ payload: canonicalPayload, publicKey: 'pk', signature: 'sig' }, verifyFetcher)
+    expect(verifyFetcher).toHaveBeenCalledWith('/api/expeditions/vault-seal/verify', expect.objectContaining({
+      body: JSON.stringify({ payload: canonicalPayload, publicKey: 'pk', signature: 'sig' }),
     }))
   })
 })

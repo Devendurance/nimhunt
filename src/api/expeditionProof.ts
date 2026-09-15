@@ -3,6 +3,8 @@ import {
   ACTIVE_EXPEDITION_PATH,
   CHECKPOINT_PATH,
   GAMEPLAY_START_PATH,
+  PRODUCT_VAULT_SEAL_PREPARE_PATH,
+  PRODUCT_VAULT_SEAL_VERIFY_PATH,
   START_CHALLENGE_PATH,
   START_EXPEDITION_PATH,
   VERIFY_EXPEDITION_PATH,
@@ -12,13 +14,16 @@ import type {
   CheckpointAcknowledgement,
   CheckpointRequest,
   ExpeditionProofErrorCode,
+  PreparedProductVaultSeal,
   ProductActiveExpedition,
   ProductGameplayStartResponse,
   StartChallengeResponse,
   StartResult,
+  VerifiedProductVaultSeal,
   VerifyExpeditionRequest,
   VerifyExpeditionResult,
 } from '../domain/expeditionProof.ts'
+import { parseProductVaultSeal } from '../domain/productVaultSeal.ts'
 import {
   BLUEPRINT_VERSION,
   CHECKPOINT_VERSION,
@@ -122,6 +127,20 @@ export async function abandonExpedition(
   fetcher: typeof fetch = fetch,
 ): Promise<AbandonExpeditionResult> {
   return requestJson(fetcher, ABANDON_EXPEDITION_PATH, postRequest(request), parseAbandonExpeditionResult)
+}
+
+export async function prepareProductVaultSeal(
+  runId: string,
+  fetcher: typeof fetch = fetch,
+): Promise<PreparedProductVaultSeal> {
+  return requestJson(fetcher, PRODUCT_VAULT_SEAL_PREPARE_PATH, postRequest({ runId }), parsePreparedProductVaultSeal)
+}
+
+export async function verifyProductVaultSeal(
+  signed: SignedStartRequest,
+  fetcher: typeof fetch = fetch,
+): Promise<VerifiedProductVaultSeal> {
+  return requestJson(fetcher, PRODUCT_VAULT_SEAL_VERIFY_PATH, postRequest(signed), parseVerifiedProductVaultSeal)
 }
 
 export function parseStartChallengeResponse(value: unknown): StartChallengeResponse | null {
@@ -361,6 +380,56 @@ export function parseAbandonExpeditionResult(value: unknown): AbandonExpeditionR
     outcome,
     status: outcome,
     rewardStatus: 'NONE',
+  }
+}
+
+export function parsePreparedProductVaultSeal(value: unknown): PreparedProductVaultSeal | null {
+  if (!isRecord(value) || !hasExactKeys(value, ['ok', 'runId', 'canonicalPayload', 'vaultSealHash'])) return null
+  if (value.ok !== true
+    || !isBoundedString(value.runId, 128)
+    || !isBoundedString(value.canonicalPayload, 4_096)
+    || !isHash(value.vaultSealHash)) return null
+  const parsed = parseProductVaultSeal(value.canonicalPayload)
+  if (!parsed || parsed.runId !== value.runId) return null
+  return {
+    runId: value.runId,
+    canonicalPayload: value.canonicalPayload,
+    vaultSealHash: value.vaultSealHash,
+  }
+}
+
+export function parseVerifiedProductVaultSeal(value: unknown): VerifiedProductVaultSeal | null {
+  if (!isRecord(value) || !hasExactKeys(value, [
+    'ok',
+    'runId',
+    'wallet',
+    'canonicalPayload',
+    'vaultSealHash',
+    'publicKey',
+    'vaultCheckpointHash',
+    'verifiedAt',
+  ])) return null
+  if (value.ok !== true
+    || !isBoundedString(value.runId, 128)
+    || !isBoundedString(value.wallet, 80)
+    || !isBoundedString(value.canonicalPayload, 4_096)
+    || !isHash(value.vaultSealHash)
+    || !isBoundedString(value.publicKey, 130)
+    || !isHash(value.vaultCheckpointHash)
+    || !isIsoTimestamp(value.verifiedAt)) return null
+  const parsed = parseProductVaultSeal(value.canonicalPayload)
+  if (!parsed
+    || parsed.runId !== value.runId
+    || parsed.wallet !== value.wallet
+    || parsed.vaultCheckpointHash !== value.vaultCheckpointHash) return null
+  return {
+    runId: value.runId,
+    wallet: value.wallet,
+    canonicalPayload: value.canonicalPayload,
+    vaultSealHash: value.vaultSealHash,
+    publicKey: value.publicKey,
+    vaultCheckpointHash: value.vaultCheckpointHash,
+    verifiedAt: value.verifiedAt,
   }
 }
 
