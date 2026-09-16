@@ -22,7 +22,6 @@ export const SYNCING_COPY = 'Syncing expedition…'
 export const VERIFYING_COPY = 'Verifying expedition…'
 export const VERIFIED_TITLE = 'Expedition verified'
 export const MISSION_COMPLETE_COPY = 'MISSION COMPLETE'
-export const CLAIM_NOT_ENABLED_COPY = 'Reward claim is not enabled in this build yet.'
 export const CLAIM_TODAY_COPY = "Claim today's treasure"
 export const SIGNING_CLAIM_COPY = 'Signing reward claim…'
 export const TREASURE_RESERVED_TITLE = 'TREASURE RESERVED'

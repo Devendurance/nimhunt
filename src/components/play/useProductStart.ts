@@ -19,6 +19,7 @@ import {
   INITIAL_PRODUCT_START_STATE,
   type ProductStartErrorCode,
 } from './productStart.ts'
+import { getRememberedProductWallet } from './productWallet.ts'
 
 type ProductStartHookOptions = {
   readonly onStarted?: (start: ProductStartResult, normalizedWallet: string) => void
@@ -141,6 +142,13 @@ export function useProductStart({ onStarted }: ProductStartHookOptions = {}) {
       }
       if (!isCurrent(token)) return
       providerRef.current = provider
+      const remembered = getRememberedProductWallet()
+      if (remembered) {
+        dispatch({ type: 'ACCOUNTS_RECEIVED', accounts: [remembered] })
+        traceProductStartBoundary('ACCOUNT_SELECTED', startedAt)
+        void requestChallengeFor(token, remembered, mission)
+        return
+      }
       traceProductStartBoundary('LIST_ACCOUNTS_BEGIN', startedAt)
       let accounts: string[]
       try {

@@ -25,9 +25,34 @@
   background: rgba(19, 42, 38, .96);
 }
 
+.devRecovery {
+  margin: 0;
+  padding: 8px 16px;
+  color: #9fd7c2;
+  font: 500 10px/14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.2px;
+  text-transform: none;
+  background: #0a1a17;
+  border-bottom: 1px solid rgba(159, 215, 194, 0.22);
+}
+
 .wordmark { display: flex; align-items: center; min-width: 44px; min-height: 44px; }
 .wordmark img { width: 142px; height: auto; }
 .headerContext { color: #a9b9aa; font-size: 9px; font-weight: 700; letter-spacing: 1.3px; }
+
+.walletStrip {
+  display: grid;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(243, 234, 215, .12);
+  color: #ffd86a;
+  font: 400 16px/20px 'Jungle Fever', Impact, sans-serif;
+  letter-spacing: .35px;
+  text-transform: uppercase;
+}
+.walletCopy { margin: 0; color: #d3dbd1; font: 400 13px/18px Inter, sans-serif; text-transform: none; }
+.walletIdentity { color: #f3ead7; font: 400 13px/18px Inter, sans-serif; letter-spacing: .4px; text-transform: none; }
+.walletStrip .sheetPrimary { width: 100%; min-height: 44px; }
 
 .main { padding: 16px 16px calc(92px + env(safe-area-inset-bottom)); }
 .hero { margin-bottom: 16px; }

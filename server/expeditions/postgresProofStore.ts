@@ -26,6 +26,12 @@ import {
   hashChallenge,
   parseStartPayload,
 } from './canonical.ts'
+import {
+  alignRecoveryConsumeTimestamps,
+  fingerprintWalletRecoveryAuthorization,
+  hashRecoveryChallenge,
+  parseWalletRecoveryPayload,
+} from './walletRecovery.ts'
 import { verifyNimiqSignedCanonicalMessage } from './crypto.ts'
 import { ProofError } from './errors.ts'
 import { createSupabaseProofRpcClient, readProofRpc, type ProofRpcClient } from './proofDb.ts'
@@ -34,7 +40,9 @@ import {
   createRunSessionCapability,
   hashRunSessionCapability,
   requireRunSession,
+  requireWalletRecoverySession,
   type RunSessionRecord,
+  type WalletRecoverySessionRecord,
 } from './session.ts'
 import type {
   DurableCheckpointBatch,
@@ -65,6 +73,7 @@ export async function createPostgresProofService(options: {
   readonly blueprints?: readonly ExpeditionBlueprint[]
 }): Promise<ProofService> {
   const rpc = options.rpc
+  const recoveryChallengeTimes = new Map<string, { issuedAt: string; expiresAt: string }>()
   const service: ProofService = {
     async registerBlueprint(blueprint) {
       if (blueprint.status !== 'PUBLISHED') throw new ProofError('BLUEPRINT_LIFECYCLE_INVALID')
@@ -507,6 +516,125 @@ export async function createPostgresProofService(options: {
       }
     },
 
+    async issueWalletRecoveryChallenge(wallet) {
+      const normalizedWallet = normalizeNimiqWallet(wallet)
+      const challenge = randomBytes(32).toString('base64url')
+      const created = readProofRpc(await rpc.rpc('create_wallet_recovery_challenge', {
+        p_wallet: normalizedWallet,
+        p_challenge_hash: hashRecoveryChallenge(challenge),
+      }))
+      const storedIssuedAt = timestampText(created.issued_at)
+      const storedExpiresAt = timestampText(created.expires_at)
+      if (storedIssuedAt && storedExpiresAt) {
+        recoveryChallengeTimes.set(hashRecoveryChallenge(challenge), {
+          issuedAt: storedIssuedAt,
+          expiresAt: storedExpiresAt,
+        })
+      }
+      return {
+        wallet: normalizedWallet,
+        challenge,
+        issuedAt: asIso(created.issued_at),
+        expiresAt: asIso(created.expires_at),
+        purpose: 'reward/daily-state recovery' as const,
+      }
+    },
+
+    async authorizeWalletRecovery(input) {
+      const parsed = parseWalletRecoveryPayload(input.payload)
+      if (!parsed) throw new ProofError('RECOVERY_CHALLENGE_INVALID')
+      const verification = verifyNimiqSignedCanonicalMessage({
+        payload: input.payload,
+        wallet: parsed.wallet,
+        payloadWallet: parsed.wallet,
+        publicKey: input.publicKey,
+        signature: input.signature,
+      })
+      if (verification.reason === 'INVALID_SIGNATURE') throw new ProofError('INVALID_SIGNATURE')
+      if (verification.reason === 'ADDRESS_MISMATCH') throw new ProofError('ADDRESS_MISMATCH')
+      if (!verification.valid) throw new ProofError('RECOVERY_CHALLENGE_INVALID')
+
+      const capability = createRunSessionCapability()
+      const sessionHash = hashRunSessionCapability(capability.raw)
+      const sessionExpiresAt = nextUtcResetAt(utcDayKey(new Date()))
+      const challengeHash = hashRecoveryChallenge(parsed.challenge)
+      const consumeTimes = alignRecoveryConsumeTimestamps(
+        { issuedAt: parsed.issuedAt, expiresAt: parsed.expiresAt },
+        recoveryChallengeTimes.get(challengeHash) ?? null,
+      )
+      recoveryChallengeTimes.delete(challengeHash)
+      const consumed = readProofRpc(await rpc.rpc('consume_wallet_recovery_challenge', {
+        p_challenge_hash: challengeHash,
+        p_authorization_fingerprint: fingerprintWalletRecoveryAuthorization(input),
+        p_wallet: parsed.wallet,
+        p_issued_at: consumeTimes.issuedAt,
+        p_expires_at: consumeTimes.expiresAt,
+        p_wallet_session_hash: sessionHash,
+        p_session_expires_at: sessionExpiresAt,
+      }))
+      return {
+        sessionCapability: capability.raw,
+        session: {
+          sessionHash,
+          wallet: parsed.wallet,
+          purpose: 'reward/daily-state recovery',
+          createdAt: asIso(consumed.created_at),
+          expiresAt: asIso(consumed.expires_at),
+          revokedAt: consumed.revoked_at == null ? null : asIso(consumed.revoked_at),
+        } satisfies WalletRecoverySessionRecord,
+      }
+    },
+
+    async authenticateWalletRecoverySession(raw) {
+      const hash = hashRunSessionCapability(raw)
+      const payload = await rpc.rpc('get_wallet_recovery_session', { p_wallet_session_hash: hash })
+      if (typeof payload === 'object' && payload !== null && 'ok' in payload && payload.ok === false) {
+        throw new ProofError('INVALID_SESSION')
+      }
+      const result = readProofRpc(payload)
+      const record: WalletRecoverySessionRecord = {
+        sessionHash: asString(result.session_hash),
+        wallet: asString(result.wallet),
+        purpose: 'reward/daily-state recovery',
+        createdAt: asIso(result.created_at),
+        expiresAt: asIso(result.expires_at),
+        revokedAt: result.revoked_at == null ? null : asIso(result.revoked_at),
+      }
+      try {
+        return requireWalletRecoverySession(raw, record, new Date())
+      } catch (error) {
+        if (error instanceof Error && (error.message === 'INVALID_SESSION' || error.message === 'SESSION_EXPIRED' || error.message === 'SESSION_REVOKED')) {
+          throw new ProofError(error.message)
+        }
+        throw error
+      }
+    },
+
+    async getRewardClaimForWallet(claimId, session) {
+      await requireRecoverySession(rpc, session)
+      const loaded = readProofRpc(await rpc.rpc('get_reward_claim_for_wallet_session', {
+        p_claim_id: claimId,
+        p_wallet_session_hash: session.sessionHash,
+      }))
+      const claim = asRewardClaim(asRecord(loaded.claim))
+      if (claim.status !== 'RESERVED') throw new ProofError('CLAIM_NOT_ELIGIBLE')
+      return claim
+    },
+
+    async getReservedRewardClaimForWallet(session) {
+      await requireRecoverySession(rpc, session)
+      try {
+        const loaded = readProofRpc(await rpc.rpc('get_reserved_reward_claim_for_wallet_session', {
+          p_wallet_session_hash: session.sessionHash,
+        }))
+        const claim = asRewardClaim(asRecord(loaded.claim))
+        return claim.status === 'RESERVED' ? claim : null
+      } catch (error) {
+        if (error instanceof ProofError && error.code === 'CLAIM_NOT_FOUND') return null
+        throw error
+      }
+    },
+
     async snapshot() {
       const payload = readProofRpc(await rpc.rpc('load_proof_snapshot', {}))
       const runIds = Array.isArray(payload.run_ids) ? payload.run_ids.map(value => asString(value)) : []
@@ -536,6 +664,23 @@ export async function createSupabaseProofService(options: {
     rpc: createSupabaseProofRpcClient(options.client),
     blueprints: options.blueprints,
   })
+}
+
+async function requireRecoverySession(
+  rpc: ProofRpcClient,
+  session: WalletRecoverySessionRecord,
+): Promise<void> {
+  const now = new Date()
+  const payload = await rpc.rpc('get_wallet_recovery_session', { p_wallet_session_hash: session.sessionHash })
+  if (typeof payload === 'object' && payload !== null && 'ok' in payload && payload.ok === false) {
+    throw new ProofError('INVALID_SESSION')
+  }
+  const stored = readProofRpc(payload)
+  if (asString(stored.wallet) !== session.wallet
+    || stored.revoked_at
+    || now.getTime() >= new Date(asIso(stored.expires_at)).getTime()) {
+    throw new ProofError('INVALID_SESSION')
+  }
 }
 
 async function requireAuthenticatedRun(
@@ -864,4 +1009,10 @@ function asIso(value: unknown): string {
   const parsed = new Date(text)
   if (Number.isNaN(parsed.getTime())) throw new ProofError('PROOF_LOST')
   return parsed.toISOString()
+}
+
+function timestampText(value: unknown): string | null {
+  if (typeof value === 'string' && value.length > 0) return value
+  if (value instanceof Date && !Number.isNaN(value.getTime())) return value.toISOString()
+  return null
 }

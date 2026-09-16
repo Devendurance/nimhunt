@@ -20,6 +20,11 @@ const PROOF_RPCS = new Set([
   'load_expedition_run',
   'load_proof_snapshot',
   'get_wallet_daily_status',
+  'create_wallet_recovery_challenge',
+  'consume_wallet_recovery_challenge',
+  'get_wallet_recovery_session',
+  'get_reserved_reward_claim_for_wallet_session',
+  'get_reward_claim_for_wallet_session',
 ])
 
 const PROOF_ERROR_CODES = new Set<ExpeditionProofErrorCode>([
@@ -66,6 +71,8 @@ const PROOF_ERROR_CODES = new Set<ExpeditionProofErrorCode>([
   'RUN_SESSION_INVALID',
   'ACTIVE_RUN_UNAVAILABLE',
   'RUN_INCOMPLETE',
+  'RECOVERY_CHALLENGE_INVALID',
+  'RECOVERY_CHALLENGE_EXPIRED',
 ])
 
 export type ProofRpcClient = {

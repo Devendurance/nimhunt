@@ -27,10 +27,17 @@ import {
 } from './canonical.ts'
 import { verifyNimiqSignedCanonicalMessage } from './crypto.ts'
 import {
+  fingerprintWalletRecoveryAuthorization,
+  hashRecoveryChallenge,
+  parseWalletRecoveryPayload,
+} from './walletRecovery.ts'
+import {
   createRunSessionCapability,
   hashRunSessionCapability,
   requireRunSession,
+  requireWalletRecoverySession,
   type RunSessionRecord,
+  type WalletRecoverySessionRecord,
 } from './session.ts'
 import {
   createPreparedRewardClaim,
@@ -45,6 +52,7 @@ import type {
   DurableRunTerminal,
   DurableStartChallenge,
   DurableVaultSealProof,
+  DurableWalletRecoveryChallenge,
   MemoryProofService,
   MemoryProofSnapshot,
   StartAuthorizationResult,
@@ -96,6 +104,8 @@ export function createMemoryProofService(options: {
   const walletRewards = new Map<string, number>()
   const claims = new Map<string, DurableRewardClaim>()
   const claimsByRun = new Map<string, string>()
+  const recoveryChallenges = new Map<string, DurableWalletRecoveryChallenge>()
+  const recoverySessions = new Map<string, WalletRecoverySessionRecord>()
 
   const service: MemoryProofService = {
     registerBlueprint(blueprint) {
@@ -211,6 +221,88 @@ export function createMemoryProofService(options: {
         rewardAlreadyReserved: (walletRewards.get(walletKey(dayKey, normalizedWallet)) ?? 0) >= 1,
         nextResetAt: nextUtcResetAt(dayKey),
       }
+    },
+
+    async issueWalletRecoveryChallenge(wallet) {
+      let normalizedWallet: string
+      try {
+        normalizedWallet = normalizeNimiqWallet(wallet)
+      } catch {
+        throw new ProofError('INVALID_WALLET')
+      }
+      const now = clock.now()
+      const dayKey = utcDayKey(now)
+      const challenge = randomBytes(32).toString('base64url')
+      const challengeHash = hashRecoveryChallenge(challenge)
+      const fiveMinuteExpiry = new Date(now.getTime() + 5 * 60 * 1_000)
+      const resetAt = new Date(nextUtcResetAt(dayKey))
+      const expiresAt = fiveMinuteExpiry.getTime() < resetAt.getTime() ? fiveMinuteExpiry : resetAt
+      const issuedAt = now.toISOString()
+      recoveryChallenges.set(challengeHash, {
+        challengeHash,
+        wallet: normalizedWallet,
+        issuedAt,
+        expiresAt: expiresAt.toISOString(),
+        consumedAt: null,
+        authorizationFingerprint: null,
+      })
+      return {
+        wallet: normalizedWallet,
+        challenge,
+        issuedAt,
+        expiresAt: expiresAt.toISOString(),
+        purpose: 'reward/daily-state recovery',
+      }
+    },
+
+    authorizeWalletRecovery(input) {
+      const parsed = parseWalletRecoveryPayload(input.payload)
+      if (!parsed) return Promise.reject(new ProofError('RECOVERY_CHALLENGE_INVALID'))
+
+      const verification = verifyNimiqSignedCanonicalMessage({
+        payload: input.payload,
+        wallet: parsed.wallet,
+        payloadWallet: parsed.wallet,
+        publicKey: input.publicKey,
+        signature: input.signature,
+      })
+      if (verification.reason === 'INVALID_SIGNATURE') return Promise.reject(new ProofError('INVALID_SIGNATURE'))
+      if (verification.reason === 'ADDRESS_MISMATCH') return Promise.reject(new ProofError('ADDRESS_MISMATCH'))
+      if (!verification.valid) return Promise.reject(new ProofError('RECOVERY_CHALLENGE_INVALID'))
+
+      const fingerprint = fingerprintWalletRecoveryAuthorization(input)
+      return mutex.run(() => authorizeWalletRecoveryWithinLock(parsed, fingerprint))
+    },
+
+    authenticateWalletRecoverySession(raw) {
+      const hash = hashRunSessionCapability(raw)
+      const record = recoverySessions.get(hash)
+      try {
+        return requireWalletRecoverySession(raw, record ?? null, clock.now())
+      } catch (error) {
+        if (error instanceof Error && (error.message === 'INVALID_SESSION' || error.message === 'SESSION_EXPIRED' || error.message === 'SESSION_REVOKED')) {
+          throw new ProofError(error.message)
+        }
+        throw error
+      }
+    },
+
+    getRewardClaimForWallet(claimId, session) {
+      requireRecoverySession(session)
+      const claim = claims.get(claimId)
+      if (!claim || claim.wallet !== session.wallet) throw new ProofError('CLAIM_NOT_FOUND')
+      if (claim.status !== 'RESERVED') throw new ProofError('CLAIM_NOT_ELIGIBLE')
+      return claim
+    },
+
+    getReservedRewardClaimForWallet(session) {
+      requireRecoverySession(session)
+      const dayKey = utcDayKey(clock.now())
+      const matching = [...claims.values()].filter(claim => claim.wallet === session.wallet && claim.status === 'RESERVED')
+      const today = matching.find(claim => claim.dayKey === dayKey)
+      if (today) return today
+      matching.sort((left, right) => Date.parse(right.finalizedAt ?? right.createdAt) - Date.parse(left.finalizedAt ?? left.createdAt))
+      return matching[0] ?? null
     },
 
     snapshot() {
@@ -586,6 +678,57 @@ export function createMemoryProofService(options: {
       revokedAt: null,
     }
     return { raw: capability.raw, record }
+  }
+
+  function authorizeWalletRecoveryWithinLock(
+    payload: NonNullable<ReturnType<typeof parseWalletRecoveryPayload>>,
+    fingerprint: string,
+  ) {
+    const challengeHash = hashRecoveryChallenge(payload.challenge)
+    const challenge = recoveryChallenges.get(challengeHash)
+    if (!challenge) throw new ProofError('RECOVERY_CHALLENGE_INVALID')
+    if (challenge.consumedAt) throw new ProofError('RECOVERY_CHALLENGE_INVALID')
+
+    const now = clock.now()
+    if (now.getTime() >= new Date(challenge.expiresAt).getTime()) throw new ProofError('RECOVERY_CHALLENGE_EXPIRED')
+    if (payload.wallet !== challenge.wallet
+      || payload.issuedAt !== challenge.issuedAt
+      || payload.expiresAt !== challenge.expiresAt) {
+      throw new ProofError('RECOVERY_CHALLENGE_INVALID')
+    }
+
+    const dayKey = utcDayKey(now)
+    const sessionExpiresAt = new Date(nextUtcResetAt(dayKey))
+    const capability = createRunSessionCapability()
+    const record: WalletRecoverySessionRecord = {
+      sessionHash: hashRunSessionCapability(capability.raw),
+      wallet: challenge.wallet,
+      purpose: 'reward/daily-state recovery',
+      createdAt: now.toISOString(),
+      expiresAt: sessionExpiresAt.toISOString(),
+      revokedAt: null,
+    }
+    recoverySessions.set(record.sessionHash, record)
+    recoveryChallenges.set(challengeHash, {
+      ...challenge,
+      consumedAt: now.toISOString(),
+      authorizationFingerprint: fingerprint,
+    })
+    return {
+      sessionCapability: capability.raw,
+      session: record,
+    }
+  }
+
+  function requireRecoverySession(session: WalletRecoverySessionRecord): void {
+    const stored = recoverySessions.get(session.sessionHash)
+    const now = clock.now()
+    if (!stored
+      || stored.wallet !== session.wallet
+      || stored.revokedAt
+      || now.getTime() >= new Date(stored.expiresAt).getTime()) {
+      throw new ProofError('INVALID_SESSION')
+    }
   }
 
   function getBlueprint(blueprintId: string): ExpeditionBlueprint {

@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ExpeditionProofApiError, fetchRewardPayoutStatus } from '../../api/expeditionProof.ts'
 import type { RewardPayoutStatus, RewardPayoutStatusResult } from '../../domain/expeditionProof.ts'
 import { persistReservedRewardClaim } from './productRunSession.ts'
 import { PAYOUT_POLL_MS, type ProductPayoutView } from './productPayoutStatus.ts'
+import { traceWalletRecovery } from './walletRecoveryDiagnostics.ts'
 
 const OPEN_STATUSES = new Set<RewardPayoutStatus | 'PENDING'>([
   'PENDING',
@@ -16,13 +17,19 @@ export function useProductPayoutStatus(options: {
   readonly claimId: string | null
   readonly recoverFromSession?: boolean
   readonly unavailableAs?: 'pending' | 'hidden'
+  readonly sessionKey?: string | number
+  readonly onUnavailable?: (code: string) => void
 }): ProductPayoutView | null {
   const recoverFromSession = options.recoverFromSession === true
   const unavailableAs = options.unavailableAs ?? 'pending'
+  const onUnavailableRef = useRef(options.onUnavailable)
+  useEffect(() => {
+    onUnavailableRef.current = options.onUnavailable
+  }, [options.onUnavailable])
   const claimId = options.enabled ? options.claimId : null
   const enabled = options.enabled && (Boolean(claimId) || recoverFromSession)
   const [view, setView] = useState<{ readonly key: string; readonly value: ProductPayoutView | null } | null>(null)
-  const key = `${claimId ?? ''}:${recoverFromSession ? '1' : '0'}`
+  const key = `${claimId ?? ''}:${recoverFromSession ? '1' : '0'}:${options.sessionKey ?? '0'}`
 
   useEffect(() => {
     if (!enabled) return
@@ -36,16 +43,47 @@ export function useProductPayoutStatus(options: {
       }
     }
 
+    const retry = !key.endsWith(':0')
+    traceWalletRecovery(retry ? 'PAYOUT_RETRY_STARTED' : 'PAYOUT_INITIAL_GET_STARTED', { started: 'yes' })
+
     const load = async (): Promise<RewardPayoutStatus | 'PENDING' | 'HIDDEN'> => {
       try {
         const result = await readPayout(claimId, recoverFromSession)
         if (cancelled) return 'HIDDEN'
         persistReservedRewardClaim(result.claimId)
         const next = toView(result)
+        if (retry) {
+          traceWalletRecovery('RECOVERY_SESSION_PROBE_STATUS', { status: 200, code: 'ok' })
+          traceWalletRecovery('RECOVERY_SESSION_AUTHENTICATED', { authenticated: 'yes' })
+          traceWalletRecovery('WALLET_SESSION_ISSUED', { issued: 'yes' })
+        }
+        traceWalletRecovery('RESERVED_CLAIM_FOUND', { found: 'yes' })
+        traceWalletRecovery('PAYOUT_FOUND', { found: next.payoutId ? 'yes' : 'no' })
+        traceWalletRecovery('PAYOUT_STATUS', { status: next.status })
+        traceWalletRecovery('PAYOUT_STATE_SET', { set: 'yes' })
         setView({ key, value: next })
         return next.status
       } catch (error) {
         if (cancelled) return 'HIDDEN'
+        if (error instanceof ExpeditionProofApiError) {
+          if (retry) {
+            traceWalletRecovery('RECOVERY_SESSION_PROBE_STATUS', {
+              status: error.code === 'RUN_SESSION_INVALID' ? 401 : 400,
+              code: error.code,
+            })
+            traceWalletRecovery('RECOVERY_SESSION_AUTHENTICATED', {
+              authenticated: error.code === 'RUN_SESSION_INVALID' ? 'no' : 'yes',
+            })
+          }
+          if (error.code === 'RUN_SESSION_INVALID') {
+            traceWalletRecovery('WALLET_RECOVERY_SESSION_PRESENT', { present: 'no' })
+          }
+          if (error.code === 'CLAIM_NOT_FOUND') {
+            traceWalletRecovery('RESERVED_CLAIM_FOUND', { found: 'no' })
+            traceWalletRecovery('PAYOUT_FOUND', { found: 'no' })
+          }
+          onUnavailableRef.current?.(error.code)
+        }
         if (unavailableAs === 'hidden' || isUnavailable(error)) {
           setView({ key, value: null })
           return 'HIDDEN'

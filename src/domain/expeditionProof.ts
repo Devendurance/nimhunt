@@ -60,6 +60,8 @@ export type ExpeditionProofErrorCode =
   | 'RUN_SESSION_INVALID'
   | 'ACTIVE_RUN_UNAVAILABLE'
   | 'RUN_INCOMPLETE'
+  | 'RECOVERY_CHALLENGE_INVALID'
+  | 'RECOVERY_CHALLENGE_EXPIRED'
 
 export type ProductGameplayState =
   | 'READY'

@@ -1,6 +1,11 @@
-import type { ExpeditionHttpRequest, ExpeditionHttpResponse, ExpeditionHttpSecurity } from '../expeditions/http.ts'
-import { parseRunSessionCookie } from '../expeditions/session.ts'
-import type { ExpeditionProofService } from '../expeditions/types.ts'
+import {
+  isAuthorizedLocalHttpAlias,
+  type ExpeditionHttpRequest,
+  type ExpeditionHttpResponse,
+  type ExpeditionHttpSecurity,
+} from '../expeditions/http.ts'
+import { parseRunSessionCookie, parseWalletRecoverySessionCookie } from '../expeditions/session.ts'
+import type { DurableRewardClaim, ExpeditionProofService } from '../expeditions/types.ts'
 import { GET_REWARD_PAYOUT_PATH } from '../../src/domain/expeditionProof.ts'
 import { isPayoutError, PayoutError } from './errors.ts'
 import { toPublicPayout } from './store.ts'
@@ -40,12 +45,7 @@ export async function dispatchPayoutHttp(
 
   try {
     const claimId = readClaimId(url)
-    const raw = parseRunSessionCookie(getHeader(request, 'cookie'))
-    if (!raw) return response(401, { ok: false, error: 'RUN_SESSION_INVALID' })
-    const session = await proof.authenticateSession(raw)
-    const claim = claimId
-      ? await proof.getRewardClaim(claimId, session)
-      : await proof.getReservedRewardClaim(session)
+    const claim = await readAuthorizedClaim(proof, request, claimId)
     if (!claim) return response(404, { ok: false, error: 'CLAIM_NOT_FOUND' })
     if (claim.status !== 'RESERVED') return response(400, { ok: false, error: 'CLAIM_NOT_ELIGIBLE' })
     const payout = await store.getByClaim(claim.claimId)
@@ -66,6 +66,32 @@ export async function dispatchPayoutHttp(
     }
     return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
   }
+}
+
+async function readAuthorizedClaim(
+  proof: ExpeditionProofService,
+  request: ExpeditionHttpRequest,
+  claimId: string | null,
+): Promise<DurableRewardClaim | null> {
+  const cookie = getHeader(request, 'cookie')
+  const recoveryRaw = parseWalletRecoverySessionCookie(cookie)
+  if (recoveryRaw) {
+    try {
+      const recovery = await proof.authenticateWalletRecoverySession(recoveryRaw)
+      return claimId
+        ? await proof.getRewardClaimForWallet(claimId, recovery)
+        : await proof.getReservedRewardClaimForWallet(recovery)
+    } catch (error) {
+      if (!parseRunSessionCookie(cookie)) throw error
+    }
+  }
+
+  const raw = parseRunSessionCookie(cookie)
+  if (!raw) throw new PayoutError('RUN_SESSION_INVALID')
+  const session = await proof.authenticateSession(raw)
+  return claimId
+    ? await proof.getRewardClaim(claimId, session)
+    : await proof.getReservedRewardClaim(session)
 }
 
 function toPublicBody(payout: Awaited<ReturnType<PayoutStore['getByClaim']>>) {
@@ -98,7 +124,7 @@ function isAllowedRequest(request: ExpeditionHttpRequest, security: ExpeditionHt
   if (host === security.expectedHost && protocol === security.expectedProtocol) {
     return origin === undefined || origin === security.expectedOrigin
   }
-  return false
+  return isAuthorizedLocalHttpAlias(host, protocol, origin, true, security)
 }
 
 function getHeader(request: ExpeditionHttpRequest, name: string): string | undefined {

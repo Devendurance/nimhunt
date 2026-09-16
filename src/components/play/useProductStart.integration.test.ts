@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { NimiqProvider } from '@nimiq/mini-app-sdk'
 import { useMemo } from 'react'
 import { playFixture } from '../../data/play.fixtures'
@@ -8,11 +8,14 @@ import {
   authorizeStart,
   ExpeditionProofApiError,
   fetchActiveExpedition,
+  fetchRewardPayoutStatus,
   markGameplayStarted,
   finalizeRewardClaim,
   prepareProductVaultSeal,
   prepareRewardClaim,
   requestStartChallenge,
+  requestWalletRecoveryChallenge,
+  authorizeWalletRecovery,
   submitCheckpoint,
   verifyExpedition,
   verifyProductVaultSeal,
@@ -25,6 +28,7 @@ import { createInitialRun } from '../../game/replay/engine.ts'
 import { createRoom01Blueprint } from '../../game/world/room01.ts'
 import { createNimiqError } from '../../integrations/nimiq/nimiqErrors'
 import {
+  detectNimiqPayHost,
   initializeNimiqProvider,
   listNimiqAccounts,
   signNimiqMessage,
@@ -35,7 +39,11 @@ import { resolveHuntStatusView } from './huntStatusView'
 import { PlayShell } from './PlayShell'
 import { ProductExpeditionGate } from './ProductExpeditionGate'
 import { clearRememberedProductWallet, getRememberedProductWallet, rememberProductWallet } from './productWallet'
-import { clearRememberedProductTerminal } from './productRunSession.ts'
+import {
+  clearRememberedProductTerminal,
+  getPersistedReservedRewardClaim,
+  persistReservedRewardClaim,
+} from './productRunSession.ts'
 import { useAngkorRun } from './useAngkorRun'
 import { useDailyHuntStatus } from './useDailyHuntStatus'
 import { useProductStart } from './useProductStart'
@@ -167,6 +175,9 @@ vi.mock('../../api/expeditionProof.ts', async () => {
     verifyProductVaultSeal: vi.fn(),
     prepareRewardClaim: vi.fn(),
     finalizeRewardClaim: vi.fn(),
+    fetchRewardPayoutStatus: vi.fn(),
+    requestWalletRecoveryChallenge: vi.fn(),
+    authorizeWalletRecovery: vi.fn(),
   }
 })
 
@@ -176,6 +187,7 @@ vi.mock('../../api/dailyHunt', () => ({
 }))
 
 vi.mock('../../integrations/nimiq/nimiqClient', () => ({
+  detectNimiqPayHost: vi.fn(() => false),
   initializeNimiqProvider: vi.fn(),
   listNimiqAccounts: vi.fn(),
   signNimiqMessage: vi.fn(),
@@ -276,6 +288,21 @@ const challenge = {
   expiresAt: '2026-09-09T12:05:00.000Z',
 }
 const signed = { payload: 'signed-payload', publicKey: 'public-key', signature: 'signature' }
+function confirmedPayoutStatus() {
+  return {
+    claimId: '40891624-e2c2-471f-aa9a-9674ca6200a7',
+    payout: {
+      payoutId: 'd19bf406-2b81-4c5a-b271-da8eb7587cbd',
+      claimId: '40891624-e2c2-471f-aa9a-9674ca6200a7',
+      status: 'CONFIRMED' as const,
+      amountLuna: '10000',
+      network: 'mainnet' as const,
+      txHashSafe: 'c58022f37ed7352f41c29ef9862297a9cfa8c45593456395d7a6eb7a68009ff6',
+      submittedAt: '2026-09-16T12:00:00.000Z',
+      confirmedAt: '2026-09-16T12:01:00.000Z',
+    },
+  }
+}
 const started = {
   runId: 'run-1',
   outcome: 'START_CREATED',
@@ -1921,6 +1948,366 @@ describe('wallet daily-status refresh lifecycle', () => {
     await settle()
     expect(findPropsWith(harness.current, 'expeditionsLeftToday')?.expeditionsLeftToday).toBe('0 EXPEDITIONS LEFT TODAY')
     expect(findPropsWith(harness.current, 'missions')?.missions).toEqual(playMissions)
+    harness.unmount()
+  })
+})
+
+describe('true app-restart payout recovery', () => {
+  const fetchPayout = vi.mocked(fetchRewardPayoutStatus)
+  const fetchPublicStatus = vi.mocked(fetchDailyHuntStatus)
+  const fetchWalletStatus = vi.mocked(fetchWalletDailyStatus)
+  const initialize = vi.mocked(initializeNimiqProvider)
+  const memorySession = new Map<string, string>()
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    resetHookRuntime()
+    clearRememberedProductWallet()
+    clearRememberedProductTerminal()
+    memorySession.clear()
+    hookRuntime.nullRefValue = {
+      replaceChildren: vi.fn(),
+      showModal: vi.fn(),
+      close: vi.fn(),
+      open: false,
+    }
+    vi.stubGlobal('requestAnimationFrame', (callback: () => void) => {
+      callback()
+      return 0
+    })
+    vi.stubGlobal('window', {
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      setInterval: vi.fn(),
+      clearInterval: vi.fn(),
+    })
+    vi.stubGlobal('sessionStorage', {
+      getItem(key: string) {
+        return memorySession.get(key) ?? null
+      },
+      setItem(key: string, value: string) {
+        memorySession.set(key, value)
+      },
+      removeItem(key: string) {
+        memorySession.delete(key)
+      },
+      clear() {
+        memorySession.clear()
+      },
+    })
+    fetchPublicStatus.mockResolvedValue({
+      kind: 'live',
+      status: {
+        totalSlots: 69,
+        reservedSlots: 1,
+        remainingSlots: 68,
+        dayKey: '2026-09-16',
+        nextResetAt: '2026-09-17T00:00:00.000Z',
+      },
+    })
+  })
+
+  it('restores TREASURE DELIVERED from the session cookie without claimId or React memory', async () => {
+    fetchPayout.mockResolvedValue({
+      claimId: 'claim-confirmed',
+      payout: {
+        payoutId: 'payout-confirmed',
+        claimId: 'claim-confirmed',
+        status: 'CONFIRMED',
+        amountLuna: '10000',
+        network: 'mainnet',
+        txHashSafe: 'c58022f37ed7352f41c29ef9862297a9cfa8c45593456395d7a6eb7a68009ff6',
+        submittedAt: '2026-09-16T12:00:00.000Z',
+        confirmedAt: '2026-09-16T12:01:00.000Z',
+      },
+    })
+
+    expect(getPersistedReservedRewardClaim()).toBeNull()
+    expect(getRememberedProductWallet()).toBeNull()
+    const harness = createHookHarness(() => PlayShell({}))
+    await settle()
+
+    expect(fetchPayout.mock.calls[0]?.[0]).toBeNull()
+    const text = collectText(harness.current).join(' ')
+    expect(text).toContain('TREASURE DELIVERED')
+    expect(text).toContain('Your NIM reward was confirmed on-chain.')
+    expect(text).toContain('0.1 NIM')
+    expect(text).toContain('c58022f3…')
+    expect(text).toContain('Verified ✓')
+    expect(initialize).not.toHaveBeenCalled()
+    expect(fetchWalletStatus).not.toHaveBeenCalled()
+    harness.unmount()
+  })
+
+  it('ignores a remembered sessionStorage claimId and still recovers from the session', async () => {
+    persistReservedRewardClaim('stale-session-claim')
+    fetchPayout.mockResolvedValue(confirmedPayoutStatus())
+
+    const harness = createHookHarness(() => PlayShell({}))
+    await settle()
+
+    expect(fetchPayout.mock.calls[0]?.[0]).toBeNull()
+    expect(collectText(harness.current).join(' ')).toContain('TREASURE DELIVERED')
+    harness.unmount()
+  })
+
+  it('fails closed to wallet-required without weakening auth when the cookie is missing', async () => {
+    fetchPayout.mockRejectedValue(new ExpeditionProofApiError('RUN_SESSION_INVALID'))
+
+    const harness = createHookHarness(() => PlayShell({}))
+    await settle()
+
+    expect(fetchPayout).toHaveBeenCalledWith(null)
+    const text = collectText(harness.current).join(' ')
+    expect(text).toContain('wallet required')
+    expect(text).not.toContain('TREASURE DELIVERED')
+    expect(text).not.toContain('0.1 NIM')
+    expect(text).not.toContain('Verified ✓')
+    expect(initialize).not.toHaveBeenCalled()
+    harness.unmount()
+  })
+})
+
+describe('play wallet bootstrap inside Nimiq Pay', () => {
+  const initialize = vi.mocked(initializeNimiqProvider)
+  const listAccounts = vi.mocked(listNimiqAccounts)
+  const sign = vi.mocked(signNimiqMessage)
+  const detectHost = vi.mocked(detectNimiqPayHost)
+  const fetchPublicStatus = vi.mocked(fetchDailyHuntStatus)
+  const fetchWalletStatus = vi.mocked(fetchWalletDailyStatus)
+  const fetchPayout = vi.mocked(fetchRewardPayoutStatus)
+  const requestRecovery = vi.mocked(requestWalletRecoveryChallenge)
+  const submitRecovery = vi.mocked(authorizeWalletRecovery)
+  const submitStart = vi.mocked(authorizeStart)
+  const requestChallenge = vi.mocked(requestStartChallenge)
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    resetHookRuntime()
+    clearRememberedProductWallet()
+    clearRememberedProductTerminal()
+    detectHost.mockReturnValue(true)
+    initialize.mockResolvedValue(provider)
+    listAccounts.mockResolvedValue(['NQ07 33E4 6T32 24Y7 X4BA 7SP2 27TX 32PL 54JG'])
+    sign.mockResolvedValue(signed)
+    requestChallenge.mockResolvedValue(challenge)
+    submitStart.mockResolvedValue(started)
+    requestRecovery.mockResolvedValue({
+      wallet: 'NQ07 33E4 6T32 24Y7 X4BA 7SP2 27TX 32PL 54JG',
+      challenge: 'recover-challenge',
+      issuedAt: '2026-09-16T12:00:00.000Z',
+      expiresAt: '2026-09-16T12:05:00.000Z',
+      purpose: 'reward/daily-state recovery',
+    })
+    submitRecovery.mockResolvedValue({ ok: true })
+    fetchPublicStatus.mockResolvedValue({
+      kind: 'live',
+      status: {
+        totalSlots: 69,
+        reservedSlots: 1,
+        remainingSlots: 68,
+        dayKey: '2026-09-16',
+        nextResetAt: '2026-09-17T00:00:00.000Z',
+      },
+    })
+    hookRuntime.nullRefValue = null
+    vi.stubGlobal('requestAnimationFrame', (callback: () => void) => {
+      callback()
+      return 0
+    })
+    vi.stubGlobal('window', {
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      setInterval: vi.fn(),
+      clearInterval: vi.fn(),
+    })
+  })
+
+  afterEach(() => {
+    detectHost.mockReturnValue(false)
+  })
+
+  it('requests wallet approval on /play without consuming an attempt', async () => {
+    fetchWalletStatus.mockResolvedValue({
+      dayKey: '2026-09-16',
+      expeditionsStarted: 1,
+      expeditionsRemaining: 2,
+      rewardAlreadyReserved: false,
+      nextResetAt: '2026-09-17T00:00:00.000Z',
+    })
+    fetchPayout.mockRejectedValue(new ExpeditionProofApiError('RUN_SESSION_INVALID'))
+
+    const harness = createHookHarness(() => PlayShell({}))
+    await settle()
+
+    expect(initialize).toHaveBeenCalled()
+    expect(listAccounts).toHaveBeenCalledTimes(1)
+    expect(requestChallenge).not.toHaveBeenCalled()
+    expect(submitStart).not.toHaveBeenCalled()
+    expect(fetchWalletStatus).toHaveBeenCalled()
+    expect(collectText(harness.current).join(' ')).toContain('NQ0733…54JG')
+    expect(collectText(harness.current).join(' ')).toContain('2 EXPEDITIONS LEFT TODAY')
+    harness.unmount()
+  })
+
+  it('keeps the board and consumes zero attempts when approval is cancelled', async () => {
+    listAccounts.mockRejectedValueOnce(createNimiqError('ACCOUNT_CANCELLED'))
+    fetchPayout.mockRejectedValue(new ExpeditionProofApiError('RUN_SESSION_INVALID'))
+
+    const harness = createHookHarness(() => PlayShell({}))
+    await settle()
+
+    expect(requestChallenge).not.toHaveBeenCalled()
+    expect(submitStart).not.toHaveBeenCalled()
+    expect(fetchWalletStatus).not.toHaveBeenCalled()
+    const text = collectText(harness.current).join(' ')
+    expect(text).toContain('Connect wallet')
+    expect(text).toContain('wallet required')
+    harness.unmount()
+  })
+
+  it('restores TREASURE DELIVERED after a recovery signature without starting a run', async () => {
+    expect(getPersistedReservedRewardClaim()).toBeNull()
+    fetchWalletStatus.mockResolvedValue({
+      dayKey: '2026-09-16',
+      expeditionsStarted: 2,
+      expeditionsRemaining: 1,
+      rewardAlreadyReserved: false,
+      nextResetAt: '2026-09-17T00:00:00.000Z',
+    })
+    fetchPayout
+      .mockRejectedValueOnce(new ExpeditionProofApiError('RUN_SESSION_INVALID'))
+      .mockResolvedValue(confirmedPayoutStatus())
+
+    const harness = createHookHarness(() => PlayShell({}))
+    await settle()
+    await settle()
+
+    expect(requestRecovery).toHaveBeenCalledWith('NQ07 33E4 6T32 24Y7 X4BA 7SP2 27TX 32PL 54JG')
+    expect(sign.mock.calls.some(call => String(call[1]).includes('NIMHUNT_RECOVER_SESSION_V1'))).toBe(true)
+    expect(submitRecovery).toHaveBeenCalled()
+    expect(submitStart).not.toHaveBeenCalled()
+    expect(requestChallenge).not.toHaveBeenCalled()
+    expect(fetchPayout.mock.calls.every(call => call[0] == null)).toBe(true)
+    const text = collectText(harness.current).join(' ')
+    expect(text).toContain('TREASURE DELIVERED')
+    expect(text).toContain('Your NIM reward was confirmed on-chain.')
+    expect(text).toContain('0.1 NIM')
+    expect(text).toContain('c58022f3…')
+    expect(text).toContain('Verified ✓')
+    expect(text).toContain('1 EXPEDITION LEFT TODAY')
+    expect(fetchPayout).toHaveBeenCalledTimes(2)
+    expect(fetchPayout.mock.calls[0]?.[0]).toBeNull()
+    expect(fetchPayout.mock.calls[1]?.[0]).toBeNull()
+    harness.unmount()
+  })
+
+  it('does not request NIMHUNT_RECOVER_SESSION_V1 when the first payout read is MALFORMED_REQUEST', async () => {
+    fetchWalletStatus.mockResolvedValue({
+      dayKey: '2026-09-16',
+      expeditionsStarted: 2,
+      expeditionsRemaining: 1,
+      rewardAlreadyReserved: false,
+      nextResetAt: '2026-09-17T00:00:00.000Z',
+    })
+    fetchPayout.mockRejectedValue(new ExpeditionProofApiError('MALFORMED_REQUEST'))
+
+    const harness = createHookHarness(() => PlayShell({}))
+    await settle()
+    await settle()
+
+    expect(listAccounts).toHaveBeenCalled()
+    expect(requestRecovery).not.toHaveBeenCalled()
+    expect(sign.mock.calls.some(call => String(call[1]).includes('NIMHUNT_RECOVER_SESSION_V1'))).toBe(false)
+    expect(submitRecovery).not.toHaveBeenCalled()
+    expect(submitStart).not.toHaveBeenCalled()
+    const text = collectText(harness.current).join(' ')
+    expect(text).toContain('1 EXPEDITION LEFT TODAY')
+    expect(text).not.toContain('TREASURE DELIVERED')
+    expect(text).not.toContain('Verified ✓')
+    harness.unmount()
+  })
+
+  it('restores TREASURE DELIVERED from a wallet recovery session without claimId, runId, or run session', async () => {
+    persistReservedRewardClaim('stale-session-claim')
+    fetchWalletStatus.mockResolvedValue({
+      dayKey: '2026-09-16',
+      expeditionsStarted: 2,
+      expeditionsRemaining: 1,
+      rewardAlreadyReserved: false,
+      nextResetAt: '2026-09-17T00:00:00.000Z',
+    })
+    fetchPayout.mockResolvedValue(confirmedPayoutStatus())
+
+    const harness = createHookHarness(() => PlayShell({}))
+    await settle()
+    await settle()
+
+    expect(fetchPayout.mock.calls[0]?.[0]).toBeNull()
+    expect(requestRecovery).not.toHaveBeenCalled()
+    expect(submitStart).not.toHaveBeenCalled()
+    expect(requestChallenge).not.toHaveBeenCalled()
+    const text = collectText(harness.current).join(' ')
+    expect(text).toContain('TREASURE DELIVERED')
+    expect(text).toContain('0.1 NIM')
+    expect(text).toContain('Verified ✓')
+    harness.unmount()
+  })
+
+  it('does not restore TREASURE DELIVERED from wallet identity without a recovery session', async () => {
+    fetchWalletStatus.mockResolvedValue({
+      dayKey: '2026-09-16',
+      expeditionsStarted: 2,
+      expeditionsRemaining: 1,
+      rewardAlreadyReserved: true,
+      nextResetAt: '2026-09-17T00:00:00.000Z',
+    })
+    fetchPayout.mockRejectedValue(new ExpeditionProofApiError('RUN_SESSION_INVALID'))
+    sign.mockRejectedValueOnce(createNimiqError('SIGN_CANCELLED'))
+
+    const harness = createHookHarness(() => PlayShell({}))
+    await settle()
+    await settle()
+
+    expect(requestRecovery).toHaveBeenCalled()
+    expect(submitRecovery).not.toHaveBeenCalled()
+    expect(submitStart).not.toHaveBeenCalled()
+    const text = collectText(harness.current).join(' ')
+    expect(text).toContain('1 EXPEDITION LEFT TODAY')
+    expect(text).not.toContain('TREASURE DELIVERED')
+    expect(text).not.toContain('0.1 NIM')
+    expect(text).not.toContain('Verified ✓')
+    harness.unmount()
+  })
+
+  it('still requires a separate signed Start after wallet bootstrap', async () => {
+    fetchWalletStatus.mockResolvedValue({
+      dayKey: '2026-09-16',
+      expeditionsStarted: 1,
+      expeditionsRemaining: 2,
+      rewardAlreadyReserved: true,
+      nextResetAt: '2026-09-17T00:00:00.000Z',
+    })
+    fetchPayout.mockRejectedValue(new ExpeditionProofApiError('RUN_SESSION_INVALID'))
+
+    const harness = createHookHarness(() => PlayShell({}))
+    await settle()
+
+    const missionListProps = findPropsWith(harness.current, 'onEnter')
+    if (typeof missionListProps?.onEnter !== 'function') throw new Error('MISSION_LIST_START_HANDLER_MISSING')
+    missionListProps.onEnter(playMissions[0]!, {} as HTMLButtonElement)
+    await settle()
+
+    const openedBrief = findPropsWith(harness.current, 'onStartExpedition')
+    const productStart = openedBrief?.productStart
+    if (!isRecord(productStart) || typeof productStart.begin !== 'function') throw new Error('PRODUCT_START_HANDLER_MISSING')
+    productStart.begin('gem-runner')
+    await settle()
+
+    const awaiting = findPropsWith(harness.current, 'onStartExpedition')?.productStart
+    expect(awaiting).toMatchObject({ status: 'AWAITING_START_SIGNATURE' })
+    expect(submitStart).not.toHaveBeenCalled()
+    expect(listAccounts).toHaveBeenCalledTimes(1)
     harness.unmount()
   })
 })

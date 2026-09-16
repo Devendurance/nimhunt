@@ -3,16 +3,32 @@ import { describe, expect, it } from 'vitest'
 import { hashBlueprint } from '../../src/game/replay/canonical.ts'
 import { createRoom01Blueprint } from '../../src/game/world/room01.ts'
 import { serializeStartPayload, type StartExpeditionPayload } from './canonical.ts'
+import { serializeWalletRecoveryPayload } from './walletRecovery.ts'
 import { nimiqSignedMessageHash } from './crypto.ts'
 import { parseStartChallengeResponse } from '../../src/api/expeditionProof.ts'
 import { dispatchExpeditionHttp, type ExpeditionHttpRequest, type ExpeditionHttpSecurity } from './http.ts'
 import { createMemoryProofService } from './memoryProofStore.ts'
+import { describeSessionCookie, parseRunSessionCookie, parseWalletRecoverySessionCookie } from './session.ts'
 
 const SECURITY: ExpeditionHttpSecurity = {
   expectedOrigin: 'https://hunt.example',
   expectedHost: 'hunt.example',
   expectedProtocol: 'https',
   secureCookie: true,
+}
+
+const LOCAL_SECURITY: ExpeditionHttpSecurity = {
+  expectedOrigin: 'http://localhost:5173',
+  expectedHost: 'localhost:5173',
+  expectedProtocol: 'http',
+  secureCookie: false,
+  allowAuthorizedLocalHttpOrigins: true,
+}
+
+const LAN = {
+  origin: 'http://192.168.0.134:5173',
+  host: '192.168.0.134:5173',
+  protocol: 'http' as const,
 }
 
 function createFixture() {
@@ -77,7 +93,7 @@ async function startExpedition() {
 
 describe('authenticated expedition HTTP start surface', () => {
   it('creates a normalized challenge without a cookie and sets a secure session after start', async () => {
-    const { challengeResponse, startResponse, cookie } = await startExpedition()
+    const { fixture, challengeResponse, startResponse, cookie } = await startExpedition()
 
     expect(challengeResponse.status).toBe(200)
     expect(challengeResponse.headers?.['set-cookie']).toBeUndefined()
@@ -92,12 +108,22 @@ describe('authenticated expedition HTTP start surface', () => {
     expect(startResponse.status).toBe(200)
     expect(startResponse.body).toMatchObject({ ok: true, outcome: 'START_CREATED' })
     expect(startResponse.body).not.toHaveProperty('sessionCapability')
+    const session = fixture.service.snapshot().sessions[0]
+    expect(session).toBeDefined()
+    const remainingSeconds = Math.floor(
+      (new Date(session!.expiresAt).getTime() - new Date(session!.createdAt).getTime()) / 1_000,
+    )
     expect(cookie).toContain('Path=/api')
-    expect(cookie).toContain('Max-Age=')
-    expect(cookie).toContain('Expires=')
+    expect(cookie).toContain(`Max-Age=${remainingSeconds}`)
+    expect(cookie).toContain(`Expires=${new Date(session!.expiresAt).toUTCString()}`)
+    expect(remainingSeconds).toBeGreaterThan(0)
+    expect(new Date(session!.expiresAt).getTime()).toBeLessThanOrEqual(
+      new Date(session!.createdAt).getTime() + 24 * 60 * 60 * 1_000,
+    )
     expect(cookie).toContain('Secure')
     expect(cookie).toContain('HttpOnly')
     expect(cookie).toContain('SameSite=Strict')
+    expect(cookie).not.toMatch(/Domain=/i)
   }, 15_000)
 
   it('returns the active blueprint only with the matching session cookie and runId', async () => {
@@ -384,4 +410,420 @@ describe('authenticated expedition HTTP start surface', () => {
     expect(fixture.service.snapshot()).toMatchObject({ runs: [], sessions: [] })
     expect(fixture.service.getWalletDailyStatus(fixture.wallet).expeditionsStarted).toBe(0)
   })
+
+  it('omits Secure on local-LAN HTTP start cookies while keeping persistent expiry', async () => {
+    const fixture = createFixture()
+    const security: ExpeditionHttpSecurity = {
+      expectedOrigin: 'http://localhost:5173',
+      expectedHost: 'localhost:5173',
+      expectedProtocol: 'http',
+      secureCookie: false,
+      allowAuthorizedLocalHttpOrigins: true,
+    }
+    const challengeResponse = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/expeditions/start-challenge',
+      headers: {
+        origin: 'http://192.168.1.10:5173',
+        host: '192.168.1.10:5173',
+        protocol: 'http',
+        'content-type': 'application/json',
+      },
+      host: '192.168.1.10:5173',
+      protocol: 'http',
+      body: { wallet: fixture.wallet, mission: 'gem-runner' },
+    }, security)
+    const challenge = challengeResponse.body as {
+      wallet: string
+      challenge: string
+      dayKey: string
+      blueprintId: string
+      blueprintHash: string
+    }
+    const payload: StartExpeditionPayload = {
+      version: 1,
+      type: 'NIMHUNT_START_EXPEDITION',
+      wallet: challenge.wallet,
+      mission: 'gem-runner',
+      dayKey: challenge.dayKey,
+      challenge: challenge.challenge,
+      blueprintId: challenge.blueprintId,
+      blueprintHash: challenge.blueprintHash,
+    }
+    const canonicalPayload = serializeStartPayload(payload)
+    const startResponse = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/expeditions/start',
+      headers: {
+        origin: 'http://192.168.1.10:5173',
+        host: '192.168.1.10:5173',
+        protocol: 'http',
+        'content-type': 'application/json',
+      },
+      host: '192.168.1.10:5173',
+      protocol: 'http',
+      body: {
+        payload: canonicalPayload,
+        publicKey: fixture.keyPair.publicKey.toHex(),
+        signature: fixture.keyPair.sign(nimiqSignedMessageHash(canonicalPayload)).toHex(),
+      },
+    }, security)
+    const cookie = startResponse.headers?.['set-cookie'] ?? ''
+    const session = fixture.service.snapshot().sessions[0]
+
+    expect(startResponse.status).toBe(200)
+    expect(cookie).toContain('Path=/api')
+    expect(cookie).toContain('HttpOnly')
+    expect(cookie).toContain('SameSite=Strict')
+    expect(cookie).toContain(`Expires=${new Date(session!.expiresAt).toUTCString()}`)
+    expect(cookie).toContain('Max-Age=')
+    expect(cookie).not.toContain('Secure')
+  }, 15_000)
 })
+
+describe('wallet recovery session HTTP', () => {
+  it('issues a recovery challenge without consuming attempts or creating a run', async () => {
+    const fixture = createFixture()
+    const response = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/wallet/recover-challenge',
+      headers: headers(),
+      body: { wallet: fixture.wallet },
+    }, SECURITY)
+
+    expect(response.status).toBe(200)
+    expect(response.headers?.['set-cookie']).toBeUndefined()
+    expect(response.body).toMatchObject({
+      ok: true,
+      wallet: fixture.wallet,
+      purpose: 'reward/daily-state recovery',
+    })
+    expect(Object.keys(response.body as object).sort()).toEqual(
+      ['challenge', 'expiresAt', 'issuedAt', 'ok', 'purpose', 'wallet'],
+    )
+    expect(fixture.service.snapshot()).toMatchObject({ runs: [], sessions: [] })
+    expect(fixture.service.getWalletDailyStatus(fixture.wallet).expeditionsStarted).toBe(0)
+  })
+
+  it('establishes a wallet recovery cookie from a valid NIMHUNT_RECOVER_SESSION_V1 signature', async () => {
+    const fixture = createFixture()
+    const challengeResponse = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/wallet/recover-challenge',
+      headers: headers(),
+      body: { wallet: fixture.wallet },
+    }, SECURITY)
+    const challenge = challengeResponse.body as {
+      wallet: string
+      challenge: string
+      issuedAt: string
+      expiresAt: string
+      purpose: 'reward/daily-state recovery'
+    }
+    const canonicalPayload = serializeWalletRecoveryPayload({
+      version: 1,
+      type: 'NIMHUNT_RECOVER_SESSION_V1',
+      wallet: challenge.wallet,
+      challenge: challenge.challenge,
+      issuedAt: challenge.issuedAt,
+      expiresAt: challenge.expiresAt,
+      purpose: challenge.purpose,
+    })
+    const recovered = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/wallet/recover-session',
+      headers: headers(),
+      body: {
+        payload: canonicalPayload,
+        publicKey: fixture.keyPair.publicKey.toHex(),
+        signature: fixture.keyPair.sign(nimiqSignedMessageHash(canonicalPayload)).toHex(),
+      },
+    }, SECURITY)
+
+    expect(recovered.status).toBe(200)
+    expect(recovered.body).toEqual({ ok: true })
+    expect(recovered.body).not.toHaveProperty('sessionCapability')
+    const cookie = recovered.headers?.['set-cookie'] ?? ''
+    expect(cookie).toContain('nimhunt_wallet_session=')
+    expect(cookie).toContain('Path=/api')
+    expect(cookie).toContain('HttpOnly')
+    expect(cookie).toContain('SameSite=Strict')
+    expect(describeSessionCookie(cookie)).toEqual({
+      header: 'yes',
+      name: 'nimhunt_wallet_session',
+      secure: 'yes',
+      sameSite: 'Strict',
+      path: '/api',
+      maxAgePresent: 'yes',
+    })
+    expect(parseRunSessionCookie(cookie)).toBeNull()
+    expect(parseWalletRecoverySessionCookie(cookie)).toBeTruthy()
+    expect(fixture.service.snapshot()).toMatchObject({ runs: [], sessions: [] })
+    expect(fixture.service.getWalletDailyStatus(fixture.wallet).expeditionsStarted).toBe(0)
+  })
+
+  it('rejects a wrong-wallet signature, expired challenge, and replay', async () => {
+    const fixture = createFixture()
+    const other = KeyPair.generate()
+    const challengeResponse = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/wallet/recover-challenge',
+      headers: headers(),
+      body: { wallet: fixture.wallet },
+    }, SECURITY)
+    const challenge = challengeResponse.body as {
+      wallet: string
+      challenge: string
+      issuedAt: string
+      expiresAt: string
+      purpose: 'reward/daily-state recovery'
+    }
+    const canonicalPayload = serializeWalletRecoveryPayload({
+      version: 1,
+      type: 'NIMHUNT_RECOVER_SESSION_V1',
+      wallet: challenge.wallet,
+      challenge: challenge.challenge,
+      issuedAt: challenge.issuedAt,
+      expiresAt: challenge.expiresAt,
+      purpose: challenge.purpose,
+    })
+
+    const wrongWallet = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/wallet/recover-session',
+      headers: headers(),
+      body: {
+        payload: canonicalPayload,
+        publicKey: other.publicKey.toHex(),
+        signature: other.sign(nimiqSignedMessageHash(canonicalPayload)).toHex(),
+      },
+    }, SECURITY)
+    expect(wrongWallet.status).toBe(400)
+    expect(wrongWallet.body).toEqual({ ok: false, error: 'ADDRESS_MISMATCH' })
+    expect(fixture.service.getWalletDailyStatus(fixture.wallet).expeditionsStarted).toBe(0)
+
+    fixture.setNow('2026-09-09T12:10:00.000Z')
+    const expired = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/wallet/recover-session',
+      headers: headers(),
+      body: {
+        payload: canonicalPayload,
+        publicKey: fixture.keyPair.publicKey.toHex(),
+        signature: fixture.keyPair.sign(nimiqSignedMessageHash(canonicalPayload)).toHex(),
+      },
+    }, SECURITY)
+    expect(expired.status).toBe(409)
+    expect(expired.body).toEqual({ ok: false, error: 'RECOVERY_CHALLENGE_EXPIRED' })
+
+    fixture.setNow('2026-09-09T12:01:00.000Z')
+    const first = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/wallet/recover-session',
+      headers: headers(),
+      body: {
+        payload: canonicalPayload,
+        publicKey: fixture.keyPair.publicKey.toHex(),
+        signature: fixture.keyPair.sign(nimiqSignedMessageHash(canonicalPayload)).toHex(),
+      },
+    }, SECURITY)
+    const replay = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/wallet/recover-session',
+      headers: headers(),
+      body: {
+        payload: canonicalPayload,
+        publicKey: fixture.keyPair.publicKey.toHex(),
+        signature: fixture.keyPair.sign(nimiqSignedMessageHash(canonicalPayload)).toHex(),
+      },
+    }, SECURITY)
+    expect(first.status).toBe(200)
+    expect(replay.status).toBe(400)
+    expect(replay.body).toEqual({ ok: false, error: 'RECOVERY_CHALLENGE_INVALID' })
+    expect(fixture.service.snapshot().runs).toEqual([])
+  })
+
+  it('does not let a recovery session start an expedition without NIMHUNT_START_EXPEDITION', async () => {
+    const fixture = createFixture()
+    const challengeResponse = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/wallet/recover-challenge',
+      headers: headers(),
+      body: { wallet: fixture.wallet },
+    }, SECURITY)
+    const challenge = challengeResponse.body as {
+      wallet: string
+      challenge: string
+      issuedAt: string
+      expiresAt: string
+      purpose: 'reward/daily-state recovery'
+    }
+    const canonicalPayload = serializeWalletRecoveryPayload({
+      version: 1,
+      type: 'NIMHUNT_RECOVER_SESSION_V1',
+      wallet: challenge.wallet,
+      challenge: challenge.challenge,
+      issuedAt: challenge.issuedAt,
+      expiresAt: challenge.expiresAt,
+      purpose: challenge.purpose,
+    })
+    const recovered = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/wallet/recover-session',
+      headers: headers(),
+      body: {
+        payload: canonicalPayload,
+        publicKey: fixture.keyPair.publicKey.toHex(),
+        signature: fixture.keyPair.sign(nimiqSignedMessageHash(canonicalPayload)).toHex(),
+      },
+    }, SECURITY)
+    const cookie = recovered.headers?.['set-cookie'] ?? ''
+
+    const active = await dispatchExpeditionHttp(fixture.service, {
+      method: 'GET',
+      path: '/api/expeditions/active?runId=missing',
+      headers: headers({ origin: undefined, cookie }),
+    }, SECURITY)
+    expect(active.status).toBe(401)
+    expect(active.body).toEqual({ ok: false, error: 'RUN_SESSION_INVALID' })
+    expect(fixture.service.getWalletDailyStatus(fixture.wallet).expeditionsStarted).toBe(0)
+    expect(fixture.service.snapshot().runs).toEqual([])
+  })
+
+  it('accepts LAN recovery verify and omits Secure only for explicit HTTP dev', async () => {
+    const fixture = createFixture()
+    const recovered = await recoverWalletSession(fixture, LOCAL_SECURITY, LAN)
+    const cookie = recovered.headers?.['set-cookie'] ?? ''
+
+    expect(recovered.status).toBe(200)
+    expect(recovered.body).toEqual({ ok: true })
+    expect(describeSessionCookie(cookie)).toEqual({
+      header: 'yes',
+      name: 'nimhunt_wallet_session',
+      secure: 'no',
+      sameSite: 'Strict',
+      path: '/api',
+      maxAgePresent: 'yes',
+    })
+    expect(cookie).toContain('HttpOnly')
+    expect(cookie).not.toMatch(/Domain=/i)
+    expect(parseWalletRecoverySessionCookie(cookie)).toBeTruthy()
+    expect(parseRunSessionCookie(cookie)).toBeNull()
+  })
+
+  it('rejects arbitrary LAN or host spoofing on recovery verify', async () => {
+    const fixture = createFixture()
+    const body = { payload: 'x', publicKey: 'y', signature: 'z' }
+    const spoofedPublic = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/wallet/recover-session',
+      headers: {
+        origin: 'http://203.0.113.10:5173',
+        host: '203.0.113.10:5173',
+        protocol: 'http',
+        'content-type': 'application/json',
+      },
+      host: '203.0.113.10:5173',
+      protocol: 'http',
+      body,
+    }, LOCAL_SECURITY)
+    const spoofedPort = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/wallet/recover-session',
+      headers: {
+        origin: 'http://192.168.0.134:9999',
+        host: '192.168.0.134:9999',
+        protocol: 'http',
+        'content-type': 'application/json',
+      },
+      host: '192.168.0.134:9999',
+      protocol: 'http',
+      body,
+    }, LOCAL_SECURITY)
+    const spoofedOrigin = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/wallet/recover-session',
+      headers: {
+        origin: 'http://evil.example',
+        host: LAN.host,
+        protocol: 'http',
+        'content-type': 'application/json',
+      },
+      host: LAN.host,
+      protocol: 'http',
+      body,
+    }, LOCAL_SECURITY)
+    const productionLan = await dispatchExpeditionHttp(fixture.service, {
+      method: 'POST',
+      path: '/api/wallet/recover-session',
+      headers: {
+        origin: LAN.origin,
+        host: LAN.host,
+        protocol: 'http',
+        'content-type': 'application/json',
+      },
+      host: LAN.host,
+      protocol: 'http',
+      body,
+    }, SECURITY)
+
+    expect(spoofedPublic).toMatchObject({ status: 400, body: { ok: false, error: 'MALFORMED_REQUEST' } })
+    expect(spoofedPort).toMatchObject({ status: 400, body: { ok: false, error: 'MALFORMED_REQUEST' } })
+    expect(spoofedOrigin).toMatchObject({ status: 400, body: { ok: false, error: 'MALFORMED_REQUEST' } })
+    expect(productionLan).toMatchObject({ status: 400, body: { ok: false, error: 'MALFORMED_REQUEST' } })
+    expect(spoofedPublic.headers?.['set-cookie']).toBeUndefined()
+    expect(spoofedPort.headers?.['set-cookie']).toBeUndefined()
+    expect(spoofedOrigin.headers?.['set-cookie']).toBeUndefined()
+    expect(productionLan.headers?.['set-cookie']).toBeUndefined()
+  })
+})
+
+async function recoverWalletSession(
+  fixture: ReturnType<typeof createFixture>,
+  security: ExpeditionHttpSecurity,
+  requestHost: { origin: string; host: string; protocol: 'http' | 'https' },
+) {
+  const requestHeaders = {
+    origin: requestHost.origin,
+    host: requestHost.host,
+    protocol: requestHost.protocol,
+    'content-type': 'application/json',
+  }
+  const challengeResponse = await dispatchExpeditionHttp(fixture.service, {
+    method: 'POST',
+    path: '/api/wallet/recover-challenge',
+    headers: requestHeaders,
+    host: requestHost.host,
+    protocol: requestHost.protocol,
+    body: { wallet: fixture.wallet },
+  }, security)
+  expect(challengeResponse.status).toBe(200)
+  const challenge = challengeResponse.body as {
+    wallet: string
+    challenge: string
+    issuedAt: string
+    expiresAt: string
+    purpose: 'reward/daily-state recovery'
+  }
+  const canonicalPayload = serializeWalletRecoveryPayload({
+    version: 1,
+    type: 'NIMHUNT_RECOVER_SESSION_V1',
+    wallet: challenge.wallet,
+    challenge: challenge.challenge,
+    issuedAt: challenge.issuedAt,
+    expiresAt: challenge.expiresAt,
+    purpose: challenge.purpose,
+  })
+  return dispatchExpeditionHttp(fixture.service, {
+    method: 'POST',
+    path: '/api/wallet/recover-session',
+    headers: requestHeaders,
+    host: requestHost.host,
+    protocol: requestHost.protocol,
+    body: {
+      payload: canonicalPayload,
+      publicKey: fixture.keyPair.publicKey.toHex(),
+      signature: fixture.keyPair.sign(nimiqSignedMessageHash(canonicalPayload)).toHex(),
+    },
+  }, security)
+}

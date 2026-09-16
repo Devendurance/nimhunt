@@ -12,29 +12,51 @@ import { HuntStatus } from './HuntStatus'
 import { MissionBrief } from './MissionBrief'
 import { MissionList } from './MissionList'
 import { PlayBottomNav } from './PlayBottomNav'
+import { PLAY_WALLET_BOOTSTRAP_COPY } from './playWalletBootstrap'
 import { ProgressStrip } from './ProgressStrip'
 import { ProductPayoutStatusCard } from './ProductRewardClaimOutcome'
-import { getPersistedReservedRewardClaim } from './productRunSession'
-import { rememberProductWallet } from './productWallet'
+import { getRememberedProductWallet, rememberProductWallet } from './productWallet'
+import { shortenNqWallet } from './productVaultSeal'
 import { useDailyHuntStatus } from './useDailyHuntStatus'
+import { usePlayRewardRecovery } from './usePlayRewardRecovery'
+import { usePlayWalletBootstrap } from './usePlayWalletBootstrap'
 import { useProductPayoutStatus } from './useProductPayoutStatus'
 import { useProductStart } from './useProductStart'
 import { WorldStatus } from './WorldStatus'
+import {
+  formatPlayRecoveryDevLine,
+  getPlayRecoveryDiagnostics,
+  isPlayRecoveryDevBannerEnabled,
+  subscribePlayRecoveryDiagnostics,
+  traceWalletRecovery,
+} from './walletRecoveryDiagnostics'
 import styles from './PlayShell.module.css'
 
 export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
-  const hunt = useDailyHuntStatus()
-  const persistedReward = getPersistedReservedRewardClaim()
+  const bootstrap = usePlayWalletBootstrap()
+  const hunt = useDailyHuntStatus(bootstrap.wallet ?? getRememberedProductWallet())
+  const [payoutUnauthorized, setPayoutUnauthorized] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const showRecoveryDiag = isPlayRecoveryDevBannerEnabled(searchParams)
+  const [, setRecoveryDiagVersion] = useState(0)
+  const recoveryDiag = showRecoveryDiag ? getPlayRecoveryDiagnostics() : null
+  const recovery = usePlayRewardRecovery({
+    enabled: bootstrap.status === 'CONNECTED' && payoutUnauthorized,
+    wallet: bootstrap.wallet,
+  })
   const payout = useProductPayoutStatus({
     enabled: true,
-    claimId: persistedReward?.claimId ?? null,
+    claimId: null,
     recoverFromSession: true,
     unavailableAs: 'hidden',
+    sessionKey: recovery.epoch,
+    onUnavailable: code => {
+      if (code === 'RUN_SESSION_INVALID') setPayoutUnauthorized(true)
+    },
   })
   const expeditionsLeftToday = formatExpeditionsLeftToday(hunt.walletStatus)
   const [activeTab, setActiveTab] = useState<PlayTab>(initialTab)
   const [selectedMissionId, setSelectedMissionId] = useState<MissionId | null>(null)
-  const [, setSearchParams] = useSearchParams()
   const trigger = useRef<HTMLButtonElement | null>(null)
   const dialogRef = useRef<HTMLDialogElement>(null)
   const startedRunRef = useRef<string | null>(null)
@@ -49,6 +71,18 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
     setSearchParams({ run: start.blueprint.mission, runId: start.runId })
   }, [setSearchParams])
   const productStart = useProductStart({ onStarted: handleProductStarted })
+
+  useEffect(() => {
+    if (!showRecoveryDiag) return
+    return subscribePlayRecoveryDiagnostics(() => setRecoveryDiagVersion(version => version + 1))
+  }, [showRecoveryDiag])
+
+  useEffect(() => {
+    traceWalletRecovery('PAYOUT_CARD_RENDER', {
+      render: payout ? 'yes' : 'no',
+      status: payout?.status ?? 'none',
+    })
+  }, [payout])
 
   useEffect(() => {
     if (selectedMission && dialogRef.current && !dialogRef.current.open) dialogRef.current.showModal()
@@ -80,7 +114,9 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
 
   return <div className={styles.shell}>
     <div className={styles.viewport}>
+      {showRecoveryDiag && recoveryDiag && <p className={styles.devRecovery}>{formatPlayRecoveryDevLine(recoveryDiag)}</p>}
       <HuntHeader />
+      <PlayWalletStrip bootstrap={bootstrap} recovering={recovery.status === 'signing'} />
       <main className={styles.main}>
         {activeTab === 'hunt' && <>
           <section className={styles.hero} aria-labelledby="play-heading">
@@ -121,4 +157,41 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
       <div className={styles.footerMark}>Built for Nimiq Pay · shell preview</div>
     </div>
   </div>
+}
+
+function PlayWalletStrip({
+  bootstrap,
+  recovering,
+}: {
+  readonly bootstrap: ReturnType<typeof usePlayWalletBootstrap>
+  readonly recovering: boolean
+}) {
+  if (bootstrap.status === 'CONNECTING') {
+    return <div className={styles.walletStrip} role="status">{PLAY_WALLET_BOOTSTRAP_COPY.CONNECTING}</div>
+  }
+  if (bootstrap.status === 'SELECTING_ACCOUNT') {
+    return <div className={styles.walletStrip}>
+      <p className={styles.walletCopy}>{PLAY_WALLET_BOOTSTRAP_COPY.SELECTING}</p>
+      <div className={styles.accountList} role="group" aria-label="Nimiq accounts">
+        {bootstrap.accounts.map(account => <button
+          key={account}
+          className={styles.accountButton}
+          type="button"
+          onClick={() => bootstrap.selectAccount(account)}
+        >{shortenNqWallet(account)}</button>)}
+      </div>
+    </div>
+  }
+  if (bootstrap.status === 'CANCELLED') {
+    return <div className={styles.walletStrip}>
+      <button className={styles.sheetPrimary} type="button" onClick={() => void bootstrap.connect()}>{PLAY_WALLET_BOOTSTRAP_COPY.CONNECT}</button>
+    </div>
+  }
+  if (bootstrap.status === 'CONNECTED' && bootstrap.wallet) {
+    return <div className={styles.walletStrip}>
+      <span className={styles.walletIdentity}>{shortenNqWallet(bootstrap.wallet)}</span>
+      {recovering && <span role="status">{PLAY_WALLET_BOOTSTRAP_COPY.RECOVERING}</span>}
+    </div>
+  }
+  return null
 }

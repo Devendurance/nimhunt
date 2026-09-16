@@ -12,9 +12,10 @@ import type {
   VerifyExpeditionResult,
 } from '../../src/domain/expeditionProof.ts'
 import type { WalletDailyStatus } from '../../src/domain/dailyLedger.ts'
+import type { WalletRecoveryChallengeResponse } from '../../src/domain/walletRecovery.ts'
 import type { ExpeditionBlueprint, ExpeditionCheckpoint, MissionType, MoveAction, ReplayState } from '../../src/game/replay/types.ts'
 import type { Clock } from '../ledger/types.ts'
-import type { RunSessionRecord } from './session.ts'
+import type { RunSessionRecord, WalletRecoverySessionRecord } from './session.ts'
 
 export type { Clock }
 
@@ -113,6 +114,20 @@ export type StartAuthorizationResult = {
   readonly session: RunSessionRecord
 }
 
+export type DurableWalletRecoveryChallenge = {
+  readonly challengeHash: string
+  readonly wallet: string
+  readonly issuedAt: string
+  readonly expiresAt: string
+  readonly consumedAt: string | null
+  readonly authorizationFingerprint: string | null
+}
+
+export type WalletRecoveryAuthorizationResult = {
+  readonly sessionCapability: string
+  readonly session: WalletRecoverySessionRecord
+}
+
 export type MemoryProofSnapshot = {
   readonly blueprints: readonly ExpeditionBlueprint[]
   readonly challenges: readonly DurableStartChallenge[]
@@ -165,6 +180,11 @@ export type MemoryProofService = {
   getReservedRewardClaim(session: RunSessionRecord): DurableRewardClaim | null
   getRun(runId: string): DurableExpeditionRun | null
   getWalletDailyStatus(wallet: string): WalletDailyStatus
+  issueWalletRecoveryChallenge(wallet: string): Promise<WalletRecoveryChallengeResponse>
+  authorizeWalletRecovery(input: { readonly payload: string; readonly publicKey: string; readonly signature: string }): Promise<WalletRecoveryAuthorizationResult>
+  authenticateWalletRecoverySession(raw: string): WalletRecoverySessionRecord
+  getRewardClaimForWallet(claimId: string, session: WalletRecoverySessionRecord): DurableRewardClaim
+  getReservedRewardClaimForWallet(session: WalletRecoverySessionRecord): DurableRewardClaim | null
   snapshot(): MemoryProofSnapshot
 }
 
@@ -213,6 +233,11 @@ export type ProofService = {
   getReservedRewardClaim(session: RunSessionRecord): Promise<DurableRewardClaim | null>
   getRun(runId: string): Promise<DurableExpeditionRun | null>
   getWalletDailyStatus(wallet: string): Promise<WalletDailyStatus>
+  issueWalletRecoveryChallenge(wallet: string): Promise<WalletRecoveryChallengeResponse>
+  authorizeWalletRecovery(input: { readonly payload: string; readonly publicKey: string; readonly signature: string }): Promise<WalletRecoveryAuthorizationResult>
+  authenticateWalletRecoverySession(raw: string): Promise<WalletRecoverySessionRecord>
+  getRewardClaimForWallet(claimId: string, session: WalletRecoverySessionRecord): Promise<DurableRewardClaim>
+  getReservedRewardClaimForWallet(session: WalletRecoverySessionRecord): Promise<DurableRewardClaim | null>
   snapshot(): Promise<MemoryProofSnapshot>
 }
 

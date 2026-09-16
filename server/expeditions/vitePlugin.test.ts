@@ -20,6 +20,8 @@ describe('expedition proof runtime policy', () => {
     expect(isOwnedExpeditionPath('/api/expeditions/vault-seal/verify')).toBe(true)
     expect(isOwnedExpeditionPath('/api/expeditions/vault-seal')).toBe(false)
     expect(isOwnedExpeditionPath('/api/wallet-daily-status')).toBe(true)
+    expect(isOwnedExpeditionPath('/api/wallet/recover-challenge')).toBe(true)
+    expect(isOwnedExpeditionPath('/api/wallet/recover-session')).toBe(true)
     expect(isOwnedExpeditionPath('/api/rewards/claim/prepare')).toBe(true)
     expect(isOwnedExpeditionPath('/api/rewards/claim/finalize')).toBe(true)
     expect(isOwnedExpeditionPath('/api/rewards/claim/payout')).toBe(true)

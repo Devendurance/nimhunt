@@ -8,6 +8,8 @@ const migrationPath = join(sqlDir, '002_expedition_proof.sql')
 const runtimePath = join(sqlDir, '003_expedition_proof_runtime.sql')
 const claimPath = join(sqlDir, '004_reward_claims.sql')
 const payoutPath = join(sqlDir, '005_reward_payouts.sql')
+const recoveryPath = join(sqlDir, '006_reward_claim_session_recovery.sql')
+const walletRecoveryPath = join(sqlDir, '007_wallet_recovery_session.sql')
 
 describe('durable expedition proof migration', () => {
   const migration = readFileSync(migrationPath, 'utf8')
@@ -126,5 +128,58 @@ describe('reward payout migration', () => {
     expect(executable).toMatch(/revoke all on function public.create_reward_payout/i)
     expect(executable).toMatch(/revoke all on function public.acquire_reward_payout/i)
     expect(executable).toMatch(/grant execute[^;]+service_role/is)
+  })
+})
+
+describe('reserved claim session recovery migration', () => {
+  const migration = readFileSync(recoveryPath, 'utf8')
+  const executable = migration.replace(/--.*$/gm, '')
+
+  it('adds only the session-bound reserved claim locator', () => {
+    expect(executable).toMatch(/get_reserved_reward_claim_for_session/)
+    expect(executable).toMatch(/p_run_session_hash/)
+    expect(executable).toMatch(/status = 'RESERVED'/)
+    expect(executable).toMatch(/run_id = v_session\.run_id/)
+    expect(executable).not.toMatch(/create table|alter table|create type/i)
+    expect(executable).not.toMatch(/create_reward_payout|acquire_reward_payout|mark_reward_payout/i)
+    expect(executable).not.toMatch(/private_key|mnemonic|seed|treasury/i)
+  })
+
+  it('locks the recovery helper behind service-only SECURITY DEFINER', () => {
+    expect(executable).toMatch(/security definer/i)
+    expect(executable).toMatch(/set search_path\s*=\s*pg_catalog\s*,\s*public/i)
+    expect(executable).toMatch(/revoke all on function public.get_reserved_reward_claim_for_session/i)
+    expect(executable).toMatch(/grant execute[^;]+service_role/is)
+    expect(executable).not.toMatch(/grant execute[^;]+anon/is)
+    expect(executable).not.toMatch(/grant execute[^;]+authenticated/is)
+  })
+})
+
+describe('wallet recovery session migration', () => {
+  const migration = readFileSync(walletRecoveryPath, 'utf8')
+  const executable = migration.replace(/--.*$/gm, '')
+
+  it('adds a separate wallet recovery challenge and session, not a run session', () => {
+    expect(executable).toMatch(/wallet_recovery_challenges/)
+    expect(executable).toMatch(/wallet_recovery_sessions/)
+    expect(executable).toMatch(/reward\/daily-state recovery/)
+    expect(executable).toMatch(/create_wallet_recovery_challenge/)
+    expect(executable).toMatch(/consume_wallet_recovery_challenge/)
+    expect(executable).toMatch(/date_trunc\('milliseconds'/)
+    expect(executable).toMatch(/get_wallet_recovery_session/)
+    expect(executable).toMatch(/get_reserved_reward_claim_for_wallet_session/)
+    expect(executable).not.toMatch(/create_reward_payout|acquire_reward_payout|mark_reward_payout/i)
+    expect(executable).not.toMatch(/private_key|mnemonic|seed|treasury/i)
+    expect(executable).not.toMatch(/insert into public\.expedition_runs/i)
+  })
+
+  it('locks wallet recovery behind service-only SECURITY DEFINER', () => {
+    expect(executable).toMatch(/security definer/i)
+    expect(executable).toMatch(/set search_path\s*=\s*pg_catalog\s*,\s*public/i)
+    expect(executable).toMatch(/revoke all on function public.create_wallet_recovery_challenge/i)
+    expect(executable).toMatch(/revoke all on function public.consume_wallet_recovery_challenge/i)
+    expect(executable).toMatch(/grant execute[^;]+service_role/is)
+    expect(executable).not.toMatch(/grant execute[^;]+anon/is)
+    expect(executable).not.toMatch(/grant execute[^;]+authenticated/is)
   })
 })

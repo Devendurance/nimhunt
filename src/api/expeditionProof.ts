@@ -12,6 +12,12 @@ import {
   START_EXPEDITION_PATH,
   VERIFY_EXPEDITION_PATH,
 } from '../domain/expeditionProof.ts'
+import {
+  RECOVER_SESSION_CHALLENGE_PATH,
+  RECOVER_SESSION_PATH,
+  type WalletRecoveryChallengeResponse,
+} from '../domain/walletRecovery.ts'
+import { traceWalletRecovery } from '../components/play/walletRecoveryDiagnostics.ts'
 import type {
   AbandonExpeditionResult,
   CheckpointAcknowledgement,
@@ -89,6 +95,21 @@ export async function authorizeStart(
   fetcher: typeof fetch = fetch,
 ): Promise<ProductStartResult> {
   return requestJson(fetcher, START_EXPEDITION_PATH, postRequest(signed), parseStartResult)
+}
+
+export async function requestWalletRecoveryChallenge(
+  wallet: string,
+  fetcher: typeof fetch = fetch,
+): Promise<WalletRecoveryChallengeResponse> {
+  return requestJson(fetcher, RECOVER_SESSION_CHALLENGE_PATH, postRequest({ wallet }), parseWalletRecoveryChallengeResponse)
+}
+
+export async function authorizeWalletRecovery(
+  signed: SignedStartRequest,
+  fetcher: typeof fetch = fetch,
+): Promise<{ readonly ok: true }> {
+  traceWalletRecovery('RECOVERY_VERIFY_REQUESTED', { requested: 'yes' })
+  return requestJson(fetcher, RECOVER_SESSION_PATH, postRequest(signed), parseWalletRecoveryResult)
 }
 
 export async function fetchActiveExpedition(
@@ -178,6 +199,29 @@ export async function fetchRewardPayoutStatus(
     getRequest(),
     parseRewardPayoutStatusResult,
   )
+}
+
+export function parseWalletRecoveryChallengeResponse(value: unknown): WalletRecoveryChallengeResponse | null {
+  if (!isRecord(value) || !hasExactKeys(value, ['ok', 'wallet', 'challenge', 'issuedAt', 'expiresAt', 'purpose'])) return null
+  if (value.ok !== true
+    || !isBoundedString(value.wallet, 80)
+    || !isBoundedString(value.challenge, 256)
+    || !/^[A-Za-z0-9_-]+$/.test(value.challenge)
+    || !isIsoTimestamp(value.issuedAt)
+    || !isIsoTimestamp(value.expiresAt)
+    || value.purpose !== 'reward/daily-state recovery') return null
+  return {
+    wallet: value.wallet,
+    challenge: value.challenge,
+    issuedAt: value.issuedAt,
+    expiresAt: value.expiresAt,
+    purpose: 'reward/daily-state recovery',
+  }
+}
+
+export function parseWalletRecoveryResult(value: unknown): { readonly ok: true } | null {
+  if (!isRecord(value) || !hasExactKeys(value, ['ok']) || value.ok !== true) return null
+  return { ok: true }
 }
 
 export function parseStartChallengeResponse(value: unknown): StartChallengeResponse | null {
@@ -590,6 +634,7 @@ async function requestJson<T>(
     response = await fetcher(path, init)
   } catch {
     if (checkpoint) traceCheckpoint('CHECKPOINT_ERROR_CODE', 'code=NETWORK_ERROR')
+    traceRecoveryHttp(path, 0, 'NETWORK_ERROR')
     throw new ExpeditionProofApiError('NETWORK_ERROR')
   }
 
@@ -604,6 +649,7 @@ async function requestJson<T>(
   } catch {
     if (startChallenge) traceStartChallenge('START_CHALLENGE_PARSE_FAILURE', `status=${status} contentType=${contentType} json=false`)
     if (checkpoint) traceCheckpoint('CHECKPOINT_PARSE_FAILURE', `status=${status} contentType=${contentType} json=false`)
+    traceRecoveryHttp(path, status, 'MALFORMED_RESPONSE')
     throw new ExpeditionProofApiError('MALFORMED_RESPONSE')
   }
   if (startChallenge) {
@@ -621,6 +667,7 @@ async function requestJson<T>(
       traceCheckpoint('CHECKPOINT_ERROR_CODE', `code=${errorCode ?? 'MALFORMED_RESPONSE'} status=${status}`)
       if (!errorCode) traceCheckpoint('CHECKPOINT_PARSE_FAILURE', `status=${status} parserMissing=knownError`)
     }
+    traceRecoveryHttp(path, status, errorCode ?? 'MALFORMED_RESPONSE')
     throw new ExpeditionProofApiError(errorCode ?? 'MALFORMED_RESPONSE')
   }
 
@@ -629,11 +676,28 @@ async function requestJson<T>(
   if (!parsed) {
     if (startChallenge) traceStartChallenge('START_CHALLENGE_PARSE_FAILURE', diagnoseStartChallengeParse(data))
     if (checkpoint) traceCheckpoint('CHECKPOINT_PARSE_FAILURE', diagnoseCheckpointParse(data))
+    traceRecoveryHttp(path, status, 'MALFORMED_RESPONSE')
     throw new ExpeditionProofApiError('MALFORMED_RESPONSE')
   }
   if (startChallenge) traceStartChallenge('START_CHALLENGE_PARSE_SUCCESS', `fields=[${fieldNames(data)}]`)
   if (checkpoint) traceCheckpoint('CHECKPOINT_PARSE_SUCCESS', `fields=[${fieldNames(data)}]`)
+  traceRecoveryHttp(path, status, 'ok')
   return parsed
+}
+
+function traceRecoveryHttp(path: string, status: number, code: string): void {
+  const route = path.split('?')[0] ?? path
+  if (route === GET_REWARD_PAYOUT_PATH) {
+    traceWalletRecovery('PAYOUT_GET_HTTP', { status, code })
+    return
+  }
+  if (route === RECOVER_SESSION_CHALLENGE_PATH) {
+    traceWalletRecovery('RECOVERY_CHALLENGE_STATUS', { status, code })
+    return
+  }
+  if (route === RECOVER_SESSION_PATH) {
+    traceWalletRecovery('RECOVERY_VERIFY_STATUS', { status, code })
+  }
 }
 
 function traceStartChallenge(boundary: string, details = ''): void {
@@ -1104,4 +1168,6 @@ const KNOWN_ERROR_CODES = new Set<string>([
   'RUN_SESSION_INVALID',
   'ACTIVE_RUN_UNAVAILABLE',
   'RUN_INCOMPLETE',
+  'RECOVERY_CHALLENGE_INVALID',
+  'RECOVERY_CHALLENGE_EXPIRED',
 ])

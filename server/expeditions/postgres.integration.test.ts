@@ -82,6 +82,8 @@ describe.skipIf(!dockerEnabled)('postgres proof adapter', () => {
     await applySql(adminPool, readFileSync(join(sqlDir, '002_expedition_proof.sql'), 'utf8'))
     await applySql(adminPool, readFileSync(join(sqlDir, '003_expedition_proof_runtime.sql'), 'utf8'))
     await applySql(adminPool, readFileSync(join(sqlDir, '004_reward_claims.sql'), 'utf8'))
+    await applySql(adminPool, readFileSync(join(sqlDir, '006_reward_claim_session_recovery.sql'), 'utf8'))
+    await applySql(adminPool, readFileSync(join(sqlDir, '007_wallet_recovery_session.sql'), 'utf8'))
   }, 120_000)
 
   afterAll(async () => {

@@ -359,6 +359,115 @@ function payoutSchema(body: unknown): {
   }
 }
 
+describe.skipIf(!liveEnabled)('live 006 reserved claim session recovery', () => {
+  it('exposes the service-only recovery helper and rejects unauthenticated execute', async () => {
+    const client = createSupabaseAdminClient(liveConfig!)
+    const missing = await client.rpc('get_reserved_reward_claim_for_session', {
+      p_run_session_hash: 'a'.repeat(64),
+    })
+    expect(missing.error, missing.error?.message).toBeNull()
+    expect(missing.data).toMatchObject({ ok: false, error: 'RUN_SESSION_INVALID' })
+
+    const unauthenticated = await liveSupabaseFetch('/rest/v1/rpc/get_reserved_reward_claim_for_session', {
+      method: 'POST',
+      apikey: 'invalid',
+      token: 'invalid',
+      body: { p_run_session_hash: 'a'.repeat(64) },
+    })
+    expect(unauthenticated.status).toBe(401)
+  }, 30_000)
+
+  it('rejects authenticated execute and does not leak another wallet claim', async () => {
+    const email = `nimhunt.recovery.rls.${randomUUID().slice(0, 8)}@gmail.com`
+    const password = `RlsProbe-${randomUUID()}`
+    const created = await liveSupabaseFetch('/auth/v1/admin/users', {
+      method: 'POST',
+      token: liveConfig!.serviceRoleKey,
+      body: { email, password, email_confirm: true },
+    })
+    expect(created.status).toBe(200)
+    const userId = asLiveId(created.body)
+    try {
+      const token = await liveSupabaseFetch('/auth/v1/token?grant_type=password', {
+        method: 'POST',
+        token: liveConfig!.serviceRoleKey,
+        body: { email, password },
+      })
+      expect(token.status).toBe(200)
+      const accessToken = asLiveAccessToken(token.body)
+      const rpc = await liveSupabaseFetch('/rest/v1/rpc/get_reserved_reward_claim_for_session', {
+        method: 'POST',
+        token: accessToken,
+        body: { p_run_session_hash: 'a'.repeat(64) },
+      })
+      expect(rpc.status).toBe(403)
+      expect(JSON.stringify(rpc.body)).toMatch(/permission denied for function/)
+    } finally {
+      if (userId) {
+        await liveSupabaseFetch(`/auth/v1/admin/users/${userId}`, {
+          method: 'DELETE',
+          token: liveConfig!.serviceRoleKey,
+        })
+      }
+    }
+
+    const client = createSupabaseAdminClient(liveConfig!)
+    const confirmed = await client.from('reward_payouts').select('payout_id,claim_id,run_id,wallet,status,amount_luna,network,tx_hash').eq('payout_id', 'd19bf406-2b81-4c5a-b271-da8eb7587cbd').maybeSingle()
+    expect(confirmed.error, confirmed.error?.message).toBeNull()
+    expect(confirmed.data).toMatchObject({
+      payout_id: 'd19bf406-2b81-4c5a-b271-da8eb7587cbd',
+      status: 'CONFIRMED',
+      amount_luna: 10000,
+      network: 'mainnet',
+    })
+    const claimId = String(confirmed.data?.claim_id ?? '')
+    const runId = String(confirmed.data?.run_id ?? '')
+    expect(claimId).toMatch(/^[0-9a-f-]{36}$/i)
+
+    const own = await client.from('run_sessions').select('run_session_hash,run_id,wallet,expires_at,revoked_at').eq('run_id', runId).limit(1)
+    expect(own.error, own.error?.message).toBeNull()
+    const ownHash = typeof own.data?.[0]?.run_session_hash === 'string' ? own.data[0].run_session_hash : null
+    const other = await client.from('run_sessions').select('run_session_hash,run_id').neq('run_id', runId).limit(1)
+    expect(other.error, other.error?.message).toBeNull()
+    const otherHash = typeof other.data?.[0]?.run_session_hash === 'string' ? other.data[0].run_session_hash : 'b'.repeat(64)
+
+    const crossed = await client.rpc('get_reserved_reward_claim_for_session', {
+      p_run_session_hash: otherHash,
+    })
+    expect(crossed.error, crossed.error?.message).toBeNull()
+    expect(crossed.data).toMatchObject({ ok: false })
+    expect(JSON.stringify(crossed.data)).not.toContain(claimId)
+    expect(['RUN_SESSION_INVALID', 'CLAIM_NOT_FOUND']).toContain((crossed.data as { error?: string }).error)
+
+    expect(ownHash, 'confirmed payout run session is required for recovery').toBeTruthy()
+    const recovered = await client.rpc('get_reserved_reward_claim_for_session', {
+      p_run_session_hash: ownHash,
+    })
+    expect(recovered.error, recovered.error?.message).toBeNull()
+    expect(recovered.data).toMatchObject({
+      ok: true,
+      outcome: 'RESERVED',
+      claim: { claim_id: claimId, status: 'RESERVED', run_id: runId },
+    })
+    expect(JSON.stringify(recovered.data)).not.toContain(otherHash)
+
+    const payout = await client.rpc('get_reward_payout_by_claim', { p_claim_id: claimId })
+    expect(payout.error, payout.error?.message).toBeNull()
+    expect(payout.data).toMatchObject({
+      ok: true,
+      payout: {
+        payout_id: 'd19bf406-2b81-4c5a-b271-da8eb7587cbd',
+        claim_id: claimId,
+        status: 'CONFIRMED',
+        network: 'mainnet',
+        tx_hash: 'c58022f37ed7352f41c29ef9862297a9cfa8c45593456395d7a6eb7a68009ff6',
+      },
+    })
+    expect(String((payout.data as { payout?: { amount_luna?: unknown } }).payout?.amount_luna)).toBe('10000')
+    expect(JSON.stringify(payout.data)).not.toMatch(/mnemonic|private_key|treasury/i)
+  }, 45_000)
+})
+
 function asRecord(value: unknown): Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return {}
   return value as Record<string, unknown>

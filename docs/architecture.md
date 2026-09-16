@@ -639,6 +639,22 @@ Do not consume a run if the server cannot create a valid expedition.
 9. Daily limits are enforced server-side.
 10. UI never claims a payout succeeded before authoritative confirmation.
 
+Live reward/session/payout invariants:
+- max 3 expedition starts / wallet / UTC day
+- max 1 reserved reward / wallet / UTC day
+- max 69 reserved slots / UTC day
+- attempts consumed at successful signed Start
+- proof/reward/payout state is server-authoritative
+- wallet address alone cannot read payout history
+- recovery requires signed `NIMHUNT_RECOVER_SESSION_V1`
+- claim requires signed `NIMHUNT_REWARD_CLAIM_V1`
+- Vault requires verified `NIMHUNT_VAULT_SEAL_V1`
+- payout rows separate reservation from payment
+- confirmed/submitted payouts never blindly resend
+- treasury secrets are server-only
+- client has no payout send/acquire/sign/reconcile capability
+- recovery auth is not Start auth; Enter Ruins uses a separate signed `NIMHUNT_START_EXPEDITION`
+
 ## 21. Data model — minimal
 
 Suggested tables:
@@ -793,12 +809,25 @@ For judging, stability matters more than sophisticated analytics.
 - finalize claim,
 - idempotent payout.
 
+### Live SQL migrations
+
+This project uses raw SQL migrations under `server/ledger/sql/`. They are applied directly to live Supabase/Postgres. Drizzle is not used.
+
+LIVE MIGRATIONS APPLIED:
+- `001_daily_ledger.sql`
+- `002_expedition_proof.sql`
+- `003_expedition_proof_runtime.sql`
+- `004_reward_claims.sql`
+- `005_reward_payouts.sql`
+- `006_reward_claim_session_recovery.sql`
+- `007_wallet_recovery_session.sql`
+
 ### Live Postgres proof status
 
 The NimHunt proof backend has been validated against the live Supabase/Postgres deployment.
 
 Validated live:
-- migrations 001, 002, and 003 applied successfully
+- migrations 001 through 007 applied successfully
 - proof tables and SECURITY DEFINER RPCs present
 - RLS/privilege boundaries enforced
 - authenticated clients cannot write protected proof state or invoke protected RPCs
@@ -816,9 +845,35 @@ POSTGRES PROOF FLOW: LIVE-VALIDATED
 REAL DEVICE POSTGRES-BACKED FLOW: LIVE-VALIDATED
 SIGNED REWARD CLAIM: LIVE-VALIDATED
 REAL DEVICE CLAIM / TREASURE RESERVED: LIVE-VALIDATED
-PAYOUT STATE MACHINE: IMPLEMENTED (apply `005_reward_payouts.sql` on live Supabase before worker execution)
+PAYOUT STATE MACHINE: LIVE-VALIDATED
+MAINNET TEST PAYOUT: VERIFIED
+REAL DEVICE PAYOUT RECOVERY: VERIFIED
+WALLET RECOVERY SESSION: VERIFIED
 
-Mainnet NIM payout is not authorized. Testnet execution requires a funded server-only treasury and `NIMHUNT_REWARD_AMOUNT_LUNA`.
+A one-off mainnet validation payout was confirmed. That amount is not the production reward amount. Production reward amount is undecided. Payout automation is not enabled. Treasury secrets remain server-only.
+
+### Live end-to-end reward flow status
+
+Verified on real Nimiq Pay device + live Supabase/Postgres + Nimiq mainnet:
+
+1. `/play` wallet bootstrap
+2. signed `NIMHUNT_START_EXPEDITION`
+3. durable checkpoint chain
+4. server final replay verification
+5. Gem / Chest mission eligibility
+6. Vault gameplay verification
+7. `NIMHUNT_VAULT_SEAL_V1`
+8. signed `NIMHUNT_REWARD_CLAIM_V1`
+9. atomic 69-slot reservation
+10. mainnet NIM payout
+11. on-chain confirmation
+12. full app close/reopen
+13. `NIMHUNT_RECOVER_SESSION_V1`
+14. TREASURE DELIVERED restored from server state
+
+`/play` wallet bootstrap is identity only. If the wallet recovery session is missing after a true app restart, Hunt requests signed `NIMHUNT_RECOVER_SESSION_V1`, then reads reserved claim + payout status. Enter Ruins still uses a separate signed `NIMHUNT_START_EXPEDITION`. Attempts are consumed only after successful Start. Recovery auth is not Start auth.
+
+FULL LIVE END-TO-END FLOW: VERIFIED ✅
 
 ### Mobile WebView
 Must test on real Nimiq Pay:

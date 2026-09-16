@@ -2,9 +2,11 @@ import { ABANDON_EXPEDITION_PATH, ACTIVE_EXPEDITION_PATH, CHECKPOINT_PATH, FINAL
 import type { MoveAction } from '../../src/game/replay/types.ts'
 import { MAX_CHECKPOINT_BATCH_ACTIONS } from '../../src/game/replay/versions.ts'
 import { WALLET_DAILY_STATUS_PATH } from '../../src/domain/dailyLedger.ts'
+import { RECOVER_SESSION_CHALLENGE_PATH, RECOVER_SESSION_PATH } from '../../src/domain/walletRecovery.ts'
 import { ProofError, isProofError } from './errors.ts'
 import { parseStartPayload, type SignedStartRequest } from './canonical.ts'
-import { parseRunSessionCookie, serializeRunSessionCookie, type RunSessionRecord } from './session.ts'
+import { parseWalletRecoveryPayload } from './walletRecovery.ts'
+import { parseRunSessionCookie, serializeRunSessionCookie, serializeWalletRecoverySessionCookie, type RunSessionRecord } from './session.ts'
 import type { ExpeditionProofService } from './types.ts'
 
 export const MAX_EXPEDITION_BODY_BYTES = 16 * 1024
@@ -79,6 +81,30 @@ export async function dispatchExpeditionHttp(
       const body = readWalletDailyStatusRequest(readJsonBody(request))
       const status = await service.getWalletDailyStatus(body.wallet)
       return response(200, { ok: true, ...status })
+    }
+
+    if (path === RECOVER_SESSION_CHALLENGE_PATH) {
+      const body = readWalletDailyStatusRequest(readJsonBody(request))
+      const challenge = await service.issueWalletRecoveryChallenge(body.wallet)
+      return response(200, { ok: true, ...challenge })
+    }
+
+    if (path === RECOVER_SESSION_PATH) {
+      const signed = readSignedStart(readJsonBody(request))
+      if (!parseWalletRecoveryPayload(signed.payload)) throw new ProofError('RECOVERY_CHALLENGE_INVALID')
+      const recovered = await service.authorizeWalletRecovery(signed)
+      return {
+        ...response(200, { ok: true }),
+        headers: {
+          ...BASE_HEADERS,
+          'set-cookie': serializeWalletRecoverySessionCookie(
+            recovered.sessionCapability,
+            new Date(recovered.session.expiresAt),
+            new Date(recovered.session.createdAt),
+            security.secureCookie,
+          ),
+        },
+      }
     }
 
     if (path === START_EXPEDITION_PATH) {
@@ -216,6 +242,8 @@ function isExpeditionPath(path: string): boolean {
     || path === PREPARE_REWARD_CLAIM_PATH
     || path === FINALIZE_REWARD_CLAIM_PATH
     || path === WALLET_DAILY_STATUS_PATH
+    || path === RECOVER_SESSION_CHALLENGE_PATH
+    || path === RECOVER_SESSION_PATH
 }
 
 function isExpectedMethod(path: string, method: string): boolean {
@@ -236,7 +264,7 @@ function isAllowedRequest(request: ExpeditionHttpRequest, path: string, security
   return isAuthorizedLocalHttpAlias(host, protocol, origin, isRead, security)
 }
 
-function isAuthorizedLocalHttpAlias(
+export function isAuthorizedLocalHttpAlias(
   host: string,
   protocol: 'http' | 'https',
   origin: string | undefined,
@@ -461,7 +489,7 @@ function statusFor(code: string): number {
   if (code === 'PROOF_UNAVAILABLE' || code === 'DAILY_BLUEPRINT_UNAVAILABLE') return 503
   if (code === 'RUN_SESSION_INVALID') return 401
   if (code === 'ACTIVE_RUN_UNAVAILABLE' || code === 'CHECKPOINT_MISMATCH' || code === 'PROOF_LOST' || code === 'RUN_NOT_ACTIVE' || code === 'RUN_INCOMPLETE' || code === 'CLAIM_WINDOW_EXPIRED') return 409
-  if (code === 'DAILY_EXPEDITION_LIMIT_REACHED' || code === 'START_CHALLENGE_EXPIRED' || code === 'START_CHALLENGE_DAY_EXPIRED') return 409
+  if (code === 'DAILY_EXPEDITION_LIMIT_REACHED' || code === 'START_CHALLENGE_EXPIRED' || code === 'START_CHALLENGE_DAY_EXPIRED' || code === 'RECOVERY_CHALLENGE_EXPIRED') return 409
   return 400
 }
 

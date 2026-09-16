@@ -53,6 +53,17 @@ describe('payout status copy', () => {
       txHashShort: 'cdcdcdcd…',
       verified: true,
     })
+    expect(payoutStatusCopy(view({
+      status: 'CONFIRMED',
+      amountLuna: '10000',
+      txHashSafe: 'c58022f37ed7352f41c29ef9862297a9cfa8c45593456395d7a6eb7a68009ff6',
+    }))).toEqual({
+      title: 'TREASURE DELIVERED',
+      lines: ['Your NIM reward was confirmed on-chain.'],
+      amountLabel: '0.1 NIM',
+      txHashShort: 'c58022f3…',
+      verified: true,
+    })
   })
 
   it('keeps the reservation safe on retryable and final failure', () => {

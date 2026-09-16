@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { loadEnv, type Plugin } from 'vite'
 import { WALLET_DAILY_STATUS_PATH } from '../../src/domain/dailyLedger.ts'
+import { RECOVER_SESSION_CHALLENGE_PATH, RECOVER_SESSION_PATH } from '../../src/domain/walletRecovery.ts'
 import {
   ABANDON_EXPEDITION_PATH,
   ACTIVE_EXPEDITION_PATH,
@@ -16,6 +17,7 @@ import {
   VERIFY_EXPEDITION_PATH,
 } from '../../src/domain/expeditionProof.ts'
 import { createLazyValue, type LazyValue } from './lazyValue.ts'
+import { describeSessionCookie, WALLET_RECOVERY_SESSION_COOKIE } from './session.ts'
 import type { ExpeditionProofService, MemoryProofService } from './types.ts'
 
 const OWNED_EXPEDITION_PATHS = new Set([
@@ -32,6 +34,8 @@ const OWNED_EXPEDITION_PATHS = new Set([
   FINALIZE_REWARD_CLAIM_PATH,
   GET_REWARD_PAYOUT_PATH,
   WALLET_DAILY_STATUS_PATH,
+  RECOVER_SESSION_CHALLENGE_PATH,
+  RECOVER_SESSION_PATH,
 ])
 
 export function isOwnedExpeditionPath(path: string): boolean {
@@ -194,6 +198,7 @@ function createHandler(
           protocol: isTlsRequest(req) ? 'https' : 'http',
           rawBody,
         }, runtime)
+        tracePayoutHttp(req, runtime, response)
         writeJson(res, response.status, response.body, response.headers)
         return
       }
@@ -208,6 +213,7 @@ function createHandler(
       }, runtime)
       await traceStartChallengeHttp(path, req, runtime, response, service)
       await traceCheckpointHttp(path, req, runtime, response, service, rawBody)
+      traceWalletRecoveryHttp(path, req, runtime, response)
       writeJson(res, response.status, response.body, response.headers)
     } catch (error) {
       const tooLarge = error instanceof Error && error.message === 'REQUEST_TOO_LARGE'
@@ -218,6 +224,46 @@ function createHandler(
       })
     }
   }
+}
+
+function tracePayoutHttp(
+  req: IncomingMessage,
+  runtime: ExpeditionRuntime,
+  response: { readonly status: number; readonly body: unknown },
+): void {
+  if (process.env.VITEST === 'true' || process.env.NODE_ENV === 'test') return
+  const host = req.headers.host ?? ''
+  const origin = typeof req.headers.origin === 'string' ? req.headers.origin : ''
+  const error = isPlainObject(response.body) && typeof response.body.error === 'string' ? response.body.error : 'ok'
+  console.info(
+    `[payout-http] PAYOUT_GET hostMatch=${host === runtime.expectedHost ? 'yes' : 'no'} originMatch=${!origin || origin === runtime.expectedOrigin ? 'yes' : 'no'} lanHost=${isPrivateIpv4Host(host) ? 'yes' : 'no'} cookiePresent=${req.headers.cookie ? 'yes' : 'no'} walletSessionCookie=${cookieHasName(req.headers.cookie, WALLET_RECOVERY_SESSION_COOKIE)} allowedLocalAlias=${runtime.allowAuthorizedLocalHttpOrigins ? 'yes' : 'no'} status=${response.status} error=${error}`,
+  )
+}
+
+function traceWalletRecoveryHttp(
+  path: string,
+  req: IncomingMessage,
+  runtime: ExpeditionRuntime,
+  response: { readonly status: number; readonly body: unknown; readonly headers?: Readonly<Record<string, string>> },
+): void {
+  if (path !== RECOVER_SESSION_CHALLENGE_PATH && path !== RECOVER_SESSION_PATH) return
+  if (process.env.VITEST === 'true' || process.env.NODE_ENV === 'test') return
+  const error = isPlainObject(response.body) && typeof response.body.error === 'string' ? response.body.error : 'ok'
+  if (path === RECOVER_SESSION_PATH) {
+    const cookie = describeSessionCookie(response.headers?.['set-cookie'])
+    console.info(
+      `[wallet-recovery] RECOVERY_VERIFY_REQUESTED=yes RECOVERY_VERIFY_HTTP_STATUS=${response.status} RECOVERY_VERIFY_BODY_CODE=${error} RECOVERY_SET_COOKIE_HEADER=${cookie.header} RECOVERY_COOKIE_NAME=${cookie.name} RECOVERY_COOKIE_SECURE=${cookie.secure} RECOVERY_COOKIE_SAMESITE=${cookie.sameSite || 'none'} RECOVERY_COOKIE_PATH=${cookie.path || 'none'} RECOVERY_COOKIE_MAXAGE_PRESENT=${cookie.maxAgePresent}`,
+    )
+    return
+  }
+  console.info(
+    `[wallet-recovery] RECOVERY_CHALLENGE hostMatch=${req.headers.host === runtime.expectedHost ? 'yes' : 'no'} lanHost=${isPrivateIpv4Host(req.headers.host ?? '') ? 'yes' : 'no'} cookiePresent=${req.headers.cookie ? 'yes' : 'no'} setCookie=${response.headers?.['set-cookie'] ? 'yes' : 'no'} status=${response.status} error=${error}`,
+  )
+}
+
+function cookieHasName(header: string | undefined, name: string): 'yes' | 'no' {
+  if (!header) return 'no'
+  return header.split(';').some(part => part.trim().startsWith(`${name}=`)) ? 'yes' : 'no'
 }
 
 async function traceCheckpointHttp(

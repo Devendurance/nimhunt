@@ -25,6 +25,18 @@ describe('treasury secret isolation', () => {
     })
     expect(clientHits).toEqual([])
 
+    const card = readFileSync(join(root, 'src/components/play/ProductRewardClaimOutcome.tsx'), 'utf8')
+    const shell = readFileSync(join(root, 'src/components/play/PlayShell.tsx'), 'utf8')
+    expect(shell).toMatch(/recoverFromSession: true/)
+    expect(shell).toMatch(/claimId: null/)
+    expect(shell).not.toMatch(/getPersistedReservedRewardClaim/)
+    expect(shell).not.toMatch(/rewardAlreadyReserved/)
+    expect(card).not.toMatch(/Retry payout|Send NIM|Broadcast|Reconcile/i)
+    const cardStart = card.indexOf('export function ProductPayoutStatusCard')
+    const cardBody = card.slice(cardStart, card.indexOf('function ClaimTerminal', cardStart))
+    expect(cardBody).toContain('Verified ✓')
+    expect(cardBody).not.toMatch(/<button/)
+
     const scriptText = [
       'scripts/generate-treasury.ts',
       'scripts/preflight-treasury.ts',

@@ -52,6 +52,8 @@ describe.skipIf(!dockerEnabled)('postgres payout adapter', () => {
     await adminPool.query(readFileSync(join(sqlDir, '003_expedition_proof_runtime.sql'), 'utf8'))
     await adminPool.query(readFileSync(join(sqlDir, '004_reward_claims.sql'), 'utf8'))
     await adminPool.query(readFileSync(join(sqlDir, '005_reward_payouts.sql'), 'utf8'))
+    await adminPool.query(readFileSync(join(sqlDir, '006_reward_claim_session_recovery.sql'), 'utf8'))
+    await adminPool.query(readFileSync(join(sqlDir, '007_wallet_recovery_session.sql'), 'utf8'))
   }, 120_000)
 
   afterAll(async () => {
@@ -190,11 +192,50 @@ describe.skipIf(!dockerEnabled)('postgres payout adapter', () => {
       expect((await anon.query("select has_function_privilege('anon', 'public.create_reward_payout(uuid,uuid,bigint,text)', 'EXECUTE') as allowed")).rows[0]?.allowed).toBe(false)
       expect((await authenticated.query("select has_function_privilege('authenticated', 'public.acquire_reward_payout()', 'EXECUTE') as allowed")).rows[0]?.allowed).toBe(false)
       expect((await anon.query("select has_function_privilege('anon', 'public.mark_reward_payout_submitted(uuid,text)', 'EXECUTE') as allowed")).rows[0]?.allowed).toBe(false)
+      expect((await anon.query("select has_function_privilege('anon', 'public.get_reserved_reward_claim_for_session(text)', 'EXECUTE') as allowed")).rows[0]?.allowed).toBe(false)
+      expect((await authenticated.query("select has_function_privilege('authenticated', 'public.get_reserved_reward_claim_for_session(text)', 'EXECUTE') as allowed")).rows[0]?.allowed).toBe(false)
     } finally {
       await anon.end()
       await authenticated.end()
     }
   }, 30_000)
+
+  it('applies 006 recovery and keeps reserved claims bound to their own session', async () => {
+    await adminPool!.query('drop function if exists public.get_reserved_reward_claim_for_session(text)')
+    await adminPool!.query(readFileSync(join(sqlDir, '006_reward_claim_session_recovery.sql'), 'utf8'))
+    const fn = await adminPool!.query(`
+      select p.prosecdef, p.proconfig
+      from pg_catalog.pg_proc p
+      join pg_catalog.pg_namespace n on n.oid = p.pronamespace
+      where n.nspname = 'public' and p.proname = 'get_reserved_reward_claim_for_session'
+    `)
+    expect(fn.rows[0]?.prosecdef).toBe(true)
+    expect(JSON.stringify(fn.rows[0]?.proconfig ?? [])).toMatch(/search_path=[\s\S]*pg_catalog,\s*public/)
+
+    const walletA = await completeReserved()
+    const walletB = await completeReserved()
+    const recoveredA = await walletA.service.getReservedRewardClaim(walletA.session)
+    const recoveredB = await walletB.service.getReservedRewardClaim(walletB.session)
+    expect(recoveredA?.claimId).toBe(walletA.claimId)
+    expect(recoveredB?.claimId).toBe(walletB.claimId)
+    expect(recoveredA?.claimId).not.toBe(walletB.claimId)
+
+    const crossed = await adminPool!.query(
+      'select public.get_reserved_reward_claim_for_session($1::text) as result',
+      [walletA.session.sessionHash],
+    )
+    expect(crossed.rows[0]?.result).toMatchObject({
+      ok: true,
+      claim: { claim_id: walletA.claimId },
+    })
+    expect(JSON.stringify(crossed.rows[0]?.result)).not.toContain(walletB.claimId)
+
+    const missing = await adminPool!.query(
+      'select public.get_reserved_reward_claim_for_session($1::text) as result',
+      ['f'.repeat(64)],
+    )
+    expect(missing.rows[0]?.result).toMatchObject({ ok: false, error: 'RUN_SESSION_INVALID' })
+  }, 60_000)
 })
 
 function createStore() {
