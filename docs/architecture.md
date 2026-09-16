@@ -814,9 +814,11 @@ Validated live:
 Current status:
 POSTGRES PROOF FLOW: LIVE-VALIDATED
 REAL DEVICE POSTGRES-BACKED FLOW: LIVE-VALIDATED
-SIGNED REWARD CLAIM: IMPLEMENTED (apply `004_reward_claims.sql` on live Supabase to enable the durable claim flow)
+SIGNED REWARD CLAIM: LIVE-VALIDATED
+REAL DEVICE CLAIM / TREASURE RESERVED: LIVE-VALIDATED
+PAYOUT STATE MACHINE: IMPLEMENTED (apply `005_reward_payouts.sql` on live Supabase before worker execution)
 
-NIM transfer, treasury, and payout remain out of scope.
+Mainnet NIM payout is not authorized. Testnet execution requires a funded server-only treasury and `NIMHUNT_REWARD_AMOUNT_LUNA`.
 
 ### Mobile WebView
 Must test on real Nimiq Pay:

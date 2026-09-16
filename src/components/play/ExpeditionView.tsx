@@ -20,6 +20,7 @@ import {
 import { ProductRewardClaimOutcome } from './ProductRewardClaimOutcome'
 import { ProductVaultOutcome } from './ProductVaultOutcome'
 import { useAngkorRun } from './useAngkorRun'
+import { useProductPayoutStatus } from './useProductPayoutStatus'
 import { useProductRewardClaim } from './useProductRewardClaim'
 import { useProductVaultSeal } from './useProductVaultSeal'
 import styles from './ExpeditionView.module.css'
@@ -52,6 +53,10 @@ export function ExpeditionView(props: ExpeditionViewProps) {
     enabled: mode === 'product' && (checkpoint.view.verifiedEligible || vaultSeal.status === 'VERIFIED'),
     mission,
     runId: active?.runId ?? null,
+  })
+  const payout = useProductPayoutStatus({
+    enabled: mode === 'product' && rewardClaim.status === 'RESERVED',
+    claimId: rewardClaim.result?.claimId ?? null,
   })
   const gameOptions = useMemo<CreateGameOptions>(() => {
     if (mode === 'practice') return { mode: 'dev', mission }
@@ -169,6 +174,7 @@ export function ExpeditionView(props: ExpeditionViewProps) {
         <div className={styles.actions}><button type="button" onClick={onBackToMissions}>Back to missions</button><button type="button" onClick={onReturnToHunt}>Return to Hunt</button></div>
       </section> : checkpoint.view.verifiedEligible ? <ProductRewardClaimOutcome
         claim={rewardClaim}
+        payout={payout}
         heading={VERIFIED_TITLE}
         headingRef={headingRef}
         detail={result.status === 'complete' ? `${MISSION_COMPLETE_COPY} ${result.title} ${result.detail}` : undefined}
@@ -178,6 +184,7 @@ export function ExpeditionView(props: ExpeditionViewProps) {
       /> : checkpoint.view.vaultGameplayVerified ? <ProductVaultOutcome
         seal={vaultSeal}
         claim={rewardClaim}
+        payout={payout}
         headingRef={headingRef}
         onSealTreasure={vaultSeal.sealTreasure}
         onClaimTreasure={rewardClaim.claimTreasure}

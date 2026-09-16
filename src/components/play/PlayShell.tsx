@@ -13,14 +13,24 @@ import { MissionBrief } from './MissionBrief'
 import { MissionList } from './MissionList'
 import { PlayBottomNav } from './PlayBottomNav'
 import { ProgressStrip } from './ProgressStrip'
+import { ProductPayoutStatusCard } from './ProductRewardClaimOutcome'
+import { getPersistedReservedRewardClaim } from './productRunSession'
 import { rememberProductWallet } from './productWallet'
 import { useDailyHuntStatus } from './useDailyHuntStatus'
+import { useProductPayoutStatus } from './useProductPayoutStatus'
 import { useProductStart } from './useProductStart'
 import { WorldStatus } from './WorldStatus'
 import styles from './PlayShell.module.css'
 
 export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
   const hunt = useDailyHuntStatus()
+  const persistedReward = getPersistedReservedRewardClaim()
+  const payout = useProductPayoutStatus({
+    enabled: true,
+    claimId: persistedReward?.claimId ?? null,
+    recoverFromSession: true,
+    unavailableAs: 'hidden',
+  })
   const expeditionsLeftToday = formatExpeditionsLeftToday(hunt.walletStatus)
   const [activeTab, setActiveTab] = useState<PlayTab>(initialTab)
   const [selectedMissionId, setSelectedMissionId] = useState<MissionId | null>(null)
@@ -78,6 +88,7 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
             <div className={styles.heroScene}><img src={playAssets.angkor} alt="Angkor Ruins" width={1672} height={941} loading="eager" decoding="async" /><img className={styles.heroExplorer} src={playAssets.explorer} alt="" width={1280} height={1280} loading="eager" decoding="async" /><span className={styles.sceneTag}>ANGKOR RUINS · AVAILABLE</span></div>
           </section>
           <HuntStatus fixture={playFixture} hunt={hunt} />
+          {payout && <ProductPayoutStatusCard payout={payout} />}
           <MissionList missions={playMissions} onEnter={openMission} compact expeditionsLeftToday={expeditionsLeftToday} />
           <ProgressStrip fixture={playFixture} />
           <HeroesPreview fixture={playFixture} compact />
@@ -86,6 +97,7 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
         {activeTab === 'missions' && <>
           <section className={styles.pageIntro} aria-labelledby="missions-page-heading"><span className={styles.kicker}>THE DAILY BOARD · PREVIEW</span><h1 id="missions-page-heading">Today's missions</h1><p>Choose your route. The task is clear before the ruins open.</p></section>
           <HuntStatus fixture={playFixture} hunt={hunt} />
+          {payout && <ProductPayoutStatusCard payout={payout} />}
           <MissionList missions={playMissions} onEnter={openMission} expeditionsLeftToday={expeditionsLeftToday} />
           <WorldStatus />
         </>}

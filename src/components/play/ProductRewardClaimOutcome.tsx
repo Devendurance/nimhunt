@@ -6,15 +6,14 @@ import {
   SIGNING_CLAIM_COPY,
   TODAY_FULL_DETAIL,
   TODAY_FULL_TITLE,
-  TREASURE_RESERVED_DETAIL,
-  TREASURE_RESERVED_NOTE,
-  TREASURE_RESERVED_TITLE,
 } from './productCheckpoint'
+import { payoutStatusCopy, type ProductPayoutView } from './productPayoutStatus'
 import type { ProductRewardClaimState } from './productRewardClaim'
 import styles from './ExpeditionView.module.css'
 
 export function ProductRewardClaimOutcome({
   claim,
+  payout,
   heading,
   headingRef,
   detail,
@@ -23,6 +22,7 @@ export function ProductRewardClaimOutcome({
   onReturnToHunt,
 }: {
   readonly claim: ProductRewardClaimState
+  readonly payout?: ProductPayoutView | null
   readonly heading: string
   readonly headingRef?: Ref<HTMLHeadingElement>
   readonly detail?: string
@@ -31,10 +31,14 @@ export function ProductRewardClaimOutcome({
   readonly onReturnToHunt: () => void
 }) {
   if (claim.status === 'RESERVED') {
+    const copy = payoutStatusCopy(payout ?? { status: 'PENDING', payoutId: null, claimId: claim.result?.claimId ?? null, amountLuna: null, network: null, txHashSafe: null, submittedAt: null, confirmedAt: null })
     return <ClaimTerminal
       headingRef={headingRef}
-      title={TREASURE_RESERVED_TITLE}
-      lines={[TREASURE_RESERVED_DETAIL, TREASURE_RESERVED_NOTE]}
+      title={copy.title}
+      lines={copy.lines}
+      amountLabel={copy.amountLabel}
+      txHashShort={copy.txHashShort}
+      verified={copy.verified}
       onBackToMissions={onBackToMissions}
       onReturnToHunt={onReturnToHunt}
     />
@@ -73,22 +77,48 @@ export function ProductRewardClaimOutcome({
   </section>
 }
 
+export function ProductPayoutStatusCard({
+  payout,
+  headingRef,
+}: {
+  readonly payout: ProductPayoutView
+  readonly headingRef?: Ref<HTMLHeadingElement>
+}) {
+  const copy = payoutStatusCopy(payout)
+  return <section className={styles.outcome} aria-labelledby="payout-status">
+    <h2 id="payout-status" ref={headingRef} tabIndex={-1}>{copy.title}</h2>
+    {copy.lines.map(line => <p key={line}>{line}</p>)}
+    {copy.amountLabel && <p className={styles.treasureAmount}>{copy.amountLabel}</p>}
+    {copy.txHashShort && <p className={styles.subtle}>{copy.txHashShort}</p>}
+    {copy.verified && <p className={styles.verified}>Verified ✓</p>}
+  </section>
+}
+
 function ClaimTerminal({
   headingRef,
   title,
   lines,
+  amountLabel,
+  txHashShort,
+  verified,
   onBackToMissions,
   onReturnToHunt,
 }: {
   readonly headingRef?: Ref<HTMLHeadingElement>
   readonly title: string
   readonly lines: readonly string[]
+  readonly amountLabel?: string | null
+  readonly txHashShort?: string | null
+  readonly verified?: boolean
   readonly onBackToMissions: () => void
   readonly onReturnToHunt: () => void
 }) {
   return <section className={styles.outcome} aria-labelledby="run-outcome">
     <h2 id="run-outcome" ref={headingRef} tabIndex={-1}>{title}</h2>
     {lines.map(line => <p key={line}>{line}</p>)}
+    {amountLabel && <p className={styles.treasureAmount}>{amountLabel}</p>}
+    {txHashShort && <p className={styles.subtle}>{txHashShort}</p>}
+    {verified && <p className={styles.verified}>Verified ✓</p>}
     <div className={styles.actions}>
       <button type="button" onClick={onBackToMissions}>Back to missions</button>
       <button type="button" onClick={onReturnToHunt}>Return to Hunt</button>

@@ -16,6 +16,7 @@ const PROOF_RPCS = new Set([
   'prepare_reward_claim',
   'finalize_reward_claim',
   'get_reward_claim',
+  'get_reserved_reward_claim_for_session',
   'load_expedition_run',
   'load_proof_snapshot',
   'get_wallet_daily_status',

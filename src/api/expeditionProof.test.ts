@@ -439,4 +439,35 @@ describe('expedition proof browser API', () => {
       body: JSON.stringify({ claimId: prepared.claimId, payload: canonicalPayload, publicKey: 'pk', signature: 'sig' }),
     }))
   })
+
+  it('parses the public payout read model and rejects secrets or send fields', async () => {
+    const { fetchRewardPayoutStatus, parseRewardPayoutStatusResult } = await import('./expeditionProof.ts')
+    const payout = {
+      payoutId: '99999999-9999-9999-9999-999999999999',
+      claimId: '11111111-1111-1111-1111-111111111111',
+      status: 'CONFIRMED' as const,
+      amountLuna: '10000',
+      network: 'mainnet' as const,
+      txHashSafe: 'ab'.repeat(32),
+      submittedAt: '2026-09-16T12:00:00.000Z',
+      confirmedAt: '2026-09-16T12:01:00.000Z',
+    }
+    const body = { ok: true, claimId: payout.claimId, payout }
+    expect(parseRewardPayoutStatusResult(body)).toEqual({ claimId: payout.claimId, payout })
+    expect(parseRewardPayoutStatusResult({ ok: true, claimId: payout.claimId, payout: null })).toEqual({
+      claimId: payout.claimId,
+      payout: null,
+    })
+    expect(parseRewardPayoutStatusResult({ ...body, payout: { ...payout, mnemonic: 'secret' } })).toBeNull()
+    expect(parseRewardPayoutStatusResult({ ...body, payout: { ...payout, txHash: payout.txHashSafe } })).toBeNull()
+    const fetcher = vi.fn().mockResolvedValue(response(body))
+    await fetchRewardPayoutStatus(payout.claimId, fetcher)
+    expect(fetcher).toHaveBeenCalledWith(
+      `/api/rewards/claim/payout?claimId=${payout.claimId}`,
+      expect.objectContaining({ method: 'GET' }),
+    )
+    const recovered = vi.fn().mockResolvedValue(response(body))
+    await fetchRewardPayoutStatus(null, recovered)
+    expect(recovered).toHaveBeenCalledWith('/api/rewards/claim/payout', expect.objectContaining({ method: 'GET' }))
+  })
 })

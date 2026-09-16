@@ -495,7 +495,7 @@ describe.skipIf(!dockerEnabled)('postgres proof adapter', () => {
     expect(String(partial.rows[0]?.indexdef)).toMatch(/wallet/)
     expect(String(partial.rows[0]?.indexdef)).toMatch(/RESERVED/)
 
-    for (const name of ['prepare_reward_claim', 'finalize_reward_claim', 'get_reward_claim']) {
+    for (const name of ['prepare_reward_claim', 'finalize_reward_claim', 'get_reward_claim', 'get_reserved_reward_claim_for_session']) {
       const fn = await adminPool!.query(`
         select p.prosecdef, p.proconfig
         from pg_catalog.pg_proc p
@@ -798,6 +798,8 @@ describe.skipIf(!dockerEnabled)('postgres proof adapter', () => {
       expect((await authenticated.query("select has_function_privilege('authenticated', 'public.finalize_reward_claim(uuid,uuid,text,text,text,text,text,text)', 'EXECUTE') as allowed")).rows[0]?.allowed).toBe(false)
       expect((await anon.query("select has_function_privilege('anon', 'public.get_reward_claim(uuid,text)', 'EXECUTE') as allowed")).rows[0]?.allowed).toBe(false)
       expect((await authenticated.query("select has_function_privilege('authenticated', 'public.get_reward_claim(uuid,text)', 'EXECUTE') as allowed")).rows[0]?.allowed).toBe(false)
+      expect((await anon.query("select has_function_privilege('anon', 'public.get_reserved_reward_claim_for_session(text)', 'EXECUTE') as allowed")).rows[0]?.allowed).toBe(false)
+      expect((await authenticated.query("select has_function_privilege('authenticated', 'public.get_reserved_reward_claim_for_session(text)', 'EXECUTE') as allowed")).rows[0]?.allowed).toBe(false)
     } finally {
       await anon.end()
       await authenticated.end()
@@ -1054,6 +1056,9 @@ describe.skipIf(!liveEnabled)('configured supabase proof adapter', () => {
         }],
         ['get_reward_claim', {
           p_claim_id: '00000000-0000-0000-0000-000000000000',
+          p_run_session_hash: 'a'.repeat(64),
+        }],
+        ['get_reserved_reward_claim_for_session', {
           p_run_session_hash: 'a'.repeat(64),
         }],
       ] as const

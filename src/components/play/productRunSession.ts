@@ -29,9 +29,36 @@ export function rememberProductVaultSeal(proof: VerifiedProductVaultSeal): void 
   remembered = { ...remembered, vaultSeal: proof }
 }
 
+const RESERVED_REWARD_KEY = 'nimhunt.reservedReward.v1'
+
 export function rememberProductRewardClaim(result: RememberedRewardClaim): void {
+  if (result.outcome === 'RESERVED') persistReservedRewardClaim(result.claimId)
   if (!remembered || remembered.runId !== result.runId) return
   remembered = { ...remembered, rewardClaim: result }
+}
+
+export function persistReservedRewardClaim(claimId: string): void {
+  if (!claimId || claimId.length > 128) return
+  try {
+    sessionStorage.setItem(RESERVED_REWARD_KEY, JSON.stringify({ claimId }))
+  } catch {
+    /* ignore quota / private-mode failures */
+  }
+}
+
+export function getPersistedReservedRewardClaim(): { readonly claimId: string } | null {
+  try {
+    const raw = sessionStorage.getItem(RESERVED_REWARD_KEY)
+    if (!raw) return null
+    const parsed: unknown = JSON.parse(raw)
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null
+    const claimId = (parsed as { claimId?: unknown }).claimId
+    return typeof claimId === 'string' && claimId.length > 0 && claimId.length <= 128
+      ? { claimId }
+      : null
+  } catch {
+    return null
+  }
 }
 
 export function getRememberedProductTerminal(mission: MissionType, runId: string): RememberedProductTerminal | null {

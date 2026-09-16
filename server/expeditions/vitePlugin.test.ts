@@ -22,6 +22,7 @@ describe('expedition proof runtime policy', () => {
     expect(isOwnedExpeditionPath('/api/wallet-daily-status')).toBe(true)
     expect(isOwnedExpeditionPath('/api/rewards/claim/prepare')).toBe(true)
     expect(isOwnedExpeditionPath('/api/rewards/claim/finalize')).toBe(true)
+    expect(isOwnedExpeditionPath('/api/rewards/claim/payout')).toBe(true)
     expect(isOwnedExpeditionPath('/api/rewards/prepare')).toBe(false)
     expect(isOwnedExpeditionPath('/api/rewards/claim')).toBe(false)
   })

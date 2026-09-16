@@ -7,6 +7,7 @@ import {
   CHECKPOINT_PATH,
   FINALIZE_REWARD_CLAIM_PATH,
   GAMEPLAY_START_PATH,
+  GET_REWARD_PAYOUT_PATH,
   PREPARE_REWARD_CLAIM_PATH,
   PRODUCT_VAULT_SEAL_PREPARE_PATH,
   PRODUCT_VAULT_SEAL_VERIFY_PATH,
@@ -29,6 +30,7 @@ const OWNED_EXPEDITION_PATHS = new Set([
   PRODUCT_VAULT_SEAL_VERIFY_PATH,
   PREPARE_REWARD_CLAIM_PATH,
   FINALIZE_REWARD_CLAIM_PATH,
+  GET_REWARD_PAYOUT_PATH,
   WALLET_DAILY_STATUS_PATH,
 ])
 
@@ -124,10 +126,12 @@ export async function createDevelopmentMemoryProofService(): Promise<MemoryProof
 export function expeditionProofPlugin(): Plugin {
   let runtime = UNAVAILABLE_RUNTIME
   let fileEnv: Record<string, string> = {}
+  const env = () => ({ ...process.env, ...fileEnv })
   const backend = createProofBackendLoader(
     () => runtime,
-    () => createDefaultProofService(runtime, { ...process.env, ...fileEnv }),
+    () => createDefaultProofService(runtime, env()),
   )
+  const payoutStore = createLazyValue(async () => createDefaultPayoutStore(runtime, env()))
 
   return {
     name: 'nimhunt-expedition-proof',
@@ -140,19 +144,35 @@ export function expeditionProofPlugin(): Plugin {
       })
     },
     configureServer(server) {
-      server.middlewares.use(createHandler(() => backend.ensure(), () => runtime))
+      server.middlewares.use(createHandler(() => backend.ensure(), () => payoutStore.ensure(), () => runtime))
     },
     configurePreviewServer(server) {
-      server.middlewares.use(createHandler(() => backend.ensure(), () => runtime))
+      server.middlewares.use(createHandler(() => backend.ensure(), () => payoutStore.ensure(), () => runtime))
     },
   }
 }
 
+async function createDefaultPayoutStore(
+  runtime: ExpeditionRuntime,
+  env: Record<string, string | undefined>,
+) {
+  const { createMemoryPayoutStore, createPayoutStore } = await import('../payouts/store.ts')
+  if (runtime.backend === 'memory') return createMemoryPayoutStore()
+  if (runtime.backend !== 'postgres') return null
+  const { readServerSupabaseConfig, createSupabaseAdminClient } = await import('../ledger/config.ts')
+  const config = readServerSupabaseConfig(env)
+  if (!config) return null
+  const { createSupabasePayoutRpcClient } = await import('../payouts/db.ts')
+  return createPayoutStore(createSupabasePayoutRpcClient(createSupabaseAdminClient(config)))
+}
+
 function createHandler(
   getService: () => ExpeditionProofService | null | Promise<ExpeditionProofService | null>,
+  getPayoutStore: () => Promise<Awaited<ReturnType<typeof createDefaultPayoutStore>>>,
   getRuntime: () => ExpeditionRuntime,
 ) {
   let dispatch: typeof import('./http.ts').dispatchExpeditionHttp | undefined
+  let dispatchPayout: typeof import('../payouts/http.ts').dispatchPayoutHttp | undefined
   return async (req: IncomingMessage, res: ServerResponse, next: () => void): Promise<void> => {
     const path = req.url?.split('?')[0] ?? ''
     if (!isOwnedExpeditionPath(path)) {
@@ -163,8 +183,21 @@ function createHandler(
     const runtime = getRuntime()
     try {
       const rawBody = req.method === 'GET' || req.method === 'OPTIONS' ? undefined : await readBody(req)
-      if (!dispatch) ({ dispatchExpeditionHttp: dispatch } = await import('./http.ts'))
       const service = await getService()
+      if (path === GET_REWARD_PAYOUT_PATH) {
+        if (!dispatchPayout) ({ dispatchPayoutHttp: dispatchPayout } = await import('../payouts/http.ts'))
+        const response = await dispatchPayout(service, await getPayoutStore(), {
+          method: req.method ?? 'GET',
+          path: req.url ?? path,
+          headers: readHeaders(req),
+          host: req.headers.host,
+          protocol: isTlsRequest(req) ? 'https' : 'http',
+          rawBody,
+        }, runtime)
+        writeJson(res, response.status, response.body, response.headers)
+        return
+      }
+      if (!dispatch) ({ dispatchExpeditionHttp: dispatch } = await import('./http.ts'))
       const response = await dispatch(service, {
         method: req.method ?? 'GET',
         path: req.url ?? path,

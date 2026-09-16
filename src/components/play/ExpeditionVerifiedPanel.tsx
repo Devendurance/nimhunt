@@ -7,6 +7,7 @@ import {
 } from './productCheckpoint'
 import { ProductRewardClaimOutcome } from './ProductRewardClaimOutcome'
 import { ProductVaultOutcome } from './ProductVaultOutcome'
+import type { ProductPayoutView } from './productPayoutStatus'
 import type { ProductRewardClaimState } from './productRewardClaim'
 import type { ProductVaultSealState } from './productVaultSeal'
 import styles from './ExpeditionView.module.css'
@@ -16,6 +17,7 @@ export function ExpeditionVerifiedPanel({
   result,
   vaultSeal,
   rewardClaim,
+  payout,
   onSealTreasure,
   onClaimTreasure,
   onBackToMissions,
@@ -25,6 +27,7 @@ export function ExpeditionVerifiedPanel({
   readonly result: VerifyExpeditionResult
   readonly vaultSeal?: ProductVaultSealState
   readonly rewardClaim?: ProductRewardClaimState
+  readonly payout?: ProductPayoutView | null
   readonly onSealTreasure?: () => void
   readonly onClaimTreasure?: () => void
   readonly onBackToMissions: () => void
@@ -49,6 +52,7 @@ export function ExpeditionVerifiedPanel({
       ? <ProductVaultOutcome
           seal={vaultSeal}
           claim={rewardClaim}
+          payout={payout}
           onSealTreasure={onSealTreasure}
           onClaimTreasure={onClaimTreasure}
           onBackToMissions={onBackToMissions}
@@ -57,6 +61,7 @@ export function ExpeditionVerifiedPanel({
       : rewardClaim && onClaimTreasure
         ? <ProductRewardClaimOutcome
             claim={rewardClaim}
+            payout={payout}
             heading={VERIFIED_TITLE}
             detail={summary.status === 'complete' ? `${MISSION_COMPLETE_COPY} ${summary.title} ${summary.detail}` : undefined}
             onClaimTreasure={onClaimTreasure}

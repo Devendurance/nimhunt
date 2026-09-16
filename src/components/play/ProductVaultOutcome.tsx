@@ -9,6 +9,7 @@ import {
   VAULT_GAMEPLAY_VERIFIED_TITLE,
 } from './productCheckpoint'
 import { ProductRewardClaimOutcome } from './ProductRewardClaimOutcome'
+import type { ProductPayoutView } from './productPayoutStatus'
 import type { ProductRewardClaimState } from './productRewardClaim'
 import { shortenNqWallet, shortenProofHash, type ProductVaultSealState } from './productVaultSeal'
 import styles from './ExpeditionView.module.css'
@@ -16,6 +17,7 @@ import styles from './ExpeditionView.module.css'
 export function ProductVaultOutcome({
   seal,
   claim,
+  payout,
   headingRef,
   onSealTreasure,
   onClaimTreasure,
@@ -24,6 +26,7 @@ export function ProductVaultOutcome({
 }: {
   readonly seal: ProductVaultSealState
   readonly claim?: ProductRewardClaimState & { claimTreasure?: () => void }
+  readonly payout?: ProductPayoutView | null
   readonly headingRef?: Ref<HTMLHeadingElement>
   readonly onSealTreasure: () => void
   readonly onClaimTreasure?: () => void
@@ -34,6 +37,7 @@ export function ProductVaultOutcome({
     return <VaultSealedCard
       proof={seal.proof}
       claim={claim}
+      payout={payout}
       headingRef={headingRef}
       onClaimTreasure={onClaimTreasure ?? claim?.claimTreasure}
       onBackToMissions={onBackToMissions}
@@ -58,6 +62,7 @@ export function ProductVaultOutcome({
 function VaultSealedCard({
   proof,
   claim,
+  payout,
   headingRef,
   onClaimTreasure,
   onBackToMissions,
@@ -65,6 +70,7 @@ function VaultSealedCard({
 }: {
   readonly proof: VerifiedProductVaultSeal
   readonly claim?: ProductRewardClaimState
+  readonly payout?: ProductPayoutView | null
   readonly headingRef?: Ref<HTMLHeadingElement>
   readonly onClaimTreasure?: () => void
   readonly onBackToMissions: () => void
@@ -73,6 +79,7 @@ function VaultSealedCard({
   if (claim && onClaimTreasure && (claim.status === 'RESERVED' || claim.status === 'SOLD_OUT' || claim.status === 'ALREADY_REWARDED' || claim.status === 'SIGNING' || claim.status === 'CANCELLED' || claim.status === 'REJECTED')) {
     return <ProductRewardClaimOutcome
       claim={claim}
+      payout={payout}
       heading={TREASURE_SEALED_TITLE}
       headingRef={headingRef}
       detail={TREASURE_SEALED_DETAIL}

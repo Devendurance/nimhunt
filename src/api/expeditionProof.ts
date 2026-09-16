@@ -4,6 +4,7 @@ import {
   CHECKPOINT_PATH,
   FINALIZE_REWARD_CLAIM_PATH,
   GAMEPLAY_START_PATH,
+  GET_REWARD_PAYOUT_PATH,
   PREPARE_REWARD_CLAIM_PATH,
   PRODUCT_VAULT_SEAL_PREPARE_PATH,
   PRODUCT_VAULT_SEAL_VERIFY_PATH,
@@ -20,6 +21,8 @@ import type {
   PreparedProductVaultSeal,
   PrepareRewardClaimResult,
   ProductActiveExpedition,
+  RewardPayoutStatus,
+  RewardPayoutStatusResult,
   ProductGameplayStartResponse,
   StartChallengeResponse,
   StartResult,
@@ -160,6 +163,21 @@ export async function finalizeRewardClaim(
   fetcher: typeof fetch = fetch,
 ): Promise<FinalizeRewardClaimResult> {
   return requestJson(fetcher, FINALIZE_REWARD_CLAIM_PATH, postRequest(signed), parseFinalizeRewardClaimResult)
+}
+
+export async function fetchRewardPayoutStatus(
+  claimId?: string | null,
+  fetcher: typeof fetch = fetch,
+): Promise<RewardPayoutStatusResult> {
+  const path = claimId
+    ? `${GET_REWARD_PAYOUT_PATH}?claimId=${encodeURIComponent(claimId)}`
+    : GET_REWARD_PAYOUT_PATH
+  return requestJson(
+    fetcher,
+    path,
+    getRequest(),
+    parseRewardPayoutStatusResult,
+  )
 }
 
 export function parseStartChallengeResponse(value: unknown): StartChallengeResponse | null {
@@ -502,6 +520,57 @@ export function parseFinalizeRewardClaimResult(value: unknown): FinalizeRewardCl
     totalSlots: 69,
     finalizedAt: value.finalizedAt,
   }
+}
+
+export function parseRewardPayoutStatusResult(value: unknown): RewardPayoutStatusResult | null {
+  if (!isRecord(value) || !hasExactKeys(value, ['ok', 'claimId', 'payout']) || value.ok !== true || !isBoundedString(value.claimId, 128)) {
+    return null
+  }
+  if (value.payout === null) return { claimId: value.claimId, payout: null }
+  if (!isRecord(value.payout) || !hasExactKeys(value.payout, [
+    'payoutId',
+    'claimId',
+    'status',
+    'amountLuna',
+    'network',
+    'txHashSafe',
+    'submittedAt',
+    'confirmedAt',
+  ])) return null
+  if (!isBoundedString(value.payout.payoutId, 128)
+    || !isBoundedString(value.payout.claimId, 128)
+    || !isPayoutStatus(value.payout.status)
+    || !isLunaAmount(value.payout.amountLuna)
+    || (value.payout.network !== 'testnet' && value.payout.network !== 'mainnet')) return null
+  if (value.payout.txHashSafe !== null && !isHash(value.payout.txHashSafe)) return null
+  if (value.payout.submittedAt !== null && !isIsoTimestamp(value.payout.submittedAt)) return null
+  if (value.payout.confirmedAt !== null && !isIsoTimestamp(value.payout.confirmedAt)) return null
+  return {
+    claimId: value.claimId,
+    payout: {
+      payoutId: value.payout.payoutId,
+      claimId: value.payout.claimId,
+      status: value.payout.status,
+      amountLuna: value.payout.amountLuna,
+      network: value.payout.network,
+      txHashSafe: value.payout.txHashSafe,
+      submittedAt: value.payout.submittedAt,
+      confirmedAt: value.payout.confirmedAt,
+    },
+  }
+}
+
+function isLunaAmount(value: unknown): value is string {
+  return typeof value === 'string' && /^[1-9][0-9]{0,31}$/.test(value)
+}
+
+function isPayoutStatus(value: unknown): value is RewardPayoutStatus {
+  return value === 'PENDING'
+    || value === 'PROCESSING'
+    || value === 'SUBMITTED'
+    || value === 'CONFIRMED'
+    || value === 'FAILED_RETRYABLE'
+    || value === 'FAILED_FINAL'
 }
 
 function isPositiveInteger(value: unknown): value is number {

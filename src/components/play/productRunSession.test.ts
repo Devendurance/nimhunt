@@ -2,7 +2,10 @@ import { afterEach, describe, expect, it } from 'vitest'
 import type { VerifyExpeditionResult } from '../../domain/expeditionProof.ts'
 import {
   clearRememberedProductTerminal,
+  getPersistedReservedRewardClaim,
   getRememberedProductTerminal,
+  persistReservedRewardClaim,
+  rememberProductRewardClaim,
   rememberProductTerminal,
   rememberProductVaultSeal,
   retainProductTerminalFor,
@@ -28,9 +31,23 @@ function verified(mission: 'gem-runner' | 'chest-hunter' | 'vault-breaker', runI
   }
 }
 
+const memorySession = new Map<string, string>()
+const sessionStorageStub = {
+  getItem(key: string) {
+    return memorySession.get(key) ?? null
+  },
+  setItem(key: string, value: string) {
+    memorySession.set(key, value)
+  },
+  clear() {
+    memorySession.clear()
+  },
+}
+
 describe('product run terminal session', () => {
   afterEach(() => {
     clearRememberedProductTerminal()
+    memorySession.clear()
   })
 
   it('remembers Gem and Chest VERIFIED_ELIGIBLE for the current run only', () => {
@@ -68,5 +85,23 @@ describe('product run terminal session', () => {
     expect(getRememberedProductTerminal('vault-breaker', 'run-1')?.vaultSeal?.vaultSealHash).toBe('aa'.repeat(32))
     clearRememberedProductTerminal()
     expect(getRememberedProductTerminal('vault-breaker', 'run-1')).toBeNull()
+  })
+
+  it('persists a reserved claim so reopen can recover payout status after memory is cleared', () => {
+    Object.defineProperty(globalThis, 'sessionStorage', { configurable: true, value: sessionStorageStub })
+    persistReservedRewardClaim('claim-confirmed')
+    rememberProductTerminal('gem-runner', verified('gem-runner'))
+    rememberProductRewardClaim({
+      outcome: 'RESERVED',
+      claimId: 'claim-confirmed',
+      runId: 'run-1',
+      reservationNumber: 1,
+      remainingSlots: 68,
+      totalSlots: 69,
+      finalizedAt: '2026-09-16T12:10:00.000Z',
+    })
+    clearRememberedProductTerminal()
+    expect(getRememberedProductTerminal('gem-runner', 'run-1')).toBeNull()
+    expect(getPersistedReservedRewardClaim()).toEqual({ claimId: 'claim-confirmed' })
   })
 })

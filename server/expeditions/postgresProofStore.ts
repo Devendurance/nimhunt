@@ -433,6 +433,29 @@ export async function createPostgresProofService(options: {
       })
     },
 
+    async getRewardClaim(claimId, session) {
+      await requireAuthenticatedRun(rpc, session.runId, session)
+      const loaded = readProofRpc(await rpc.rpc('get_reward_claim', {
+        p_claim_id: claimId,
+        p_run_session_hash: session.sessionHash,
+      }))
+      return asRewardClaim(asRecord(loaded.claim))
+    },
+
+    async getReservedRewardClaim(session) {
+      await requireAuthenticatedRun(rpc, session.runId, session)
+      try {
+        const loaded = readProofRpc(await rpc.rpc('get_reserved_reward_claim_for_session', {
+          p_run_session_hash: session.sessionHash,
+        }))
+        const claim = asRewardClaim(asRecord(loaded.claim))
+        return claim.status === 'RESERVED' ? claim : null
+      } catch (error) {
+        if (error instanceof ProofError && error.code === 'CLAIM_NOT_FOUND') return null
+        throw error
+      }
+    },
+
     async verifyVaultSeal(input) {
       const parsed = parseProductVaultSeal(input.payload)
       if (!parsed) throw new ProofError('VAULT_SEAL_MISMATCH')

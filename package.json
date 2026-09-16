@@ -9,7 +9,11 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "dev:reset-expeditions": "node --experimental-strip-types scripts/dev-reset-expeditions.ts"
+    "dev:reset-expeditions": "node --experimental-strip-types scripts/dev-reset-expeditions.ts",
+    "payout:worker": "node --experimental-strip-types scripts/payout-worker.ts",
+    "treasury:generate": "node --experimental-strip-types scripts/generate-treasury.ts",
+    "treasury:preflight": "node --experimental-strip-types scripts/preflight-treasury.ts",
+    "treasury:sweep": "node --experimental-strip-types scripts/sweep-treasury.ts"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",

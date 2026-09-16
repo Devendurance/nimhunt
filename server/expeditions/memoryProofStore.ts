@@ -427,6 +427,21 @@ export function createMemoryProofService(options: {
         })
       })
     },
+
+    getRewardClaim(claimId, session) {
+      requireAuthenticatedRun(session.runId, session)
+      const claim = claims.get(claimId)
+      if (!claim || claim.runId !== session.runId) throw new ProofError('CLAIM_NOT_FOUND')
+      return claim
+    },
+
+    getReservedRewardClaim(session) {
+      requireAuthenticatedRun(session.runId, session)
+      for (const claim of claims.values()) {
+        if (claim.runId === session.runId && claim.status === 'RESERVED') return claim
+      }
+      return null
+    },
   }
 
   for (const blueprint of options.blueprints ?? []) service.registerBlueprint(blueprint)

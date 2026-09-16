@@ -14,6 +14,7 @@ export const PREPARE_REWARD_PATH = '/api/rewards/prepare'
 export const CLAIM_REWARD_PATH = '/api/rewards/claim'
 export const PREPARE_REWARD_CLAIM_PATH = '/api/rewards/claim/prepare'
 export const FINALIZE_REWARD_CLAIM_PATH = '/api/rewards/claim/finalize'
+export const GET_REWARD_PAYOUT_PATH = '/api/rewards/claim/payout'
 
 export type ExpeditionProofErrorCode =
   | 'MALFORMED_TRANSCRIPT'
@@ -263,4 +264,28 @@ export type ProductExpeditionResult = {
   readonly gameplay: ProductGameplayState
   readonly proof: ProductProofState
   readonly reservation: ProductReservationOutcome | null
+}
+
+export type RewardPayoutStatus =
+  | 'PENDING'
+  | 'PROCESSING'
+  | 'SUBMITTED'
+  | 'CONFIRMED'
+  | 'FAILED_RETRYABLE'
+  | 'FAILED_FINAL'
+
+export type RewardPayoutNetwork = 'testnet' | 'mainnet'
+
+export type RewardPayoutStatusResult = {
+  readonly claimId: string
+  readonly payout: {
+    readonly payoutId: string
+    readonly claimId: string
+    readonly status: RewardPayoutStatus
+    readonly amountLuna: string
+    readonly network: RewardPayoutNetwork
+    readonly txHashSafe: string | null
+    readonly submittedAt: string | null
+    readonly confirmedAt: string | null
+  } | null
 }

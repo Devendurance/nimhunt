@@ -11,6 +11,7 @@ import { HuntHeader } from './HuntHeader'
 import { ExpeditionVerifiedPanel } from './ExpeditionVerifiedPanel'
 import { createProductGateAttemptGuard, canMountProduct, reduceProductGate, validateProductActive, INITIAL_PRODUCT_GATE_STATE } from './productGateState.ts'
 import { getRememberedProductTerminal } from './productRunSession.ts'
+import { useProductPayoutStatus } from './useProductPayoutStatus'
 import { useProductRewardClaim } from './useProductRewardClaim'
 import { useProductVaultSeal } from './useProductVaultSeal'
 import styles from './PlayShell.module.css'
@@ -33,6 +34,10 @@ export function ProductExpeditionGate({ mission, runId, onBackToMissions, onRetu
     enabled: Boolean(remembered) && (remembered?.result.outcome === 'VERIFIED_ELIGIBLE' || vaultSeal.status === 'VERIFIED'),
     mission,
     runId,
+  })
+  const payout = useProductPayoutStatus({
+    enabled: rewardClaim.status === 'RESERVED',
+    claimId: rewardClaim.result?.claimId ?? null,
   })
   const mountedRef = useRef(true)
   const routeKeyRef = useRef(`${mission}:${runId}`)
@@ -111,6 +116,7 @@ export function ProductExpeditionGate({ mission, runId, onBackToMissions, onRetu
       result={remembered.result}
       vaultSeal={vaultSeal}
       rewardClaim={rewardClaim}
+      payout={payout}
       onSealTreasure={vaultSeal.sealTreasure}
       onClaimTreasure={rewardClaim.claimTreasure}
       onBackToMissions={onBackToMissions}

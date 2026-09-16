@@ -7,6 +7,7 @@ const sqlDir = join(dirname(fileURLToPath(import.meta.url)), 'sql')
 const migrationPath = join(sqlDir, '002_expedition_proof.sql')
 const runtimePath = join(sqlDir, '003_expedition_proof_runtime.sql')
 const claimPath = join(sqlDir, '004_reward_claims.sql')
+const payoutPath = join(sqlDir, '005_reward_payouts.sql')
 
 describe('durable expedition proof migration', () => {
   const migration = readFileSync(migrationPath, 'utf8')
@@ -83,6 +84,7 @@ describe('signed reward claim migration', () => {
     expect(executable).toMatch(/EXPIRED/)
     expect(executable).toMatch(/prepare_reward_claim/)
     expect(executable).toMatch(/finalize_reward_claim/)
+    expect(executable).toMatch(/get_reserved_reward_claim_for_session/)
     expect(executable).toMatch(/reserved_slots < 69/)
   })
 
@@ -94,5 +96,35 @@ describe('signed reward claim migration', () => {
     expect(executable).toMatch(/revoke all on function public.finalize_reward_claim/i)
     expect(executable).toMatch(/grant execute[^;]+service_role/is)
     expect(executable).not.toMatch(/payout|treasury|private_key|seed|transfer|reward_amount/i)
+  })
+})
+
+describe('reward payout migration', () => {
+  const migration = readFileSync(payoutPath, 'utf8')
+  const executable = migration.replace(/--.*$/gm, '')
+
+  it('keeps payouts separate from gameplay proof with a strict lifecycle', () => {
+    expect(executable).toMatch(/reward_payouts/)
+    expect(executable).toMatch(/claim_id uuid not null unique/)
+    expect(executable).toMatch(/amount_luna bigint not null/)
+    expect(executable).toMatch(/PENDING/)
+    expect(executable).toMatch(/PROCESSING/)
+    expect(executable).toMatch(/SUBMITTED/)
+    expect(executable).toMatch(/CONFIRMED/)
+    expect(executable).toMatch(/FAILED_RETRYABLE/)
+    expect(executable).toMatch(/FAILED_FINAL/)
+    expect(executable).toMatch(/for update skip locked/i)
+    expect(executable).toMatch(/create_reward_payout/)
+    expect(executable).toMatch(/acquire_reward_payout/)
+    expect(executable).not.toMatch(/private_key|mnemonic|seed/i)
+  })
+
+  it('locks payouts behind RLS and service-only SECURITY DEFINER RPCs', () => {
+    expect(executable).toMatch(/force row level security/i)
+    expect(executable).toMatch(/security definer/i)
+    expect(executable).toMatch(/set search_path\s*=\s*pg_catalog\s*,\s*public/i)
+    expect(executable).toMatch(/revoke all on function public.create_reward_payout/i)
+    expect(executable).toMatch(/revoke all on function public.acquire_reward_payout/i)
+    expect(executable).toMatch(/grant execute[^;]+service_role/is)
   })
 })
