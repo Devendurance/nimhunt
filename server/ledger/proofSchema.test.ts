@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest'
 const sqlDir = join(dirname(fileURLToPath(import.meta.url)), 'sql')
 const migrationPath = join(sqlDir, '002_expedition_proof.sql')
 const runtimePath = join(sqlDir, '003_expedition_proof_runtime.sql')
+const claimPath = join(sqlDir, '004_reward_claims.sql')
 
 describe('durable expedition proof migration', () => {
   const migration = readFileSync(migrationPath, 'utf8')
@@ -62,6 +63,36 @@ describe('durable expedition proof runtime migration', () => {
     expect(executable).toMatch(/revoke all on function/i)
     expect(executable).toMatch(/grant execute[^;]+service_role/is)
     expect(executable).toMatch(/revoke all on function public.append_checkpoint_batch/i)
+    expect(executable).not.toMatch(/payout|treasury|private_key|seed|transfer|reward_amount/i)
+  })
+})
+
+describe('signed reward claim migration', () => {
+  const migration = readFileSync(claimPath, 'utf8')
+  const executable = migration.replace(/--.*$/gm, '')
+
+  it('creates one durable claim per run with signed reservation lifecycle', () => {
+    expect(executable).toMatch(/reward_claims/)
+    expect(executable).toMatch(/claim_id/)
+    expect(executable).toMatch(/canonical_payload/)
+    expect(executable).toMatch(/claim_payload_hash/)
+    expect(executable).toMatch(/PREPARED/)
+    expect(executable).toMatch(/RESERVED/)
+    expect(executable).toMatch(/SOLD_OUT/)
+    expect(executable).toMatch(/ALREADY_REWARDED/)
+    expect(executable).toMatch(/EXPIRED/)
+    expect(executable).toMatch(/prepare_reward_claim/)
+    expect(executable).toMatch(/finalize_reward_claim/)
+    expect(executable).toMatch(/reserved_slots < 69/)
+  })
+
+  it('locks claims behind RLS and service-only SECURITY DEFINER RPCs', () => {
+    expect(executable).toMatch(/force row level security/i)
+    expect(executable).toMatch(/security definer/i)
+    expect(executable).toMatch(/set search_path\s*=\s*pg_catalog\s*,\s*public/i)
+    expect(executable).toMatch(/revoke all on function public.prepare_reward_claim/i)
+    expect(executable).toMatch(/revoke all on function public.finalize_reward_claim/i)
+    expect(executable).toMatch(/grant execute[^;]+service_role/is)
     expect(executable).not.toMatch(/payout|treasury|private_key|seed|transfer|reward_amount/i)
   })
 })

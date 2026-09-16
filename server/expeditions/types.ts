@@ -1,7 +1,9 @@
 import type {
   AbandonExpeditionResult,
   CheckpointAcknowledgement,
+  FinalizeRewardClaimResult,
   PreparedProductVaultSeal,
+  PrepareRewardClaimResult,
   ProductActiveExpedition,
   ProductGameplayStartResponse,
   StartChallengeResponse,
@@ -45,6 +47,24 @@ export type DurableCheckpointBatch = {
 
 export type DurableRunStatus = 'STARTED' | 'COMPLETED' | 'FAILED' | 'ABANDONED'
 export type DurableRewardStatus = 'NONE' | 'ELIGIBLE'
+export type DurableRewardClaimStatus = 'PREPARED' | 'RESERVED' | 'SOLD_OUT' | 'ALREADY_REWARDED' | 'EXPIRED'
+
+export type DurableRewardClaim = {
+  readonly claimId: string
+  readonly runId: string
+  readonly wallet: string
+  readonly mission: MissionType
+  readonly dayKey: string
+  readonly canonicalPayload: string
+  readonly claimPayloadHash: string
+  readonly status: DurableRewardClaimStatus
+  readonly publicKey: string | null
+  readonly signature: string | null
+  readonly createdAt: string
+  readonly expiresAt: string
+  readonly finalizedAt: string | null
+  readonly reservationNumber: number | null
+}
 
 export type DurableRunTerminal =
   | { readonly type: 'VERIFIED'; readonly result: VerifyExpeditionResult }
@@ -133,6 +153,14 @@ export type MemoryProofService = {
     readonly publicKey: string
     readonly signature: string
   }): Promise<VerifiedProductVaultSeal>
+  prepareRewardClaim(runId: string, session: RunSessionRecord): Promise<PrepareRewardClaimResult>
+  finalizeRewardClaim(input: {
+    readonly session: RunSessionRecord
+    readonly claimId: string
+    readonly payload: string
+    readonly publicKey: string
+    readonly signature: string
+  }): Promise<FinalizeRewardClaimResult>
   getRun(runId: string): DurableExpeditionRun | null
   getWalletDailyStatus(wallet: string): WalletDailyStatus
   snapshot(): MemoryProofSnapshot
@@ -171,6 +199,14 @@ export type ProofService = {
     readonly publicKey: string
     readonly signature: string
   }): Promise<VerifiedProductVaultSeal>
+  prepareRewardClaim(runId: string, session: RunSessionRecord): Promise<PrepareRewardClaimResult>
+  finalizeRewardClaim(input: {
+    readonly session: RunSessionRecord
+    readonly claimId: string
+    readonly payload: string
+    readonly publicKey: string
+    readonly signature: string
+  }): Promise<FinalizeRewardClaimResult>
   getRun(runId: string): Promise<DurableExpeditionRun | null>
   getWalletDailyStatus(wallet: string): Promise<WalletDailyStatus>
   snapshot(): Promise<MemoryProofSnapshot>

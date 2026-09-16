@@ -6,7 +6,6 @@ import type { ProductActiveExpedition } from '../../domain/expeditionProof.ts'
 import type { CreateGameOptions } from '../../game/createNimHuntGame'
 import { getExpeditionResult, type PlayableMission } from './expeditionFlow'
 import {
-  CLAIM_NOT_ENABLED_COPY,
   MISSION_COMPLETE_COPY,
   MISSION_INCOMPLETE_COPY,
   PROOF_LOST_DETAIL,
@@ -18,8 +17,10 @@ import {
   VERIFYING_COPY,
   useProductCheckpoint,
 } from './productCheckpoint'
+import { ProductRewardClaimOutcome } from './ProductRewardClaimOutcome'
 import { ProductVaultOutcome } from './ProductVaultOutcome'
 import { useAngkorRun } from './useAngkorRun'
+import { useProductRewardClaim } from './useProductRewardClaim'
 import { useProductVaultSeal } from './useProductVaultSeal'
 import styles from './ExpeditionView.module.css'
 
@@ -45,6 +46,11 @@ export function ExpeditionView(props: ExpeditionViewProps) {
   const checkpoint = useProductCheckpoint(active)
   const vaultSeal = useProductVaultSeal({
     enabled: mode === 'product' && mission === 'vault-breaker' && checkpoint.view.vaultGameplayVerified,
+    runId: active?.runId ?? null,
+  })
+  const rewardClaim = useProductRewardClaim({
+    enabled: mode === 'product' && (checkpoint.view.verifiedEligible || vaultSeal.status === 'VERIFIED'),
+    mission,
     runId: active?.runId ?? null,
   })
   const gameOptions = useMemo<CreateGameOptions>(() => {
@@ -161,15 +167,20 @@ export function ExpeditionView(props: ExpeditionViewProps) {
         <h2 id="run-outcome" ref={headingRef} tabIndex={-1}>{VERIFY_REJECTED_TITLE}</h2>
         <p>{VERIFY_REJECTED_DETAIL}</p>
         <div className={styles.actions}><button type="button" onClick={onBackToMissions}>Back to missions</button><button type="button" onClick={onReturnToHunt}>Return to Hunt</button></div>
-      </section> : checkpoint.view.verifiedEligible ? <section className={styles.outcome} aria-labelledby="run-outcome">
-        <h2 id="run-outcome" ref={headingRef} tabIndex={-1}>{VERIFIED_TITLE}</h2>
-        {result.status === 'complete' ? <><strong>{MISSION_COMPLETE_COPY}</strong><p>{result.title}</p><p>{result.detail}</p></> : null}
-        <p className={styles.subtle}>{CLAIM_NOT_ENABLED_COPY}</p>
-        <div className={styles.actions}><button type="button" onClick={onBackToMissions}>Back to missions</button><button type="button" onClick={onReturnToHunt}>Return to Hunt</button></div>
-      </section> : checkpoint.view.vaultGameplayVerified ? <ProductVaultOutcome
+      </section> : checkpoint.view.verifiedEligible ? <ProductRewardClaimOutcome
+        claim={rewardClaim}
+        heading={VERIFIED_TITLE}
+        headingRef={headingRef}
+        detail={result.status === 'complete' ? `${MISSION_COMPLETE_COPY} ${result.title} ${result.detail}` : undefined}
+        onClaimTreasure={rewardClaim.claimTreasure}
+        onBackToMissions={onBackToMissions}
+        onReturnToHunt={onReturnToHunt}
+      /> : checkpoint.view.vaultGameplayVerified ? <ProductVaultOutcome
         seal={vaultSeal}
+        claim={rewardClaim}
         headingRef={headingRef}
         onSealTreasure={vaultSeal.sealTreasure}
+        onClaimTreasure={rewardClaim.claimTreasure}
         onBackToMissions={onBackToMissions}
         onReturnToHunt={onReturnToHunt}
       /> : checkpoint.view.verifying || (mode === 'product' && result.status === 'complete') ? <section className={styles.outcome} aria-labelledby="run-outcome">

@@ -20,7 +20,10 @@ describe('expedition proof runtime policy', () => {
     expect(isOwnedExpeditionPath('/api/expeditions/vault-seal/verify')).toBe(true)
     expect(isOwnedExpeditionPath('/api/expeditions/vault-seal')).toBe(false)
     expect(isOwnedExpeditionPath('/api/wallet-daily-status')).toBe(true)
+    expect(isOwnedExpeditionPath('/api/rewards/claim/prepare')).toBe(true)
+    expect(isOwnedExpeditionPath('/api/rewards/claim/finalize')).toBe(true)
     expect(isOwnedExpeditionPath('/api/rewards/prepare')).toBe(false)
+    expect(isOwnedExpeditionPath('/api/rewards/claim')).toBe(false)
   })
 
   it('enables memory proof only for explicit local development', () => {

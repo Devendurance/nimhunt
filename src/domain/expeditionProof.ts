@@ -12,6 +12,8 @@ export const PRODUCT_VAULT_SEAL_PREPARE_PATH = '/api/expeditions/vault-seal/prep
 export const PRODUCT_VAULT_SEAL_VERIFY_PATH = '/api/expeditions/vault-seal/verify'
 export const PREPARE_REWARD_PATH = '/api/rewards/prepare'
 export const CLAIM_REWARD_PATH = '/api/rewards/claim'
+export const PREPARE_REWARD_CLAIM_PATH = '/api/rewards/claim/prepare'
+export const FINALIZE_REWARD_CLAIM_PATH = '/api/rewards/claim/finalize'
 
 export type ExpeditionProofErrorCode =
   | 'MALFORMED_TRANSCRIPT'
@@ -225,6 +227,35 @@ export type PreparedClaim = {
   readonly canonicalPayload: string
   readonly claimHash: string
   readonly state: 'PREPARED'
+}
+
+export type PrepareRewardClaimResult =
+  | {
+      readonly outcome: 'PREPARED'
+      readonly claimId: string
+      readonly runId: string
+      readonly canonicalPayload: string
+      readonly claimPayloadHash: string
+      readonly expiresAt: string
+    }
+  | {
+      readonly outcome: 'SOLD_OUT' | 'ALREADY_REWARDED' | 'RESERVED'
+      readonly claimId: string
+      readonly runId: string
+      readonly expiresAt: string
+      readonly reservationNumber: number | null
+      readonly remainingSlots: number | null
+      readonly totalSlots: 69
+    }
+
+export type FinalizeRewardClaimResult = {
+  readonly outcome: 'RESERVED' | 'SOLD_OUT' | 'ALREADY_REWARDED'
+  readonly claimId: string
+  readonly runId: string
+  readonly reservationNumber: number | null
+  readonly remainingSlots: number | null
+  readonly totalSlots: 69
+  readonly finalizedAt: string
 }
 
 export type ProductExpeditionResult = {

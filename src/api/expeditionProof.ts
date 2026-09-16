@@ -2,7 +2,9 @@ import {
   ABANDON_EXPEDITION_PATH,
   ACTIVE_EXPEDITION_PATH,
   CHECKPOINT_PATH,
+  FINALIZE_REWARD_CLAIM_PATH,
   GAMEPLAY_START_PATH,
+  PREPARE_REWARD_CLAIM_PATH,
   PRODUCT_VAULT_SEAL_PREPARE_PATH,
   PRODUCT_VAULT_SEAL_VERIFY_PATH,
   START_CHALLENGE_PATH,
@@ -14,7 +16,9 @@ import type {
   CheckpointAcknowledgement,
   CheckpointRequest,
   ExpeditionProofErrorCode,
+  FinalizeRewardClaimResult,
   PreparedProductVaultSeal,
+  PrepareRewardClaimResult,
   ProductActiveExpedition,
   ProductGameplayStartResponse,
   StartChallengeResponse,
@@ -23,6 +27,7 @@ import type {
   VerifyExpeditionRequest,
   VerifyExpeditionResult,
 } from '../domain/expeditionProof.ts'
+import { parseProductRewardClaim } from '../domain/productRewardClaim.ts'
 import { parseProductVaultSeal } from '../domain/productVaultSeal.ts'
 import {
   BLUEPRINT_VERSION,
@@ -141,6 +146,20 @@ export async function verifyProductVaultSeal(
   fetcher: typeof fetch = fetch,
 ): Promise<VerifiedProductVaultSeal> {
   return requestJson(fetcher, PRODUCT_VAULT_SEAL_VERIFY_PATH, postRequest(signed), parseVerifiedProductVaultSeal)
+}
+
+export async function prepareRewardClaim(
+  runId: string,
+  fetcher: typeof fetch = fetch,
+): Promise<PrepareRewardClaimResult> {
+  return requestJson(fetcher, PREPARE_REWARD_CLAIM_PATH, postRequest({ runId }), parsePrepareRewardClaimResult)
+}
+
+export async function finalizeRewardClaim(
+  signed: SignedStartRequest & { readonly claimId: string },
+  fetcher: typeof fetch = fetch,
+): Promise<FinalizeRewardClaimResult> {
+  return requestJson(fetcher, FINALIZE_REWARD_CLAIM_PATH, postRequest(signed), parseFinalizeRewardClaimResult)
 }
 
 export function parseStartChallengeResponse(value: unknown): StartChallengeResponse | null {
@@ -430,6 +449,58 @@ export function parseVerifiedProductVaultSeal(value: unknown): VerifiedProductVa
     publicKey: value.publicKey,
     vaultCheckpointHash: value.vaultCheckpointHash,
     verifiedAt: value.verifiedAt,
+  }
+}
+
+export function parsePrepareRewardClaimResult(value: unknown): PrepareRewardClaimResult | null {
+  if (!isRecord(value) || value.ok !== true) return null
+  if (value.outcome === 'PREPARED') {
+    if (!hasExactKeys(value, ['ok', 'outcome', 'claimId', 'runId', 'canonicalPayload', 'claimPayloadHash', 'expiresAt'])) return null
+    if (!isBoundedString(value.claimId, 128) || !isBoundedString(value.runId, 128) || !isBoundedString(value.canonicalPayload, 4_096) || !isHash(value.claimPayloadHash) || !isIsoTimestamp(value.expiresAt)) {
+      return null
+    }
+    const parsed = parseProductRewardClaim(value.canonicalPayload)
+    if (!parsed || parsed.claimId !== value.claimId || parsed.runId !== value.runId) return null
+    return {
+      outcome: 'PREPARED',
+      claimId: value.claimId,
+      runId: value.runId,
+      canonicalPayload: value.canonicalPayload,
+      claimPayloadHash: value.claimPayloadHash,
+      expiresAt: value.expiresAt,
+    }
+  }
+  if (value.outcome !== 'SOLD_OUT' && value.outcome !== 'ALREADY_REWARDED' && value.outcome !== 'RESERVED') return null
+  if (!hasExactKeys(value, ['ok', 'outcome', 'claimId', 'runId', 'expiresAt', 'reservationNumber', 'remainingSlots', 'totalSlots'])) return null
+  if (!isBoundedString(value.claimId, 128) || !isBoundedString(value.runId, 128) || !isIsoTimestamp(value.expiresAt) || value.totalSlots !== 69) return null
+  if (value.reservationNumber !== null && !isPositiveInteger(value.reservationNumber)) return null
+  if (value.remainingSlots !== null && !isNonNegativeInteger(value.remainingSlots)) return null
+  return {
+    outcome: value.outcome,
+    claimId: value.claimId,
+    runId: value.runId,
+    expiresAt: value.expiresAt,
+    reservationNumber: value.reservationNumber,
+    remainingSlots: value.remainingSlots,
+    totalSlots: 69,
+  }
+}
+
+export function parseFinalizeRewardClaimResult(value: unknown): FinalizeRewardClaimResult | null {
+  if (!isRecord(value) || !hasExactKeys(value, ['ok', 'outcome', 'claimId', 'runId', 'reservationNumber', 'remainingSlots', 'totalSlots', 'finalizedAt'])) return null
+  if (value.ok !== true || (value.outcome !== 'RESERVED' && value.outcome !== 'SOLD_OUT' && value.outcome !== 'ALREADY_REWARDED')) return null
+  if (!isBoundedString(value.claimId, 128) || !isBoundedString(value.runId, 128) || value.totalSlots !== 69 || !isIsoTimestamp(value.finalizedAt)) return null
+  if (value.reservationNumber !== null && !isPositiveInteger(value.reservationNumber)) return null
+  if (value.remainingSlots !== null && !isNonNegativeInteger(value.remainingSlots)) return null
+  if (value.outcome === 'RESERVED' && (value.reservationNumber === null || value.remainingSlots === null)) return null
+  return {
+    outcome: value.outcome,
+    claimId: value.claimId,
+    runId: value.runId,
+    reservationNumber: value.reservationNumber,
+    remainingSlots: value.remainingSlots,
+    totalSlots: 69,
+    finalizedAt: value.finalizedAt,
   }
 }
 

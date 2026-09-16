@@ -813,11 +813,10 @@ Validated live:
 
 Current status:
 POSTGRES PROOF FLOW: LIVE-VALIDATED
+REAL DEVICE POSTGRES-BACKED FLOW: LIVE-VALIDATED
+SIGNED REWARD CLAIM: IMPLEMENTED (apply `004_reward_claims.sql` on live Supabase to enable the durable claim flow)
 
-Remaining gate:
-REAL DEVICE POSTGRES-BACKED FLOW: PENDING
-
-Reward claims, 69-slot reservation, NIM transfer, treasury, and payout remain out of scope until the real-device Postgres-backed flow is verified.
+NIM transfer, treasury, and payout remain out of scope.
 
 ### Mobile WebView
 Must test on real Nimiq Pay:

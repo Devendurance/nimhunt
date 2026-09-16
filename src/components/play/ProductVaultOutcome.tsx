@@ -1,7 +1,6 @@
 import type { Ref } from 'react'
 import type { VerifiedProductVaultSeal } from '../../domain/expeditionProof.ts'
 import {
-  CLAIM_NOT_ENABLED_COPY,
   SEAL_TREASURE_COPY,
   SEALING_TREASURE_COPY,
   TREASURE_SEALED_DETAIL,
@@ -9,24 +8,37 @@ import {
   VAULT_GAMEPLAY_VERIFIED_DETAIL,
   VAULT_GAMEPLAY_VERIFIED_TITLE,
 } from './productCheckpoint'
+import { ProductRewardClaimOutcome } from './ProductRewardClaimOutcome'
+import type { ProductRewardClaimState } from './productRewardClaim'
 import { shortenNqWallet, shortenProofHash, type ProductVaultSealState } from './productVaultSeal'
 import styles from './ExpeditionView.module.css'
 
 export function ProductVaultOutcome({
   seal,
+  claim,
   headingRef,
   onSealTreasure,
+  onClaimTreasure,
   onBackToMissions,
   onReturnToHunt,
 }: {
   readonly seal: ProductVaultSealState
+  readonly claim?: ProductRewardClaimState & { claimTreasure?: () => void }
   readonly headingRef?: Ref<HTMLHeadingElement>
   readonly onSealTreasure: () => void
+  readonly onClaimTreasure?: () => void
   readonly onBackToMissions: () => void
   readonly onReturnToHunt: () => void
 }) {
   if (seal.status === 'VERIFIED' && seal.proof) {
-    return <VaultSealedCard proof={seal.proof} headingRef={headingRef} onBackToMissions={onBackToMissions} onReturnToHunt={onReturnToHunt} />
+    return <VaultSealedCard
+      proof={seal.proof}
+      claim={claim}
+      headingRef={headingRef}
+      onClaimTreasure={onClaimTreasure ?? claim?.claimTreasure}
+      onBackToMissions={onBackToMissions}
+      onReturnToHunt={onReturnToHunt}
+    />
   }
 
   const sealing = seal.status === 'SEALING'
@@ -45,15 +57,31 @@ export function ProductVaultOutcome({
 
 function VaultSealedCard({
   proof,
+  claim,
   headingRef,
+  onClaimTreasure,
   onBackToMissions,
   onReturnToHunt,
 }: {
   readonly proof: VerifiedProductVaultSeal
+  readonly claim?: ProductRewardClaimState
   readonly headingRef?: Ref<HTMLHeadingElement>
+  readonly onClaimTreasure?: () => void
   readonly onBackToMissions: () => void
   readonly onReturnToHunt: () => void
 }) {
+  if (claim && onClaimTreasure && (claim.status === 'RESERVED' || claim.status === 'SOLD_OUT' || claim.status === 'ALREADY_REWARDED' || claim.status === 'SIGNING' || claim.status === 'CANCELLED' || claim.status === 'REJECTED')) {
+    return <ProductRewardClaimOutcome
+      claim={claim}
+      heading={TREASURE_SEALED_TITLE}
+      headingRef={headingRef}
+      detail={TREASURE_SEALED_DETAIL}
+      onClaimTreasure={onClaimTreasure}
+      onBackToMissions={onBackToMissions}
+      onReturnToHunt={onReturnToHunt}
+    />
+  }
+
   return <section className={styles.outcome} aria-labelledby="run-outcome">
     <h2 id="run-outcome" ref={headingRef} tabIndex={-1}>{TREASURE_SEALED_TITLE}</h2>
     <p>{TREASURE_SEALED_DETAIL}</p>
@@ -62,10 +90,15 @@ function VaultSealedCard({
       <p><span>VAULT SEAL</span>{shortenProofHash(proof.vaultSealHash)}</p>
       <p><span>STATUS</span>Verified ✓</p>
     </div>
-    <p className={styles.subtle}>{CLAIM_NOT_ENABLED_COPY}</p>
-    <div className={styles.actions}>
-      <button type="button" onClick={onBackToMissions}>Back to missions</button>
-      <button type="button" onClick={onReturnToHunt}>Return to Hunt</button>
-    </div>
+    {claim && onClaimTreasure
+      ? <div className={styles.actions}>
+        <button type="button" onClick={onClaimTreasure}>Claim today's treasure</button>
+        <button type="button" onClick={onBackToMissions}>Back to missions</button>
+        <button type="button" onClick={onReturnToHunt}>Return to Hunt</button>
+      </div>
+      : <div className={styles.actions}>
+        <button type="button" onClick={onBackToMissions}>Back to missions</button>
+        <button type="button" onClick={onReturnToHunt}>Return to Hunt</button>
+      </div>}
   </section>
 }

@@ -7,7 +7,7 @@ import { promisify } from 'node:util'
 import { KeyPair } from '@nimiq/core'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { loadEnv } from 'vite'
-import { Pool } from 'pg'
+import { Client, Pool } from 'pg'
 import { hashBlueprint } from '../../src/game/replay/canonical.ts'
 import { createRoom01Blueprint } from '../../src/game/world/room01.ts'
 import { createSupabaseAdminClient, readServerSupabaseConfig } from '../ledger/config.ts'
@@ -52,6 +52,7 @@ const LIVE_SCHEMA_TABLES = [
   { name: 'expedition_checkpoints', columns: 'run_id,seq,checkpoint_hash' },
   { name: 'expedition_checkpoint_batches', columns: 'run_id,seq_start,seq_end,previous_checkpoint_hash,batch_fingerprint,checkpoint_hash' },
   { name: 'expedition_vault_seals', columns: 'run_id,wallet,vault_seal_hash,vault_checkpoint_hash,verified_at' },
+  { name: 'reward_claims', columns: 'claim_id,run_id,wallet,mission,day_key,claim_payload_hash,status' },
 ] as const
 
 type PgHarness = {
@@ -80,6 +81,7 @@ describe.skipIf(!dockerEnabled)('postgres proof adapter', () => {
     await applySql(adminPool, readFileSync(join(sqlDir, '001_daily_ledger.sql'), 'utf8'))
     await applySql(adminPool, readFileSync(join(sqlDir, '002_expedition_proof.sql'), 'utf8'))
     await applySql(adminPool, readFileSync(join(sqlDir, '003_expedition_proof_runtime.sql'), 'utf8'))
+    await applySql(adminPool, readFileSync(join(sqlDir, '004_reward_claims.sql'), 'utf8'))
   }, 120_000)
 
   afterAll(async () => {
@@ -328,10 +330,483 @@ describe.skipIf(!dockerEnabled)('postgres proof adapter', () => {
     expect(verified.status).toBe(200)
     expect(verified.body).toMatchObject({ ok: true, outcome: 'VERIFIED_ELIGIBLE' })
   }, 30_000)
+
+  it('reserves exactly once for concurrent finalize of the same claim', async () => {
+    const playing = await completeEligible('gem-runner')
+    const prepared = await playing.service.prepareRewardClaim(playing.run.runId, playing.start.session)
+    expect(prepared.outcome).toBe('PREPARED')
+    if (prepared.outcome !== 'PREPARED') throw new Error('PREPARED_REQUIRED')
+    const signed = {
+      session: playing.start.session,
+      claimId: prepared.claimId,
+      payload: prepared.canonicalPayload,
+      publicKey: playing.keyPair.publicKey.toHex(),
+      signature: playing.keyPair.sign(nimiqSignedMessageHash(prepared.canonicalPayload)).toHex(),
+    }
+    const other = await createService({ skipBlueprints: true })
+    const before = await adminPool!.query('select reserved_slots from public.daily_reward_pools where day_key = $1', [playing.run.dayKey])
+    const beforeSlots = Number(before.rows[0]?.reserved_slots ?? 0)
+    const [first, second] = await Promise.all([
+      playing.service.finalizeRewardClaim(signed),
+      other.finalizeRewardClaim(signed),
+    ])
+    expect(first.outcome).toBe('RESERVED')
+    expect(second).toEqual(first)
+    const pool = await adminPool!.query('select reserved_slots from public.daily_reward_pools where day_key = $1', [playing.run.dayKey])
+    expect(Number(pool.rows[0]?.reserved_slots)).toBe(beforeSlots + 1)
+    const wallet = await adminPool!.query('select rewards_reserved from public.daily_wallet_state where day_key = $1 and wallet = $2', [playing.run.dayKey, playing.wallet])
+    expect(Number(wallet.rows[0]?.rewards_reserved)).toBe(1)
+  }, 30_000)
+
+  it('gives one RESERVED and one ALREADY_REWARDED when the same wallet finalizes two runs', async () => {
+    const first = await completeEligible('gem-runner')
+    const prepared = await first.service.prepareRewardClaim(first.run.runId, first.start.session)
+    if (prepared.outcome !== 'PREPARED') throw new Error('PREPARED_REQUIRED')
+    await first.service.finalizeRewardClaim({
+      session: first.start.session,
+      claimId: prepared.claimId,
+      payload: prepared.canonicalPayload,
+      publicKey: first.keyPair.publicKey.toHex(),
+      signature: first.keyPair.sign(nimiqSignedMessageHash(prepared.canonicalPayload)).toHex(),
+    })
+    const secondStart = await signedStart({
+      service: first.service,
+      keyPair: first.keyPair,
+      wallet: first.wallet,
+      mission: 'chest-hunter',
+    })
+    await first.service.markGameplayStarted(secondStart.start.start.runId, secondStart.start.session)
+    const secondRun = await playSequence(first.service, secondStart.start.session, secondStart.start.start.runId, PREVALIDATED_ROOM_01_BOOTSTRAP_WINNING_SEQUENCES['chest-hunter'])
+    await first.service.verifyExpedition({
+      runId: secondRun.runId,
+      session: secondStart.start.session,
+      checkpointHash: secondRun.checkpointHash,
+    })
+    const blocked = await first.service.prepareRewardClaim(secondRun.runId, secondStart.start.session)
+    expect(blocked.outcome).toBe('ALREADY_REWARDED')
+    const wallet = await adminPool!.query('select rewards_reserved from public.daily_wallet_state where day_key = $1 and wallet = $2', [first.run.dayKey, first.wallet])
+    expect(Number(wallet.rows[0]?.rewards_reserved)).toBe(1)
+    const claims = await adminPool!.query('select status from public.reward_claims where run_id = $1', [secondRun.runId])
+    expect(claims.rows[0]?.status).toBe('ALREADY_REWARDED')
+  }, 30_000)
+
+  it('gives exactly one RESERVED when two wallets race for slot 69', async () => {
+    const first = await completeEligible('gem-runner')
+    const second = await completeEligible('gem-runner')
+    const firstPrepared = await first.service.prepareRewardClaim(first.run.runId, first.start.session)
+    const secondPrepared = await second.service.prepareRewardClaim(second.run.runId, second.start.session)
+    if (firstPrepared.outcome !== 'PREPARED' || secondPrepared.outcome !== 'PREPARED') throw new Error('PREPARED_REQUIRED')
+    await adminPool!.query(
+      'insert into public.daily_reward_pools (day_key, reserved_slots) values ($1, 68) on conflict (day_key) do update set reserved_slots = 68',
+      [first.run.dayKey],
+    )
+    try {
+      const results = await Promise.all([
+        first.service.finalizeRewardClaim({
+          session: first.start.session,
+          claimId: firstPrepared.claimId,
+          payload: firstPrepared.canonicalPayload,
+          publicKey: first.keyPair.publicKey.toHex(),
+          signature: first.keyPair.sign(nimiqSignedMessageHash(firstPrepared.canonicalPayload)).toHex(),
+        }),
+        second.service.finalizeRewardClaim({
+          session: second.start.session,
+          claimId: secondPrepared.claimId,
+          payload: secondPrepared.canonicalPayload,
+          publicKey: second.keyPair.publicKey.toHex(),
+          signature: second.keyPair.sign(nimiqSignedMessageHash(secondPrepared.canonicalPayload)).toHex(),
+        }),
+      ])
+      expect(results.filter(result => result.outcome === 'RESERVED')).toHaveLength(1)
+      expect(results.filter(result => result.outcome === 'SOLD_OUT')).toHaveLength(1)
+      const pool = await adminPool!.query('select reserved_slots from public.daily_reward_pools where day_key = $1', [first.run.dayKey])
+      expect(Number(pool.rows[0]?.reserved_slots)).toBe(69)
+      expect(Number(pool.rows[0]?.reserved_slots)).toBeLessThan(70)
+    } finally {
+      await syncReservedSlots(first.run.dayKey)
+    }
+  }, 30_000)
+
+  it('consumes no slot for invalid signatures, expired claims, or RPC mismatch', async () => {
+    const playing = await completeEligible('gem-runner')
+    const prepared = await playing.service.prepareRewardClaim(playing.run.runId, playing.start.session)
+    if (prepared.outcome !== 'PREPARED') throw new Error('PREPARED_REQUIRED')
+    const before = await adminPool!.query('select reserved_slots from public.daily_reward_pools where day_key = $1', [playing.run.dayKey])
+    const beforeSlots = Number(before.rows[0]?.reserved_slots ?? 0)
+    const signed = {
+      session: playing.start.session,
+      claimId: prepared.claimId,
+      payload: prepared.canonicalPayload,
+      publicKey: playing.keyPair.publicKey.toHex(),
+      signature: playing.keyPair.sign(nimiqSignedMessageHash(prepared.canonicalPayload)).toHex(),
+    }
+    await expect(playing.service.finalizeRewardClaim({
+      ...signed,
+      signature: signed.signature.endsWith('0') ? `${signed.signature.slice(0, -1)}1` : `${signed.signature.slice(0, -1)}0`,
+    })).rejects.toMatchObject({ code: 'INVALID_SIGNATURE' })
+
+    await expect(playing.service.finalizeRewardClaim({
+      ...signed,
+      payload: `${prepared.canonicalPayload} `,
+    })).rejects.toMatchObject({ code: 'CLAIM_MISMATCH' })
+    const after = await adminPool!.query('select reserved_slots from public.daily_reward_pools where day_key = $1', [playing.run.dayKey])
+    expect(Number(after.rows[0]?.reserved_slots ?? 0)).toBe(beforeSlots)
+    const stored = await adminPool!.query('select status, public_key, signature from public.reward_claims where claim_id = $1', [prepared.claimId])
+    expect(stored.rows[0]).toMatchObject({ status: 'PREPARED', public_key: null, signature: null })
+    const retry = await playing.service.prepareRewardClaim(playing.run.runId, playing.start.session)
+    expect(retry.outcome).toBe('PREPARED')
+    if (retry.outcome !== 'PREPARED') throw new Error('PREPARED_REQUIRED')
+    expect(retry.claimId).toBe(prepared.claimId)
+    const wallet = await adminPool!.query('select rewards_reserved from public.daily_wallet_state where day_key = $1 and wallet = $2', [playing.run.dayKey, playing.wallet])
+    expect(Number(wallet.rows[0]?.rewards_reserved ?? 0)).toBe(0)
+  }, 30_000)
+
+  it('hardens reward claim schema, indexes, RLS, and service-only RPCs', async () => {
+    const table = await adminPool!.query(`
+      select c.relrowsecurity, c.relforcerowsecurity
+      from pg_catalog.pg_class c
+      join pg_catalog.pg_namespace n on n.oid = c.relnamespace
+      where n.nspname = 'public' and c.relname = 'reward_claims'
+    `)
+    expect(table.rows[0]).toMatchObject({ relrowsecurity: true, relforcerowsecurity: true })
+
+    const runUnique = await adminPool!.query(`
+      select pg_catalog.pg_get_constraintdef(oid) as def
+      from pg_catalog.pg_constraint
+      where conrelid = 'public.reward_claims'::regclass and contype in ('u', 'p')
+    `)
+    expect(runUnique.rows.some(row => /run_id/i.test(String(row.def)) && /UNIQUE|PRIMARY/i.test(String(row.def)))).toBe(true)
+
+    const statuses = await adminPool!.query(`
+      select e.enumlabel
+      from pg_catalog.pg_enum e
+      join pg_catalog.pg_type t on t.oid = e.enumtypid
+      where t.typname = 'reward_claim_status'
+      order by e.enumsortorder
+    `)
+    expect(statuses.rows.map(row => row.enumlabel)).toEqual(['PREPARED', 'RESERVED', 'SOLD_OUT', 'ALREADY_REWARDED', 'EXPIRED'])
+
+    const partial = await adminPool!.query(`
+      select indexdef from pg_catalog.pg_indexes
+      where schemaname = 'public' and indexname = 'reward_claims_one_reserved_per_wallet_day'
+    `)
+    expect(String(partial.rows[0]?.indexdef)).toMatch(/UNIQUE/i)
+    expect(String(partial.rows[0]?.indexdef)).toMatch(/day_key/)
+    expect(String(partial.rows[0]?.indexdef)).toMatch(/wallet/)
+    expect(String(partial.rows[0]?.indexdef)).toMatch(/RESERVED/)
+
+    for (const name of ['prepare_reward_claim', 'finalize_reward_claim', 'get_reward_claim']) {
+      const fn = await adminPool!.query(`
+        select p.prosecdef, p.proconfig
+        from pg_catalog.pg_proc p
+        join pg_catalog.pg_namespace n on n.oid = p.pronamespace
+        where n.nspname = 'public' and p.proname = $1
+      `, [name])
+      expect(fn.rows[0]?.prosecdef).toBe(true)
+      expect(JSON.stringify(fn.rows[0]?.proconfig ?? [])).toMatch(/search_path=[\s\S]*pg_catalog,\s*public/)
+      const publicExecute = await adminPool!.query(`
+        select bool_or(p.proacl is null or (acl.privilege_type = 'EXECUTE' and acl.grantee = 0)) as allowed
+        from pg_catalog.pg_proc p
+        join pg_catalog.pg_namespace n on n.oid = p.pronamespace
+        left join lateral pg_catalog.aclexplode(p.proacl) acl on true
+        where n.nspname = 'public' and p.proname = $1
+      `, [name])
+      expect(publicExecute.rows[0]?.allowed, `PUBLIC.${name}`).toBe(false)
+      for (const role of ['anon', 'authenticated']) {
+        const privilege = await adminPool!.query(`
+          select pg_catalog.has_function_privilege(
+            $1,
+            p.oid,
+            'EXECUTE'
+          ) as allowed
+          from pg_catalog.pg_proc p
+          join pg_catalog.pg_namespace n on n.oid = p.pronamespace
+          where n.nspname = 'public' and p.proname = $2
+          limit 1
+        `, [role, name])
+        expect(privilege.rows[0]?.allowed, `${role}.${name}`).toBe(false)
+      }
+    }
+  }, 30_000)
+
+  it('gives exactly one RESERVED when the same wallet races two eligible claims', async () => {
+    const first = await completeEligible('gem-runner')
+    const secondStart = await signedStart({
+      service: first.service,
+      keyPair: first.keyPair,
+      wallet: first.wallet,
+      mission: 'chest-hunter',
+    })
+    await first.service.markGameplayStarted(secondStart.start.start.runId, secondStart.start.session)
+    const secondRun = await playSequence(
+      first.service,
+      secondStart.start.session,
+      secondStart.start.start.runId,
+      PREVALIDATED_ROOM_01_BOOTSTRAP_WINNING_SEQUENCES['chest-hunter'],
+    )
+    await first.service.verifyExpedition({
+      runId: secondRun.runId,
+      session: secondStart.start.session,
+      checkpointHash: secondRun.checkpointHash,
+    })
+    const firstPrepared = await first.service.prepareRewardClaim(first.run.runId, first.start.session)
+    const secondPrepared = await first.service.prepareRewardClaim(secondRun.runId, secondStart.start.session)
+    expect(firstPrepared.outcome).toBe('PREPARED')
+    expect(secondPrepared.outcome).toBe('PREPARED')
+    if (firstPrepared.outcome !== 'PREPARED' || secondPrepared.outcome !== 'PREPARED') throw new Error('PREPARED_REQUIRED')
+    const other = await createService({ skipBlueprints: true })
+    const before = await adminPool!.query('select reserved_slots from public.daily_reward_pools where day_key = $1', [first.run.dayKey])
+    const beforeSlots = Number(before.rows[0]?.reserved_slots ?? 0)
+    const beforeProof = await adminPool!.query(
+      'select checkpoint_hash, terminal from public.expedition_runs where id = $1',
+      [first.run.runId],
+    )
+    const results = await Promise.all([
+      first.service.finalizeRewardClaim({
+        session: first.start.session,
+        claimId: firstPrepared.claimId,
+        payload: firstPrepared.canonicalPayload,
+        publicKey: first.keyPair.publicKey.toHex(),
+        signature: first.keyPair.sign(nimiqSignedMessageHash(firstPrepared.canonicalPayload)).toHex(),
+      }),
+      other.finalizeRewardClaim({
+        session: secondStart.start.session,
+        claimId: secondPrepared.claimId,
+        payload: secondPrepared.canonicalPayload,
+        publicKey: first.keyPair.publicKey.toHex(),
+        signature: first.keyPair.sign(nimiqSignedMessageHash(secondPrepared.canonicalPayload)).toHex(),
+      }),
+    ])
+    expect(results.filter(result => result.outcome === 'RESERVED')).toHaveLength(1)
+    expect(results.filter(result => result.outcome === 'ALREADY_REWARDED')).toHaveLength(1)
+    const pool = await adminPool!.query('select reserved_slots from public.daily_reward_pools where day_key = $1', [first.run.dayKey])
+    expect(Number(pool.rows[0]?.reserved_slots)).toBe(beforeSlots + 1)
+    const wallet = await adminPool!.query(
+      'select rewards_reserved, expeditions_started from public.daily_wallet_state where day_key = $1 and wallet = $2',
+      [first.run.dayKey, first.wallet],
+    )
+    expect(Number(wallet.rows[0]?.rewards_reserved)).toBe(1)
+    expect(Number(wallet.rows[0]?.expeditions_started)).toBe(2)
+    const afterProof = await adminPool!.query(
+      'select checkpoint_hash, terminal from public.expedition_runs where id = $1',
+      [first.run.runId],
+    )
+    expect(afterProof.rows[0]).toEqual(beforeProof.rows[0])
+  }, 30_000)
+
+  it('reserves once across two independent postgres connections for the same claim', async () => {
+    const playing = await completeEligible('gem-runner')
+    const prepared = await playing.service.prepareRewardClaim(playing.run.runId, playing.start.session)
+    if (prepared.outcome !== 'PREPARED') throw new Error('PREPARED_REQUIRED')
+    const signature = playing.keyPair.sign(nimiqSignedMessageHash(prepared.canonicalPayload)).toHex()
+    const publicKey = playing.keyPair.publicKey.toHex()
+    const before = await adminPool!.query('select reserved_slots from public.daily_reward_pools where day_key = $1', [playing.run.dayKey])
+    const beforeSlots = Number(before.rows[0]?.reserved_slots ?? 0)
+    const clients = await Promise.all([independentPgClient(), independentPgClient()])
+    try {
+      const results = await Promise.all(clients.map(client => finalizeViaClient(client, {
+        claimId: prepared.claimId,
+        runId: playing.run.runId,
+        sessionHash: playing.start.session.sessionHash,
+        wallet: playing.wallet,
+        payload: prepared.canonicalPayload,
+        payloadHash: prepared.claimPayloadHash,
+        publicKey,
+        signature,
+      })))
+      expect(results.filter(result => result.outcome === 'RESERVED')).toHaveLength(2)
+      expect(results.filter(result => result.existing === true)).toHaveLength(1)
+      expect(results.filter(result => result.existing === false)).toHaveLength(1)
+    } finally {
+      await Promise.all(clients.map(client => client.end().catch(() => undefined)))
+    }
+    const pool = await adminPool!.query('select reserved_slots from public.daily_reward_pools where day_key = $1', [playing.run.dayKey])
+    expect(Number(pool.rows[0]?.reserved_slots)).toBe(beforeSlots + 1)
+    const wallet = await adminPool!.query(
+      'select rewards_reserved from public.daily_wallet_state where day_key = $1 and wallet = $2',
+      [playing.run.dayKey, playing.wallet],
+    )
+    expect(Number(wallet.rows[0]?.rewards_reserved)).toBe(1)
+  }, 30_000)
+
+  it('gives exactly one RESERVED when two independent connections race for slot 69', async () => {
+    const first = await completeEligible('gem-runner')
+    const second = await completeEligible('gem-runner')
+    const firstPrepared = await first.service.prepareRewardClaim(first.run.runId, first.start.session)
+    const secondPrepared = await second.service.prepareRewardClaim(second.run.runId, second.start.session)
+    if (firstPrepared.outcome !== 'PREPARED' || secondPrepared.outcome !== 'PREPARED') throw new Error('PREPARED_REQUIRED')
+    await adminPool!.query(
+      'insert into public.daily_reward_pools (day_key, reserved_slots) values ($1, 68) on conflict (day_key) do update set reserved_slots = 68',
+      [first.run.dayKey],
+    )
+    const clients = await Promise.all([independentPgClient(), independentPgClient()])
+    try {
+      const results = await Promise.all([
+        finalizeViaClient(clients[0]!, {
+          claimId: firstPrepared.claimId,
+          runId: first.run.runId,
+          sessionHash: first.start.session.sessionHash,
+          wallet: first.wallet,
+          payload: firstPrepared.canonicalPayload,
+          payloadHash: firstPrepared.claimPayloadHash,
+          publicKey: first.keyPair.publicKey.toHex(),
+          signature: first.keyPair.sign(nimiqSignedMessageHash(firstPrepared.canonicalPayload)).toHex(),
+        }),
+        finalizeViaClient(clients[1]!, {
+          claimId: secondPrepared.claimId,
+          runId: second.run.runId,
+          sessionHash: second.start.session.sessionHash,
+          wallet: second.wallet,
+          payload: secondPrepared.canonicalPayload,
+          payloadHash: secondPrepared.claimPayloadHash,
+          publicKey: second.keyPair.publicKey.toHex(),
+          signature: second.keyPair.sign(nimiqSignedMessageHash(secondPrepared.canonicalPayload)).toHex(),
+        }),
+      ])
+      expect(results.filter(result => result.outcome === 'RESERVED')).toHaveLength(1)
+      expect(results.filter(result => result.outcome === 'SOLD_OUT')).toHaveLength(1)
+      const pool = await adminPool!.query('select reserved_slots from public.daily_reward_pools where day_key = $1', [first.run.dayKey])
+      expect(Number(pool.rows[0]?.reserved_slots)).toBe(69)
+      expect(Number(pool.rows[0]?.reserved_slots)).toBeLessThan(70)
+    } finally {
+      await Promise.all(clients.map(client => client.end().catch(() => undefined)))
+      await syncReservedSlots(first.run.dayKey)
+    }
+  }, 30_000)
+
+  it('returns SOLD_OUT from prepare when the pool is full without incrementing wallet rewards', async () => {
+    const playing = await completeEligible('gem-runner')
+    const beforeWallet = await adminPool!.query(
+      'select rewards_reserved, expeditions_started from public.daily_wallet_state where day_key = $1 and wallet = $2',
+      [playing.run.dayKey, playing.wallet],
+    )
+    await adminPool!.query(
+      'insert into public.daily_reward_pools (day_key, reserved_slots) values ($1, 69) on conflict (day_key) do update set reserved_slots = 69',
+      [playing.run.dayKey],
+    )
+    try {
+      const prepared = await playing.service.prepareRewardClaim(playing.run.runId, playing.start.session)
+      expect(prepared.outcome).toBe('SOLD_OUT')
+      const pool = await adminPool!.query('select reserved_slots from public.daily_reward_pools where day_key = $1', [playing.run.dayKey])
+      expect(Number(pool.rows[0]?.reserved_slots)).toBe(69)
+      const wallet = await adminPool!.query(
+        'select rewards_reserved, expeditions_started from public.daily_wallet_state where day_key = $1 and wallet = $2',
+        [playing.run.dayKey, playing.wallet],
+      )
+      expect(Number(wallet.rows[0]?.rewards_reserved)).toBe(Number(beforeWallet.rows[0]?.rewards_reserved ?? 0))
+      expect(Number(wallet.rows[0]?.expeditions_started)).toBe(Number(beforeWallet.rows[0]?.expeditions_started))
+    } finally {
+      await syncReservedSlots(playing.run.dayKey)
+    }
+  }, 30_000)
+
+  it('rolls back pool, wallet, and claim when finalize hits a database failure', async () => {
+    const playing = await completeEligible('gem-runner')
+    const prepared = await playing.service.prepareRewardClaim(playing.run.runId, playing.start.session)
+    if (prepared.outcome !== 'PREPARED') throw new Error('PREPARED_REQUIRED')
+    const beforePool = await adminPool!.query('select reserved_slots from public.daily_reward_pools where day_key = $1', [playing.run.dayKey])
+    const beforeSlots = Number(beforePool.rows[0]?.reserved_slots ?? 0)
+    const beforeWallet = await adminPool!.query(
+      'select rewards_reserved from public.daily_wallet_state where day_key = $1 and wallet = $2',
+      [playing.run.dayKey, playing.wallet],
+    )
+    const beforeRun = await adminPool!.query(
+      'select checkpoint_hash, terminal, status, reward_status from public.expedition_runs where id = $1',
+      [playing.run.runId],
+    )
+    await adminPool!.query(`
+      create or replace function public.inject_reward_claim_failure()
+      returns trigger
+      language plpgsql
+      as $$
+      begin
+        if new.status = 'RESERVED' then
+          raise exception 'INJECTED_FAILURE';
+        end if;
+        return new;
+      end;
+      $$;
+      drop trigger if exists reward_claims_inject_failure on public.reward_claims;
+      create trigger reward_claims_inject_failure
+      before update on public.reward_claims
+      for each row execute function public.inject_reward_claim_failure();
+    `)
+    try {
+      await expect(playing.service.finalizeRewardClaim({
+        session: playing.start.session,
+        claimId: prepared.claimId,
+        payload: prepared.canonicalPayload,
+        publicKey: playing.keyPair.publicKey.toHex(),
+        signature: playing.keyPair.sign(nimiqSignedMessageHash(prepared.canonicalPayload)).toHex(),
+      })).rejects.toMatchObject({ code: 'PROOF_UNAVAILABLE' })
+      const afterPool = await adminPool!.query('select reserved_slots from public.daily_reward_pools where day_key = $1', [playing.run.dayKey])
+      expect(Number(afterPool.rows[0]?.reserved_slots ?? 0)).toBe(beforeSlots)
+      const afterWallet = await adminPool!.query(
+        'select rewards_reserved from public.daily_wallet_state where day_key = $1 and wallet = $2',
+        [playing.run.dayKey, playing.wallet],
+      )
+      expect(Number(afterWallet.rows[0]?.rewards_reserved ?? 0)).toBe(Number(beforeWallet.rows[0]?.rewards_reserved ?? 0))
+      const claim = await adminPool!.query(
+        'select status, public_key, signature, finalized_at from public.reward_claims where claim_id = $1',
+        [prepared.claimId],
+      )
+      expect(claim.rows[0]).toMatchObject({ status: 'PREPARED', public_key: null, signature: null, finalized_at: null })
+      const afterRun = await adminPool!.query(
+        'select checkpoint_hash, terminal, status, reward_status from public.expedition_runs where id = $1',
+        [playing.run.runId],
+      )
+      expect(afterRun.rows[0]).toEqual(beforeRun.rows[0])
+    } finally {
+      await adminPool!.query(`
+        drop trigger if exists reward_claims_inject_failure on public.reward_claims;
+        drop function if exists public.inject_reward_claim_failure();
+      `)
+    }
+    const reserved = await playing.service.finalizeRewardClaim({
+      session: playing.start.session,
+      claimId: prepared.claimId,
+      payload: prepared.canonicalPayload,
+      publicKey: playing.keyPair.publicKey.toHex(),
+      signature: playing.keyPair.sign(nimiqSignedMessageHash(prepared.canonicalPayload)).toHex(),
+    })
+    expect(reserved.outcome).toBe('RESERVED')
+  }, 30_000)
+
+  it('rejects anon/authenticated writes and claim RPC execution', async () => {
+    const anon = new Pool({
+      host: harness!.host,
+      port: harness!.port,
+      user: 'anon',
+      password: 'anon',
+      database: 'postgres',
+    })
+    const authenticated = new Pool({
+      host: harness!.host,
+      port: harness!.port,
+      user: 'authenticated',
+      password: 'authenticated',
+      database: 'postgres',
+    })
+    try {
+      await expect(anon.query('insert into public.reward_claims (claim_id, run_id, wallet, mission, day_key, canonical_payload, claim_payload_hash, status, expires_at) values (gen_random_uuid(), gen_random_uuid(), \'NQ-TEST\', \'gem-runner\', current_date, \'x\', repeat(\'a\', 64), \'PREPARED\', timezone(\'utc\', now()))')).rejects.toThrow()
+      expect((await anon.query('update public.reward_claims set status = status returning claim_id')).rowCount).toBe(0)
+      expect((await anon.query('delete from public.reward_claims returning claim_id')).rowCount).toBe(0)
+      await expect(authenticated.query('insert into public.reward_claims (claim_id, run_id, wallet, mission, day_key, canonical_payload, claim_payload_hash, status, expires_at) values (gen_random_uuid(), gen_random_uuid(), \'NQ-TEST\', \'gem-runner\', current_date, \'x\', repeat(\'a\', 64), \'PREPARED\', timezone(\'utc\', now()))')).rejects.toThrow()
+      expect((await authenticated.query('update public.reward_claims set status = status returning claim_id')).rowCount).toBe(0)
+      expect((await authenticated.query('delete from public.reward_claims returning claim_id')).rowCount).toBe(0)
+      expect((await anon.query("select has_function_privilege('anon', 'public.prepare_reward_claim(uuid,text,text,text,date,uuid,text,text,timestamptz)', 'EXECUTE') as allowed")).rows[0]?.allowed).toBe(false)
+      expect((await authenticated.query("select has_function_privilege('authenticated', 'public.finalize_reward_claim(uuid,uuid,text,text,text,text,text,text)', 'EXECUTE') as allowed")).rows[0]?.allowed).toBe(false)
+      expect((await anon.query("select has_function_privilege('anon', 'public.get_reward_claim(uuid,text)', 'EXECUTE') as allowed")).rows[0]?.allowed).toBe(false)
+      expect((await authenticated.query("select has_function_privilege('authenticated', 'public.get_reward_claim(uuid,text)', 'EXECUTE') as allowed")).rows[0]?.allowed).toBe(false)
+    } finally {
+      await anon.end()
+      await authenticated.end()
+    }
+  }, 30_000)
 })
 
 describe.skipIf(!liveEnabled)('configured supabase proof adapter', () => {
-  it('exposes the live 001/002/003 schema to the service role', async () => {
+  it('exposes the live 001/002/003/004 schema to the service role', async () => {
     const client = createSupabaseAdminClient(liveConfig!)
     for (const table of LIVE_SCHEMA_TABLES) {
       const query = await client.from(table.name).select(table.columns).limit(1)
@@ -403,8 +878,22 @@ describe.skipIf(!liveEnabled)('configured supabase proof adapter', () => {
         status: 'STARTED',
       })
       expect(insert.error).toBeTruthy()
+      const claimInsert = await anon.from('reward_claims').insert({
+        claim_id: '00000000-0000-0000-0000-000000000000',
+        run_id: '00000000-0000-0000-0000-000000000000',
+        wallet: 'NQ-TEST',
+        mission: 'gem-runner',
+        day_key: utcDayKey(new Date()),
+        canonical_payload: 'x',
+        claim_payload_hash: 'a'.repeat(64),
+        status: 'PREPARED',
+        expires_at: '1970-01-01T00:00:00Z',
+      })
+      expect(claimInsert.error).toBeTruthy()
       const rpc = await anon.rpc('append_checkpoint_batch', {})
       expect(rpc.error).toBeTruthy()
+      const claimRpc = await anon.rpc('prepare_reward_claim', {})
+      expect(claimRpc.error).toBeTruthy()
     }
 
     const email = `nimhunt.rls.${randomUUID().slice(0, 8)}@gmail.com`
@@ -473,6 +962,17 @@ describe.skipIf(!liveEnabled)('configured supabase proof adapter', () => {
           vault_checkpoint_hash: 'b'.repeat(64),
           verified_at: '1970-01-01T00:00:00Z',
         }],
+        ['reward_claims', {
+          claim_id: '00000000-0000-0000-0000-000000000000',
+          run_id: '00000000-0000-0000-0000-000000000000',
+          wallet: 'NQ-AUTH-RLS',
+          mission: 'gem-runner',
+          day_key: '1970-01-01',
+          canonical_payload: 'x',
+          claim_payload_hash: 'a'.repeat(64),
+          status: 'PREPARED',
+          expires_at: '1970-01-01T00:00:00Z',
+        }],
       ] as const
       for (const [table, payload] of inserts) {
         const inserted = await liveSupabaseFetch(`/rest/v1/${table}`, {
@@ -496,6 +996,19 @@ describe.skipIf(!liveEnabled)('configured supabase proof adapter', () => {
       })
       expect(deleted.status).toBe(200)
       expect(deleted.body).toEqual([])
+      const claimUpdated = await liveSupabaseFetch('/rest/v1/reward_claims?claim_id=eq.00000000-0000-0000-0000-000000000000', {
+        method: 'PATCH',
+        token: accessToken,
+        body: { status: 'RESERVED' },
+      })
+      expect(claimUpdated.status).toBe(200)
+      expect(claimUpdated.body).toEqual([])
+      const claimDeleted = await liveSupabaseFetch('/rest/v1/reward_claims?claim_id=eq.00000000-0000-0000-0000-000000000000', {
+        method: 'DELETE',
+        token: accessToken,
+      })
+      expect(claimDeleted.status).toBe(200)
+      expect(claimDeleted.body).toEqual([])
       const denied = [
         ['create_start_challenge', {
           p_wallet: 'NQ-TEST',
@@ -517,6 +1030,31 @@ describe.skipIf(!liveEnabled)('configured supabase proof adapter', () => {
           p_signature: 'sig',
           p_vault_checkpoint_hash: 'b'.repeat(64),
           p_verified_at: '1970-01-01T00:00:00Z',
+        }],
+        ['prepare_reward_claim', {
+          p_run_id: '00000000-0000-0000-0000-000000000000',
+          p_run_session_hash: 'a'.repeat(64),
+          p_wallet: 'x',
+          p_mission: 'gem-runner',
+          p_day_key: '1970-01-01',
+          p_claim_id: '00000000-0000-0000-0000-000000000000',
+          p_canonical_payload: 'x',
+          p_claim_payload_hash: 'a'.repeat(64),
+          p_expires_at: '1970-01-01T00:00:00Z',
+        }],
+        ['finalize_reward_claim', {
+          p_claim_id: '00000000-0000-0000-0000-000000000000',
+          p_run_id: '00000000-0000-0000-0000-000000000000',
+          p_run_session_hash: 'a'.repeat(64),
+          p_wallet: 'x',
+          p_canonical_payload: 'x',
+          p_claim_payload_hash: 'a'.repeat(64),
+          p_public_key: 'pk',
+          p_signature: 'sig',
+        }],
+        ['get_reward_claim', {
+          p_claim_id: '00000000-0000-0000-0000-000000000000',
+          p_run_session_hash: 'a'.repeat(64),
         }],
       ] as const
       for (const [name, payload] of denied) {
@@ -680,6 +1218,65 @@ describe.skipIf(!liveEnabled)('configured supabase proof adapter', () => {
     expect((await playing.service.getRun(completed.runId))?.vaultSeal?.canonicalPayload).toBe(prepared.canonicalPayload)
     expect((await playing.service.getWalletDailyStatus(playing.wallet)).expeditionsRemaining).toBe(2)
   }, 60_000)
+
+  it('prepares, signs, and atomically reserves one live reward claim', async () => {
+    const playing = await completeEligible('gem-runner', await createLiveService())
+    const before = await playing.service.getWalletDailyStatus(playing.wallet)
+    const beforeRun = await playing.service.getRun(playing.run.runId)
+    const prepared = await playing.service.prepareRewardClaim(playing.run.runId, playing.start.session)
+    expect(prepared.outcome).toBe('PREPARED')
+    if (prepared.outcome !== 'PREPARED') throw new Error('PREPARED_REQUIRED')
+    expect(prepared.canonicalPayload).toContain('NIMHUNT_REWARD_CLAIM_V1')
+    const retriedPrepare = await playing.service.prepareRewardClaim(playing.run.runId, playing.start.session)
+    expect(retriedPrepare).toEqual(prepared)
+    const signed = {
+      session: playing.start.session,
+      claimId: prepared.claimId,
+      payload: prepared.canonicalPayload,
+      publicKey: playing.keyPair.publicKey.toHex(),
+      signature: playing.keyPair.sign(nimiqSignedMessageHash(prepared.canonicalPayload)).toHex(),
+    }
+    await expect(playing.service.finalizeRewardClaim({
+      ...signed,
+      signature: signed.signature.endsWith('0') ? `${signed.signature.slice(0, -1)}1` : `${signed.signature.slice(0, -1)}0`,
+    })).rejects.toMatchObject({ code: 'INVALID_SIGNATURE' })
+    expect((await playing.service.prepareRewardClaim(playing.run.runId, playing.start.session)).claimId).toBe(prepared.claimId)
+    expect((await playing.service.getWalletDailyStatus(playing.wallet)).rewardAlreadyReserved).toBe(false)
+
+    const reserved = await playing.service.finalizeRewardClaim(signed)
+    expect(reserved.outcome).toBe('RESERVED')
+    const retry = await playing.service.finalizeRewardClaim(signed)
+    expect(retry).toEqual(reserved)
+    const after = await playing.service.getWalletDailyStatus(playing.wallet)
+    expect(after.rewardAlreadyReserved).toBe(true)
+    expect(after.expeditionsStarted).toBe(before.expeditionsStarted)
+    const afterRun = await playing.service.getRun(playing.run.runId)
+    expect(afterRun?.checkpointHash).toBe(beforeRun?.checkpointHash)
+    expect(afterRun?.terminal).toEqual(beforeRun?.terminal)
+    expect(afterRun?.seq).toBe(beforeRun?.seq)
+
+    const secondStart = await signedStart({
+      service: playing.service,
+      keyPair: playing.keyPair,
+      wallet: playing.wallet,
+      mission: 'chest-hunter',
+    })
+    await playing.service.markGameplayStarted(secondStart.start.start.runId, secondStart.start.session)
+    const secondRun = await playSequence(
+      playing.service,
+      secondStart.start.session,
+      secondStart.start.start.runId,
+      PREVALIDATED_ROOM_01_BOOTSTRAP_WINNING_SEQUENCES['chest-hunter'],
+    )
+    await playing.service.verifyExpedition({
+      runId: secondRun.runId,
+      session: secondStart.start.session,
+      checkpointHash: secondRun.checkpointHash,
+    })
+    const blocked = await playing.service.prepareRewardClaim(secondRun.runId, secondStart.start.session)
+    expect(blocked.outcome).toBe('ALREADY_REWARDED')
+    expect((await playing.service.getWalletDailyStatus(playing.wallet)).rewardAlreadyReserved).toBe(true)
+  }, 90_000)
 
   it('serves the product HTTP gem flow against live postgres', async () => {
     const playing = await startPlaying('gem-runner', await createLiveService())
@@ -886,6 +1483,36 @@ async function startPlaying(
   return { ...started, run }
 }
 
+async function completeEligible(
+  mission: 'gem-runner' | 'chest-hunter' | 'vault-breaker' = 'gem-runner',
+  service?: ProofService,
+) {
+  const playing = await startPlaying(mission, service)
+  const completed = await playSequence(
+    playing.service,
+    playing.start.session,
+    playing.run.runId,
+    PREVALIDATED_ROOM_01_BOOTSTRAP_WINNING_SEQUENCES[mission],
+  )
+  const verified = await playing.service.verifyExpedition({
+    runId: completed.runId,
+    session: playing.start.session,
+    checkpointHash: completed.checkpointHash,
+  })
+  if (mission === 'vault-breaker') {
+    const preparedSeal = await playing.service.prepareVaultSeal(completed.runId, playing.start.session)
+    await playing.service.verifyVaultSeal({
+      session: playing.start.session,
+      payload: preparedSeal.canonicalPayload,
+      publicKey: playing.keyPair.publicKey.toHex(),
+      signature: playing.keyPair.sign(nimiqSignedMessageHash(preparedSeal.canonicalPayload)).toHex(),
+    })
+  }
+  const run = await playing.service.getRun(completed.runId)
+  if (!run) throw new Error('RUN_MISSING')
+  return { ...playing, run, verified }
+}
+
 async function playSequence(
   service: ProofService,
   session: RunSessionRecord,
@@ -1075,6 +1702,48 @@ async function startPostgres(): Promise<PgHarness> {
     }
   }
   throw new Error('POSTGRES_UNAVAILABLE')
+}
+
+async function independentPgClient(): Promise<Client> {
+  const client = new Client({
+    host: harness!.host,
+    port: harness!.port,
+    user: 'postgres',
+    password: 'postgres',
+    database: 'postgres',
+  })
+  client.on('error', () => undefined)
+  await client.connect()
+  return client
+}
+
+async function finalizeViaClient(client: Client, input: {
+  readonly claimId: string
+  readonly runId: string
+  readonly sessionHash: string
+  readonly wallet: string
+  readonly payload: string
+  readonly payloadHash: string
+  readonly publicKey: string
+  readonly signature: string
+}): Promise<{ readonly ok?: boolean; readonly outcome?: string; readonly existing?: boolean }> {
+  const result = await client.query(
+    'select public.finalize_reward_claim($1::uuid, $2::uuid, $3::text, $4::text, $5::text, $6::text, $7::text, $8::text) as result',
+    [input.claimId, input.runId, input.sessionHash, input.wallet, input.payload, input.payloadHash, input.publicKey, input.signature],
+  )
+  return (result.rows[0]?.result ?? {}) as { readonly ok?: boolean; readonly outcome?: string; readonly existing?: boolean }
+}
+
+async function syncReservedSlots(dayKey: string): Promise<void> {
+  await adminPool!.query(
+    `update public.daily_reward_pools p
+     set reserved_slots = (
+       select count(*)::int from public.reward_claims c
+       where c.day_key = p.day_key and c.status = 'RESERVED'
+     )
+     where p.day_key = $1`,
+    [dayKey],
+  )
 }
 
 async function applySql(pool: Pool, sql: string): Promise<void> {

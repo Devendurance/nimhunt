@@ -39,6 +39,7 @@ import {
 import type {
   DurableCheckpointBatch,
   DurableExpeditionRun,
+  DurableRewardClaim,
   DurableRunStatus,
   DurableRewardStatus,
   DurableRunTerminal,
@@ -48,6 +49,12 @@ import type {
   ProofService,
   StartAuthorizationResult,
 } from './types.ts'
+import {
+  createPreparedRewardClaim,
+  toFinalizeResult,
+  toPrepareResult,
+  verifySignedRewardClaim,
+} from './rewardClaim.ts'
 import { prepareProductVaultSeal, verifyProductVaultSeal } from './vaultSeal.ts'
 import { abandonExpeditionRun, verifyExpeditionRun } from './verify.ts'
 import { nextUtcResetAt, utcDayKey } from '../ledger/utcDay.ts'
@@ -370,6 +377,62 @@ export async function createPostgresProofService(options: {
       return prepareProductVaultSeal(run)
     },
 
+    async prepareRewardClaim(runId, session) {
+      const { run, now } = await requireAuthenticatedRun(rpc, runId, session)
+      const prepared = createPreparedRewardClaim(run, now)
+      const persisted = readProofRpc(await rpc.rpc('prepare_reward_claim', {
+        p_run_id: run.runId,
+        p_run_session_hash: session.sessionHash,
+        p_wallet: run.wallet,
+        p_mission: run.mission,
+        p_day_key: run.dayKey,
+        p_claim_id: prepared.claimId,
+        p_canonical_payload: prepared.canonicalPayload,
+        p_claim_payload_hash: prepared.claimPayloadHash,
+        p_expires_at: prepared.expiresAt,
+      }))
+      return toPrepareResult(asRewardClaim(asRecord(persisted.claim)))
+    },
+
+    async finalizeRewardClaim(input) {
+      const { run, now } = await requireAuthenticatedRun(rpc, input.session.runId, input.session)
+      const loadedClaim = readProofRpc(await rpc.rpc('get_reward_claim', {
+        p_claim_id: input.claimId,
+        p_run_session_hash: input.session.sessionHash,
+      }))
+      const stored = asRewardClaim(asRecord(loadedClaim.claim))
+      const remaining = asNumber(asRecord(loadedClaim.claim).remaining_slots)
+      if (stored.status === 'RESERVED' || stored.status === 'SOLD_OUT' || stored.status === 'ALREADY_REWARDED') {
+        if (stored.canonicalPayload !== input.payload || stored.runId !== run.runId) throw new ProofError('CLAIM_MISMATCH')
+        return toFinalizeResult(stored, {
+          remainingSlots: remaining,
+          reservationNumber: stored.reservationNumber,
+        })
+      }
+      verifySignedRewardClaim(run, stored, {
+        claimId: input.claimId,
+        payload: input.payload,
+        publicKey: input.publicKey,
+        signature: input.signature,
+        now,
+      })
+      const persisted = readProofRpc(await rpc.rpc('finalize_reward_claim', {
+        p_claim_id: input.claimId,
+        p_run_id: run.runId,
+        p_run_session_hash: input.session.sessionHash,
+        p_wallet: run.wallet,
+        p_canonical_payload: input.payload,
+        p_claim_payload_hash: stored.claimPayloadHash,
+        p_public_key: input.publicKey,
+        p_signature: input.signature,
+      }))
+      const claim = asRewardClaim(asRecord(persisted.claim))
+      return toFinalizeResult(claim, {
+        remainingSlots: asNumber(asRecord(persisted.claim).remaining_slots),
+        reservationNumber: claim.reservationNumber,
+      })
+    },
+
     async verifyVaultSeal(input) {
       const parsed = parseProductVaultSeal(input.payload)
       if (!parsed) throw new ProofError('VAULT_SEAL_MISMATCH')
@@ -616,6 +679,30 @@ function asSession(value: unknown): RunSessionRecord {
     createdAt: asIso(row.created_at),
     expiresAt: asIso(row.expires_at),
     revokedAt: row.revoked_at == null ? null : asIso(row.revoked_at),
+  }
+}
+
+function asRewardClaim(value: unknown): DurableRewardClaim {
+  const row = asRecord(value)
+  const status = row.status
+  if (status !== 'PREPARED' && status !== 'RESERVED' && status !== 'SOLD_OUT' && status !== 'ALREADY_REWARDED' && status !== 'EXPIRED') {
+    throw new ProofError('PROOF_LOST')
+  }
+  return {
+    claimId: asString(row.claim_id),
+    runId: asString(row.run_id),
+    wallet: asString(row.wallet),
+    mission: asMission(row.mission),
+    dayKey: asDayKey(row.day_key),
+    canonicalPayload: asString(row.canonical_payload),
+    claimPayloadHash: asString(row.claim_payload_hash),
+    status,
+    publicKey: row.public_key == null ? null : asString(row.public_key),
+    signature: row.signature == null ? null : asString(row.signature),
+    createdAt: asIso(row.created_at),
+    expiresAt: asIso(row.expires_at),
+    finalizedAt: row.finalized_at == null ? null : asIso(row.finalized_at),
+    reservationNumber: row.reservation_number == null ? null : asNumber(row.reservation_number),
   }
 }
 

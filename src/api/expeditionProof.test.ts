@@ -386,4 +386,57 @@ describe('expedition proof browser API', () => {
       body: JSON.stringify({ payload: canonicalPayload, publicKey: 'pk', signature: 'sig' }),
     }))
   })
+
+  it('parses prepare and finalize reward claim responses', async () => {
+    const { parseFinalizeRewardClaimResult, parsePrepareRewardClaimResult, prepareRewardClaim, finalizeRewardClaim } = await import('./expeditionProof.ts')
+    const { serializeProductRewardClaim } = await import('../domain/productRewardClaim.ts')
+    const canonicalPayload = serializeProductRewardClaim({
+      version: 1,
+      type: 'NIMHUNT_REWARD_CLAIM_V1',
+      claimId: '2f1c0a6e-4b8d-4c91-9f0a-7d3e1b5c8a22',
+      wallet: 'NQ07 33E4 6T32 24Y7 X4BA 7SP2 27TX 32PL 54JG',
+      runId: 'run-1',
+      mission: 'gem-runner',
+      dayKey: '2026-09-09',
+      runChallenge: 'cd'.repeat(32),
+      rulesVersion: 'nimhunt-rules-v1',
+      roomVersion: 'angkor-room-01-v1',
+      blueprintVersion: 'angkor-blueprint-v1',
+      blueprintId: 'angkor-room-01-gem',
+      blueprintHash: 'ab'.repeat(32),
+      transcriptHash: 'ef'.repeat(32),
+    })
+    const prepared = {
+      ok: true,
+      outcome: 'PREPARED' as const,
+      claimId: '2f1c0a6e-4b8d-4c91-9f0a-7d3e1b5c8a22',
+      runId: 'run-1',
+      canonicalPayload,
+      claimPayloadHash: '11'.repeat(32),
+      expiresAt: '2026-09-10T00:00:00.000Z',
+    }
+    expect(parsePrepareRewardClaimResult(prepared)?.outcome).toBe('PREPARED')
+    expect(parsePrepareRewardClaimResult({ ...prepared, extra: true })).toBeNull()
+    const finalized = {
+      ok: true,
+      outcome: 'RESERVED' as const,
+      claimId: prepared.claimId,
+      runId: 'run-1',
+      reservationNumber: 1,
+      remainingSlots: 68,
+      totalSlots: 69 as const,
+      finalizedAt: '2026-09-09T12:10:00.000Z',
+    }
+    expect(parseFinalizeRewardClaimResult(finalized)?.outcome).toBe('RESERVED')
+    const prepareFetcher = vi.fn().mockResolvedValue(response(prepared))
+    await prepareRewardClaim('run-1', prepareFetcher)
+    expect(prepareFetcher).toHaveBeenCalledWith('/api/rewards/claim/prepare', expect.objectContaining({
+      body: JSON.stringify({ runId: 'run-1' }),
+    }))
+    const finalizeFetcher = vi.fn().mockResolvedValue(response(finalized))
+    await finalizeRewardClaim({ claimId: prepared.claimId, payload: canonicalPayload, publicKey: 'pk', signature: 'sig' }, finalizeFetcher)
+    expect(finalizeFetcher).toHaveBeenCalledWith('/api/rewards/claim/finalize', expect.objectContaining({
+      body: JSON.stringify({ claimId: prepared.claimId, payload: canonicalPayload, publicKey: 'pk', signature: 'sig' }),
+    }))
+  })
 })

@@ -1,5 +1,5 @@
 import { randomBytes, randomUUID } from 'node:crypto'
-import { DAILY_EXPEDITION_LIMIT } from '../../src/domain/dailyLedger.ts'
+import { DAILY_EXPEDITION_LIMIT, DAILY_REWARD_SLOTS } from '../../src/domain/dailyLedger.ts'
 import { parseProductVaultSeal } from '../../src/domain/productVaultSeal.ts'
 import type {
   ProductActiveExpedition,
@@ -32,9 +32,16 @@ import {
   requireRunSession,
   type RunSessionRecord,
 } from './session.ts'
+import {
+  createPreparedRewardClaim,
+  toFinalizeResult,
+  toPrepareResult,
+  verifySignedRewardClaim,
+} from './rewardClaim.ts'
 import type {
   Clock,
   DurableExpeditionRun,
+  DurableRewardClaim,
   DurableRunTerminal,
   DurableStartChallenge,
   DurableVaultSealProof,
@@ -85,6 +92,10 @@ export function createMemoryProofService(options: {
   const runs = new Map<string, DurableExpeditionRun>()
   const sessions = new Map<string, RunSessionRecord>()
   const attempts = new Map<string, number>()
+  const reservedSlots = new Map<string, number>()
+  const walletRewards = new Map<string, number>()
+  const claims = new Map<string, DurableRewardClaim>()
+  const claimsByRun = new Map<string, string>()
 
   const service: MemoryProofService = {
     registerBlueprint(blueprint) {
@@ -197,7 +208,7 @@ export function createMemoryProofService(options: {
         dayKey,
         expeditionsStarted,
         expeditionsRemaining: DAILY_EXPEDITION_LIMIT - expeditionsStarted,
-        rewardAlreadyReserved: false,
+        rewardAlreadyReserved: (walletRewards.get(walletKey(dayKey, normalizedWallet)) ?? 0) >= 1,
         nextResetAt: nextUtcResetAt(dayKey),
       }
     },
@@ -321,6 +332,99 @@ export function createMemoryProofService(options: {
         })
         runs.set(run.runId, result.run)
         return result.result
+      })
+    },
+
+    prepareRewardClaim(runId, session) {
+      return mutex.run(() => {
+        const { run, now } = requireAuthenticatedRun(runId, session)
+        const existingId = claimsByRun.get(runId)
+        if (existingId) {
+          const existing = claims.get(existingId)
+          if (!existing) throw new ProofError('CLAIM_NOT_FOUND')
+          if (existing.status === 'PREPARED' && now.getTime() >= new Date(existing.expiresAt).getTime()) {
+            claims.set(existing.claimId, { ...existing, status: 'EXPIRED' })
+            throw new ProofError('CLAIM_WINDOW_EXPIRED')
+          }
+          return toPrepareResult(existing)
+        }
+        const prepared = createPreparedRewardClaim(run, now)
+        const already = (walletRewards.get(walletKey(run.dayKey, run.wallet)) ?? 0) >= 1
+        const soldOut = (reservedSlots.get(run.dayKey) ?? 0) >= DAILY_REWARD_SLOTS
+        const claim: DurableRewardClaim = already
+          ? { ...prepared, status: 'ALREADY_REWARDED', finalizedAt: now.toISOString() }
+          : soldOut
+            ? { ...prepared, status: 'SOLD_OUT', finalizedAt: now.toISOString() }
+            : prepared
+        claims.set(claim.claimId, claim)
+        claimsByRun.set(run.runId, claim.claimId)
+        return toPrepareResult(claim)
+      })
+    },
+
+    finalizeRewardClaim(input) {
+      return mutex.run(() => {
+        const stored = claims.get(input.claimId)
+        if (!stored) throw new ProofError('CLAIM_NOT_FOUND')
+        const { run, now } = requireAuthenticatedRun(stored.runId, input.session)
+        if (stored.status === 'RESERVED' || stored.status === 'SOLD_OUT' || stored.status === 'ALREADY_REWARDED') {
+          if (stored.canonicalPayload !== input.payload) throw new ProofError('CLAIM_MISMATCH')
+          return toFinalizeResult(stored, {
+            remainingSlots: DAILY_REWARD_SLOTS - (reservedSlots.get(run.dayKey) ?? 0),
+            reservationNumber: stored.reservationNumber,
+          })
+        }
+        verifySignedRewardClaim(run, stored, {
+          claimId: input.claimId,
+          payload: input.payload,
+          publicKey: input.publicKey,
+          signature: input.signature,
+          now,
+        })
+        const walletKeyName = walletKey(run.dayKey, run.wallet)
+        const already = (walletRewards.get(walletKeyName) ?? 0) >= 1
+        if (already) {
+          const claim: DurableRewardClaim = {
+            ...stored,
+            status: 'ALREADY_REWARDED',
+            publicKey: input.publicKey,
+            signature: input.signature,
+            finalizedAt: now.toISOString(),
+          }
+          claims.set(claim.claimId, claim)
+          return toFinalizeResult(claim, {
+            remainingSlots: DAILY_REWARD_SLOTS - (reservedSlots.get(run.dayKey) ?? 0),
+            reservationNumber: null,
+          })
+        }
+        const current = reservedSlots.get(run.dayKey) ?? 0
+        if (current >= DAILY_REWARD_SLOTS) {
+          const claim: DurableRewardClaim = {
+            ...stored,
+            status: 'SOLD_OUT',
+            publicKey: input.publicKey,
+            signature: input.signature,
+            finalizedAt: now.toISOString(),
+          }
+          claims.set(claim.claimId, claim)
+          return toFinalizeResult(claim, { remainingSlots: 0, reservationNumber: null })
+        }
+        const reservationNumber = current + 1
+        reservedSlots.set(run.dayKey, reservationNumber)
+        walletRewards.set(walletKeyName, 1)
+        const claim: DurableRewardClaim = {
+          ...stored,
+          status: 'RESERVED',
+          publicKey: input.publicKey,
+          signature: input.signature,
+          finalizedAt: now.toISOString(),
+          reservationNumber,
+        }
+        claims.set(claim.claimId, claim)
+        return toFinalizeResult(claim, {
+          remainingSlots: DAILY_REWARD_SLOTS - reservationNumber,
+          reservationNumber,
+        })
       })
     },
   }

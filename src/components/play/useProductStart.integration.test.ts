@@ -9,7 +9,9 @@ import {
   ExpeditionProofApiError,
   fetchActiveExpedition,
   markGameplayStarted,
+  finalizeRewardClaim,
   prepareProductVaultSeal,
+  prepareRewardClaim,
   requestStartChallenge,
   submitCheckpoint,
   verifyExpedition,
@@ -163,6 +165,8 @@ vi.mock('../../api/expeditionProof.ts', async () => {
     abandonExpedition: vi.fn(),
     prepareProductVaultSeal: vi.fn(),
     verifyProductVaultSeal: vi.fn(),
+    prepareRewardClaim: vi.fn(),
+    finalizeRewardClaim: vi.fn(),
   }
 })
 
@@ -815,6 +819,8 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
   const abandon = vi.mocked(abandonExpedition)
   const prepareVaultSeal = vi.mocked(prepareProductVaultSeal)
   const verifyVaultSeal = vi.mocked(verifyProductVaultSeal)
+  const prepareClaim = vi.mocked(prepareRewardClaim)
+  const finalizeClaim = vi.mocked(finalizeRewardClaim)
   const createGame = vi.mocked(createNimHuntGame)
   const productStart = vi.mocked(authorizeStart)
   const submitStart = vi.mocked(authorizeStart)
@@ -1077,7 +1083,8 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
     expect(verify).toHaveBeenCalledWith({ runId: active.runId, checkpointHash: active.checkpoint.checkpointHash })
     const verifiedText = collectText(harness.current).join(' ')
     expect(verifiedText).toContain('Expedition verified')
-    expect(verifiedText).toContain('Reward claim is not enabled in this build yet.')
+    expect(verifiedText).toContain("Claim today's treasure")
+    expect(verifiedText).not.toContain('Reward claim is not enabled in this build yet.')
     expect(findButtonWithText(harness.current, 'Back to missions')).not.toBeNull()
     expect(findButtonWithText(harness.current, 'Return to Hunt')).not.toBeNull()
     expect(fetchActive).toHaveBeenCalledTimes(1)
@@ -1121,6 +1128,92 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
     expect(collectText(fresh.current).join(' ')).toContain('no longer ready to enter')
     expect(collectText(fresh.current).join(' ')).not.toContain('Expedition verified')
     fresh.unmount()
+  })
+
+  it('claims a reserved Gem slot from the verified CTA and keeps cancellation retryable', async () => {
+    const active = createActiveExpedition('gem-runner')
+    const game = createFakeGame()
+    const canonicalPayload = '{\n  "type": "NIMHUNT_REWARD_CLAIM_V1"\n}'
+    fetchActive.mockResolvedValue(active)
+    gameplayStart.mockResolvedValue({ runId: active.runId, outcome: 'GAMEPLAY_STARTED' })
+    createGame.mockReturnValue(game)
+    verify.mockResolvedValue({
+      runId: active.runId,
+      checkpointHash: active.checkpoint.checkpointHash,
+      outcome: 'VERIFIED_ELIGIBLE',
+      status: 'COMPLETED',
+      rewardStatus: 'ELIGIBLE',
+      finalHp: 100,
+      gemsCollected: 6,
+      chestsOpened: 0,
+      objectiveReached: false,
+      hasTempleKey: false,
+      missionSatisfied: true,
+      finalSeq: 8,
+      transcriptHash: '4'.repeat(64),
+      stateHash: '5'.repeat(64),
+      verifiedAt: '2026-09-09T12:05:00.000Z',
+    })
+    prepareClaim.mockResolvedValue({
+      outcome: 'PREPARED',
+      claimId: 'claim-1',
+      runId: active.runId,
+      canonicalPayload,
+      claimPayloadHash: 'ab'.repeat(32),
+      expiresAt: '2026-09-10T00:00:00.000Z',
+    })
+    sign.mockRejectedValueOnce(createNimiqError('SIGN_CANCELLED', 'cancelled'))
+    sign.mockResolvedValue({ publicKey: 'pk', signature: 'sig' })
+    finalizeClaim.mockResolvedValue({
+      outcome: 'RESERVED',
+      claimId: 'claim-1',
+      runId: active.runId,
+      reservationNumber: 1,
+      remainingSlots: 68,
+      totalSlots: 69,
+      finalizedAt: '2026-09-09T12:10:00.000Z',
+    })
+
+    const harness = createHookHarness(() => ProductExpeditionGate({
+      mission: 'gem-runner',
+      runId: active.runId,
+      onBackToMissions: vi.fn(),
+      onReturnToHunt: vi.fn(),
+      children: value => ExpeditionView({
+        mode: 'product',
+        mission: 'gem-runner',
+        active: value,
+        onBackToMissions: vi.fn(),
+        onReturnToHunt: vi.fn(),
+      }),
+    }))
+    await settle()
+    const mounted = createGame.mock.calls[0]?.[1]
+    if (!mounted || mounted.mode !== 'product' || !mounted.proof) throw new Error('PRODUCT_PROOF_MISSING')
+    mounted.proof.notifyGameplayEvent('MISSION_COMPLETE')
+    await settle()
+
+    expect(prepareClaim).not.toHaveBeenCalled()
+    findButtonWithText(harness.current, "Claim today's treasure")?.onClick?.()
+    await settle()
+    expect(prepareClaim).toHaveBeenCalledWith(active.runId)
+    expect(collectText(harness.current).join(' ')).toContain('Signature request was cancelled.')
+
+    findButtonWithText(harness.current, "Claim today's treasure")?.onClick?.()
+    await settle()
+    expect(finalizeClaim).toHaveBeenCalledWith({
+      claimId: 'claim-1',
+      payload: canonicalPayload,
+      publicKey: 'pk',
+      signature: 'sig',
+    })
+    const reservedText = collectText(harness.current).join(' ')
+    expect(reservedText).toContain('TREASURE RESERVED')
+    expect(reservedText).toContain("You secured one of today's 69 reward slots.")
+    expect(reservedText).toContain('Reservation confirmed. NIM payout is not enabled yet.')
+    expect(reservedText).not.toMatch(/NIM received|paid|sent|payout complete/i)
+    expect(prepareClaim).toHaveBeenCalledTimes(2)
+    harness.unmount()
   })
 
   it('keeps a Chest VERIFIED_ELIGIBLE result without recovering completed gameplay through /active', async () => {
@@ -1319,7 +1412,8 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
     expect(sealedText).toContain('NQ0733…54JG')
     expect(sealedText).toContain('abababab…')
     expect(sealedText).toContain('Verified ✓')
-    expect(sealedText).toContain('Reward claim is not enabled in this build yet.')
+    expect(sealedText).toContain("Claim today's treasure")
+    expect(sealedText).not.toContain('Reward claim is not enabled in this build yet.')
     expect(sealedText).not.toContain('NIM received')
     expect(sealedText).not.toContain('reward reserved')
     expect(createGame).toHaveBeenCalledTimes(1)
