@@ -821,6 +821,9 @@ LIVE MIGRATIONS APPLIED:
 - `005_reward_payouts.sql`
 - `006_reward_claim_session_recovery.sql`
 - `007_wallet_recovery_session.sql`
+- `008_reward_risk_gate.sql` (additive privacy-light pre-reservation abuse gate; apply before using risk RPCs)
+- `009_automatic_payout_pipeline.sql` (applied live; DB kill switch default OFF. Automatic execution still disabled.)
+- `010_payout_execution_day.sql` (applied live. Adds `execution_day_key` and keys the treasury spend cap to the UTC execution day, not the reservation day. Automation remains disabled.)
 
 ### Live Postgres proof status
 
@@ -850,7 +853,11 @@ MAINNET TEST PAYOUT: VERIFIED
 REAL DEVICE PAYOUT RECOVERY: VERIFIED
 WALLET RECOVERY SESSION: VERIFIED
 
-A one-off mainnet validation payout was confirmed. That amount is not the production reward amount. Production reward amount is undecided. Payout automation is not enabled. Treasury secrets remain server-only.
+A one-off mainnet validation payout was confirmed at 10,000 Luna (0.1 NIM). That is not the beta reward amount.
+
+Beta reward config (server-only, not an immutable protocol constant): 100 NIM = 10,000,000 Luna per RESERVED winner; daily cap 69 × 100 NIM = 6,900 NIM = 690,000,000 Luna.
+
+Automatic payout execution requires `NIMHUNT_ENABLE_MAINNET_PAYOUT=true`, `NIMHUNT_AUTOMATIC_PAYOUTS_ENABLED=true`, and DB `payout_automation_control.automatic_payouts_enabled` (default OFF). Kill switch off still allows read-only SUBMITTED reconciliation. Acquisition, signing, and broadcast stay stopped. Treasury secrets remain server-only.
 
 ### Live end-to-end reward flow status
 
@@ -894,6 +901,33 @@ Must test on real Nimiq Pay:
 - fake amount,
 - fake wallet,
 - two simultaneous claims for last slot.
+
+### Privacy-light pre-reservation abuse gate
+
+A valid checkpoint/replay proves a valid action transcript. It does not prove a unique human.
+
+This slice addresses:
+- A. one person creating many Nimiq wallets
+- B. scripted clients submitting otherwise-valid runs faster than real gameplay permits
+- C. one device farming many wallets
+- D. challenge/start/claim endpoint spam
+- E. concurrent farming sessions
+- F. repeated payout attempts remain unchanged (already protected)
+
+Install ID (`nimhunt_install_id`):
+- crypto-random UUID generated once per local installation/browser storage
+- not derived from hardware, UA, fonts, screen, IP, or wallet
+- sent only as an abuse/risk signal and stored as a server hash
+- never used as sole proof of identity
+- clearing storage may reset it
+
+Hard BLOCK (no slot reservation): concurrent ACTIVE run for the same wallet; physically impossible completion speed derived from accepted MOVE count × 160ms player tween minus frame/network slack.
+
+REVIEW (no slot reservation): >2 distinct wallets on one install per UTC day; unusually high start/recovery velocity from one install; repeated run patterns across more than 2 wallets on one install.
+
+Rate limits return `RATE_LIMITED` on start-challenge, wallet recovery challenge, and claim prepare/finalize. Normal checkpoints are not rate-limited.
+
+Treasury config: `NIMHUNT_REWARD_AMOUNT_LUNA * 69 <= NIMHUNT_MAX_DAILY_REWARD_LUNA` fails closed before new reservations when the cap is configured. Automatic payouts also fail closed if the cap is missing/invalid, the treasury secret is absent, or the next payout plus fee would breach `NIMHUNT_TREASURY_MIN_RESERVE_LUNA`. The 69-slot reservation cap stays on claim `day_key`. Actual treasury spend is capped per UTC `execution_day_key` (set atomically on acquire). A delayed payout from a previous reservation day counts against the execution day, not the reservation day. Automation is implemented and disabled.
 
 ## 24. Architecture decisions locked for MVP
 

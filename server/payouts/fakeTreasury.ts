@@ -83,6 +83,9 @@ export function createFakeTreasury(options: FakeTreasuryOptions = {}): FakeTreas
     async submitSigned(intent) {
       if (intent.network !== network) throw new PayoutError('PAYOUT_NETWORK_INVALID')
       if (submitMode === 'reject-before-broadcast') throw new PayoutError('PAYOUT_TREASURY_UNAVAILABLE')
+      const spend = intent.amountLuna + intent.feeLuna
+      if (spend > balance) throw new PayoutError('PAYOUT_TREASURY_UNAVAILABLE')
+      balance -= spend
       submitted.push(intent)
       const transaction: TreasuryTransaction = {
         txHash: parseTxHash(intent.txHash),

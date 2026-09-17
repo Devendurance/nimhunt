@@ -16,12 +16,27 @@ import { nimiqSignedMessageHash } from './crypto.ts'
 import { ProofError } from './errors.ts'
 import { dispatchExpeditionHttp, type ExpeditionHttpSecurity } from './http.ts'
 import { createPgProofRpcClient } from './proofDb.ts'
+import {
+  hashInstallId,
+  INSTALL_ID_HASH_PREFIX,
+  isImpossibleRunSpeed,
+  minimumPlausibleCompletionMs,
+} from './riskGate.ts'
 import { createPostgresProofService, createSupabaseProofService } from './postgresProofStore.ts'
+import {
+  CLAIM_SESSION_LIMIT,
+  createRateLimiter,
+  RATE_LIMIT_WINDOW_MS,
+  RECOVERY_CHALLENGE_WALLET_LIMIT,
+  START_CHALLENGE_WALLET_LIMIT,
+} from './rateLimit.ts'
 import { PREVALIDATED_ROOM_01_BOOTSTRAP_WINNING_SEQUENCES } from './room01BootstrapPrevalidation.ts'
 import type { RunSessionRecord } from './session.ts'
 import type { ProofService } from './types.ts'
 import type { Direction, MoveAction } from '../../src/game/replay/types.ts'
 import { utcDayKey } from '../ledger/utcDay.ts'
+import { REWARD_BLOCK_TITLE, REWARD_REVIEW_TITLE } from '../../src/components/play/productCheckpoint.ts'
+import { createRandomInstallId, getOrCreateInstallId, INSTALL_ID_STORAGE_KEY } from '../../src/domain/installId.ts'
 
 const execFileAsync = promisify(execFile)
 const sqlDir = join(dirname(fileURLToPath(import.meta.url)), '../ledger/sql')
@@ -53,6 +68,38 @@ const LIVE_SCHEMA_TABLES = [
   { name: 'expedition_checkpoint_batches', columns: 'run_id,seq_start,seq_end,previous_checkpoint_hash,batch_fingerprint,checkpoint_hash' },
   { name: 'expedition_vault_seals', columns: 'run_id,wallet,vault_seal_hash,vault_checkpoint_hash,verified_at' },
   { name: 'reward_claims', columns: 'claim_id,run_id,wallet,mission,day_key,claim_payload_hash,status' },
+  { name: 'reward_risk_signals', columns: 'signal_id,kind,wallet,day_key,install_id_hash,run_id,pattern_hash,created_at' },
+  { name: 'reward_risk_assessments', columns: 'assessment_id,run_id,wallet,day_key,install_id_hash,result,reason_codes,created_at,updated_at' },
+] as const
+
+const HISTORICAL_PAYOUT_ID = 'd19bf406-2b81-4c5a-b271-da8eb7587cbd'
+const HISTORICAL_CLAIM_ID = '40891624-e2c2-471f-aa9a-9674ca6200a7'
+const RISK_RPCS = [
+  ['record_reward_risk_signal', {
+    p_kind: 'CLAIM',
+    p_wallet: 'NQ-TEST',
+    p_day_key: '1970-01-01',
+    p_install_id_hash: 'a'.repeat(64),
+    p_run_id: null,
+    p_pattern_hash: null,
+  }],
+  ['load_reward_risk_context', {
+    p_run_id: '00000000-0000-0000-0000-000000000000',
+    p_run_session_hash: 'a'.repeat(64),
+    p_install_id_hash: null,
+    p_pattern_hash: null,
+  }],
+  ['upsert_reward_risk_assessment', {
+    p_run_id: '00000000-0000-0000-0000-000000000000',
+    p_run_session_hash: 'a'.repeat(64),
+    p_install_id_hash: null,
+    p_result: 'PASS',
+    p_reason_codes: [],
+  }],
+  ['get_reward_risk_assessment', {
+    p_run_id: '00000000-0000-0000-0000-000000000000',
+    p_run_session_hash: 'a'.repeat(64),
+  }],
 ] as const
 
 type PgHarness = {
@@ -84,6 +131,7 @@ describe.skipIf(!dockerEnabled)('postgres proof adapter', () => {
     await applySql(adminPool, readFileSync(join(sqlDir, '004_reward_claims.sql'), 'utf8'))
     await applySql(adminPool, readFileSync(join(sqlDir, '006_reward_claim_session_recovery.sql'), 'utf8'))
     await applySql(adminPool, readFileSync(join(sqlDir, '007_wallet_recovery_session.sql'), 'utf8'))
+    await applySql(adminPool, readFileSync(join(sqlDir, '008_reward_risk_gate.sql'), 'utf8'))
   }, 120_000)
 
   afterAll(async () => {
@@ -802,15 +850,71 @@ describe.skipIf(!dockerEnabled)('postgres proof adapter', () => {
       expect((await authenticated.query("select has_function_privilege('authenticated', 'public.get_reward_claim(uuid,text)', 'EXECUTE') as allowed")).rows[0]?.allowed).toBe(false)
       expect((await anon.query("select has_function_privilege('anon', 'public.get_reserved_reward_claim_for_session(text)', 'EXECUTE') as allowed")).rows[0]?.allowed).toBe(false)
       expect((await authenticated.query("select has_function_privilege('authenticated', 'public.get_reserved_reward_claim_for_session(text)', 'EXECUTE') as allowed")).rows[0]?.allowed).toBe(false)
+      await expect(anon.query("insert into public.reward_risk_assessments (run_id, wallet, day_key, result) values (gen_random_uuid(), 'NQ-TEST', current_date, 'PASS')")).rejects.toThrow()
+      expect((await anon.query('select * from public.reward_risk_assessments')).rowCount).toBe(0)
+      expect((await authenticated.query('select * from public.reward_risk_signals')).rowCount).toBe(0)
+      expect((await anon.query("select has_function_privilege('anon', 'public.upsert_reward_risk_assessment(uuid,text,text,text,jsonb)', 'EXECUTE') as allowed")).rows[0]?.allowed).toBe(false)
+      expect((await authenticated.query("select has_function_privilege('authenticated', 'public.record_reward_risk_signal(text,text,date,text,uuid,text)', 'EXECUTE') as allowed")).rows[0]?.allowed).toBe(false)
     } finally {
       await anon.end()
       await authenticated.end()
     }
   }, 30_000)
+
+  it('does not consume a slot for REVIEW or BLOCK and still reserves on PASS', async () => {
+    const playing = await completeEligible('gem-runner')
+    const before = await adminPool!.query('select reserved_slots from public.daily_reward_pools where day_key = $1', [playing.run.dayKey])
+    const prepared = await playing.service.prepareRewardClaim(playing.run.runId, playing.start.session, {
+      installId: '11111111-1111-4111-8111-111111111111',
+    })
+    expect(prepared.outcome).toBe('PREPARED')
+    if (prepared.outcome !== 'PREPARED') throw new Error('PREPARED_REQUIRED')
+    const reserved = await playing.service.finalizeRewardClaim({
+      session: playing.start.session,
+      claimId: prepared.claimId,
+      payload: prepared.canonicalPayload,
+      publicKey: playing.keyPair.publicKey.toHex(),
+      signature: playing.keyPair.sign(nimiqSignedMessageHash(prepared.canonicalPayload)).toHex(),
+      risk: { installId: '11111111-1111-4111-8111-111111111111' },
+    })
+    expect(reserved.outcome).toBe('RESERVED')
+
+    const fast = await startPlaying('gem-runner')
+    const completed = await playSequence(
+      fast.service,
+      fast.start.session,
+      fast.run.runId,
+      PREVALIDATED_ROOM_01_BOOTSTRAP_WINNING_SEQUENCES['gem-runner'],
+    )
+    await fast.service.verifyExpedition({
+      runId: completed.runId,
+      session: fast.start.session,
+      checkpointHash: completed.checkpointHash,
+    })
+    const blocked = await fast.service.prepareRewardClaim(completed.runId, fast.start.session)
+    expect(blocked.outcome).toBe('BLOCK')
+    const after = await adminPool!.query('select reserved_slots from public.daily_reward_pools where day_key = $1', [playing.run.dayKey])
+    expect(after.rows[0]?.reserved_slots).toBe((before.rows[0]?.reserved_slots ?? 0) + 1)
+  }, 30_000)
+
+  it('reviews a third wallet on one install without consuming a slot', async () => {
+    const installId = '22222222-2222-4222-8222-222222222222'
+    const service = await createService()
+    const before = await adminPool!.query('select coalesce(sum(reserved_slots), 0)::int as reserved from public.daily_reward_pools')
+    let last = null
+    for (let index = 0; index < 3; index += 1) {
+      last = await completeEligible('gem-runner', service)
+      await service.issueStartChallenge(last.wallet, 'gem-runner', { installId })
+    }
+    const reviewed = await last!.service.prepareRewardClaim(last!.run.runId, last!.start.session, { installId })
+    expect(reviewed.outcome).toBe('REVIEW')
+    const after = await adminPool!.query('select coalesce(sum(reserved_slots), 0)::int as reserved from public.daily_reward_pools')
+    expect(after.rows[0]?.reserved).toBe(before.rows[0]?.reserved)
+  }, 60_000)
 })
 
 describe.skipIf(!liveEnabled)('configured supabase proof adapter', () => {
-  it('exposes the live 001/002/003/004 schema to the service role', async () => {
+  it('exposes the live 001/002/003/004/008 schema to the service role', async () => {
     const client = createSupabaseAdminClient(liveConfig!)
     for (const table of LIVE_SCHEMA_TABLES) {
       const query = await client.from(table.name).select(table.columns).limit(1)
@@ -898,6 +1002,23 @@ describe.skipIf(!liveEnabled)('configured supabase proof adapter', () => {
       expect(rpc.error).toBeTruthy()
       const claimRpc = await anon.rpc('prepare_reward_claim', {})
       expect(claimRpc.error).toBeTruthy()
+      const riskInsert = await anon.from('reward_risk_assessments').insert({
+        run_id: '00000000-0000-0000-0000-000000000000',
+        wallet: 'NQ-TEST',
+        day_key: utcDayKey(new Date()),
+        result: 'PASS',
+      })
+      expect(riskInsert.error).toBeTruthy()
+      const riskSignalInsert = await anon.from('reward_risk_signals').insert({
+        kind: 'CLAIM',
+        wallet: 'NQ-TEST',
+        day_key: utcDayKey(new Date()),
+      })
+      expect(riskSignalInsert.error).toBeTruthy()
+      for (const [name, payload] of RISK_RPCS) {
+        const riskRpc = await anon.rpc(name, payload)
+        expect(riskRpc.error, name).toBeTruthy()
+      }
     }
 
     const email = `nimhunt.rls.${randomUUID().slice(0, 8)}@gmail.com`
@@ -976,6 +1097,18 @@ describe.skipIf(!liveEnabled)('configured supabase proof adapter', () => {
           claim_payload_hash: 'a'.repeat(64),
           status: 'PREPARED',
           expires_at: '1970-01-01T00:00:00Z',
+        }],
+        ['reward_risk_signals', {
+          kind: 'CLAIM',
+          wallet: 'NQ-AUTH-RLS',
+          day_key: '1970-01-01',
+          install_id_hash: 'a'.repeat(64),
+        }],
+        ['reward_risk_assessments', {
+          run_id: '00000000-0000-0000-0000-000000000000',
+          wallet: 'NQ-AUTH-RLS',
+          day_key: '1970-01-01',
+          result: 'PASS',
         }],
       ] as const
       for (const [table, payload] of inserts) {
@@ -1063,6 +1196,7 @@ describe.skipIf(!liveEnabled)('configured supabase proof adapter', () => {
         ['get_reserved_reward_claim_for_session', {
           p_run_session_hash: 'a'.repeat(64),
         }],
+        ...RISK_RPCS,
       ] as const
       for (const [name, payload] of denied) {
         const rpc = await liveSupabaseFetch(`/rest/v1/rpc/${name}`, {
@@ -1247,7 +1381,8 @@ describe.skipIf(!liveEnabled)('configured supabase proof adapter', () => {
       ...signed,
       signature: signed.signature.endsWith('0') ? `${signed.signature.slice(0, -1)}1` : `${signed.signature.slice(0, -1)}0`,
     })).rejects.toMatchObject({ code: 'INVALID_SIGNATURE' })
-    expect((await playing.service.prepareRewardClaim(playing.run.runId, playing.start.session)).claimId).toBe(prepared.claimId)
+    const retried = await playing.service.prepareRewardClaim(playing.run.runId, playing.start.session)
+    expect(retried.outcome === 'PREPARED' ? retried.claimId : null).toBe(prepared.claimId)
     expect((await playing.service.getWalletDailyStatus(playing.wallet)).rewardAlreadyReserved).toBe(false)
 
     const reserved = await playing.service.finalizeRewardClaim(signed)
@@ -1320,6 +1455,478 @@ describe.skipIf(!liveEnabled)('configured supabase proof adapter', () => {
     expect(verified.status).toBe(200)
     expect(verified.body).toMatchObject({ ok: true, outcome: 'VERIFIED_ELIGIBLE' })
   }, 60_000)
+})
+
+describe.skipIf(!liveEnabled)('live 008 reward risk gate', () => {
+  it('exposes risk tables, one assessment per run, service RPCs, FORCE RLS SQL, and hardened search_path', async () => {
+    const client = createSupabaseAdminClient(liveConfig!)
+    for (const table of ['reward_risk_signals', 'reward_risk_assessments'] as const) {
+      const query = await client.from(table).select('*').limit(1)
+      expect(query.error, table).toBeNull()
+      expect(Array.isArray(query.data), table).toBe(true)
+    }
+    const spec = await liveSupabaseFetch('/rest/v1/', {
+      token: liveConfig!.serviceRoleKey,
+    })
+    expect(spec.status).toBe(200)
+    const openApi = await fetch(`${liveConfig!.url}/rest/v1/`, {
+      headers: {
+        apikey: liveConfig!.serviceRoleKey,
+        Authorization: `Bearer ${liveConfig!.serviceRoleKey}`,
+        Accept: 'application/openapi+json',
+      },
+    })
+    expect(openApi.status).toBe(200)
+    const schema = await openApi.json() as {
+      definitions?: Record<string, { required?: string[]; properties?: Record<string, { enum?: string[] }> }>
+    }
+    const assessments = schema.definitions?.reward_risk_assessments
+    expect(assessments?.required).toEqual(expect.arrayContaining(['run_id', 'wallet', 'day_key', 'result']))
+    expect(assessments?.properties?.result?.enum).toEqual(['PASS', 'REVIEW', 'BLOCK'])
+
+    const executed = await client.rpc('get_reward_risk_assessment', {
+      p_run_id: '00000000-0000-0000-0000-000000000000',
+      p_run_session_hash: 'a'.repeat(64),
+    })
+    expect(executed.error, executed.error?.message).toBeNull()
+    expect(executed.data).toMatchObject({ ok: false, error: 'RUN_SESSION_INVALID' })
+    const malformed = await client.rpc('record_reward_risk_signal', {
+      p_kind: 'CLAIM',
+      p_wallet: 'NQ-TEST',
+      p_day_key: '1970-01-01',
+      p_install_id_hash: 'not-a-hash',
+      p_run_id: null,
+      p_pattern_hash: null,
+    })
+    expect(malformed.error, malformed.error?.message).toBeNull()
+    expect(malformed.data).toMatchObject({ ok: false, error: 'MALFORMED_REQUEST' })
+    const context = await client.rpc('load_reward_risk_context', {
+      p_run_id: '00000000-0000-0000-0000-000000000000',
+      p_run_session_hash: 'a'.repeat(64),
+      p_install_id_hash: null,
+      p_pattern_hash: null,
+    })
+    expect(context.error, context.error?.message).toBeNull()
+    expect(context.data).toMatchObject({ ok: false, error: 'RUN_SESSION_INVALID' })
+
+    const sql = readFileSync(join(sqlDir, '008_reward_risk_gate.sql'), 'utf8')
+    expect(sql).toMatch(/alter table public.reward_risk_signals force row level security/i)
+    expect(sql).toMatch(/alter table public.reward_risk_assessments force row level security/i)
+    expect(sql).toMatch(/set search_path = pg_catalog, public/)
+    expect(sql).toMatch(/revoke all on function public.get_reward_risk_assessment/)
+    expect(sql).not.toMatch(/grant execute[^;]+anon/i)
+    expect(sql).not.toMatch(/grant execute[^;]+authenticated/i)
+    expect(sql).toMatch(/run_id uuid not null unique/)
+  }, 30_000)
+
+  it('rejects anon and authenticated risk writes plus protected risk RPC execution', async () => {
+    const unauthenticated = await liveSupabaseFetch('/rest/v1/reward_risk_assessments?select=assessment_id&limit=1', {
+      apikey: 'invalid',
+      token: 'invalid',
+    })
+    expect(unauthenticated.status).toBe(401)
+
+    if (anonKey) {
+      const { createClient } = await import('@supabase/supabase-js')
+      const anon = createClient(liveConfig!.url, anonKey, { auth: { persistSession: false, autoRefreshToken: false } })
+      const anonWrite = await anon.from('reward_risk_assessments').insert({
+        run_id: '00000000-0000-0000-0000-000000000000',
+        wallet: 'NQ-ANON-RLS',
+        day_key: '1970-01-01',
+        result: 'PASS',
+      })
+      expect(anonWrite.error).toBeTruthy()
+      const anonSignal = await anon.from('reward_risk_signals').insert({
+        kind: 'CLAIM',
+        wallet: 'NQ-ANON-RLS',
+        day_key: '1970-01-01',
+      })
+      expect(anonSignal.error).toBeTruthy()
+      for (const [name, payload] of RISK_RPCS) {
+        const rpc = await anon.rpc(name, payload)
+        expect(rpc.error, name).toBeTruthy()
+      }
+    }
+
+    const email = `nimhunt.risk.rls.${randomUUID().slice(0, 8)}@gmail.com`
+    const password = `RlsProbe-${randomUUID()}`
+    const created = await liveSupabaseFetch('/auth/v1/admin/users', {
+      method: 'POST',
+      token: liveConfig!.serviceRoleKey,
+      body: { email, password, email_confirm: true },
+    })
+    expect(created.status).toBe(200)
+    const userId = asLiveId(created.body)
+    try {
+      const token = await liveSupabaseFetch('/auth/v1/token?grant_type=password', {
+        method: 'POST',
+        token: liveConfig!.serviceRoleKey,
+        body: { email, password },
+      })
+      expect(token.status).toBe(200)
+      const accessToken = asLiveAccessToken(token.body)
+      for (const table of ['reward_risk_signals', 'reward_risk_assessments'] as const) {
+        const read = await liveSupabaseFetch(`/rest/v1/${table}?select=*&limit=5`, { token: accessToken })
+        expect(read.status, table).toBe(200)
+        expect(read.body, table).toEqual([])
+        const inserted = await liveSupabaseFetch(`/rest/v1/${table}`, {
+          method: 'POST',
+          token: accessToken,
+          body: table === 'reward_risk_signals'
+            ? { kind: 'CLAIM', wallet: 'NQ-AUTH-RLS', day_key: '1970-01-01' }
+            : { run_id: '00000000-0000-0000-0000-000000000000', wallet: 'NQ-AUTH-RLS', day_key: '1970-01-01', result: 'PASS' },
+        })
+        expect(inserted.status, table).toBe(403)
+        expect(JSON.stringify(inserted.body), table).toMatch(/row-level security policy/)
+      }
+      for (const [name, payload] of RISK_RPCS) {
+        const rpc = await liveSupabaseFetch(`/rest/v1/rpc/${name}`, {
+          method: 'POST',
+          token: accessToken,
+          body: payload,
+        })
+        expect(rpc.status, name).toBe(403)
+        expect(JSON.stringify(rpc.body), name).toMatch(/permission denied for function/)
+      }
+    } finally {
+      if (userId) {
+        await liveSupabaseFetch(`/auth/v1/admin/users/${userId}`, {
+          method: 'DELETE',
+          token: liveConfig!.serviceRoleKey,
+        })
+      }
+    }
+  }, 30_000)
+
+  it('passes a low-risk eligible run, reserves once, and never stores a raw install id or payout', async () => {
+    const client = createSupabaseAdminClient(liveConfig!)
+    const installId = randomUUID()
+    const playing = await completeEligible('gem-runner', await createLiveService())
+    const before = await liveDayState(client, playing.run.dayKey, playing.wallet)
+    const beforeRun = await playing.service.getRun(playing.run.runId)
+    const elapsed = Date.parse(playing.run.terminal && playing.run.terminal.type === 'VERIFIED'
+      ? playing.run.terminal.result.verifiedAt
+      : '') - Date.parse(playing.run.gameplayStartedAt ?? playing.run.startedAt)
+    const bound = minimumPlausibleCompletionMs(playing.run.seq)
+    expect(bound).toBeGreaterThan(0)
+    expect(elapsed).toBeGreaterThan(bound!)
+    expect(isImpossibleRunSpeed({
+      actionCount: playing.run.seq,
+      startedAt: playing.run.gameplayStartedAt ?? playing.run.startedAt,
+      verifiedAt: playing.run.terminal && playing.run.terminal.type === 'VERIFIED'
+        ? playing.run.terminal.result.verifiedAt
+        : '',
+    })).toBe(false)
+
+    const prepared = await playing.service.prepareRewardClaim(playing.run.runId, playing.start.session, { installId })
+    expect(prepared.outcome).toBe('PREPARED')
+    if (prepared.outcome !== 'PREPARED') throw new Error('PREPARED_REQUIRED')
+    const retried = await playing.service.prepareRewardClaim(playing.run.runId, playing.start.session, { installId })
+    expect(retried).toEqual(prepared)
+
+    const assessed = await client.rpc('get_reward_risk_assessment', {
+      p_run_id: playing.run.runId,
+      p_run_session_hash: playing.start.session.sessionHash,
+    })
+    expect(assessed.error, assessed.error?.message).toBeNull()
+    expect(assessed.data).toMatchObject({
+      ok: true,
+      assessment: {
+        run_id: playing.run.runId,
+        wallet: playing.wallet,
+        result: 'PASS',
+        install_id_hash: hashInstallId(installId),
+      },
+    })
+    const rows = await client.from('reward_risk_assessments').select('assessment_id,run_id,install_id_hash,result').eq('run_id', playing.run.runId)
+    expect(rows.error).toBeNull()
+    expect(rows.data).toHaveLength(1)
+    expect(JSON.stringify(rows.data)).not.toContain(installId)
+    const signals = await client.from('reward_risk_signals').select('install_id_hash,kind,wallet').eq('run_id', playing.run.runId)
+    expect(signals.error).toBeNull()
+    expect(signals.data?.some(row => row.install_id_hash === hashInstallId(installId))).toBe(true)
+    expect(signals.data?.every(row => row.install_id_hash == null || row.install_id_hash === hashInstallId(installId))).toBe(true)
+    expect(JSON.stringify(signals.data)).not.toContain(installId)
+    expect(INSTALL_ID_HASH_PREFIX).toBe('nimhunt-install-v1:')
+    expect(hashInstallId(installId)).toMatch(/^[0-9a-f]{64}$/)
+    const createdId = createRandomInstallId()
+    expect(createdId).not.toBe(installId)
+    expect(createRandomInstallId.toString()).not.toMatch(/userAgent|screen|font|language|wallet|address|ip|hardware/i)
+    const storage: Record<string, string> = { [playing.wallet]: 'keep-wallet' }
+    const memory = {
+      getItem(key: string) { return Object.prototype.hasOwnProperty.call(storage, key) ? storage[key]! : null },
+      setItem(key: string, value: string) { storage[key] = value },
+    }
+    const firstInstall = getOrCreateInstallId(memory, () => installId)
+    expect(firstInstall).toBe(installId)
+    delete storage[INSTALL_ID_STORAGE_KEY]
+    const rotated = getOrCreateInstallId(memory, () => randomUUID())
+    expect(rotated).not.toBe(installId)
+    expect(storage[playing.wallet]).toBe('keep-wallet')
+
+    const reserved = await playing.service.finalizeRewardClaim({
+      session: playing.start.session,
+      claimId: prepared.claimId,
+      payload: prepared.canonicalPayload,
+      publicKey: playing.keyPair.publicKey.toHex(),
+      signature: playing.keyPair.sign(nimiqSignedMessageHash(prepared.canonicalPayload)).toHex(),
+      risk: { installId },
+    })
+    expect(reserved.outcome).toBe('RESERVED')
+    const after = await liveDayState(client, playing.run.dayKey, playing.wallet)
+    expect(after.reservedSlots).toBe(before.reservedSlots + 1)
+    expect(after.rewardsReserved).toBe(before.rewardsReserved + 1)
+    expect(after.payoutCount).toBe(before.payoutCount)
+    const payouts = await client.from('reward_payouts').select('payout_id').eq('claim_id', prepared.claimId)
+    expect(payouts.error).toBeNull()
+    expect(payouts.data).toEqual([])
+    const afterRun = await playing.service.getRun(playing.run.runId)
+    expect(afterRun?.checkpointHash).toBe(beforeRun?.checkpointHash)
+    expect(afterRun?.terminal).toEqual(beforeRun?.terminal)
+    const duplicate = await client.from('reward_risk_assessments').insert({
+      run_id: playing.run.runId,
+      wallet: playing.wallet,
+      day_key: playing.run.dayKey,
+      result: 'BLOCK',
+    })
+    expect(duplicate.error).toBeTruthy()
+    const stillOne = await client.from('reward_risk_assessments').select('assessment_id,result').eq('run_id', playing.run.runId)
+    expect(stillOne.data).toHaveLength(1)
+    expect(stillOne.data?.[0]?.result).toBe('PASS')
+  }, 120_000)
+
+  it('reviews a third wallet on one install without consuming a slot and keeps neutral UI copy', async () => {
+    expect(REWARD_REVIEW_TITLE).toBe('REWARD CHECK IN PROGRESS')
+    const client = createSupabaseAdminClient(liveConfig!)
+    const installId = randomUUID()
+    const playing = await completeEligible('gem-runner', await createLiveService())
+    const before = await liveDayState(client, playing.run.dayKey, playing.wallet)
+    const beforeRun = await playing.service.getRun(playing.run.runId)
+    const limiter = createRateLimiter()
+    const security = { ...SECURITY, rateLimiter: limiter }
+    const cookie = cookieHeader(playing.capability)
+    for (let index = 0; index < CLAIM_SESSION_LIMIT; index += 1) {
+      expect(limiter.take(`claim-prepare-session:${playing.start.session.sessionHash}`, CLAIM_SESSION_LIMIT, RATE_LIMIT_WINDOW_MS)).toBe(true)
+    }
+    const limitedPrepare = await dispatchExpeditionHttp(playing.service, {
+      method: 'POST',
+      path: '/api/rewards/claim/prepare',
+      headers: headers(cookie),
+      body: { runId: playing.run.runId, installId },
+    }, security)
+    expect(limitedPrepare.status).toBe(429)
+    expect(limitedPrepare.body).toEqual({ ok: false, error: 'RATE_LIMITED' })
+    expect(await liveDayState(client, playing.run.dayKey, playing.wallet)).toEqual(before)
+    expect((await playing.service.getRun(playing.run.runId))?.checkpointHash).toBe(beforeRun?.checkpointHash)
+
+    for (const extraWallet of [`NQ-REVIEW-A-${randomUUID()}`, `NQ-REVIEW-B-${randomUUID()}`]) {
+      const seeded = await client.rpc('record_reward_risk_signal', {
+        p_kind: 'START_CHALLENGE',
+        p_wallet: extraWallet,
+        p_day_key: playing.run.dayKey,
+        p_install_id_hash: hashInstallId(installId),
+        p_run_id: null,
+        p_pattern_hash: null,
+      })
+      expect(seeded.error, seeded.error?.message).toBeNull()
+      expect(seeded.data).toMatchObject({ ok: true })
+    }
+    const reviewed = await playing.service.prepareRewardClaim(playing.run.runId, playing.start.session, { installId })
+    expect(reviewed).toMatchObject({ outcome: 'REVIEW', runId: playing.run.runId })
+    const assessed = await client.rpc('get_reward_risk_assessment', {
+      p_run_id: playing.run.runId,
+      p_run_session_hash: playing.start.session.sessionHash,
+    })
+    expect(assessed.data).toMatchObject({ ok: true, assessment: { result: 'REVIEW', run_id: playing.run.runId } })
+    const after = await liveDayState(client, playing.run.dayKey, playing.wallet)
+    expect(after.reservedSlots).toBe(before.reservedSlots)
+    expect(after.rewardsReserved).toBe(before.rewardsReserved)
+    expect(after.payoutCount).toBe(before.payoutCount)
+    const claims = await client.from('reward_claims').select('claim_id,status').eq('run_id', playing.run.runId)
+    expect(claims.data).toEqual([])
+    const payouts = await client.from('reward_payouts').select('payout_id').eq('run_id', playing.run.runId)
+    expect(payouts.data).toEqual([])
+    const afterRun = await playing.service.getRun(playing.run.runId)
+    expect(afterRun?.checkpointHash).toBe(beforeRun?.checkpointHash)
+    expect(afterRun?.terminal).toEqual(beforeRun?.terminal)
+    expect(afterRun?.status).toBe('COMPLETED')
+    expect(afterRun?.rewardStatus).toBe('ELIGIBLE')
+  }, 120_000)
+
+  it('blocks concurrent and impossible-speed runs without consuming a slot', async () => {
+    expect(REWARD_BLOCK_TITLE).toBe('REWARD NOT ELIGIBLE')
+    expect(minimumPlausibleCompletionMs(1)).toBeNull()
+    expect(isImpossibleRunSpeed({
+      actionCount: 1,
+      startedAt: '2026-09-17T12:00:00.000Z',
+      verifiedAt: '2026-09-17T12:00:00.010Z',
+    })).toBe(false)
+    const client = createSupabaseAdminClient(liveConfig!)
+    const service = await createLiveService()
+
+    const fast = await startPlaying('gem-runner', service)
+    const completed = await playSequence(
+      fast.service,
+      fast.start.session,
+      fast.run.runId,
+      PREVALIDATED_ROOM_01_BOOTSTRAP_WINNING_SEQUENCES['gem-runner'],
+    )
+    await fast.service.verifyExpedition({
+      runId: completed.runId,
+      session: fast.start.session,
+      checkpointHash: completed.checkpointHash,
+    })
+    const verified = await fast.service.getRun(completed.runId)
+    if (!verified || verified.terminal?.type !== 'VERIFIED') throw new Error('VERIFIED_REQUIRED')
+    const verifiedAt = verified.terminal.result.verifiedAt
+    const stamp = await client.from('expedition_runs').update({
+      started_at: verifiedAt,
+      gameplay_started_at: verifiedAt,
+    }).eq('id', completed.runId)
+    expect(stamp.error, stamp.error?.message).toBeNull()
+    const timed = await fast.service.getRun(completed.runId)
+    expect(timed).toBeTruthy()
+    const bound = minimumPlausibleCompletionMs(timed!.seq)
+    expect(bound).toBeGreaterThan(0)
+    const fastElapsed = Date.parse(verifiedAt) - Date.parse(timed!.gameplayStartedAt ?? timed!.startedAt)
+    expect(fastElapsed).toBeLessThan(bound!)
+    const beforeFast = await liveDayState(client, timed!.dayKey, fast.wallet)
+    const previousCap = process.env.NIMHUNT_MAX_DAILY_REWARD_LUNA
+    process.env.NIMHUNT_MAX_DAILY_REWARD_LUNA = '1'
+    try {
+      await expect(fast.service.prepareRewardClaim(timed!.runId, fast.start.session)).rejects.toMatchObject({
+        code: 'REWARD_UNAVAILABLE',
+      })
+    } finally {
+      if (previousCap === undefined) delete process.env.NIMHUNT_MAX_DAILY_REWARD_LUNA
+      else process.env.NIMHUNT_MAX_DAILY_REWARD_LUNA = previousCap
+    }
+    expect(await liveDayState(client, timed!.dayKey, fast.wallet)).toEqual(beforeFast)
+    const blockedSpeed = await fast.service.prepareRewardClaim(timed!.runId, fast.start.session)
+    expect(blockedSpeed).toMatchObject({ outcome: 'BLOCK', runId: timed!.runId, reasonCategory: 'TIMING' })
+    expect(await liveDayState(client, timed!.dayKey, fast.wallet)).toEqual(beforeFast)
+    expect((await client.from('reward_claims').select('claim_id').eq('run_id', timed!.runId)).data).toEqual([])
+    expect((await client.from('reward_payouts').select('payout_id').eq('run_id', timed!.runId)).data).toEqual([])
+    const afterFast = await fast.service.getRun(timed!.runId)
+    expect(afterFast?.checkpointHash).toBe(timed!.checkpointHash)
+    expect(afterFast?.terminal).toEqual(timed!.terminal)
+
+    const first = await startPlaying('gem-runner', await createLiveService())
+    const secondStart = await signedStart({
+      service: first.service,
+      keyPair: first.keyPair,
+      wallet: first.wallet,
+      mission: 'chest-hunter',
+    })
+    await first.service.markGameplayStarted(secondStart.start.start.runId, secondStart.start.session)
+    const secondRun = await playSequence(
+      first.service,
+      secondStart.start.session,
+      secondStart.start.start.runId,
+      PREVALIDATED_ROOM_01_BOOTSTRAP_WINNING_SEQUENCES['chest-hunter'],
+    )
+    await first.service.verifyExpedition({
+      runId: secondRun.runId,
+      session: secondStart.start.session,
+      checkpointHash: secondRun.checkpointHash,
+    })
+    await backdateHumanTiming(secondRun.runId, secondRun.seq)
+    const beforeConcurrent = await liveDayState(client, first.run.dayKey, first.wallet)
+    const blockedConcurrent = await first.service.prepareRewardClaim(secondRun.runId, secondStart.start.session)
+    expect(blockedConcurrent).toMatchObject({ outcome: 'BLOCK', reasonCategory: 'SESSION' })
+    expect(await liveDayState(client, first.run.dayKey, first.wallet)).toEqual(beforeConcurrent)
+    expect((await client.from('reward_claims').select('claim_id').eq('run_id', secondRun.runId)).data).toEqual([])
+    expect((await first.service.getRun(first.run.runId))?.status).toBe('STARTED')
+    expect((await first.service.getRun(secondRun.runId))?.status).toBe('COMPLETED')
+  }, 180_000)
+
+  it('rate-limits start, recovery, prepare, and finalize without mutating attempts or payout state', async () => {
+    const client = createSupabaseAdminClient(liveConfig!)
+    const playing = await completeEligible('gem-runner', await createLiveService())
+    const before = await liveDayState(client, playing.run.dayKey, playing.wallet)
+    const beforeRun = await playing.service.getRun(playing.run.runId)
+    const limiter = createRateLimiter()
+    const security = { ...SECURITY, rateLimiter: limiter }
+    const cookie = cookieHeader(playing.capability)
+    for (let index = 0; index < START_CHALLENGE_WALLET_LIMIT; index += 1) {
+      expect(limiter.take(`start-challenge-wallet:${playing.wallet}`, START_CHALLENGE_WALLET_LIMIT, RATE_LIMIT_WINDOW_MS)).toBe(true)
+    }
+    for (let index = 0; index < RECOVERY_CHALLENGE_WALLET_LIMIT; index += 1) {
+      expect(limiter.take(`recovery-challenge-wallet:${playing.wallet}`, RECOVERY_CHALLENGE_WALLET_LIMIT, RATE_LIMIT_WINDOW_MS)).toBe(true)
+    }
+    for (let index = 0; index < CLAIM_SESSION_LIMIT; index += 1) {
+      expect(limiter.take(`claim-prepare-session:${playing.start.session.sessionHash}`, CLAIM_SESSION_LIMIT, RATE_LIMIT_WINDOW_MS)).toBe(true)
+      expect(limiter.take(`claim-finalize-session:${playing.start.session.sessionHash}`, CLAIM_SESSION_LIMIT, RATE_LIMIT_WINDOW_MS)).toBe(true)
+    }
+    const limited = await Promise.all([
+      dispatchExpeditionHttp(playing.service, {
+        method: 'POST',
+        path: '/api/expeditions/start-challenge',
+        headers: headers(cookie),
+        body: { wallet: playing.wallet, mission: 'gem-runner' },
+      }, security),
+      dispatchExpeditionHttp(playing.service, {
+        method: 'POST',
+        path: '/api/wallet/recover-challenge',
+        headers: headers(cookie),
+        body: { wallet: playing.wallet },
+      }, security),
+      dispatchExpeditionHttp(playing.service, {
+        method: 'POST',
+        path: '/api/rewards/claim/prepare',
+        headers: headers(cookie),
+        body: { runId: playing.run.runId },
+      }, security),
+      dispatchExpeditionHttp(playing.service, {
+        method: 'POST',
+        path: '/api/rewards/claim/finalize',
+        headers: headers(cookie),
+        body: {
+          claimId: randomUUID(),
+          payload: 'x',
+          publicKey: playing.keyPair.publicKey.toHex(),
+          signature: '00',
+        },
+      }, security),
+    ])
+    for (const response of limited) {
+      expect(response.status).toBe(429)
+      expect(response.body).toEqual({ ok: false, error: 'RATE_LIMITED' })
+    }
+    expect(await liveDayState(client, playing.run.dayKey, playing.wallet)).toEqual(before)
+    expect((await client.from('reward_claims').select('claim_id').eq('run_id', playing.run.runId)).data).toEqual([])
+    expect((await client.from('reward_payouts').select('payout_id').eq('run_id', playing.run.runId)).data).toEqual([])
+    const afterRun = await playing.service.getRun(playing.run.runId)
+    expect(afterRun?.checkpointHash).toBe(beforeRun?.checkpointHash)
+    expect(afterRun?.terminal).toEqual(beforeRun?.terminal)
+    expect(afterRun?.seq).toBe(beforeRun?.seq)
+  }, 120_000)
+
+  it('leaves the historical reserved claim and confirmed payout untouched', async () => {
+    const client = createSupabaseAdminClient(liveConfig!)
+    const payout = await client.from('reward_payouts').select('payout_id,claim_id,status,amount_luna,network').eq('payout_id', HISTORICAL_PAYOUT_ID).maybeSingle()
+    expect(payout.error, payout.error?.message).toBeNull()
+    expect(payout.data).toMatchObject({
+      payout_id: HISTORICAL_PAYOUT_ID,
+      claim_id: HISTORICAL_CLAIM_ID,
+      status: 'CONFIRMED',
+      amount_luna: 10000,
+    })
+    const claim = await client.from('reward_claims').select('claim_id,run_id,status').eq('claim_id', HISTORICAL_CLAIM_ID).maybeSingle()
+    expect(claim.error, claim.error?.message).toBeNull()
+    expect(claim.data).toMatchObject({
+      claim_id: HISTORICAL_CLAIM_ID,
+      status: 'RESERVED',
+    })
+    const runId = String(claim.data?.run_id ?? '')
+    const assessments = await client.from('reward_risk_assessments').select('assessment_id,result,updated_at').eq('run_id', runId)
+    expect(assessments.error).toBeNull()
+    expect(assessments.data).toEqual([])
+    const stillPayout = await client.from('reward_payouts').select('payout_id,status,amount_luna').eq('payout_id', HISTORICAL_PAYOUT_ID).maybeSingle()
+    expect(stillPayout.data).toMatchObject({ payout_id: HISTORICAL_PAYOUT_ID, status: 'CONFIRMED', amount_luna: 10000 })
+    const stillClaim = await client.from('reward_claims').select('claim_id,status').eq('claim_id', HISTORICAL_CLAIM_ID).maybeSingle()
+    expect(stillClaim.data).toMatchObject({ claim_id: HISTORICAL_CLAIM_ID, status: 'RESERVED' })
+  }, 30_000)
 })
 
 describe.skipIf(process.env.NIMHUNT_LIVE_HTTP !== '1' || !liveConfig)('live postgres vite durability', () => {
@@ -1517,7 +2124,10 @@ async function completeEligible(
   }
   const run = await playing.service.getRun(completed.runId)
   if (!run) throw new Error('RUN_MISSING')
-  return { ...playing, run, verified }
+  await backdateHumanTiming(run.runId, run.seq)
+  const timed = await playing.service.getRun(completed.runId)
+  if (!timed) throw new Error('RUN_MISSING')
+  return { ...playing, run: timed, verified }
 }
 
 async function playSequence(
@@ -1751,6 +2361,52 @@ async function syncReservedSlots(dayKey: string): Promise<void> {
      where p.day_key = $1`,
     [dayKey],
   )
+}
+
+async function liveDayState(
+  client: ReturnType<typeof createSupabaseAdminClient>,
+  dayKey: string,
+  wallet: string,
+) {
+  const pool = await client.from('daily_reward_pools').select('reserved_slots').eq('day_key', dayKey).maybeSingle()
+  const walletState = await client.from('daily_wallet_state').select('rewards_reserved,expeditions_started').eq('day_key', dayKey).eq('wallet', wallet).maybeSingle()
+  const payouts = await client.from('reward_payouts').select('payout_id').eq('wallet', wallet).eq('day_key', dayKey)
+  expect(pool.error, pool.error?.message).toBeNull()
+  expect(walletState.error, walletState.error?.message).toBeNull()
+  expect(payouts.error, payouts.error?.message).toBeNull()
+  return {
+    reservedSlots: Number(pool.data?.reserved_slots ?? 0),
+    rewardsReserved: Number(walletState.data?.rewards_reserved ?? 0),
+    expeditionsStarted: Number(walletState.data?.expeditions_started ?? 0),
+    payoutCount: payouts.data?.length ?? 0,
+  }
+}
+
+async function backdateHumanTiming(runId: string, actionCount: number): Promise<void> {
+  const extraMs = (minimumPlausibleCompletionMs(actionCount) ?? 0) + 5_000
+  if (adminPool) {
+    await adminPool.query(
+      `update public.expedition_runs
+       set started_at = started_at - make_interval(secs => $2::numeric / 1000.0),
+           gameplay_started_at = case
+             when gameplay_started_at is null then null
+             else gameplay_started_at - make_interval(secs => $2::numeric / 1000.0)
+           end
+       where id = $1`,
+      [runId, extraMs],
+    )
+    return
+  }
+  if (!liveConfig) return
+  const client = createSupabaseAdminClient(liveConfig)
+  const loaded = await client.from('expedition_runs').select('started_at, gameplay_started_at').eq('id', runId).single()
+  if (loaded.error || !loaded.data) return
+  const shift = extraMs
+  const startedAt = new Date(Date.parse(loaded.data.started_at as string) - shift).toISOString()
+  const gameplay = loaded.data.gameplay_started_at
+    ? new Date(Date.parse(loaded.data.gameplay_started_at as string) - shift).toISOString()
+    : null
+  await client.from('expedition_runs').update({ started_at: startedAt, gameplay_started_at: gameplay }).eq('id', runId)
 }
 
 async function applySql(pool: Pool, sql: string): Promise<void> {

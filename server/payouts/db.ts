@@ -4,6 +4,7 @@ import { PayoutError, type PayoutErrorCode } from './errors.ts'
 const PAYOUT_RPCS = new Set([
   'create_reward_payout',
   'acquire_reward_payout',
+  'acquire_automated_reward_payout',
   'mark_reward_payout_submitted',
   'mark_reward_payout_confirmed',
   'mark_reward_payout_failed',
@@ -12,6 +13,12 @@ const PAYOUT_RPCS = new Set([
   'get_reward_payout_for_session',
   'list_unpaid_reserved_claims',
   'list_reward_payouts',
+  'count_unpaid_reward_risk_skips',
+  'get_payout_automation_control',
+  'set_payout_automation_enabled',
+  'get_execution_day_payout_spend',
+  'get_payout_operations_status',
+  'record_payout_cycle_result',
 ])
 
 const PAYOUT_ERROR_CODES = new Set<PayoutErrorCode>([
@@ -24,11 +31,17 @@ const PAYOUT_ERROR_CODES = new Set<PayoutErrorCode>([
   'PAYOUT_AMOUNT_UNCONFIGURED',
   'PAYOUT_NETWORK_INVALID',
   'PAYOUT_MAINNET_DISABLED',
+  'PAYOUT_AUTOMATION_DISABLED',
+  'PAYOUT_DAILY_CAP_INVALID',
   'PAYOUT_STATUS_INVALID',
   'PAYOUT_TX_INVALID',
   'PAYOUT_TX_MISMATCH',
   'PAYOUT_RESEND_UNSAFE',
   'PAYOUT_TREASURY_UNAVAILABLE',
+  'PAYOUT_TREASURY_LOW',
+  'PAYOUT_CYCLE_LIMIT_INVALID',
+  'PAYOUT_SCHEDULER_SECRET_INVALID',
+  'PAYOUT_SCHEDULER_SECRET_UNAVAILABLE',
   'PAYOUT_UNAVAILABLE',
   'WALLET_MISMATCH',
 ])
@@ -92,7 +105,10 @@ function encodePgValue(value: unknown): unknown {
 }
 
 function pgCast(key: string, value: unknown): string {
-  if (key === 'p_amount_luna' || typeof value === 'bigint') return '::bigint'
+  if (key === 'p_amount_luna' || key.endsWith('_luna') || typeof value === 'bigint') return '::bigint'
+  if (key === 'p_execution_day' || key.endsWith('_day')) return '::date'
+  if (key === 'p_cycle_id') return '::uuid'
+  if (key === 'p_cycle_at') return '::timestamptz'
   if (value !== null && typeof value === 'object' && !(value instanceof Date)) return '::jsonb'
   return ''
 }

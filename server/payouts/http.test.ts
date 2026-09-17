@@ -2,6 +2,7 @@ import { KeyPair } from '@nimiq/core'
 import { describe, expect, it } from 'vitest'
 import { dispatchExpeditionHttp, type ExpeditionHttpSecurity } from '../expeditions/http.ts'
 import { createMemoryProofService } from '../expeditions/memoryProofStore.ts'
+import { minimumPlausibleCompletionMs } from '../expeditions/riskGate.ts'
 import { describeSessionCookie, parseRunSessionCookie, parseWalletRecoverySessionCookie, serializeRunSessionCookie } from '../expeditions/session.ts'
 import { hashBlueprint } from '../../src/game/replay/canonical.ts'
 import { createRoom01Blueprint } from '../../src/game/world/room01.ts'
@@ -641,6 +642,7 @@ async function reservedClaim() {
     })
   }
   const run = service.getRun(authorized.start.runId)!
+  now = new Date(now.getTime() + (minimumPlausibleCompletionMs(run.seq) ?? 0) + 1_000)
   await service.verifyExpedition({
     runId: run.runId,
     session: authorized.session,

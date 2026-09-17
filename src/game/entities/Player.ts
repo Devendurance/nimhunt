@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { PLAYER_MOVE_DURATION_MS } from '../config/timing.ts'
 import {
   type Direction,
   type GridCoord,
@@ -80,7 +81,7 @@ export class Player {
       targets: this.container,
       x: targetX,
       y: targetY,
-      duration: 160,
+      duration: PLAYER_MOVE_DURATION_MS,
       ease: 'Sine.easeInOut',
       onComplete: () => {
         if (generation !== this.generation) return

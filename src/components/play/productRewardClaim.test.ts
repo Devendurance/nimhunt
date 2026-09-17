@@ -57,3 +57,18 @@ describe('product reward claim client state', () => {
     expect(already.status).toBe('ALREADY_REWARDED')
   })
 })
+
+  it('keeps review and block terminal without signing', () => {
+    const signing = reduceProductRewardClaim(initialProductRewardClaimState, { type: 'CLAIM_REQUESTED' })
+    const review = reduceProductRewardClaim(signing, {
+      type: 'CLAIM_PREPARED_TERMINAL',
+      result: { outcome: 'REVIEW', runId: 'run-9' },
+    })
+    expect(review.status).toBe('REVIEW')
+    expect(reduceProductRewardClaim(review, { type: 'CLAIM_REQUESTED' }).status).toBe('REVIEW')
+    const blocked = reduceProductRewardClaim(initialProductRewardClaimState, {
+      type: 'CLAIM_PREPARED_TERMINAL',
+      result: { outcome: 'BLOCK', runId: 'run-9', reasonCategory: 'TIMING' },
+    })
+    expect(blocked.status).toBe('BLOCK')
+  })

@@ -12,6 +12,10 @@ export const PAYOUT_STATUSES = [
 export type PayoutStatus = (typeof PAYOUT_STATUSES)[number]
 
 export const LUNA_PER_NIM = 100_000n
+export const DAILY_REWARD_SLOTS = 69
+export const BETA_REWARD_AMOUNT_LUNA = 10_000_000n
+export const BETA_MAX_DAILY_REWARD_LUNA = 690_000_000n
+export const AUTOMATED_PAYOUT_FEE_LUNA = 0n
 export const PAYOUT_DATA_PREFIX = 'NIMHUNT_PAYOUT:'
 export const NIMIQ_TESTNET_NETWORK_ID = 5
 export const NIMIQ_MAINNET_NETWORK_ID = 24
@@ -22,6 +26,7 @@ export type RewardPayout = {
   readonly runId: string
   readonly wallet: string
   readonly dayKey: string
+  readonly executionDayKey: string | null
   readonly amountLuna: bigint
   readonly network: PayoutNetwork
   readonly status: PayoutStatus
@@ -52,6 +57,41 @@ export type UnpaidReservedClaim = {
   readonly runId: string
   readonly wallet: string
   readonly dayKey: string
+}
+
+export type UnpaidRiskSkipCounts = {
+  readonly reviewSkipped: number
+  readonly blockSkipped: number
+}
+
+export const PAYOUT_CYCLE_RESULTS = ['COMPLETED', 'DISABLED', 'FAILED'] as const
+export type PayoutCycleResult = (typeof PAYOUT_CYCLE_RESULTS)[number]
+
+export type PayoutOperationsSnapshot = {
+  readonly automationEnabled: boolean
+  readonly pendingCount: number
+  readonly processingCount: number
+  readonly submittedCount: number
+  readonly confirmedTodayCount: number
+  readonly reviewCount: number
+  readonly blockCount: number
+  readonly executionDay: string
+  readonly executionDayCommittedLuna: bigint
+  readonly lastCycleAt: string | null
+  readonly lastCycleId: string | null
+  readonly lastCycleResult: PayoutCycleResult | null
+  readonly lastCycleErrors: readonly string[]
+}
+
+export type AutomatedAcquireReason =
+  | 'AUTOMATION_DISABLED'
+  | 'TREASURY_LOW'
+  | 'DAILY_CAP_REACHED'
+  | 'NO_WORK'
+
+export type AutomatedAcquireResult = {
+  readonly payout: RewardPayout | null
+  readonly reason: AutomatedAcquireReason | null
 }
 
 export type SignedPayoutIntent = {
@@ -127,5 +167,21 @@ export type PayoutStore = {
     readonly payout: PublicRewardPayout | null
   }>
   listUnpaidReservedClaims(limit: number): Promise<readonly UnpaidReservedClaim[]>
+  countUnpaidRiskSkips(): Promise<UnpaidRiskSkipCounts>
   listByStatus(status: PayoutStatus, limit: number): Promise<readonly RewardPayout[]>
+  getAutomationEnabled(): Promise<boolean>
+  setAutomationEnabled(enabled: boolean): Promise<boolean>
+  getExecutionDaySpend(executionDayKey: string): Promise<bigint>
+  getOperationsSnapshot(): Promise<PayoutOperationsSnapshot>
+  recordCycleResult(input: {
+    readonly cycleId: string
+    readonly cycleAt: string
+    readonly result: PayoutCycleResult
+    readonly errors: readonly string[]
+  }): Promise<void>
+  acquireAutomated(input: {
+    readonly availableForRewardsLuna: bigint
+    readonly maxDailyRewardLuna: bigint
+    readonly feeLuna: bigint
+  }): Promise<AutomatedAcquireResult>
 }

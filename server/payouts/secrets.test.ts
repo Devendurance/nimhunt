@@ -9,7 +9,14 @@ describe('treasury secret isolation', () => {
   it('does not expose treasury secrets through VITE_ or client source', () => {
     const example = readFileSync(join(root, '.env.example'), 'utf8')
     expect(example).toMatch(/NIMHUNT_PAYOUT_NETWORK=testnet/)
+    expect(example).toMatch(/NIMHUNT_AUTOMATIC_PAYOUTS_ENABLED=false/)
     expect(example).toMatch(/NIMHUNT_REWARD_AMOUNT_LUNA=/)
+    expect(example).toMatch(/CRON_SECRET=/)
+    expect(example).toMatch(/NIMHUNT_PAYOUT_CRON_SECRET=/)
+    expect(example).toMatch(/NIMHUNT_PAYOUT_MAX_PER_CYCLE=5/)
+    expect(example).not.toMatch(/^CRON_SECRET=.+\S/m)
+    expect(example).not.toMatch(/^\s*VITE_CRON_SECRET\s*=/m)
+    expect(example).not.toMatch(/^\s*VITE_NIMHUNT_PAYOUT_CRON_SECRET\s*=/m)
     expect(example).not.toMatch(/VITE_.*TREASURY|VITE_.*PRIVATE_KEY|VITE_.*MNEMONIC/)
     expect(example).not.toMatch(/[0-9a-fA-F]{64}/)
 
@@ -18,12 +25,23 @@ describe('treasury secret isolation', () => {
       const matches = []
       if (/NIMHUNT_TREASURY|TREASURY_PRIVATE_KEY|TREASURY_MNEMONIC/.test(text)) matches.push(path)
       if (/VITE_.*TREASURY/.test(text)) matches.push(path)
+      if (/CRON_SECRET/.test(text)) matches.push(path)
       if (/executeNext|markSubmitted|markConfirmed|signTransfer|acquire_reward_payout|create_reward_payout/.test(text)) {
         matches.push(path)
       }
       return matches
     })
     expect(clientHits).toEqual([])
+
+    // Scheduler route never logs or returns the bearer secret; responses stay code-only.
+    const schedulerText = [
+      'server/payouts/scheduler.ts',
+      'server/payouts/schedulerHttp.ts',
+      'api/internal/payout-cycle.ts',
+    ].map(path => readFileSync(join(root, path), 'utf8')).join('\n')
+    expect(schedulerText).toMatch(/timingSafeEqual/)
+    expect(schedulerText).not.toMatch(/VITE_CRON_SECRET\s*=|VITE_NIMHUNT_PAYOUT_CRON_SECRET\s*=/)
+    expect(schedulerText).not.toMatch(/console\.(log|info|debug)\(.*cronSecret|console\.(log|info|debug)\(.*CRON_SECRET/i)
 
     const card = readFileSync(join(root, 'src/components/play/ProductRewardClaimOutcome.tsx'), 'utf8')
     const shell = readFileSync(join(root, 'src/components/play/PlayShell.tsx'), 'utf8')

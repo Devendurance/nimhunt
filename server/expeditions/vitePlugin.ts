@@ -18,6 +18,9 @@ import {
 } from '../../src/domain/expeditionProof.ts'
 import { createLazyValue, type LazyValue } from './lazyValue.ts'
 import { describeSessionCookie, WALLET_RECOVERY_SESSION_COOKIE } from './session.ts'
+import { createDefaultPayoutRuntime, type PayoutRuntime } from '../payouts/runtime.ts'
+import { dispatchPayoutSchedulerHttp } from '../payouts/schedulerHttp.ts'
+import { PAYOUT_CYCLE_PATH, executeScheduledPayoutCycle, readPayoutSchedulerConfig } from '../payouts/scheduler.ts'
 import type { ExpeditionProofService, MemoryProofService } from './types.ts'
 
 const OWNED_EXPEDITION_PATHS = new Set([
@@ -40,6 +43,10 @@ const OWNED_EXPEDITION_PATHS = new Set([
 
 export function isOwnedExpeditionPath(path: string): boolean {
   return OWNED_EXPEDITION_PATHS.has(path)
+}
+
+export function isOwnedPayoutSchedulerPath(path: string): boolean {
+  return path === PAYOUT_CYCLE_PATH
 }
 
 export type ExpeditionRuntimeInput = {
@@ -136,6 +143,7 @@ export function expeditionProofPlugin(): Plugin {
     () => createDefaultProofService(runtime, env()),
   )
   const payoutStore = createLazyValue(async () => createDefaultPayoutStore(runtime, env()))
+  const payoutRuntime = createLazyValue(() => createDefaultPayoutRuntime(env()))
 
   return {
     name: 'nimhunt-expedition-proof',
@@ -148,10 +156,22 @@ export function expeditionProofPlugin(): Plugin {
       })
     },
     configureServer(server) {
-      server.middlewares.use(createHandler(() => backend.ensure(), () => payoutStore.ensure(), () => runtime))
+      server.middlewares.use(createHandler(
+        () => backend.ensure(),
+        () => payoutStore.ensure(),
+        () => payoutRuntime.ensure(),
+        () => runtime,
+        env,
+      ))
     },
     configurePreviewServer(server) {
-      server.middlewares.use(createHandler(() => backend.ensure(), () => payoutStore.ensure(), () => runtime))
+      server.middlewares.use(createHandler(
+        () => backend.ensure(),
+        () => payoutStore.ensure(),
+        () => payoutRuntime.ensure(),
+        () => runtime,
+        env,
+      ))
     },
   }
 }
@@ -173,13 +193,15 @@ async function createDefaultPayoutStore(
 function createHandler(
   getService: () => ExpeditionProofService | null | Promise<ExpeditionProofService | null>,
   getPayoutStore: () => Promise<Awaited<ReturnType<typeof createDefaultPayoutStore>>>,
+  getPayoutRuntime: () => Promise<PayoutRuntime | null>,
   getRuntime: () => ExpeditionRuntime,
+  getEnv: () => Record<string, string | undefined>,
 ) {
   let dispatch: typeof import('./http.ts').dispatchExpeditionHttp | undefined
   let dispatchPayout: typeof import('../payouts/http.ts').dispatchPayoutHttp | undefined
   return async (req: IncomingMessage, res: ServerResponse, next: () => void): Promise<void> => {
     const path = req.url?.split('?')[0] ?? ''
-    if (!isOwnedExpeditionPath(path)) {
+    if (!isOwnedExpeditionPath(path) && !isOwnedPayoutSchedulerPath(path)) {
       next()
       return
     }
@@ -187,6 +209,33 @@ function createHandler(
     const runtime = getRuntime()
     try {
       const rawBody = req.method === 'GET' || req.method === 'OPTIONS' ? undefined : await readBody(req)
+      if (isOwnedPayoutSchedulerPath(path)) {
+        const schedulerConfig = readPayoutSchedulerConfig(getEnv())
+        let payoutRuntimePromise: Promise<PayoutRuntime | null> | undefined
+        const response = await dispatchPayoutSchedulerHttp({
+          secret: schedulerConfig.cronSecret,
+          runCycle: async () => {
+            payoutRuntimePromise ??= getPayoutRuntime()
+            const payoutRuntime = await payoutRuntimePromise
+            if (!payoutRuntime) throw new Error('PAYOUT_UNAVAILABLE')
+            return executeScheduledPayoutCycle({
+              store: payoutRuntime.store,
+              treasury: payoutRuntime.treasury,
+              config: payoutRuntime.config,
+              scheduler: payoutRuntime.scheduler,
+              secret: payoutRuntime.secret,
+            })
+          },
+        }, {
+          method: req.method ?? 'GET',
+          path: req.url ?? path,
+          headers: readHeaders(req),
+          rawBody,
+        })
+        writeJson(res, response.status, response.body, response.headers)
+        return
+      }
+
       const service = await getService()
       if (path === GET_REWARD_PAYOUT_PATH) {
         if (!dispatchPayout) ({ dispatchPayoutHttp: dispatchPayout } = await import('../payouts/http.ts'))

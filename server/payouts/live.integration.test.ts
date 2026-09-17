@@ -3,8 +3,15 @@ import { createClient } from '@supabase/supabase-js'
 import { describe, expect, it } from 'vitest'
 import { loadEnv } from 'vite'
 import { createSupabaseAdminClient, readServerSupabaseConfig } from '../ledger/config.ts'
+import { readPayoutExecutionConfig } from './config.ts'
 import { createSupabasePayoutRpcClient } from './db.ts'
+import { createFakeTreasury } from './fakeTreasury.ts'
 import { createPayoutStore } from './store.ts'
+import {
+  BETA_MAX_DAILY_REWARD_LUNA,
+  BETA_REWARD_AMOUNT_LUNA,
+} from './types.ts'
+import { runPayoutWorker } from './worker.ts'
 
 const env = loadEnv('test', process.cwd(), '')
 const liveConfig = readServerSupabaseConfig({
@@ -26,6 +33,7 @@ const PAYOUT_COLUMNS = [
   'run_id',
   'wallet',
   'day_key',
+  'execution_day_key',
   'amount_luna',
   'network',
   'status',
@@ -70,6 +78,15 @@ const PROTECTED_RPCS = [
   }],
   ['list_unpaid_reserved_claims', { p_limit: 1 }],
   ['list_reward_payouts', { p_status: 'PENDING', p_limit: 1 }],
+  ['count_unpaid_reward_risk_skips', {}],
+  ['get_payout_automation_control', {}],
+  ['set_payout_automation_enabled', { p_enabled: false }],
+  ['acquire_automated_reward_payout', {
+    p_available_for_rewards_luna: 1_000_000_000,
+    p_max_daily_reward_luna: 690_000_000,
+    p_fee_luna: 0,
+  }],
+  ['get_execution_day_payout_spend', { p_execution_day: '2026-09-17' }],
 ] as const
 
 describe.skipIf(!liveEnabled)('live 005 reward payouts', () => {
@@ -465,6 +482,417 @@ describe.skipIf(!liveEnabled)('live 006 reserved claim session recovery', () => 
     })
     expect(String((payout.data as { payout?: { amount_luna?: unknown } }).payout?.amount_luna)).toBe('10000')
     expect(JSON.stringify(payout.data)).not.toMatch(/mnemonic|private_key|treasury/i)
+  }, 45_000)
+})
+
+describe.skipIf(!liveEnabled)('live 009 automatic payout pipeline', () => {
+  const historicalPayoutId = 'd19bf406-2b81-4c5a-b271-da8eb7587cbd'
+  const historicalClaimId = '40891624-e2c2-471f-aa9a-9674ca6200a7'
+  const historicalTxHash = 'c58022f37ed7352f41c29ef9862297a9cfa8c45593456395d7a6eb7a68009ff6'
+
+  it('exposes the kill switch default-off, PASS-only discovery RPCs, and service-role path', async () => {
+    const client = createSupabaseAdminClient(liveConfig!)
+    const control = await client.from('payout_automation_control').select('id,automatic_payouts_enabled,updated_at').limit(1)
+    expect(control.error, control.error?.message).toBeNull()
+    expect(control.data).toEqual([
+      expect.objectContaining({ id: true, automatic_payouts_enabled: false }),
+    ])
+
+    const store = createPayoutStore(createSupabasePayoutRpcClient(client))
+    expect(await store.getAutomationEnabled()).toBe(false)
+
+    const flags = await client.rpc('get_payout_automation_control')
+    expect(flags.error, flags.error?.message).toBeNull()
+    expect(flags.data).toMatchObject({ ok: true, automatic_payouts_enabled: false })
+
+    const acquired = await client.rpc('acquire_automated_reward_payout', {
+      p_available_for_rewards_luna: 1_000_000_000,
+      p_max_daily_reward_luna: Number(BETA_MAX_DAILY_REWARD_LUNA),
+      p_fee_luna: 0,
+    })
+    expect(acquired.error, acquired.error?.message).toBeNull()
+    expect(acquired.data).toMatchObject({ ok: true, payout: null, reason: 'AUTOMATION_DISABLED' })
+
+    const unpaid = await store.listUnpaidReservedClaims(69)
+    const skips = await store.countUnpaidRiskSkips()
+    expect(Array.isArray(unpaid)).toBe(true)
+    expect(skips.reviewSkipped).toBeGreaterThanOrEqual(0)
+    expect(skips.blockSkipped).toBeGreaterThanOrEqual(0)
+
+    const processing = await client.from('reward_payouts').select('payout_id,status').eq('status', 'PROCESSING')
+    expect(processing.error, processing.error?.message).toBeNull()
+    expect(processing.data).toEqual([])
+  }, 30_000)
+
+  it('rejects authenticated writes and protected automation RPC execution', async () => {
+    const unauthenticated = await liveSupabaseFetch('/rest/v1/rpc/acquire_automated_reward_payout', {
+      method: 'POST',
+      apikey: 'invalid',
+      token: 'invalid',
+      body: {
+        p_available_for_rewards_luna: 1_000_000_000,
+        p_max_daily_reward_luna: 690_000_000,
+        p_fee_luna: 0,
+      },
+    })
+    expect(unauthenticated.status).toBe(401)
+    const unauthenticatedTable = await liveSupabaseFetch('/rest/v1/payout_automation_control?select=id&limit=1', {
+      apikey: 'invalid',
+      token: 'invalid',
+    })
+    expect(unauthenticatedTable.status).toBe(401)
+
+    const email = `nimhunt.auto.rls.${randomUUID().slice(0, 8)}@gmail.com`
+    const password = `RlsProbe-${randomUUID()}`
+    const created = await liveSupabaseFetch('/auth/v1/admin/users', {
+      method: 'POST',
+      token: liveConfig!.serviceRoleKey,
+      body: { email, password, email_confirm: true },
+    })
+    expect(created.status).toBe(200)
+    const userId = asLiveId(created.body)
+    try {
+      const token = await liveSupabaseFetch('/auth/v1/token?grant_type=password', {
+        method: 'POST',
+        token: liveConfig!.serviceRoleKey,
+        body: { email, password },
+      })
+      expect(token.status).toBe(200)
+      const accessToken = asLiveAccessToken(token.body)
+
+      const read = await liveSupabaseFetch('/rest/v1/payout_automation_control?select=*&limit=5', { token: accessToken })
+      expect(read.status).toBe(200)
+      expect(read.body).toEqual([])
+
+      const inserted = await liveSupabaseFetch('/rest/v1/payout_automation_control', {
+        method: 'POST',
+        token: accessToken,
+        body: { id: true, automatic_payouts_enabled: true },
+      })
+      expect(inserted.status).toBeGreaterThanOrEqual(400)
+
+      const updated = await liveSupabaseFetch('/rest/v1/payout_automation_control?id=eq.true', {
+        method: 'PATCH',
+        token: accessToken,
+        body: { automatic_payouts_enabled: true },
+      })
+      expect([200, 403]).toContain(updated.status)
+      if (updated.status === 200) expect(updated.body).toEqual([])
+
+      for (const [name, payload] of [
+        ['get_payout_automation_control', {}],
+        ['set_payout_automation_enabled', { p_enabled: false }],
+        ['list_unpaid_reserved_claims', { p_limit: 1 }],
+        ['count_unpaid_reward_risk_skips', {}],
+        ['acquire_automated_reward_payout', {
+          p_available_for_rewards_luna: 1_000_000_000,
+          p_max_daily_reward_luna: 690_000_000,
+          p_fee_luna: 0,
+        }],
+      ] as const) {
+        const rpc = await liveSupabaseFetch(`/rest/v1/rpc/${name}`, {
+          method: 'POST',
+          token: accessToken,
+          body: payload,
+        })
+        expect(rpc.status, name).toBe(403)
+        expect(JSON.stringify(rpc.body), name).toMatch(/permission denied for function/)
+      }
+    } finally {
+      if (userId) {
+        await liveSupabaseFetch(`/auth/v1/admin/users/${userId}`, {
+          method: 'DELETE',
+          token: liveConfig!.serviceRoleKey,
+        })
+      }
+    }
+
+    const stillOff = await createSupabaseAdminClient(liveConfig!).rpc('get_payout_automation_control')
+    expect(stillOff.data).toMatchObject({ ok: true, automatic_payouts_enabled: false })
+  }, 45_000)
+
+  it('discovers only unpaid RESERVED+PASS claims and skips REVIEW/BLOCK/non-RESERVED/paid rows', async () => {
+    const client = createSupabaseAdminClient(liveConfig!)
+    const store = createPayoutStore(createSupabasePayoutRpcClient(client))
+    const unpaid = await store.listUnpaidReservedClaims(69)
+    const unpaidIds = new Set(unpaid.map(row => row.claimId))
+    expect(unpaidIds.has(historicalClaimId)).toBe(false)
+
+    for (const row of unpaid) {
+      const claim = await client.from('reward_claims').select('claim_id,status,run_id').eq('claim_id', row.claimId).maybeSingle()
+      expect(claim.error, claim.error?.message).toBeNull()
+      expect(claim.data).toMatchObject({ claim_id: row.claimId, status: 'RESERVED' })
+      const assessment = await client.from('reward_risk_assessments').select('result').eq('run_id', row.runId).maybeSingle()
+      expect(assessment.data).toMatchObject({ result: 'PASS' })
+      const payout = await store.getByClaim(row.claimId)
+      expect(payout).toBeNull()
+    }
+
+    const prepared = await client.from('reward_claims').select('claim_id,status').eq('status', 'PREPARED')
+    expect(prepared.error, prepared.error?.message).toBeNull()
+    for (const row of prepared.data ?? []) {
+      expect(unpaidIds.has(String(row.claim_id))).toBe(false)
+    }
+
+    const skipped = await client.from('reward_risk_assessments').select('run_id,result').in('result', ['REVIEW', 'BLOCK'])
+    expect(skipped.error, skipped.error?.message).toBeNull()
+    expect((skipped.data ?? []).length).toBeGreaterThan(0)
+    for (const row of skipped.data ?? []) {
+      expect(unpaid.some(claim => claim.runId === row.run_id)).toBe(false)
+    }
+
+    const skips = await store.countUnpaidRiskSkips()
+    expect(skips.reviewSkipped).toBe(0)
+    expect(skips.blockSkipped).toBe(0)
+  }, 30_000)
+
+  it('keeps the env and DB kill switches off, does not acquire, and leaves historical payout unchanged', async () => {
+    expect(BETA_REWARD_AMOUNT_LUNA * 69n).toBe(BETA_MAX_DAILY_REWARD_LUNA)
+    const config = readPayoutExecutionConfig({
+      ...env,
+      NIMHUNT_PAYOUT_NETWORK: env.NIMHUNT_PAYOUT_NETWORK || process.env.NIMHUNT_PAYOUT_NETWORK,
+      NIMHUNT_ENABLE_MAINNET_PAYOUT: env.NIMHUNT_ENABLE_MAINNET_PAYOUT || process.env.NIMHUNT_ENABLE_MAINNET_PAYOUT,
+      NIMHUNT_AUTOMATIC_PAYOUTS_ENABLED: env.NIMHUNT_AUTOMATIC_PAYOUTS_ENABLED || process.env.NIMHUNT_AUTOMATIC_PAYOUTS_ENABLED,
+      NIMHUNT_REWARD_AMOUNT_LUNA: env.NIMHUNT_REWARD_AMOUNT_LUNA || process.env.NIMHUNT_REWARD_AMOUNT_LUNA,
+      NIMHUNT_MAX_DAILY_REWARD_LUNA: env.NIMHUNT_MAX_DAILY_REWARD_LUNA || process.env.NIMHUNT_MAX_DAILY_REWARD_LUNA,
+      NIMHUNT_TREASURY_MIN_RESERVE_LUNA: env.NIMHUNT_TREASURY_MIN_RESERVE_LUNA || process.env.NIMHUNT_TREASURY_MIN_RESERVE_LUNA,
+    })
+    expect(config.automaticPayoutsEnabled).toBe(false)
+    expect(config.amountLuna).toBe(BETA_REWARD_AMOUNT_LUNA)
+    expect(config.maxDailyRewardLuna).toBe(BETA_MAX_DAILY_REWARD_LUNA)
+    expect(config.treasuryMinReserveLuna).toBe(10_000_000n)
+
+    const client = createSupabaseAdminClient(liveConfig!)
+    const store = createPayoutStore(createSupabasePayoutRpcClient(client))
+    const before = await client.from('reward_payouts').select('payout_id,status,amount_luna,tx_hash,claim_id').eq('payout_id', historicalPayoutId).maybeSingle()
+    expect(before.data).toMatchObject({
+      payout_id: historicalPayoutId,
+      status: 'CONFIRMED',
+      amount_luna: 10000,
+      tx_hash: historicalTxHash,
+      claim_id: historicalClaimId,
+    })
+    const beforeClaim = await client.from('reward_claims').select('claim_id,status').eq('claim_id', historicalClaimId).maybeSingle()
+    expect(beforeClaim.data).toMatchObject({ claim_id: historicalClaimId, status: 'RESERVED' })
+
+    const [left, right] = await Promise.all([
+      store.acquireAutomated({
+        availableForRewardsLuna: 1_000_000_000n,
+        maxDailyRewardLuna: BETA_MAX_DAILY_REWARD_LUNA,
+        feeLuna: 0n,
+      }),
+      store.acquireAutomated({
+        availableForRewardsLuna: 1_000_000_000n,
+        maxDailyRewardLuna: BETA_MAX_DAILY_REWARD_LUNA,
+        feeLuna: 0n,
+      }),
+    ])
+    expect(left).toEqual({ payout: null, reason: 'AUTOMATION_DISABLED' })
+    expect(right).toEqual({ payout: null, reason: 'AUTOMATION_DISABLED' })
+
+    const treasury = createFakeTreasury({ network: 'mainnet', balance: 0n })
+    const dry = await runPayoutWorker({
+      store,
+      treasury,
+      config,
+      max: 5,
+      dryRun: true,
+      mockAvailableLuna: 0n,
+    })
+    expect(dry.dryRun).toBe(true)
+    expect(dry.payoutsCreated).toBe(0)
+    expect(dry.eligibleClaims).toBeGreaterThanOrEqual(1)
+    expect(dry.wouldCreate).toBe(dry.eligibleClaims)
+    expect(dry.wouldProcess).toBe(0)
+    expect(dry.treasuryLow).toBe(true)
+    expect(dry.dailyCapReached).toBe(false)
+    expect(treasury.submitted).toHaveLength(0)
+
+    const after = await client.from('reward_payouts').select('payout_id,status,amount_luna,tx_hash,claim_id').eq('payout_id', historicalPayoutId).maybeSingle()
+    expect(after.data).toEqual(before.data)
+    const afterClaim = await client.from('reward_claims').select('claim_id,status').eq('claim_id', historicalClaimId).maybeSingle()
+    expect(afterClaim.data).toEqual(beforeClaim.data)
+    const processing = await client.from('reward_payouts').select('payout_id').eq('status', 'PROCESSING')
+    expect(processing.data).toEqual([])
+    const pending = await client.from('reward_payouts').select('payout_id').eq('status', 'PENDING')
+    expect(pending.data).toEqual([])
+  }, 45_000)
+})
+
+describe.skipIf(!liveEnabled)('live 010 payout execution day', () => {
+  const historicalPayoutId = 'd19bf406-2b81-4c5a-b271-da8eb7587cbd'
+  const historicalClaimId = '40891624-e2c2-471f-aa9a-9674ca6200a7'
+  const historicalTxHash = 'c58022f37ed7352f41c29ef9862297a9cfa8c45593456395d7a6eb7a68009ff6'
+  const betaPayoutId = '14d204b5-5ced-477b-b626-05cfdbe29e1c'
+  const betaClaimId = 'cd176c93-c9de-4c07-ad96-bcd1f16c14a4'
+  const betaTxHash = 'f93d6a1e169182f0b3400daa70e3f9557d11dda1bdfb975541c5747f0d05f4fd'
+
+  it('exposes execution_day_key, backfills historical rows, and reports 100 NIM on execution day', async () => {
+    const client = createSupabaseAdminClient(liveConfig!)
+    const store = createPayoutStore(createSupabasePayoutRpcClient(client))
+    const selected = await client.from('reward_payouts').select(PAYOUT_COLUMNS.join(',')).limit(2)
+    expect(selected.error, selected.error?.message).toBeNull()
+    expect(JSON.stringify(selected.data)).toMatch(/execution_day_key/)
+
+    const historical = await client.from('reward_payouts').select(PAYOUT_COLUMNS.join(',')).eq('payout_id', historicalPayoutId).maybeSingle()
+    expect(historical.error, historical.error?.message).toBeNull()
+    expect(historical.data).toMatchObject({
+      payout_id: historicalPayoutId,
+      claim_id: historicalClaimId,
+      day_key: '2026-09-16',
+      execution_day_key: '2026-09-16',
+      status: 'CONFIRMED',
+      amount_luna: 10000,
+      tx_hash: historicalTxHash,
+    })
+
+    const beta = await client.from('reward_payouts').select(PAYOUT_COLUMNS.join(',')).eq('payout_id', betaPayoutId).maybeSingle()
+    expect(beta.error, beta.error?.message).toBeNull()
+    expect(beta.data).toMatchObject({
+      payout_id: betaPayoutId,
+      claim_id: betaClaimId,
+      day_key: '2026-09-16',
+      execution_day_key: '2026-09-17',
+      status: 'CONFIRMED',
+      amount_luna: 10_000_000,
+      tx_hash: betaTxHash,
+    })
+
+    const historicalRpc = await store.get(historicalPayoutId)
+    expect(historicalRpc).toMatchObject({
+      payoutId: historicalPayoutId,
+      dayKey: '2026-09-16',
+      executionDayKey: '2026-09-16',
+      status: 'CONFIRMED',
+      amountLuna: 10_000n,
+      txHash: historicalTxHash,
+    })
+    const betaRpc = await store.get(betaPayoutId)
+    expect(betaRpc).toMatchObject({
+      payoutId: betaPayoutId,
+      dayKey: '2026-09-16',
+      executionDayKey: '2026-09-17',
+      status: 'CONFIRMED',
+      amountLuna: BETA_REWARD_AMOUNT_LUNA,
+      txHash: betaTxHash,
+    })
+
+    expect(await store.getExecutionDaySpend('2026-09-16')).toBe(10_000n)
+    expect(await store.getExecutionDaySpend('2026-09-17')).toBe(BETA_REWARD_AMOUNT_LUNA)
+
+    const historicalClaim = await client.from('reward_claims').select('claim_id,status,day_key').eq('claim_id', historicalClaimId).maybeSingle()
+    expect(historicalClaim.data).toMatchObject({ claim_id: historicalClaimId, status: 'RESERVED', day_key: '2026-09-16' })
+    const betaClaim = await client.from('reward_claims').select('claim_id,status,day_key').eq('claim_id', betaClaimId).maybeSingle()
+    expect(betaClaim.data).toMatchObject({ claim_id: betaClaimId, status: 'RESERVED', day_key: '2026-09-16' })
+  }, 30_000)
+
+  it('counts current UTC-day execution commitment from execution_day_key and keeps automation off', async () => {
+    const client = createSupabaseAdminClient(liveConfig!)
+    const store = createPayoutStore(createSupabasePayoutRpcClient(client))
+    const config = readPayoutExecutionConfig({
+      ...env,
+      NIMHUNT_PAYOUT_NETWORK: env.NIMHUNT_PAYOUT_NETWORK || process.env.NIMHUNT_PAYOUT_NETWORK,
+      NIMHUNT_ENABLE_MAINNET_PAYOUT: env.NIMHUNT_ENABLE_MAINNET_PAYOUT || process.env.NIMHUNT_ENABLE_MAINNET_PAYOUT,
+      NIMHUNT_AUTOMATIC_PAYOUTS_ENABLED: env.NIMHUNT_AUTOMATIC_PAYOUTS_ENABLED || process.env.NIMHUNT_AUTOMATIC_PAYOUTS_ENABLED,
+      NIMHUNT_REWARD_AMOUNT_LUNA: env.NIMHUNT_REWARD_AMOUNT_LUNA || process.env.NIMHUNT_REWARD_AMOUNT_LUNA,
+      NIMHUNT_MAX_DAILY_REWARD_LUNA: env.NIMHUNT_MAX_DAILY_REWARD_LUNA || process.env.NIMHUNT_MAX_DAILY_REWARD_LUNA,
+      NIMHUNT_TREASURY_MIN_RESERVE_LUNA: env.NIMHUNT_TREASURY_MIN_RESERVE_LUNA || process.env.NIMHUNT_TREASURY_MIN_RESERVE_LUNA,
+    })
+    expect(config.automaticPayoutsEnabled).toBe(false)
+    expect(await store.getAutomationEnabled()).toBe(false)
+
+    const processing = await client.from('reward_payouts').select('payout_id,amount_luna').eq('status', 'PROCESSING')
+    expect(processing.error, processing.error?.message).toBeNull()
+    expect(processing.data).toEqual([])
+    const submitted = await client.from('reward_payouts').select('payout_id,amount_luna').eq('status', 'SUBMITTED')
+    expect(submitted.data).toEqual([])
+    const failedFinal = await client.from('reward_payouts').select('payout_id,amount_luna,tx_hash').eq('status', 'FAILED_FINAL')
+    expect(failedFinal.data).toEqual([])
+
+    const today = new Date().toISOString().slice(0, 10)
+    expect(today).toBe('2026-09-17')
+    const committed = await store.getExecutionDaySpend(today)
+    expect(committed).toBe(BETA_REWARD_AMOUNT_LUNA)
+    expect(BETA_MAX_DAILY_REWARD_LUNA - committed).toBe(680_000_000n)
+
+    const [left, right] = await Promise.all([
+      store.acquireAutomated({
+        availableForRewardsLuna: 1_000_000_000n,
+        maxDailyRewardLuna: BETA_MAX_DAILY_REWARD_LUNA,
+        feeLuna: 0n,
+      }),
+      store.acquireAutomated({
+        availableForRewardsLuna: 1_000_000_000n,
+        maxDailyRewardLuna: BETA_MAX_DAILY_REWARD_LUNA,
+        feeLuna: 0n,
+      }),
+    ])
+    expect(left).toEqual({ payout: null, reason: 'AUTOMATION_DISABLED' })
+    expect(right).toEqual({ payout: null, reason: 'AUTOMATION_DISABLED' })
+
+    const treasury = createFakeTreasury({ network: 'mainnet', balance: 0n })
+    const dry = await runPayoutWorker({
+      store,
+      treasury,
+      config,
+      max: 5,
+      dryRun: true,
+      mockAvailableLuna: 20_000_000n,
+    })
+    expect(dry.dryRun).toBe(true)
+    expect(dry.executionDay).toBe(today)
+    expect(dry.executionDayCommittedLuna).toBe(BETA_REWARD_AMOUNT_LUNA.toString())
+    expect(dry.executionDayRemainingLuna).toBe('680000000')
+    expect(dry.payoutsCreated).toBe(0)
+    expect(dry.wouldProcess).toBe(0)
+    expect(treasury.submitted).toHaveLength(0)
+    expect((await client.from('reward_payouts').select('payout_id').eq('status', 'PROCESSING')).data).toEqual([])
+  }, 45_000)
+
+  it('rejects authenticated execute of get_execution_day_payout_spend', async () => {
+    const unauthenticated = await liveSupabaseFetch('/rest/v1/rpc/get_execution_day_payout_spend', {
+      method: 'POST',
+      apikey: 'invalid',
+      token: 'invalid',
+      body: { p_execution_day: '2026-09-17' },
+    })
+    expect(unauthenticated.status).toBe(401)
+
+    const email = `nimhunt.execday.rls.${randomUUID().slice(0, 8)}@gmail.com`
+    const password = `RlsProbe-${randomUUID()}`
+    const created = await liveSupabaseFetch('/auth/v1/admin/users', {
+      method: 'POST',
+      token: liveConfig!.serviceRoleKey,
+      body: { email, password, email_confirm: true },
+    })
+    expect(created.status).toBe(200)
+    const userId = asLiveId(created.body)
+    try {
+      const token = await liveSupabaseFetch('/auth/v1/token?grant_type=password', {
+        method: 'POST',
+        token: liveConfig!.serviceRoleKey,
+        body: { email, password },
+      })
+      expect(token.status).toBe(200)
+      const accessToken = asLiveAccessToken(token.body)
+      const rpc = await liveSupabaseFetch('/rest/v1/rpc/get_execution_day_payout_spend', {
+        method: 'POST',
+        token: accessToken,
+        body: { p_execution_day: '2026-09-17' },
+      })
+      expect(rpc.status).toBe(403)
+      expect(JSON.stringify(rpc.body)).toMatch(/permission denied for function/)
+    } finally {
+      if (userId) {
+        await liveSupabaseFetch(`/auth/v1/admin/users/${userId}`, {
+          method: 'DELETE',
+          token: liveConfig!.serviceRoleKey,
+        })
+      }
+    }
+
+    const stillOff = await createSupabaseAdminClient(liveConfig!).rpc('get_payout_automation_control')
+    expect(stillOff.data).toMatchObject({ ok: true, automatic_payouts_enabled: false })
   }, 45_000)
 })
 

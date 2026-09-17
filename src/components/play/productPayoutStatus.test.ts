@@ -90,6 +90,7 @@ describe('payout status copy', () => {
   it('formats luna as NIM without floats', () => {
     expect(formatNimFromLuna(10_000n)).toBe('0.1 NIM')
     expect(formatNimFromLuna('100000')).toBe('1 NIM')
+    expect(formatNimFromLuna(10_000_000n)).toBe('100 NIM')
     expect(formatNimFromLuna(100_000_000n)).toBe('1000 NIM')
   })
 })

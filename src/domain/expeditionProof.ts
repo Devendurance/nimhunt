@@ -62,6 +62,8 @@ export type ExpeditionProofErrorCode =
   | 'RUN_INCOMPLETE'
   | 'RECOVERY_CHALLENGE_INVALID'
   | 'RECOVERY_CHALLENGE_EXPIRED'
+  | 'RATE_LIMITED'
+  | 'REWARD_UNAVAILABLE'
 
 export type ProductGameplayState =
   | 'READY'
@@ -249,6 +251,15 @@ export type PrepareRewardClaimResult =
       readonly reservationNumber: number | null
       readonly remainingSlots: number | null
       readonly totalSlots: 69
+    }
+  | {
+      readonly outcome: 'REVIEW'
+      readonly runId: string
+    }
+  | {
+      readonly outcome: 'BLOCK'
+      readonly runId: string
+      readonly reasonCategory: 'TIMING' | 'SESSION' | 'ELIGIBILITY'
     }
 
 export type FinalizeRewardClaimResult = {

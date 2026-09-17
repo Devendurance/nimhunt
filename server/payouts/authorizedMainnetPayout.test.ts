@@ -28,12 +28,16 @@ function seedAuthorized(store: ReturnType<typeof createMemoryPayoutStore>) {
 }
 
 describe('authorized mainnet payout once', () => {
-  it('keeps the bulk worker refuse-closed on mainnet', async () => {
-    await expect(runPayoutWorker({
+  it('keeps the bulk worker refuse-closed on mainnet until automatic payouts are enabled', async () => {
+    const treasury = createFakeTreasury({ network: 'mainnet', address: AUTHORIZED_MAINNET_PAYOUT.treasury })
+    const report = await runPayoutWorker({
       store: createMemoryPayoutStore(),
-      treasury: createFakeTreasury({ network: 'mainnet', address: AUTHORIZED_MAINNET_PAYOUT.treasury }),
+      treasury,
       config: CONFIG,
-    })).rejects.toMatchObject({ code: 'PAYOUT_MAINNET_DISABLED' })
+    })
+    expect(report.payoutsCreated).toBe(0)
+    expect(report.submitted).toBe(0)
+    expect(treasury.submitted).toHaveLength(0)
   })
 
   it('stops without sending when any live gate fails', async () => {
@@ -119,6 +123,7 @@ describe('authorized mainnet payout once', () => {
       runId: '22222222-2222-2222-2222-222222222222',
       wallet: AUTHORIZED_MAINNET_PAYOUT.recipient,
       dayKey: '2026-09-16',
+      executionDayKey: null,
       amountLuna: 10_000n,
       network: 'mainnet' as const,
       status: 'PENDING' as const,

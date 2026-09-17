@@ -13,6 +13,7 @@ import type {
 export type PayoutService = {
   ensureForReservedClaim(claimId: string): Promise<RewardPayout>
   executeNext(): Promise<RewardPayout | null>
+  executeAcquired(payout: RewardPayout): Promise<RewardPayout>
   reconcile(payout?: RewardPayout): Promise<RewardPayout | null>
   recoverAmbiguous(payout: RewardPayout): Promise<RewardPayout>
   getPublicStatus(claimId: string, sessionHash: string): Promise<{
@@ -25,6 +26,10 @@ export function createPayoutService(options: {
   readonly store: PayoutStore
   readonly treasury: TreasuryAdapter
   readonly config: PayoutExecutionConfig
+  readonly hooks?: {
+    readonly onSigned?: () => void
+    readonly onBroadcast?: () => void
+  }
 }): PayoutService {
   const network = requirePayoutNetwork(options.config)
   if (options.treasury.network !== network) throw new PayoutError('PAYOUT_NETWORK_INVALID')
@@ -45,7 +50,11 @@ export function createPayoutService(options: {
     async executeNext() {
       const acquired = await options.store.acquire()
       if (!acquired) return null
-      return executeAcquired(acquired, options.store, options.treasury, network)
+      return executeAcquired(acquired, options.store, options.treasury, network, options.hooks)
+    },
+
+    async executeAcquired(payout) {
+      return executeAcquired(payout, options.store, options.treasury, network, options.hooks)
     },
 
     async reconcile(payout) {
@@ -81,6 +90,10 @@ async function executeAcquired(
   store: PayoutStore,
   treasury: TreasuryAdapter,
   network: PayoutNetwork,
+  hooks?: {
+    readonly onSigned?: () => void
+    readonly onBroadcast?: () => void
+  },
 ): Promise<RewardPayout> {
   if (payout.network !== network) {
     return store.markFailed({
@@ -120,6 +133,7 @@ async function executeAcquired(
       amountLuna: payout.amountLuna,
       network: payout.network,
     })
+    hooks?.onSigned?.()
   } catch (error) {
     return store.markFailed({
       payoutId: payout.payoutId,
@@ -138,13 +152,17 @@ async function executeAcquired(
     })
   }
 
+  let broadcasted = false
   try {
     const submitted = await treasury.submitSigned(intent)
+    broadcasted = true
+    hooks?.onBroadcast?.()
     return await store.markSubmitted(payout.payoutId, submitted.txHash)
   } catch (error) {
     if (error instanceof Error && error.name === 'PayoutCrashAfterBroadcast') {
       const recovered = await treasury.findPayoutTransfer(payout.payoutId)
       if (recovered && isExactMatch(payout, recovered, treasury.address())) {
+        if (!broadcasted) hooks?.onBroadcast?.()
         return store.markSubmitted(payout.payoutId, recovered.txHash)
       }
       return store.markFailed({
@@ -156,6 +174,7 @@ async function executeAcquired(
     }
     const recovered = await treasury.findPayoutTransfer(payout.payoutId)
     if (recovered && isExactMatch(payout, recovered, treasury.address())) {
+      if (!broadcasted) hooks?.onBroadcast?.()
       return store.markSubmitted(payout.payoutId, recovered.txHash)
     }
     return store.markFailed({

@@ -1,10 +1,14 @@
 import { randomUUID } from 'node:crypto'
+import { utcDayKey } from '../ledger/utcDay.ts'
 import { PayoutError } from './errors.ts'
 import { readPayoutRpc, type PayoutRpcClient } from './db.ts'
 import {
   PAYOUT_NETWORKS,
   PAYOUT_STATUSES,
+  type AutomatedAcquireReason,
+  type PayoutCycleResult,
   type PayoutNetwork,
+  type PayoutOperationsSnapshot,
   type PayoutStatus,
   type PayoutStore,
   type PublicRewardPayout,
@@ -77,6 +81,13 @@ export function createPayoutStore(rpc: PayoutRpcClient): PayoutStore {
       if (!Array.isArray(claims)) return []
       return claims.map(entry => asUnpaidClaim(asRecord(entry)))
     },
+    async countUnpaidRiskSkips() {
+      const payload = readPayoutRpc(await rpc.rpc('count_unpaid_reward_risk_skips'))
+      return {
+        reviewSkipped: asNumber(payload.review_skipped),
+        blockSkipped: asNumber(payload.block_skipped),
+      }
+    },
     async listByStatus(status, limit) {
       const payload = readPayoutRpc(await rpc.rpc('list_reward_payouts', {
         p_status: status,
@@ -85,6 +96,45 @@ export function createPayoutStore(rpc: PayoutRpcClient): PayoutStore {
       const payouts = payload.payouts
       if (!Array.isArray(payouts)) return []
       return payouts.map(entry => asPayout(asRecord(entry)))
+    },
+    async getAutomationEnabled() {
+      const payload = readPayoutRpc(await rpc.rpc('get_payout_automation_control'))
+      return payload.automatic_payouts_enabled === true
+    },
+    async setAutomationEnabled(enabled) {
+      const payload = readPayoutRpc(await rpc.rpc('set_payout_automation_enabled', {
+        p_enabled: enabled,
+      }))
+      return payload.automatic_payouts_enabled === true
+    },
+    async getExecutionDaySpend(executionDayKey) {
+      const payload = readPayoutRpc(await rpc.rpc('get_execution_day_payout_spend', {
+        p_execution_day: executionDayKey,
+      }))
+      return asNonNegativeBigInt(payload.committed_luna)
+    },
+    async getOperationsSnapshot() {
+      const payload = readPayoutRpc(await rpc.rpc('get_payout_operations_status'))
+      return asOperationsSnapshot(payload)
+    },
+    async recordCycleResult(input) {
+      readPayoutRpc(await rpc.rpc('record_payout_cycle_result', {
+        p_cycle_id: input.cycleId,
+        p_cycle_at: input.cycleAt,
+        p_result: input.result,
+        p_errors: input.errors,
+      }))
+    },
+    async acquireAutomated(input) {
+      const payload = readPayoutRpc(await rpc.rpc('acquire_automated_reward_payout', {
+        p_available_for_rewards_luna: input.availableForRewardsLuna,
+        p_max_daily_reward_luna: input.maxDailyRewardLuna,
+        p_fee_luna: input.feeLuna,
+      }))
+      return {
+        payout: payload.payout == null ? null : asPayout(asRecord(payload.payout)),
+        reason: asAcquireReason(payload.reason),
+      }
     },
   }
 }
@@ -96,6 +146,7 @@ export function createMemoryPayoutStore(options: {
 } = {}): PayoutStore & {
   seedClaim(claim: MemoryClaimRecord): void
   seedSession(hash: string, session: { readonly runId: string; readonly expiresAt: string; readonly revokedAt: string | null }): void
+  seedAssessment(runId: string, result: 'PASS' | 'REVIEW' | 'BLOCK'): void
 } {
   const clock = options.clock ?? { now: () => new Date() }
   const mutex = new AsyncMutex()
@@ -103,16 +154,28 @@ export function createMemoryPayoutStore(options: {
   const byClaim = new Map<string, string>()
   const claims = new Map(options.claims ?? [])
   const sessions = new Map(options.sessions ?? [])
+  const assessments = new Map<string, 'PASS' | 'REVIEW' | 'BLOCK'>()
+  let automationEnabled = false
+  let lastCycle: {
+    readonly cycleAt: string
+    readonly cycleId: string
+    readonly result: PayoutCycleResult
+    readonly errors: readonly string[]
+  } | null = null
 
   const store: PayoutStore & {
     seedClaim(claim: MemoryClaimRecord): void
     seedSession(hash: string, session: { readonly runId: string; readonly expiresAt: string; readonly revokedAt: string | null }): void
+    seedAssessment(runId: string, result: 'PASS' | 'REVIEW' | 'BLOCK'): void
   } = {
     seedClaim(claim) {
       claims.set(claim.claimId, claim)
     },
     seedSession(hash, session) {
       sessions.set(hash, session)
+    },
+    seedAssessment(runId, result) {
+      assessments.set(runId, result)
     },
     create(input) {
       return mutex.run(() => {
@@ -136,6 +199,7 @@ export function createMemoryPayoutStore(options: {
           runId: claim.runId,
           wallet: claim.wallet,
           dayKey: claim.dayKey,
+          executionDayKey: null,
           amountLuna: input.amountLuna,
           network: input.network,
           status: 'PENDING',
@@ -156,14 +220,13 @@ export function createMemoryPayoutStore(options: {
     },
     acquire() {
       return mutex.run(() => {
-        const next = [...payouts.values()].find(payout => (
-          (payout.status === 'PENDING' || payout.status === 'FAILED_RETRYABLE') && payout.txHash === null
-        ))
+        const next = nextAcquirable(payouts)
         if (!next) return null
         const now = clock.now().toISOString()
         const acquired: RewardPayout = {
           ...next,
           status: 'PROCESSING',
+          executionDayKey: utcDayKey(clock.now()),
           attemptCount: next.attemptCount + 1,
           processingStartedAt: now,
           failureCode: null,
@@ -260,7 +323,18 @@ export function createMemoryPayoutStore(options: {
     },
     async listUnpaidReservedClaims(limit) {
       return [...claims.values()]
-        .filter(claim => claim.status === 'RESERVED' && claim.publicKey && claim.signature && claim.finalizedAt && !byClaim.has(claim.claimId))
+        .filter(claim => (
+          claim.status === 'RESERVED'
+          && claim.publicKey
+          && claim.signature
+          && claim.finalizedAt
+          && !byClaim.has(claim.claimId)
+          && assessments.get(claim.runId) === 'PASS'
+        ))
+        .sort((left, right) => {
+          const time = (left.finalizedAt ?? '').localeCompare(right.finalizedAt ?? '')
+          return time !== 0 ? time : left.claimId.localeCompare(right.claimId)
+        })
         .slice(0, limit)
         .map(claim => ({
           claimId: claim.claimId,
@@ -269,8 +343,109 @@ export function createMemoryPayoutStore(options: {
           dayKey: claim.dayKey,
         }))
     },
+    async countUnpaidRiskSkips() {
+      let reviewSkipped = 0
+      let blockSkipped = 0
+      for (const claim of claims.values()) {
+        if (claim.status !== 'RESERVED' || byClaim.has(claim.claimId)) continue
+        const result = assessments.get(claim.runId)
+        if (result === 'REVIEW') reviewSkipped += 1
+        if (result === 'BLOCK') blockSkipped += 1
+      }
+      return { reviewSkipped, blockSkipped }
+    },
     async listByStatus(status, limit) {
-      return [...payouts.values()].filter(payout => payout.status === status).slice(0, limit)
+      return [...payouts.values()]
+        .filter(payout => payout.status === status)
+        .sort(comparePayoutOrder)
+        .slice(0, limit)
+    },
+    async getAutomationEnabled() {
+      return automationEnabled
+    },
+    async setAutomationEnabled(enabled) {
+      automationEnabled = enabled
+      return automationEnabled
+    },
+    getExecutionDaySpend(executionDayKey) {
+      return mutex.run(() => sumCommitted(payouts, executionDayKey))
+    },
+    getOperationsSnapshot() {
+      return mutex.run(() => {
+        const executionDay = utcDayKey(clock.now())
+        let confirmedTodayCount = 0
+        let reviewCount = 0
+        let blockCount = 0
+        for (const payout of payouts.values()) {
+          if (payout.status === 'CONFIRMED' && payout.confirmedAt && utcDayKey(new Date(payout.confirmedAt)) === executionDay) {
+            confirmedTodayCount += 1
+          }
+        }
+        for (const claim of claims.values()) {
+          if (claim.status !== 'RESERVED' || byClaim.has(claim.claimId)) continue
+          const result = assessments.get(claim.runId)
+          if (result === 'REVIEW') reviewCount += 1
+          if (result === 'BLOCK') blockCount += 1
+        }
+        return {
+          automationEnabled,
+          pendingCount: countPayouts(payouts, 'PENDING'),
+          processingCount: countPayouts(payouts, 'PROCESSING'),
+          submittedCount: countPayouts(payouts, 'SUBMITTED'),
+          confirmedTodayCount,
+          reviewCount,
+          blockCount,
+          executionDay,
+          executionDayCommittedLuna: sumCommitted(payouts, executionDay),
+          lastCycleAt: lastCycle?.cycleAt ?? null,
+          lastCycleId: lastCycle?.cycleId ?? null,
+          lastCycleResult: lastCycle?.result ?? null,
+          lastCycleErrors: lastCycle?.errors ?? [],
+        }
+      })
+    },
+    recordCycleResult(input) {
+      return mutex.run(() => {
+        if (lastCycle && lastCycle.cycleAt > input.cycleAt) return
+        lastCycle = {
+          cycleAt: input.cycleAt,
+          cycleId: input.cycleId,
+          result: input.result,
+          errors: [...input.errors],
+        }
+      })
+    },
+    acquireAutomated(input) {
+      return mutex.run(() => {
+        if (!automationEnabled) return { payout: null, reason: 'AUTOMATION_DISABLED' as const }
+        if (input.availableForRewardsLuna < 0n) return { payout: null, reason: 'TREASURY_LOW' as const }
+        if (input.maxDailyRewardLuna <= 0n) throw new PayoutError('PAYOUT_DAILY_CAP_INVALID')
+        if (input.feeLuna < 0n) throw new PayoutError('PAYOUT_AMOUNT_INVALID')
+        const next = nextAutomatedAcquirable(payouts, claims, assessments)
+        if (!next) return { payout: null, reason: 'NO_WORK' as const }
+        const executionDayKey = utcDayKey(clock.now())
+        const committed = sumCommitted(payouts, executionDayKey)
+        if (committed + next.amountLuna > input.maxDailyRewardLuna) {
+          return { payout: null, reason: 'DAILY_CAP_REACHED' as const }
+        }
+        const outstanding = sumOutstanding(payouts)
+        if (outstanding + next.amountLuna + input.feeLuna > input.availableForRewardsLuna) {
+          return { payout: null, reason: 'TREASURY_LOW' as const }
+        }
+        const now = clock.now().toISOString()
+        const acquired: RewardPayout = {
+          ...next,
+          status: 'PROCESSING',
+          executionDayKey,
+          attemptCount: next.attemptCount + 1,
+          processingStartedAt: now,
+          failureCode: null,
+          failureMessageSafe: null,
+          updatedAt: now,
+        }
+        payouts.set(acquired.payoutId, acquired)
+        return { payout: acquired, reason: null }
+      })
     },
   }
   return store
@@ -285,6 +460,68 @@ export type MemoryClaimRecord = {
   readonly publicKey: string | null
   readonly signature: string | null
   readonly finalizedAt: string | null
+}
+
+function nextAcquirable(payouts: Map<string, RewardPayout>): RewardPayout | undefined {
+  return [...payouts.values()]
+    .filter(payout => (payout.status === 'PENDING' || payout.status === 'FAILED_RETRYABLE') && payout.txHash === null)
+    .sort(comparePayoutOrder)[0]
+}
+
+function nextAutomatedAcquirable(
+  payouts: Map<string, RewardPayout>,
+  claims: Map<string, MemoryClaimRecord>,
+  assessments: Map<string, 'PASS' | 'REVIEW' | 'BLOCK'>,
+): RewardPayout | undefined {
+  return [...payouts.values()]
+    .filter(payout => {
+      if ((payout.status !== 'PENDING' && payout.status !== 'FAILED_RETRYABLE') || payout.txHash) return false
+      const claim = claims.get(payout.claimId)
+      return claim?.status === 'RESERVED' && assessments.get(payout.runId) === 'PASS'
+    })
+    .sort(comparePayoutOrder)[0]
+}
+
+function countPayouts(payouts: Map<string, RewardPayout>, status: PayoutStatus): number {
+  let count = 0
+  for (const payout of payouts.values()) {
+    if (payout.status === status) count += 1
+  }
+  return count
+}
+
+function sumCommitted(payouts: Map<string, RewardPayout>, executionDayKey: string): bigint {
+  let total = 0n
+  for (const payout of payouts.values()) {
+    if (payout.executionDayKey !== executionDayKey) continue
+    if (payout.status === 'PROCESSING' || payout.status === 'SUBMITTED' || payout.status === 'CONFIRMED') {
+      total += payout.amountLuna
+    } else if (payout.status === 'FAILED_FINAL' && payout.txHash) {
+      total += payout.amountLuna
+    }
+  }
+  return total
+}
+
+function sumOutstanding(payouts: Map<string, RewardPayout>): bigint {
+  let total = 0n
+  for (const payout of payouts.values()) {
+    if (payout.status === 'PROCESSING' && !payout.txHash) total += payout.amountLuna
+  }
+  return total
+}
+
+function comparePayoutOrder(left: RewardPayout, right: RewardPayout): number {
+  const time = left.createdAt.localeCompare(right.createdAt)
+  return time !== 0 ? time : left.payoutId.localeCompare(right.payoutId)
+}
+
+function asAcquireReason(value: unknown): AutomatedAcquireReason | null {
+  if (value == null) return null
+  if (value === 'AUTOMATION_DISABLED' || value === 'TREASURY_LOW' || value === 'DAILY_CAP_REACHED' || value === 'NO_WORK') {
+    return value
+  }
+  throw new PayoutError('PAYOUT_UNAVAILABLE')
 }
 
 class AsyncMutex {
@@ -314,6 +551,7 @@ function asPayout(value: Record<string, unknown>): RewardPayout {
     runId: asString(value.run_id),
     wallet: asString(value.wallet),
     dayKey: asString(value.day_key).slice(0, 10),
+    executionDayKey: value.execution_day_key == null ? null : asString(value.execution_day_key).slice(0, 10),
     amountLuna: asBigInt(value.amount_luna),
     network: network as PayoutNetwork,
     status: status as PayoutStatus,
@@ -371,6 +609,32 @@ function asUnpaidClaim(value: Record<string, unknown>): UnpaidReservedClaim {
   }
 }
 
+function asOperationsSnapshot(value: Record<string, unknown>): PayoutOperationsSnapshot {
+  const result = value.last_cycle_result
+  if (result !== null && result !== undefined && result !== 'COMPLETED' && result !== 'DISABLED' && result !== 'FAILED') {
+    throw new PayoutError('PAYOUT_UNAVAILABLE')
+  }
+  const errors = value.last_cycle_errors
+  if (!Array.isArray(errors) || errors.some(error => typeof error !== 'string' || !/^[A-Z0-9_]+$/.test(error))) {
+    throw new PayoutError('PAYOUT_UNAVAILABLE')
+  }
+  return {
+    automationEnabled: value.automation_enabled === true,
+    pendingCount: asNumber(value.pending_count),
+    processingCount: asNumber(value.processing_count),
+    submittedCount: asNumber(value.submitted_count),
+    confirmedTodayCount: asNumber(value.confirmed_today_count),
+    reviewCount: asNumber(value.review_count),
+    blockCount: asNumber(value.block_count),
+    executionDay: asString(value.execution_day).slice(0, 10),
+    executionDayCommittedLuna: asNonNegativeBigInt(value.execution_day_committed_luna),
+    lastCycleAt: value.last_cycle_at == null ? null : asIso(value.last_cycle_at),
+    lastCycleId: value.last_cycle_id == null ? null : asString(value.last_cycle_id),
+    lastCycleResult: result == null ? null : result,
+    lastCycleErrors: errors,
+  }
+}
+
 function asRecord(value: unknown): Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) throw new PayoutError('PAYOUT_UNAVAILABLE')
   return value as Record<string, unknown>
@@ -390,6 +654,13 @@ function asNumber(value: unknown): number {
 function asBigInt(value: unknown): bigint {
   if (typeof value === 'bigint' && value > 0n) return value
   if (typeof value === 'number' && Number.isInteger(value) && value > 0) return BigInt(value)
+  if (typeof value === 'string' && /^[0-9]+$/.test(value)) return BigInt(value)
+  throw new PayoutError('PAYOUT_AMOUNT_INVALID')
+}
+
+function asNonNegativeBigInt(value: unknown): bigint {
+  if (typeof value === 'bigint' && value >= 0n) return value
+  if (typeof value === 'number' && Number.isInteger(value) && value >= 0) return BigInt(value)
   if (typeof value === 'string' && /^[0-9]+$/.test(value)) return BigInt(value)
   throw new PayoutError('PAYOUT_AMOUNT_INVALID')
 }

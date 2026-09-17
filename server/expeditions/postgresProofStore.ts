@@ -55,6 +55,7 @@ import type {
   DurableVaultSealProof,
   MemoryProofSnapshot,
   ProofService,
+  RiskContext,
   StartAuthorizationResult,
 } from './types.ts'
 import {
@@ -63,6 +64,13 @@ import {
   toPrepareResult,
   verifySignedRewardClaim,
 } from './rewardClaim.ts'
+import {
+  assessRewardRisk,
+  hashInstallId,
+  runPatternHash,
+  toRiskPrepareResult,
+} from './riskGate.ts'
+import { assertRewardTreasuryCap } from './treasuryCap.ts'
 import { prepareProductVaultSeal, verifyProductVaultSeal } from './vaultSeal.ts'
 import { abandonExpeditionRun, verifyExpeditionRun } from './verify.ts'
 import { nextUtcResetAt, utcDayKey } from '../ledger/utcDay.ts'
@@ -109,7 +117,7 @@ export async function createPostgresProofService(options: {
       return asBlueprint(result.blueprint)
     },
 
-    async issueStartChallenge(wallet, mission) {
+    async issueStartChallenge(wallet, mission, risk) {
       let normalizedWallet: string
       try {
         normalizedWallet = normalizeNimiqWallet(wallet)
@@ -128,12 +136,14 @@ export async function createPostgresProofService(options: {
         p_blueprint_id: published.blueprintId,
         p_blueprint_hash: published.blueprintHash,
       }))
+      const day = asDayKey(created.day_key)
+      await recordRiskSignal(rpc, 'START_CHALLENGE', normalizedWallet, day, risk)
       return {
         wallet: normalizedWallet,
         challenge,
         blueprintId: asString(created.blueprint_id),
         blueprintHash: asString(created.blueprint_hash),
-        dayKey: asDayKey(created.day_key),
+        dayKey: day,
         expiresAt: asIso(created.expires_at),
       } satisfies StartChallengeResponse
     },
@@ -214,6 +224,9 @@ export async function createPostgresProofService(options: {
 
       const start = asStartResult(authorized.response)
       const outcome = authorized.outcome === 'START_ALREADY_CREATED' ? 'START_ALREADY_CREATED' : 'START_CREATED'
+      if (outcome === 'START_CREATED') {
+        await recordRiskSignal(rpc, 'START', parsed.wallet, parsed.dayKey, input.risk, start.runId)
+      }
       if (outcome === 'START_ALREADY_CREATED') {
         const retryCapability = createRunSessionCapability()
         const retryHash = hashRunSessionCapability(retryCapability.raw)
@@ -386,8 +399,10 @@ export async function createPostgresProofService(options: {
       return prepareProductVaultSeal(run)
     },
 
-    async prepareRewardClaim(runId, session) {
+    async prepareRewardClaim(runId, session, risk) {
       const { run, now } = await requireAuthenticatedRun(rpc, runId, session)
+      const gated = await evaluateClaimRisk(rpc, run, session, risk)
+      if (gated.blocked) return gated.blocked
       const prepared = createPreparedRewardClaim(run, now)
       const persisted = readProofRpc(await rpc.rpc('prepare_reward_claim', {
         p_run_id: run.runId,
@@ -418,6 +433,8 @@ export async function createPostgresProofService(options: {
           reservationNumber: stored.reservationNumber,
         })
       }
+      const gated = await evaluateClaimRisk(rpc, run, input.session, input.risk)
+      if (gated.blocked) throw new ProofError('CLAIM_NOT_ELIGIBLE')
       verifySignedRewardClaim(run, stored, {
         claimId: input.claimId,
         payload: input.payload,
@@ -516,7 +533,7 @@ export async function createPostgresProofService(options: {
       }
     },
 
-    async issueWalletRecoveryChallenge(wallet) {
+    async issueWalletRecoveryChallenge(wallet, risk) {
       const normalizedWallet = normalizeNimiqWallet(wallet)
       const challenge = randomBytes(32).toString('base64url')
       const created = readProofRpc(await rpc.rpc('create_wallet_recovery_challenge', {
@@ -531,6 +548,7 @@ export async function createPostgresProofService(options: {
           expiresAt: storedExpiresAt,
         })
       }
+      await recordRiskSignal(rpc, 'RECOVERY_CHALLENGE', normalizedWallet, utcDayKey(new Date()), risk)
       return {
         wallet: normalizedWallet,
         challenge,
@@ -848,6 +866,68 @@ function asSession(value: unknown): RunSessionRecord {
     expiresAt: asIso(row.expires_at),
     revokedAt: row.revoked_at == null ? null : asIso(row.revoked_at),
   }
+}
+
+async function recordRiskSignal(
+  rpc: ProofRpcClient,
+  kind: 'START_CHALLENGE' | 'START' | 'RECOVERY_CHALLENGE' | 'CLAIM',
+  wallet: string,
+  dayKey: string,
+  risk?: RiskContext,
+  runId: string | null = null,
+  patternHash: string | null = null,
+): Promise<void> {
+  readProofRpc(await rpc.rpc('record_reward_risk_signal', {
+    p_kind: kind,
+    p_wallet: wallet,
+    p_day_key: dayKey,
+    p_install_id_hash: risk?.installId ? hashInstallId(risk.installId) : null,
+    p_run_id: runId,
+    p_pattern_hash: patternHash,
+  }))
+}
+
+async function evaluateClaimRisk(
+  rpc: ProofRpcClient,
+  run: DurableExpeditionRun,
+  session: RunSessionRecord,
+  risk?: RiskContext,
+) {
+  assertRewardTreasuryCap()
+  const installIdHash = risk?.installId ? hashInstallId(risk.installId) : null
+  const patternHash = runPatternHash(run)
+  await recordRiskSignal(rpc, 'CLAIM', run.wallet, run.dayKey, risk, run.runId, patternHash)
+  const context = readProofRpc(await rpc.rpc('load_reward_risk_context', {
+    p_run_id: run.runId,
+    p_run_session_hash: session.sessionHash,
+    p_install_id_hash: installIdHash,
+    p_pattern_hash: patternHash,
+  }))
+  const existingStatus = context.existing_claim_status
+  if (existingStatus === 'RESERVED' || existingStatus === 'SOLD_OUT' || existingStatus === 'ALREADY_REWARDED' || existingStatus === 'PREPARED') {
+    return { blocked: null as ReturnType<typeof toRiskPrepareResult> }
+  }
+  if (asNumber(context.wallet_rewards_reserved) >= 1 || asNumber(context.reserved_slots) >= 69) {
+    return { blocked: null as ReturnType<typeof toRiskPrepareResult> }
+  }
+  const assessment = assessRewardRisk({
+    run,
+    now: new Date(),
+    installIdHash,
+    concurrentActiveRuns: asNumber(context.concurrent_active_runs),
+    installWalletCount: asNumber(context.install_wallet_count),
+    installStartCount: asNumber(context.install_start_count),
+    installRecoveryCount: asNumber(context.install_recovery_count),
+    installPatternWalletCount: asNumber(context.install_pattern_wallet_count),
+  })
+  readProofRpc(await rpc.rpc('upsert_reward_risk_assessment', {
+    p_run_id: run.runId,
+    p_run_session_hash: session.sessionHash,
+    p_install_id_hash: installIdHash,
+    p_result: assessment.result,
+    p_reason_codes: [...assessment.reasonCodes],
+  }))
+  return { blocked: toRiskPrepareResult(run.runId, assessment) }
 }
 
 function asRewardClaim(value: unknown): DurableRewardClaim {

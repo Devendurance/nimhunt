@@ -9,6 +9,7 @@ import { serializeStartPayload, type StartExpeditionPayload } from './canonical.
 import { nimiqSignedMessageHash } from './crypto.ts'
 import { dispatchExpeditionHttp, type ExpeditionHttpSecurity } from './http.ts'
 import { createMemoryProofService } from './memoryProofStore.ts'
+import { minimumPlausibleCompletionMs } from './riskGate.ts'
 import { serializeRunSessionCookie } from './session.ts'
 
 const SECURITY: ExpeditionHttpSecurity = {
@@ -47,6 +48,16 @@ function headers(cookie: string) {
   }
 }
 
+function createClaimClock(initial = '2026-09-09T12:00:00.000Z') {
+  let current = new Date(initial)
+  return {
+    now: () => current,
+    advance(ms: number) {
+      current = new Date(current.getTime() + ms)
+    },
+  }
+}
+
 async function startPlaying(
   mission: 'gem-runner' | 'chest-hunter' | 'vault-breaker',
   options: {
@@ -55,12 +66,14 @@ async function startPlaying(
     readonly wallet?: string
     readonly blueprintId?: string
     readonly now?: Date
+    readonly clock?: { now: () => Date; advance: (ms: number) => void }
   } = {},
 ) {
   const keyPair = options.keyPair ?? KeyPair.generate()
   const wallet = options.wallet ?? keyPair.toAddress().toUserFriendlyAddress()
+  const clock = options.clock ?? createClaimClock((options.now ?? new Date('2026-09-09T12:00:00.000Z')).toISOString())
   const service = options.service ?? createMemoryProofService({
-    clock: { now: () => options.now ?? new Date('2026-09-09T12:00:00.000Z') },
+    clock,
     blueprints: [
       publishedBlueprint('gem-runner', options.blueprintId ?? 'claim-gem'),
       publishedBlueprint('chest-hunter', 'claim-chest'),
@@ -91,7 +104,7 @@ async function startPlaying(
     new Date(authorized.session.createdAt),
     true,
   )
-  return { service, keyPair, wallet, mission, authorized, cookie }
+  return { service, keyPair, wallet, mission, authorized, cookie, clock }
 }
 
 async function playSequence(
@@ -116,7 +129,7 @@ async function playSequence(
   return next
 }
 
-async function verifyMission(mission: 'gem-runner' | 'chest-hunter' | 'vault-breaker', options: Parameters<typeof startPlaying>[1] = {}) {
+async function verifyMission(mission: 'gem-runner' | 'chest-hunter' | 'vault-breaker', options: Parameters<typeof startPlaying>[1] & { readonly humanTiming?: boolean } = {}) {
   const started = await startPlaying(mission, options)
   const run = await playSequence(
     started.service,
@@ -124,6 +137,9 @@ async function verifyMission(mission: 'gem-runner' | 'chest-hunter' | 'vault-bre
     started.authorized.start.runId,
     PREVALIDATED_ROOM_01_BOOTSTRAP_WINNING_SEQUENCES[mission],
   )
+  if (options.humanTiming !== false) {
+    started.clock.advance((minimumPlausibleCompletionMs(run.seq) ?? 0) + 1_000)
+  }
   const verified = await started.service.verifyExpedition({
     runId: run.runId,
     session: started.authorized.session,
@@ -343,6 +359,7 @@ describe('signed product reward claim', () => {
       second.authorized.start.runId,
       PREVALIDATED_ROOM_01_BOOTSTRAP_WINNING_SEQUENCES['chest-hunter'],
     )
+    first.clock.advance((minimumPlausibleCompletionMs(secondRun.seq) ?? 0) + 1_000)
     await first.service.verifyExpedition({
       runId: secondRun.runId,
       session: second.authorized.session,

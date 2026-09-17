@@ -7,7 +7,13 @@ import { ProofError, isProofError } from './errors.ts'
 import { parseStartPayload, type SignedStartRequest } from './canonical.ts'
 import { parseWalletRecoveryPayload } from './walletRecovery.ts'
 import { parseRunSessionCookie, serializeRunSessionCookie, serializeWalletRecoverySessionCookie, type RunSessionRecord } from './session.ts'
-import type { ExpeditionProofService } from './types.ts'
+import { hashInstallId, parseInstallId } from './riskGate.ts'
+import {
+  assertExpeditionRateLimit,
+  createRateLimiter,
+  type RateLimiter,
+} from './rateLimit.ts'
+import type { ExpeditionProofService, RiskContext } from './types.ts'
 
 export const MAX_EXPEDITION_BODY_BYTES = 16 * 1024
 
@@ -27,6 +33,7 @@ export type ExpeditionHttpSecurity = {
   readonly expectedProtocol: 'http' | 'https'
   readonly secureCookie: boolean
   readonly allowAuthorizedLocalHttpOrigins?: boolean
+  readonly rateLimiter?: RateLimiter
 }
 
 export type ExpeditionHttpResponse = {
@@ -40,6 +47,8 @@ const BASE_HEADERS = {
   'content-type': 'application/json; charset=utf-8',
   'x-content-type-options': 'nosniff',
 }
+
+const defaultRateLimiter = createRateLimiter()
 
 export async function dispatchExpeditionHttp(
   service: ExpeditionProofService | null,
@@ -72,8 +81,10 @@ export async function dispatchExpeditionHttp(
 
   try {
     if (path === START_CHALLENGE_PATH) {
-      const body = readChallengeRequest(readJsonBody(request))
-      const challenge = await service.issueStartChallenge(body.wallet, body.mission)
+      const extracted = extractRisk(readJsonBody(request))
+      const body = readChallengeRequest(extracted.body)
+      assertHttpRateLimit(security, path, { wallet: body.wallet, installId: extracted.risk?.installId })
+      const challenge = await service.issueStartChallenge(body.wallet, body.mission, extracted.risk)
       return response(200, { ok: true, ...challenge })
     }
 
@@ -84,15 +95,18 @@ export async function dispatchExpeditionHttp(
     }
 
     if (path === RECOVER_SESSION_CHALLENGE_PATH) {
-      const body = readWalletDailyStatusRequest(readJsonBody(request))
-      const challenge = await service.issueWalletRecoveryChallenge(body.wallet)
+      const extracted = extractRisk(readJsonBody(request))
+      const body = readWalletDailyStatusRequest(extracted.body)
+      assertHttpRateLimit(security, path, { wallet: body.wallet, installId: extracted.risk?.installId })
+      const challenge = await service.issueWalletRecoveryChallenge(body.wallet, extracted.risk)
       return response(200, { ok: true, ...challenge })
     }
 
     if (path === RECOVER_SESSION_PATH) {
-      const signed = readSignedStart(readJsonBody(request))
+      const extracted = extractRisk(readJsonBody(request))
+      const signed = readSignedStart(extracted.body)
       if (!parseWalletRecoveryPayload(signed.payload)) throw new ProofError('RECOVERY_CHALLENGE_INVALID')
-      const recovered = await service.authorizeWalletRecovery(signed)
+      const recovered = await service.authorizeWalletRecovery({ ...signed, risk: extracted.risk })
       return {
         ...response(200, { ok: true }),
         headers: {
@@ -108,9 +122,10 @@ export async function dispatchExpeditionHttp(
     }
 
     if (path === START_EXPEDITION_PATH) {
-      const signed = readSignedStart(readJsonBody(request))
+      const extracted = extractRisk(readJsonBody(request))
+      const signed = readSignedStart(extracted.body)
       if (!parseStartPayload(signed.payload)) throw new ProofError('START_CHALLENGE_INVALID')
-      const started = await service.authorizeStart(signed)
+      const started = await service.authorizeStart({ ...signed, risk: extracted.risk })
       return {
         ...response(200, { ok: true, outcome: started.outcome, ...started.start }),
         headers: {
@@ -194,20 +209,25 @@ export async function dispatchExpeditionHttp(
 
     if (path === PREPARE_REWARD_CLAIM_PATH) {
       const session = await authenticateSession(service, request)
-      const runId = readGameplayStartRequest(readJsonBody(request)).runId
-      const prepared = await service.prepareRewardClaim(runId, session)
+      const extracted = extractRisk(readJsonBody(request))
+      const runId = readGameplayStartRequest(extracted.body).runId
+      assertHttpRateLimit(security, path, { sessionHash: session.sessionHash, installId: extracted.risk?.installId })
+      const prepared = await service.prepareRewardClaim(runId, session, extracted.risk)
       return response(200, { ok: true, ...prepared })
     }
 
     if (path === FINALIZE_REWARD_CLAIM_PATH) {
       const session = await authenticateSession(service, request)
-      const signed = readSignedRewardClaim(readJsonBody(request))
+      const extracted = extractRisk(readJsonBody(request))
+      const signed = readSignedRewardClaim(extracted.body)
+      assertHttpRateLimit(security, path, { sessionHash: session.sessionHash, installId: extracted.risk?.installId })
       const finalized = await service.finalizeRewardClaim({
         session,
         claimId: signed.claimId,
         payload: signed.payload,
         publicKey: signed.publicKey,
         signature: signed.signature,
+        risk: extracted.risk,
       })
       return response(200, { ok: true, ...finalized })
     }
@@ -485,8 +505,39 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+function extractRisk(body: Record<string, unknown>): { body: Record<string, unknown>; risk?: RiskContext } {
+  if (!Object.prototype.hasOwnProperty.call(body, 'installId')) return { body }
+  const { installId, ...rest } = body
+  const parsed = parseInstallId(installId)
+  return parsed ? { body: rest, risk: { installId: parsed } } : { body: rest }
+}
+
+function assertHttpRateLimit(
+  security: ExpeditionHttpSecurity,
+  path: string,
+  subject: { wallet?: string; installId?: string; sessionHash?: string },
+): void {
+  const limiter = security.rateLimiter ?? (
+    process.env.VITEST === 'true' || process.env.NODE_ENV === 'test' ? null : defaultRateLimiter
+  )
+  if (!limiter) return
+  assertExpeditionRateLimit(
+    limiter,
+    {
+      path,
+      wallet: subject.wallet,
+      sessionHash: subject.sessionHash,
+      installIdHash: subject.installId ? hashInstallId(subject.installId) : null,
+    },
+    () => {
+      throw new ProofError('RATE_LIMITED')
+    },
+  )
+}
+
 function statusFor(code: string): number {
-  if (code === 'PROOF_UNAVAILABLE' || code === 'DAILY_BLUEPRINT_UNAVAILABLE') return 503
+  if (code === 'PROOF_UNAVAILABLE' || code === 'DAILY_BLUEPRINT_UNAVAILABLE' || code === 'REWARD_UNAVAILABLE') return 503
+  if (code === 'RATE_LIMITED') return 429
   if (code === 'RUN_SESSION_INVALID') return 401
   if (code === 'ACTIVE_RUN_UNAVAILABLE' || code === 'CHECKPOINT_MISMATCH' || code === 'PROOF_LOST' || code === 'RUN_NOT_ACTIVE' || code === 'RUN_INCOMPLETE' || code === 'CLAIM_WINDOW_EXPIRED') return 409
   if (code === 'DAILY_EXPEDITION_LIMIT_REACHED' || code === 'START_CHALLENGE_EXPIRED' || code === 'START_CHALLENGE_DAY_EXPIRED' || code === 'RECOVERY_CHALLENGE_EXPIRED') return 409

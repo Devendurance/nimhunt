@@ -56,7 +56,7 @@ export function ExpeditionView(props: ExpeditionViewProps) {
   })
   const payout = useProductPayoutStatus({
     enabled: mode === 'product' && rewardClaim.status === 'RESERVED',
-    claimId: rewardClaim.result?.claimId ?? null,
+    claimId: rewardClaim.result && 'claimId' in rewardClaim.result ? rewardClaim.result.claimId : null,
   })
   const gameOptions = useMemo<CreateGameOptions>(() => {
     if (mode === 'practice') return { mode: 'dev', mission }

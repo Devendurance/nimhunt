@@ -6,12 +6,14 @@ export type ProductRewardClaimStatus =
   | 'RESERVED'
   | 'SOLD_OUT'
   | 'ALREADY_REWARDED'
+  | 'REVIEW'
+  | 'BLOCK'
   | 'CANCELLED'
   | 'REJECTED'
 
 export type ProductRewardClaimState = {
   readonly status: ProductRewardClaimStatus
-  readonly result: FinalizeRewardClaimResult | Extract<PrepareRewardClaimResult, { outcome: 'SOLD_OUT' | 'ALREADY_REWARDED' | 'RESERVED' }> | null
+  readonly result: FinalizeRewardClaimResult | Extract<PrepareRewardClaimResult, { outcome: 'SOLD_OUT' | 'ALREADY_REWARDED' | 'RESERVED' | 'REVIEW' | 'BLOCK' }> | null
   readonly error: string | null
 }
 
@@ -24,7 +26,7 @@ export const initialProductRewardClaimState: ProductRewardClaimState = {
 export type ProductRewardClaimAction =
   | { readonly type: 'RESET'; readonly result?: ProductRewardClaimState['result'] }
   | { readonly type: 'CLAIM_REQUESTED' }
-  | { readonly type: 'CLAIM_PREPARED_TERMINAL'; readonly result: Extract<PrepareRewardClaimResult, { outcome: 'SOLD_OUT' | 'ALREADY_REWARDED' | 'RESERVED' }> }
+  | { readonly type: 'CLAIM_PREPARED_TERMINAL'; readonly result: Extract<PrepareRewardClaimResult, { outcome: 'SOLD_OUT' | 'ALREADY_REWARDED' | 'RESERVED' | 'REVIEW' | 'BLOCK' }> }
   | { readonly type: 'CLAIM_FINALIZED'; readonly result: FinalizeRewardClaimResult }
   | { readonly type: 'CLAIM_CANCELLED' }
   | { readonly type: 'CLAIM_FAILED'; readonly message: string }
@@ -39,7 +41,7 @@ export function reduceProductRewardClaim(
         ? { status: action.result.outcome, result: action.result, error: null }
         : { ...initialProductRewardClaimState }
     case 'CLAIM_REQUESTED':
-      if (state.status === 'SIGNING' || state.status === 'RESERVED' || state.status === 'SOLD_OUT' || state.status === 'ALREADY_REWARDED') {
+      if (state.status === 'SIGNING' || state.status === 'RESERVED' || state.status === 'SOLD_OUT' || state.status === 'ALREADY_REWARDED' || state.status === 'REVIEW' || state.status === 'BLOCK') {
         return state
       }
       return { ...state, status: 'SIGNING', error: null }

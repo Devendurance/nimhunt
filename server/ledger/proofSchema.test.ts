@@ -10,6 +10,10 @@ const claimPath = join(sqlDir, '004_reward_claims.sql')
 const payoutPath = join(sqlDir, '005_reward_payouts.sql')
 const recoveryPath = join(sqlDir, '006_reward_claim_session_recovery.sql')
 const walletRecoveryPath = join(sqlDir, '007_wallet_recovery_session.sql')
+const riskGatePath = join(sqlDir, '008_reward_risk_gate.sql')
+const automationPath = join(sqlDir, '009_automatic_payout_pipeline.sql')
+const executionDayPath = join(sqlDir, '010_payout_execution_day.sql')
+const schedulerPath = join(sqlDir, '011_payout_scheduler_operations.sql')
 
 describe('durable expedition proof migration', () => {
   const migration = readFileSync(migrationPath, 'utf8')
@@ -178,6 +182,116 @@ describe('wallet recovery session migration', () => {
     expect(executable).toMatch(/set search_path\s*=\s*pg_catalog\s*,\s*public/i)
     expect(executable).toMatch(/revoke all on function public.create_wallet_recovery_challenge/i)
     expect(executable).toMatch(/revoke all on function public.consume_wallet_recovery_challenge/i)
+    expect(executable).toMatch(/grant execute[^;]+service_role/is)
+    expect(executable).not.toMatch(/grant execute[^;]+anon/is)
+    expect(executable).not.toMatch(/grant execute[^;]+authenticated/is)
+  })
+})
+
+describe('reward risk gate migration', () => {
+  const migration = readFileSync(riskGatePath, 'utf8')
+  const executable = migration.replace(/--.*$/gm, '')
+
+  it('persists hashed install signals and one assessment per run', () => {
+    expect(executable).toMatch(/reward_risk_assessments/)
+    expect(executable).toMatch(/assessment_id/)
+    expect(executable).toMatch(/run_id uuid not null unique/)
+    expect(executable).toMatch(/install_id_hash/)
+    expect(executable).toMatch(/PASS/)
+    expect(executable).toMatch(/REVIEW/)
+    expect(executable).toMatch(/BLOCK/)
+    expect(executable).toMatch(/reason_codes/)
+    expect(executable).toMatch(/record_reward_risk_signal/)
+    expect(executable).toMatch(/upsert_reward_risk_assessment/)
+    expect(executable).not.toMatch(/user_agent|userAgent|fingerprint|raw_ip|ip_address/i)
+  })
+
+  it('locks risk tables behind RLS and service-only SECURITY DEFINER RPCs', () => {
+    expect(executable).toMatch(/force row level security/i)
+    expect(executable).toMatch(/security definer/i)
+    expect(executable).toMatch(/set search_path\s*=\s*pg_catalog\s*,\s*public/i)
+    expect(executable).toMatch(/revoke all on function public.record_reward_risk_signal/i)
+    expect(executable).toMatch(/revoke all on function public.upsert_reward_risk_assessment/i)
+    expect(executable).toMatch(/grant execute[^;]+service_role/is)
+    expect(executable).not.toMatch(/grant execute[^;]+anon/is)
+    expect(executable).not.toMatch(/grant execute[^;]+authenticated/is)
+  })
+})
+
+describe('automatic payout pipeline migration', () => {
+  const migration = readFileSync(automationPath, 'utf8')
+  const executable = migration.replace(/--.*$/gm, '')
+
+  it('adds a default-off kill switch and PASS-only automated acquire', () => {
+    expect(executable).toMatch(/payout_automation_control/)
+    expect(executable).toMatch(/automatic_payouts_enabled boolean not null default false/)
+    expect(executable).toMatch(/acquire_automated_reward_payout/)
+    expect(executable).toMatch(/a\.result = 'PASS'/)
+    expect(executable).toMatch(/DAILY_CAP_REACHED/)
+    expect(executable).toMatch(/TREASURY_LOW/)
+    expect(executable).toMatch(/AUTOMATION_DISABLED/)
+    expect(executable).toMatch(/for update of p skip locked/i)
+    expect(executable).not.toMatch(/private_key|mnemonic|seed/i)
+  })
+
+  it('locks automation control behind RLS and service-only SECURITY DEFINER RPCs', () => {
+    expect(executable).toMatch(/force row level security/i)
+    expect(executable).toMatch(/security definer/i)
+    expect(executable).toMatch(/set search_path\s*=\s*pg_catalog\s*,\s*public/i)
+    expect(executable).toMatch(/revoke all on function public.acquire_automated_reward_payout/i)
+    expect(executable).toMatch(/revoke all on function public.set_payout_automation_enabled/i)
+    expect(executable).toMatch(/grant execute[^;]+service_role/is)
+    expect(executable).not.toMatch(/grant execute[^;]+anon/is)
+    expect(executable).not.toMatch(/grant execute[^;]+authenticated/is)
+  })
+})
+
+describe('payout scheduler operations migration', () => {
+  const migration = readFileSync(schedulerPath, 'utf8')
+  const executable = migration.replace(/--.*$/gm, '')
+
+  it('persists bounded safe cycle metadata and owner aggregate status', () => {
+    expect(executable).toMatch(/last_cycle_at timestamptz/)
+    expect(executable).toMatch(/last_cycle_id uuid/)
+    expect(executable).toMatch(/last_cycle_result text/)
+    expect(executable).toMatch(/last_cycle_errors jsonb/)
+    expect(executable).toMatch(/record_payout_cycle_result/)
+    expect(executable).toMatch(/get_payout_operations_status/)
+    expect(executable).toMatch(/pending_count/)
+    expect(executable).toMatch(/confirmed_today_count/)
+    expect(executable).toMatch(/execution_day_committed_luna/)
+    expect(executable).not.toMatch(/private_key|mnemonic|seed/i)
+  })
+
+  it('locks scheduler metadata behind service-only SECURITY DEFINER RPCs', () => {
+    expect(executable).toMatch(/security definer/i)
+    expect(executable).toMatch(/set search_path\s*=\s*pg_catalog\s*,\s*public/i)
+    expect(executable).toMatch(/revoke all on function public.record_payout_cycle_result/i)
+    expect(executable).toMatch(/revoke all on function public.get_payout_operations_status/i)
+    expect(executable).toMatch(/grant execute[^;]+service_role/is)
+    expect(executable).not.toMatch(/grant execute[^;]+anon/is)
+    expect(executable).not.toMatch(/grant execute[^;]+authenticated/is)
+  })
+})
+
+describe('payout execution-day migration', () => {
+  const migration = readFileSync(executionDayPath, 'utf8')
+  const executable = migration.replace(/--.*$/gm, '')
+
+  it('adds execution_day_key, backfills from timestamps, and caps spend on execution day', () => {
+    expect(executable).toMatch(/execution_day_key date/)
+    expect(executable).toMatch(/coalesce\(submitted_at, confirmed_at, processing_started_at\)/)
+    expect(executable).toMatch(/execution_day_key = v_execution_day/)
+    expect(executable).toMatch(/where execution_day_key = v_execution_day/)
+    expect(executable).toMatch(/get_execution_day_payout_spend/)
+    expect(executable).toMatch(/DAILY_CAP_REACHED/)
+    expect(executable).not.toMatch(/private_key|mnemonic|seed/i)
+  })
+
+  it('locks the spend RPC behind service-only SECURITY DEFINER grants', () => {
+    expect(executable).toMatch(/security definer/i)
+    expect(executable).toMatch(/set search_path\s*=\s*pg_catalog\s*,\s*public/i)
+    expect(executable).toMatch(/revoke all on function public.get_execution_day_payout_spend/i)
     expect(executable).toMatch(/grant execute[^;]+service_role/is)
     expect(executable).not.toMatch(/grant execute[^;]+anon/is)
     expect(executable).not.toMatch(/grant execute[^;]+authenticated/is)

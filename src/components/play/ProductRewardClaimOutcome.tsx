@@ -2,6 +2,10 @@ import type { Ref } from 'react'
 import {
   ALREADY_REWARDED_TITLE,
   CLAIM_TODAY_COPY,
+  REWARD_BLOCK_DETAIL,
+  REWARD_BLOCK_TITLE,
+  REWARD_REVIEW_DETAIL,
+  REWARD_REVIEW_TITLE,
   SIGNATURE_CANCELLED_COPY,
   SIGNING_CLAIM_COPY,
   TODAY_FULL_DETAIL,
@@ -31,7 +35,7 @@ export function ProductRewardClaimOutcome({
   readonly onReturnToHunt: () => void
 }) {
   if (claim.status === 'RESERVED') {
-    const copy = payoutStatusCopy(payout ?? { status: 'PENDING', payoutId: null, claimId: claim.result?.claimId ?? null, amountLuna: null, network: null, txHashSafe: null, submittedAt: null, confirmedAt: null })
+    const copy = payoutStatusCopy(payout ?? { status: 'PENDING', payoutId: null, claimId: claim.result && 'claimId' in claim.result ? claim.result.claimId : null, amountLuna: null, network: null, txHashSafe: null, submittedAt: null, confirmedAt: null })
     return <ClaimTerminal
       headingRef={headingRef}
       title={copy.title}
@@ -57,6 +61,24 @@ export function ProductRewardClaimOutcome({
       headingRef={headingRef}
       title={ALREADY_REWARDED_TITLE}
       lines={[]}
+      onBackToMissions={onBackToMissions}
+      onReturnToHunt={onReturnToHunt}
+    />
+  }
+  if (claim.status === 'REVIEW') {
+    return <ClaimTerminal
+      headingRef={headingRef}
+      title={REWARD_REVIEW_TITLE}
+      lines={[REWARD_REVIEW_DETAIL]}
+      onBackToMissions={onBackToMissions}
+      onReturnToHunt={onReturnToHunt}
+    />
+  }
+  if (claim.status === 'BLOCK') {
+    return <ClaimTerminal
+      headingRef={headingRef}
+      title={REWARD_BLOCK_TITLE}
+      lines={[REWARD_BLOCK_DETAIL]}
       onBackToMissions={onBackToMissions}
       onReturnToHunt={onReturnToHunt}
     />

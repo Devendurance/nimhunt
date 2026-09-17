@@ -3,6 +3,7 @@ import {
   createDefaultProofService,
   createProofBackendLoader,
   isOwnedExpeditionPath,
+  isOwnedPayoutSchedulerPath,
   resolveExpeditionRuntime,
 } from './vitePlugin.ts'
 import type { MemoryProofService } from './types.ts'
@@ -27,6 +28,8 @@ describe('expedition proof runtime policy', () => {
     expect(isOwnedExpeditionPath('/api/rewards/claim/payout')).toBe(true)
     expect(isOwnedExpeditionPath('/api/rewards/prepare')).toBe(false)
     expect(isOwnedExpeditionPath('/api/rewards/claim')).toBe(false)
+    expect(isOwnedPayoutSchedulerPath('/api/internal/payout-cycle')).toBe(true)
+    expect(isOwnedPayoutSchedulerPath('/api/internal/payout-cycle/extra')).toBe(false)
   })
 
   it('enables memory proof only for explicit local development', () => {

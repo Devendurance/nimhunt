@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/internal/payout-cycle",
+      "schedule": "*/10 * * * *"
+    }
+  ]
+}

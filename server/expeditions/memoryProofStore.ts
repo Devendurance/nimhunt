@@ -45,6 +45,13 @@ import {
   toPrepareResult,
   verifySignedRewardClaim,
 } from './rewardClaim.ts'
+import {
+  assessRewardRisk,
+  hashInstallId,
+  runPatternHash,
+  toRiskPrepareResult,
+} from './riskGate.ts'
+import { assertRewardTreasuryCap } from './treasuryCap.ts'
 import type {
   Clock,
   DurableExpeditionRun,
@@ -55,6 +62,7 @@ import type {
   DurableWalletRecoveryChallenge,
   MemoryProofService,
   MemoryProofSnapshot,
+  RiskContext,
   StartAuthorizationResult,
 } from './types.ts'
 import { nextUtcResetAt, utcDayKey } from '../ledger/utcDay.ts'
@@ -106,6 +114,63 @@ export function createMemoryProofService(options: {
   const claimsByRun = new Map<string, string>()
   const recoveryChallenges = new Map<string, DurableWalletRecoveryChallenge>()
   const recoverySessions = new Map<string, WalletRecoverySessionRecord>()
+  const riskSignals: Array<{
+    kind: 'START_CHALLENGE' | 'START' | 'RECOVERY_CHALLENGE' | 'CLAIM'
+    wallet: string
+    dayKey: string
+    installIdHash: string | null
+    runId: string | null
+    patternHash: string | null
+  }> = []
+
+  function installHash(risk?: RiskContext): string | null {
+    return risk?.installId ? hashInstallId(risk.installId) : null
+  }
+
+  function recordRiskSignal(
+    kind: 'START_CHALLENGE' | 'START' | 'RECOVERY_CHALLENGE' | 'CLAIM',
+    wallet: string,
+    dayKey: string,
+    risk?: RiskContext,
+    runId: string | null = null,
+    patternHash: string | null = null,
+  ): void {
+    riskSignals.push({
+      kind,
+      wallet,
+      dayKey,
+      installIdHash: installHash(risk),
+      runId,
+      patternHash,
+    })
+  }
+
+  function evaluateClaimRisk(run: DurableExpeditionRun, risk?: RiskContext) {
+    assertRewardTreasuryCap()
+    const installIdHash = installHash(risk)
+    const patternHash = runPatternHash(run)
+    recordRiskSignal('CLAIM', run.wallet, run.dayKey, risk, run.runId, patternHash)
+    const sameInstall = installIdHash
+      ? riskSignals.filter(signal => signal.dayKey === run.dayKey && signal.installIdHash === installIdHash)
+      : []
+    return assessRewardRisk({
+      run,
+      now: clock.now(),
+      installIdHash,
+      concurrentActiveRuns: [...runs.values()].filter(candidate =>
+        candidate.wallet === run.wallet
+        && candidate.dayKey === run.dayKey
+        && candidate.status === 'STARTED'
+        && candidate.runId !== run.runId,
+      ).length,
+      installWalletCount: new Set(sameInstall.map(signal => signal.wallet)).size,
+      installStartCount: sameInstall.filter(signal => signal.kind === 'START_CHALLENGE' || signal.kind === 'START').length,
+      installRecoveryCount: sameInstall.filter(signal => signal.kind === 'RECOVERY_CHALLENGE').length,
+      installPatternWalletCount: new Set(
+        sameInstall.filter(signal => signal.patternHash === patternHash).map(signal => signal.wallet),
+      ).size,
+    })
+  }
 
   const service: MemoryProofService = {
     registerBlueprint(blueprint) {
@@ -145,7 +210,7 @@ export function createMemoryProofService(options: {
       return blueprint ? cloneBlueprint(blueprint) : null
     },
 
-    async issueStartChallenge(wallet, mission) {
+    async issueStartChallenge(wallet, mission, risk) {
       let normalizedWallet: string
       try {
         normalizedWallet = normalizeNimiqWallet(wallet)
@@ -177,6 +242,7 @@ export function createMemoryProofService(options: {
         authorizationFingerprint: null,
         response: null,
       })
+      recordRiskSignal('START_CHALLENGE', normalizedWallet, dayKey, risk)
       return {
         wallet: normalizedWallet,
         challenge,
@@ -202,7 +268,13 @@ export function createMemoryProofService(options: {
       if (!verification.valid) return Promise.reject(new ProofError('START_CHALLENGE_INVALID'))
 
       const fingerprint = fingerprintStartAuthorization(input)
-      return mutex.run(() => authorizeWithinLock(parsed, fingerprint))
+      return mutex.run(() => {
+        const authorized = authorizeWithinLock(parsed, fingerprint)
+        if (authorized.outcome === 'START_CREATED') {
+          recordRiskSignal('START', parsed.wallet, parsed.dayKey, input.risk, authorized.start.runId)
+        }
+        return authorized
+      })
     },
 
     getRun(runId) {
@@ -223,7 +295,7 @@ export function createMemoryProofService(options: {
       }
     },
 
-    async issueWalletRecoveryChallenge(wallet) {
+    async issueWalletRecoveryChallenge(wallet, risk) {
       let normalizedWallet: string
       try {
         normalizedWallet = normalizeNimiqWallet(wallet)
@@ -246,6 +318,7 @@ export function createMemoryProofService(options: {
         consumedAt: null,
         authorizationFingerprint: null,
       })
+      recordRiskSignal('RECOVERY_CHALLENGE', normalizedWallet, dayKey, risk)
       return {
         wallet: normalizedWallet,
         challenge,
@@ -427,7 +500,7 @@ export function createMemoryProofService(options: {
       })
     },
 
-    prepareRewardClaim(runId, session) {
+    prepareRewardClaim(runId, session, risk) {
       return mutex.run(() => {
         const { run, now } = requireAuthenticatedRun(runId, session)
         const existingId = claimsByRun.get(runId)
@@ -440,9 +513,13 @@ export function createMemoryProofService(options: {
           }
           return toPrepareResult(existing)
         }
-        const prepared = createPreparedRewardClaim(run, now)
         const already = (walletRewards.get(walletKey(run.dayKey, run.wallet)) ?? 0) >= 1
         const soldOut = (reservedSlots.get(run.dayKey) ?? 0) >= DAILY_REWARD_SLOTS
+        if (!already && !soldOut) {
+          const blocked = toRiskPrepareResult(run.runId, evaluateClaimRisk(run, risk))
+          if (blocked) return blocked
+        }
+        const prepared = createPreparedRewardClaim(run, now)
         const claim: DurableRewardClaim = already
           ? { ...prepared, status: 'ALREADY_REWARDED', finalizedAt: now.toISOString() }
           : soldOut
@@ -465,6 +542,9 @@ export function createMemoryProofService(options: {
             remainingSlots: DAILY_REWARD_SLOTS - (reservedSlots.get(run.dayKey) ?? 0),
             reservationNumber: stored.reservationNumber,
           })
+        }
+        if (toRiskPrepareResult(run.runId, evaluateClaimRisk(run, input.risk))) {
+          throw new ProofError('CLAIM_NOT_ELIGIBLE')
         }
         verifySignedRewardClaim(run, stored, {
           claimId: input.claimId,

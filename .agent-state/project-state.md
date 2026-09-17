@@ -1,8 +1,8 @@
 # NimHunt — Project State
 
-> **Last updated**: 2026-09-16
-> **Phase**: Live end-to-end NIM reward flow verified. Cleanup + checkpoint.
-> **Latest milestone**: Full live E2E on real Nimiq Pay + live Supabase/Postgres + Nimiq mainnet. Temporary recovery diagnostic banner is now DEV-only behind `?recoveryDiag=1`. No new NIM sent.
+> **Last updated**: 2026-09-17 (production-deploy slice: deploy blocked, no Vercel access in sandbox)
+> **Phase**: Scheduler auth aligned with Vercel-native CRON_SECRET. Automation and production cron disabled.
+> **Latest milestone**: Canonical CRON_SECRET refactor + local disabled-cycle proof. No new NIM sent. Production deploy + native cron invocation pending owner/Vercel action.
 
 ## Verified Product Proof
 
@@ -12,26 +12,21 @@
 | Real-device Postgres Gem/Chest/Vault + seal | ✅ PASS |
 | Signed `NIMHUNT_REWARD_CLAIM_V1` | ✅ PASS |
 | Real Postgres 69-slot races | ✅ PASS |
-| Live `001`–`007` raw SQL migrations | ✅ applied |
-| Live Supabase claim flow | ✅ PASS |
-| Real-device `TREASURE RESERVED` | ✅ PASS |
-| Payout accounting / isolation / double-pay protection | ✅ PASS |
-| Mainnet NIM payout broadcast | ✅ CONFIRMED |
-| Payout status read model | ✅ PASS |
-| `/play` wallet bootstrap (no attempt consume) | ✅ PASS |
-| Signed `NIMHUNT_RECOVER_SESSION_V1` recovery session | ✅ PASS |
-| Real-device payout recovery | ✅ PASS |
-| TREASURE DELIVERED after full Nimiq Pay restart | ✅ PASS |
-| Full live E2E flow | ✅ PASS |
-| Treasury sweep utility | ✅ preview-only implemented |
-| Treasury sweep broadcast | ❌ NOT AUTHORIZED |
-| Production reward amount | ⏳ UNDECIDED |
-| Payout automation | ❌ NOT ENABLED |
-| Anti-bot / Sybil | ⏳ PENDING PRODUCTION GATE |
+| Live `001`–`010` raw SQL migrations | ✅ applied |
+| `010_payout_execution_day.sql` | ✅ live (column + spend RPC + backfill) |
+| Mainnet NIM payout broadcast | ✅ CONFIRMED (authorized 100 NIM beta + historical 0.1 NIM, untouched this slice) |
+| Beta reward amount | ✅ 100 NIM = 10,000,000 Luna |
+| Reservation slots | ✅ 69 / reservation `day_key` |
+| Treasury execution cap | ✅ 690,000,000 Luna / execution `execution_day_key` |
+| Payout automation | ❌ DISABLED (env + DB kill switch OFF, verified live 2026-09-17) |
+| Scheduled payout route | ✅ CRON_SECRET-canonical, unit/auth/overlap re-validated locally 2026-09-17 (605 tests); production deploy PENDING (no Vercel CLI/credentials in sandbox) |
+| Scheduler operations migration `011` | ✅ live (verified read-only; not replayed) |
+| Vercel Cron auth | ✅ compatible via native `CRON_SECRET` Bearer (previous Bearer-impossible conclusion corrected) |
+| Production cron (`vercel.json`) | ❌ NOT CREATED (deliberate; creation+deploy would immediately activate schedule) |
 
 ## Next Milestone
 
-Cleanup/checkpoint complete. Remaining production-readiness work only: production reward amount, treasury funding policy, anti-bot/Sybil, payout automation strategy, launch/UX/gameplay polish. Do not send NIM. Do not start bulk or automatic payouts. Do not change the production reward amount.
+Owner deploys `/api/internal/payout-cycle` via Vercel with `NIMHUNT_AUTOMATIC_PAYOUTS_ENABLED=false`, DB OFF, `CRON_SECRET` set (sandbox has no Vercel CLI/token/linkage); test deployed auth matrix; then (only on approval) create `vercel.json` cron and observe one native DISABLED invocation. Do not send NIM, fund treasury, or change reward/cap. vercel.json still NOT created (correct — gated on deployed-route auth PASS).
 
 ## Canonical References
 

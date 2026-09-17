@@ -11,6 +11,7 @@
     "test": "vitest run",
     "dev:reset-expeditions": "node --experimental-strip-types scripts/dev-reset-expeditions.ts",
     "payout:worker": "node --experimental-strip-types scripts/payout-worker.ts",
+    "payout:status": "node --experimental-strip-types scripts/payout-status.ts",
     "treasury:generate": "node --experimental-strip-types scripts/generate-treasury.ts",
     "treasury:preflight": "node --experimental-strip-types scripts/preflight-treasury.ts",
     "treasury:sweep": "node --experimental-strip-types scripts/sweep-treasury.ts"

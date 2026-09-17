@@ -76,7 +76,7 @@ function VaultSealedCard({
   readonly onBackToMissions: () => void
   readonly onReturnToHunt: () => void
 }) {
-  if (claim && onClaimTreasure && (claim.status === 'RESERVED' || claim.status === 'SOLD_OUT' || claim.status === 'ALREADY_REWARDED' || claim.status === 'SIGNING' || claim.status === 'CANCELLED' || claim.status === 'REJECTED')) {
+  if (claim && onClaimTreasure && (claim.status === 'RESERVED' || claim.status === 'SOLD_OUT' || claim.status === 'ALREADY_REWARDED' || claim.status === 'REVIEW' || claim.status === 'BLOCK' || claim.status === 'SIGNING' || claim.status === 'CANCELLED' || claim.status === 'REJECTED')) {
     return <ProductRewardClaimOutcome
       claim={claim}
       payout={payout}

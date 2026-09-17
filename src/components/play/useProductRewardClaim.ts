@@ -52,6 +52,8 @@ export function useProductRewardClaim(options: {
       || stateRef.current.status === 'RESERVED'
       || stateRef.current.status === 'SOLD_OUT'
       || stateRef.current.status === 'ALREADY_REWARDED'
+      || stateRef.current.status === 'REVIEW'
+      || stateRef.current.status === 'BLOCK'
     if (busy) return
     const token = runRef.current + 1
     runRef.current = token
@@ -63,7 +65,9 @@ export function useProductRewardClaim(options: {
         const prepared = await prepareRewardClaim(runId)
         if (!alive()) return
         if (prepared.outcome !== 'PREPARED') {
-          rememberProductRewardClaim(prepared)
+          if (prepared.outcome === 'RESERVED' || prepared.outcome === 'SOLD_OUT' || prepared.outcome === 'ALREADY_REWARDED') {
+            rememberProductRewardClaim(prepared)
+          }
           dispatch({ type: 'CLAIM_PREPARED_TERMINAL', result: prepared })
           return
         }
@@ -110,6 +114,8 @@ function failureCopy(error: unknown): string {
     }
     if (error.code === 'CLAIM_WINDOW_EXPIRED') return "Today's claim window has closed."
     if (error.code === 'CLAIM_NOT_ELIGIBLE') return 'This expedition is not eligible for a reward claim.'
+    if (error.code === 'RATE_LIMITED') return 'Too many reward requests. Please wait a moment and try again.'
+    if (error.code === 'REWARD_UNAVAILABLE') return 'Rewards are temporarily unavailable.'
     if (error.code === 'NETWORK_ERROR' || error.code === 'PROOF_UNAVAILABLE') {
       return 'The claim could not be reached. Check your connection and try again.'
     }

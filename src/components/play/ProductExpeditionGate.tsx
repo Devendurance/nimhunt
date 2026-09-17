@@ -37,7 +37,7 @@ export function ProductExpeditionGate({ mission, runId, onBackToMissions, onRetu
   })
   const payout = useProductPayoutStatus({
     enabled: rewardClaim.status === 'RESERVED',
-    claimId: rewardClaim.result?.claimId ?? null,
+    claimId: rewardClaim.result && 'claimId' in rewardClaim.result ? rewardClaim.result.claimId : null,
   })
   const mountedRef = useRef(true)
   const routeKeyRef = useRef(`${mission}:${runId}`)

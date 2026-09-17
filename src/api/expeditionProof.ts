@@ -17,6 +17,7 @@ import {
   RECOVER_SESSION_PATH,
   type WalletRecoveryChallengeResponse,
 } from '../domain/walletRecovery.ts'
+import { getOrCreateInstallId, readInstallId } from '../domain/installId.ts'
 import { traceWalletRecovery } from '../components/play/walletRecoveryDiagnostics.ts'
 import type {
   AbandonExpeditionResult,
@@ -87,21 +88,21 @@ export async function requestStartChallenge(
   mission: MissionType,
   fetcher: typeof fetch = fetch,
 ): Promise<StartChallengeResponse> {
-  return requestJson(fetcher, START_CHALLENGE_PATH, postRequest({ wallet, mission }), parseStartChallengeResponse)
+  return requestJson(fetcher, START_CHALLENGE_PATH, postRequest(withInstallId({ wallet, mission })), parseStartChallengeResponse)
 }
 
 export async function authorizeStart(
   signed: SignedStartRequest,
   fetcher: typeof fetch = fetch,
 ): Promise<ProductStartResult> {
-  return requestJson(fetcher, START_EXPEDITION_PATH, postRequest(signed), parseStartResult)
+  return requestJson(fetcher, START_EXPEDITION_PATH, postRequest(withInstallId(signed)), parseStartResult)
 }
 
 export async function requestWalletRecoveryChallenge(
   wallet: string,
   fetcher: typeof fetch = fetch,
 ): Promise<WalletRecoveryChallengeResponse> {
-  return requestJson(fetcher, RECOVER_SESSION_CHALLENGE_PATH, postRequest({ wallet }), parseWalletRecoveryChallengeResponse)
+  return requestJson(fetcher, RECOVER_SESSION_CHALLENGE_PATH, postRequest(withInstallId({ wallet })), parseWalletRecoveryChallengeResponse)
 }
 
 export async function authorizeWalletRecovery(
@@ -109,7 +110,7 @@ export async function authorizeWalletRecovery(
   fetcher: typeof fetch = fetch,
 ): Promise<{ readonly ok: true }> {
   traceWalletRecovery('RECOVERY_VERIFY_REQUESTED', { requested: 'yes' })
-  return requestJson(fetcher, RECOVER_SESSION_PATH, postRequest(signed), parseWalletRecoveryResult)
+  return requestJson(fetcher, RECOVER_SESSION_PATH, postRequest(withInstallId(signed)), parseWalletRecoveryResult)
 }
 
 export async function fetchActiveExpedition(
@@ -176,14 +177,14 @@ export async function prepareRewardClaim(
   runId: string,
   fetcher: typeof fetch = fetch,
 ): Promise<PrepareRewardClaimResult> {
-  return requestJson(fetcher, PREPARE_REWARD_CLAIM_PATH, postRequest({ runId }), parsePrepareRewardClaimResult)
+  return requestJson(fetcher, PREPARE_REWARD_CLAIM_PATH, postRequest(withInstallId({ runId })), parsePrepareRewardClaimResult)
 }
 
 export async function finalizeRewardClaim(
   signed: SignedStartRequest & { readonly claimId: string },
   fetcher: typeof fetch = fetch,
 ): Promise<FinalizeRewardClaimResult> {
-  return requestJson(fetcher, FINALIZE_REWARD_CLAIM_PATH, postRequest(signed), parseFinalizeRewardClaimResult)
+  return requestJson(fetcher, FINALIZE_REWARD_CLAIM_PATH, postRequest(withInstallId(signed)), parseFinalizeRewardClaimResult)
 }
 
 export async function fetchRewardPayoutStatus(
@@ -532,6 +533,15 @@ export function parsePrepareRewardClaimResult(value: unknown): PrepareRewardClai
       expiresAt: value.expiresAt,
     }
   }
+  if (value.outcome === 'REVIEW') {
+    if (!hasExactKeys(value, ['ok', 'outcome', 'runId']) || !isBoundedString(value.runId, 128)) return null
+    return { outcome: 'REVIEW', runId: value.runId }
+  }
+  if (value.outcome === 'BLOCK') {
+    if (!hasExactKeys(value, ['ok', 'outcome', 'runId', 'reasonCategory']) || !isBoundedString(value.runId, 128)) return null
+    if (value.reasonCategory !== 'TIMING' && value.reasonCategory !== 'SESSION' && value.reasonCategory !== 'ELIGIBILITY') return null
+    return { outcome: 'BLOCK', runId: value.runId, reasonCategory: value.reasonCategory }
+  }
   if (value.outcome !== 'SOLD_OUT' && value.outcome !== 'ALREADY_REWARDED' && value.outcome !== 'RESERVED') return null
   if (!hasExactKeys(value, ['ok', 'outcome', 'claimId', 'runId', 'expiresAt', 'reservationNumber', 'remainingSlots', 'totalSlots'])) return null
   if (!isBoundedString(value.claimId, 128) || !isBoundedString(value.runId, 128) || !isIsoTimestamp(value.expiresAt) || value.totalSlots !== 69) return null
@@ -793,6 +803,17 @@ function postRequest(body: unknown): RequestInit {
     headers: { accept: 'application/json', 'content-type': 'application/json' },
     body: JSON.stringify(body),
   }
+}
+
+function withInstallId<T extends Record<string, unknown>>(body: T): T & { installId?: string } {
+  const existing = readInstallId()
+  if (existing) return { ...body, installId: existing }
+  try {
+    if (typeof localStorage === 'undefined') return body
+  } catch {
+    return body
+  }
+  return { ...body, installId: getOrCreateInstallId() }
 }
 
 function parseBlueprint(value: unknown): ExpeditionBlueprint | null {
@@ -1170,4 +1191,6 @@ const KNOWN_ERROR_CODES = new Set<string>([
   'RUN_INCOMPLETE',
   'RECOVERY_CHALLENGE_INVALID',
   'RECOVERY_CHALLENGE_EXPIRED',
+  'RATE_LIMITED',
+  'REWARD_UNAVAILABLE',
 ])

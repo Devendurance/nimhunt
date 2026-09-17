@@ -19,6 +19,10 @@ import type { RunSessionRecord, WalletRecoverySessionRecord } from './session.ts
 
 export type { Clock }
 
+export type RiskContext = {
+  readonly installId?: string
+}
+
 export type DurableStartChallenge = {
   readonly challengeHash: string
   readonly wallet: string
@@ -140,8 +144,8 @@ export type MemoryProofService = {
   publishBlueprint(blueprintId: string): void
   retireBlueprint(blueprintId: string): void
   getPublishedBlueprint(dayKey: string, mission: MissionType): ExpeditionBlueprint | null
-  issueStartChallenge(wallet: string, mission: MissionType): Promise<StartChallengeResponse>
-  authorizeStart(input: { readonly payload: string; readonly publicKey: string; readonly signature: string }): Promise<StartAuthorizationResult>
+  issueStartChallenge(wallet: string, mission: MissionType, risk?: RiskContext): Promise<StartChallengeResponse>
+  authorizeStart(input: { readonly payload: string; readonly publicKey: string; readonly signature: string; readonly risk?: RiskContext }): Promise<StartAuthorizationResult>
   authenticateSession(raw: string): RunSessionRecord
   getActiveExpedition(runId: string, session: RunSessionRecord): ProductActiveExpedition
   markGameplayStarted(runId: string, session: RunSessionRecord): ProductGameplayStartResponse
@@ -168,20 +172,21 @@ export type MemoryProofService = {
     readonly publicKey: string
     readonly signature: string
   }): Promise<VerifiedProductVaultSeal>
-  prepareRewardClaim(runId: string, session: RunSessionRecord): Promise<PrepareRewardClaimResult>
+  prepareRewardClaim(runId: string, session: RunSessionRecord, risk?: RiskContext): Promise<PrepareRewardClaimResult>
   finalizeRewardClaim(input: {
     readonly session: RunSessionRecord
     readonly claimId: string
     readonly payload: string
     readonly publicKey: string
     readonly signature: string
+    readonly risk?: RiskContext
   }): Promise<FinalizeRewardClaimResult>
   getRewardClaim(claimId: string, session: RunSessionRecord): DurableRewardClaim
   getReservedRewardClaim(session: RunSessionRecord): DurableRewardClaim | null
   getRun(runId: string): DurableExpeditionRun | null
   getWalletDailyStatus(wallet: string): WalletDailyStatus
-  issueWalletRecoveryChallenge(wallet: string): Promise<WalletRecoveryChallengeResponse>
-  authorizeWalletRecovery(input: { readonly payload: string; readonly publicKey: string; readonly signature: string }): Promise<WalletRecoveryAuthorizationResult>
+  issueWalletRecoveryChallenge(wallet: string, risk?: RiskContext): Promise<WalletRecoveryChallengeResponse>
+  authorizeWalletRecovery(input: { readonly payload: string; readonly publicKey: string; readonly signature: string; readonly risk?: RiskContext }): Promise<WalletRecoveryAuthorizationResult>
   authenticateWalletRecoverySession(raw: string): WalletRecoverySessionRecord
   getRewardClaimForWallet(claimId: string, session: WalletRecoverySessionRecord): DurableRewardClaim
   getReservedRewardClaimForWallet(session: WalletRecoverySessionRecord): DurableRewardClaim | null
@@ -193,8 +198,8 @@ export type ProofService = {
   publishBlueprint(blueprintId: string): Promise<void>
   retireBlueprint(blueprintId: string): Promise<void>
   getPublishedBlueprint(dayKey: string, mission: MissionType): Promise<ExpeditionBlueprint | null>
-  issueStartChallenge(wallet: string, mission: MissionType): Promise<StartChallengeResponse>
-  authorizeStart(input: { readonly payload: string; readonly publicKey: string; readonly signature: string }): Promise<StartAuthorizationResult>
+  issueStartChallenge(wallet: string, mission: MissionType, risk?: RiskContext): Promise<StartChallengeResponse>
+  authorizeStart(input: { readonly payload: string; readonly publicKey: string; readonly signature: string; readonly risk?: RiskContext }): Promise<StartAuthorizationResult>
   authenticateSession(raw: string): Promise<RunSessionRecord>
   getActiveExpedition(runId: string, session: RunSessionRecord): Promise<ProductActiveExpedition>
   markGameplayStarted(runId: string, session: RunSessionRecord): Promise<ProductGameplayStartResponse>
@@ -221,20 +226,21 @@ export type ProofService = {
     readonly publicKey: string
     readonly signature: string
   }): Promise<VerifiedProductVaultSeal>
-  prepareRewardClaim(runId: string, session: RunSessionRecord): Promise<PrepareRewardClaimResult>
+  prepareRewardClaim(runId: string, session: RunSessionRecord, risk?: RiskContext): Promise<PrepareRewardClaimResult>
   finalizeRewardClaim(input: {
     readonly session: RunSessionRecord
     readonly claimId: string
     readonly payload: string
     readonly publicKey: string
     readonly signature: string
+    readonly risk?: RiskContext
   }): Promise<FinalizeRewardClaimResult>
   getRewardClaim(claimId: string, session: RunSessionRecord): Promise<DurableRewardClaim>
   getReservedRewardClaim(session: RunSessionRecord): Promise<DurableRewardClaim | null>
   getRun(runId: string): Promise<DurableExpeditionRun | null>
   getWalletDailyStatus(wallet: string): Promise<WalletDailyStatus>
-  issueWalletRecoveryChallenge(wallet: string): Promise<WalletRecoveryChallengeResponse>
-  authorizeWalletRecovery(input: { readonly payload: string; readonly publicKey: string; readonly signature: string }): Promise<WalletRecoveryAuthorizationResult>
+  issueWalletRecoveryChallenge(wallet: string, risk?: RiskContext): Promise<WalletRecoveryChallengeResponse>
+  authorizeWalletRecovery(input: { readonly payload: string; readonly publicKey: string; readonly signature: string; readonly risk?: RiskContext }): Promise<WalletRecoveryAuthorizationResult>
   authenticateWalletRecoverySession(raw: string): Promise<WalletRecoverySessionRecord>
   getRewardClaimForWallet(claimId: string, session: WalletRecoverySessionRecord): Promise<DurableRewardClaim>
   getReservedRewardClaimForWallet(session: WalletRecoverySessionRecord): Promise<DurableRewardClaim | null>
