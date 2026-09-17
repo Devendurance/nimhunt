@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
+    "typecheck:server": "tsc --noEmit -p tsconfig.server.json",
     "dev:reset-expeditions": "node --experimental-strip-types scripts/dev-reset-expeditions.ts",
     "payout:worker": "node --experimental-strip-types scripts/payout-worker.ts",
     "payout:status": "node --experimental-strip-types scripts/payout-status.ts",

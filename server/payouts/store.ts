@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
-import { utcDayKey } from '../ledger/utcDay.ts'
-import { PayoutError } from './errors.ts'
-import { readPayoutRpc, type PayoutRpcClient } from './db.ts'
+import { utcDayKey } from '../ledger/utcDay.js'
+import { PayoutError } from './errors.js'
+import { readPayoutRpc, type PayoutRpcClient } from './db.js'
 import {
   PAYOUT_NETWORKS,
   PAYOUT_STATUSES,
@@ -14,7 +14,7 @@ import {
   type PublicRewardPayout,
   type RewardPayout,
   type UnpaidReservedClaim,
-} from './types.ts'
+} from './types.js'
 
 export function createPayoutStore(rpc: PayoutRpcClient): PayoutStore {
   return {
@@ -610,10 +610,7 @@ function asUnpaidClaim(value: Record<string, unknown>): UnpaidReservedClaim {
 }
 
 function asOperationsSnapshot(value: Record<string, unknown>): PayoutOperationsSnapshot {
-  const result = value.last_cycle_result
-  if (result !== null && result !== undefined && result !== 'COMPLETED' && result !== 'DISABLED' && result !== 'FAILED') {
-    throw new PayoutError('PAYOUT_UNAVAILABLE')
-  }
+  const result = asCycleResult(value.last_cycle_result)
   const errors = value.last_cycle_errors
   if (!Array.isArray(errors) || errors.some(error => typeof error !== 'string' || !/^[A-Z0-9_]+$/.test(error))) {
     throw new PayoutError('PAYOUT_UNAVAILABLE')
@@ -630,9 +627,15 @@ function asOperationsSnapshot(value: Record<string, unknown>): PayoutOperationsS
     executionDayCommittedLuna: asNonNegativeBigInt(value.execution_day_committed_luna),
     lastCycleAt: value.last_cycle_at == null ? null : asIso(value.last_cycle_at),
     lastCycleId: value.last_cycle_id == null ? null : asString(value.last_cycle_id),
-    lastCycleResult: result == null ? null : result,
+    lastCycleResult: result,
     lastCycleErrors: errors,
   }
+}
+
+function asCycleResult(value: unknown): PayoutCycleResult | null {
+  if (value === null || value === undefined) return null
+  if (value === 'COMPLETED' || value === 'DISABLED' || value === 'FAILED') return value
+  throw new PayoutError('PAYOUT_UNAVAILABLE')
 }
 
 function asRecord(value: unknown): Record<string, unknown> {

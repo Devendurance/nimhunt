@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { PayoutError, type PayoutErrorCode } from './errors.ts'
+import { PayoutError, type PayoutErrorCode } from './errors.js'
 
 const PAYOUT_RPCS = new Set([
   'create_reward_payout',

@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { createDefaultPayoutRuntime, type PayoutRuntime } from '../../server/payouts/runtime.ts'
-import { executeScheduledPayoutCycle, readPayoutSchedulerConfig } from '../../server/payouts/scheduler.ts'
-import { dispatchPayoutSchedulerHttp } from '../../server/payouts/schedulerHttp.ts'
+import { createDefaultPayoutRuntime, type PayoutRuntime } from '../../server/payouts/runtime.js'
+import { executeScheduledPayoutCycle, readPayoutSchedulerConfig } from '../../server/payouts/scheduler.js'
+import { dispatchPayoutSchedulerHttp } from '../../server/payouts/schedulerHttp.js'
 
 export default async function payoutCycleHandler(
   req: IncomingMessage,

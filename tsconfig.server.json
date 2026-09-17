@@ -1,0 +1,46 @@
+{
+  // Vercel serverless–compatible typecheck for the payout scheduler route.
+  // Mirrors the settings Vercel's /api function compilation enforces:
+  // - relative imports MUST be extensionless or end in .js (TS5097 otherwise,
+  //   so allowImportingTsExtensions stays false here even though
+  //   tsconfig.node.json enables it for local strip-types ergonomics)
+  // - Node.js globals/builtins (process, node:http, node:crypto) require
+  //   @types/node via types:["node"] (TS2591 otherwise; the browser/client
+  //   config intentionally stays on vite/client only)
+  // This project is NOT part of `tsc -b` (root references app + node only)
+  // so `npm run build` is unchanged; run it explicitly via
+  // `npm run typecheck:server`.
+  "compilerOptions": {
+    "target": "es2023",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "skipLibCheck": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "allowImportingTsExtensions": false,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": [
+    "api/internal/payout-cycle.ts",
+    "server/ledger/config.ts",
+    "server/ledger/utcDay.ts",
+    "server/payouts/config.ts",
+    "server/payouts/db.ts",
+    "server/payouts/errors.ts",
+    "server/payouts/intent.ts",
+    "server/payouts/nimiqTreasury.ts",
+    "server/payouts/runtime.ts",
+    "server/payouts/scheduler.ts",
+    "server/payouts/schedulerHttp.ts",
+    "server/payouts/service.ts",
+    "server/payouts/store.ts",
+    "server/payouts/types.ts",
+    "server/payouts/worker.ts"
+  ]
+}

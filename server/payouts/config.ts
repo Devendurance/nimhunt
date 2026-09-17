@@ -1,10 +1,10 @@
-import { PayoutError } from './errors.ts'
+import { PayoutError } from './errors.js'
 import {
   DAILY_REWARD_SLOTS,
   LUNA_PER_NIM,
   PAYOUT_NETWORKS,
   type PayoutNetwork,
-} from './types.ts'
+} from './types.js'
 
 export type PayoutExecutionConfig = {
   readonly network: PayoutNetwork

@@ -1,7 +1,7 @@
 # NimHunt — Project State
 
-> **Last updated**: 2026-09-17 (production-deploy slice: deploy blocked, no Vercel access in sandbox)
-> **Phase**: Scheduler auth aligned with Vercel-native CRON_SECRET. Automation and production cron disabled.
+> **Last updated**: 2026-09-17 (scheduler Vercel-compat slice: local green, push pending)
+> **Phase**: Scheduler route Vercel serverless-compatible (.js imports, typecheck:server, validated cycle-result). Automation and production cron disabled.
 > **Latest milestone**: Canonical CRON_SECRET refactor + local disabled-cycle proof. No new NIM sent. Production deploy + native cron invocation pending owner/Vercel action.
 
 ## Verified Product Proof
@@ -19,7 +19,7 @@
 | Reservation slots | ✅ 69 / reservation `day_key` |
 | Treasury execution cap | ✅ 690,000,000 Luna / execution `execution_day_key` |
 | Payout automation | ❌ DISABLED (env + DB kill switch OFF, verified live 2026-09-17) |
-| Scheduled payout route | ✅ CRON_SECRET-canonical, unit/auth/overlap re-validated locally 2026-09-17 (605 tests); production deploy PENDING (no Vercel CLI/credentials in sandbox) |
+| Scheduled payout route | ✅ CRON_SECRET-canonical, unit/auth/overlap re-validated locally 2026-09-17 (616 tests); production deploy PENDING (no Vercel CLI/credentials in sandbox) |
 | Scheduler operations migration `011` | ✅ live (verified read-only; not replayed) |
 | Vercel Cron auth | ✅ compatible via native `CRON_SECRET` Bearer (previous Bearer-impossible conclusion corrected) |
 | Production cron (`vercel.json`) | ❌ NOT CREATED (deliberate; creation+deploy would immediately activate schedule) |

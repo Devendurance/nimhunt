@@ -1,16 +1,16 @@
-import { createSupabaseAdminClient, readServerSupabaseConfig } from '../ledger/config.ts'
-import { PayoutError } from './errors.ts'
-import { createSupabasePayoutRpcClient } from './db.ts'
+import { createSupabaseAdminClient, readServerSupabaseConfig } from '../ledger/config.js'
+import { PayoutError } from './errors.js'
+import { createSupabasePayoutRpcClient } from './db.js'
 import {
   readPayoutExecutionConfig,
   readTreasurySecret,
   type PayoutExecutionConfig,
   type TreasurySecret,
-} from './config.ts'
-import { createNimiqTreasury } from './nimiqTreasury.ts'
-import { createPayoutStore } from './store.ts'
-import { readPayoutSchedulerConfig, type PayoutSchedulerConfig } from './scheduler.ts'
-import type { PayoutNetwork, PayoutStore, TreasuryAdapter } from './types.ts'
+} from './config.js'
+import { createNimiqTreasury } from './nimiqTreasury.js'
+import { createPayoutStore } from './store.js'
+import { readPayoutSchedulerConfig, type PayoutSchedulerConfig } from './scheduler.js'
+import type { PayoutNetwork, PayoutStore, TreasuryAdapter } from './types.js'
 
 export type PayoutRuntime = {
   readonly store: PayoutStore

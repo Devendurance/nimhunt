@@ -8,8 +8,8 @@ import {
   TransactionBuilder,
   type PlainTransactionDetails,
 } from '@nimiq/core'
-import { PayoutError } from './errors.ts'
-import type { TreasurySecret } from './config.ts'
+import { PayoutError } from './errors.js'
+import type { TreasurySecret } from './config.js'
 import {
   decodePayoutExtraData,
   networkIdFor,
@@ -17,13 +17,13 @@ import {
   parseTxHash,
   payoutExtraData,
   requireNimiqAddress,
-} from './intent.ts'
+} from './intent.js'
 import type {
   PayoutNetwork,
   TreasuryAdapter,
   TreasuryTransaction,
   TreasuryTransactionStatus,
-} from './types.ts'
+} from './types.js'
 
 export type NimiqTreasuryOptions = {
   readonly network: PayoutNetwork

@@ -1,14 +1,14 @@
 import { randomUUID } from 'node:crypto'
-import { requirePayoutAmountLuna, requirePayoutNetwork, type PayoutExecutionConfig } from './config.ts'
-import { isPayoutError, PayoutError } from './errors.ts'
-import { normalizeNimiqAddress } from './intent.ts'
+import { requirePayoutAmountLuna, requirePayoutNetwork, type PayoutExecutionConfig } from './config.js'
+import { isPayoutError, PayoutError } from './errors.js'
+import { normalizeNimiqAddress } from './intent.js'
 import type {
   PayoutNetwork,
   PayoutStore,
   PublicRewardPayout,
   RewardPayout,
   TreasuryAdapter,
-} from './types.ts'
+} from './types.js'
 
 export type PayoutService = {
   ensureForReservedClaim(claimId: string): Promise<RewardPayout>

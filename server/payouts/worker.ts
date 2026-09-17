@@ -6,16 +6,16 @@ import {
   requirePayoutNetwork,
   type PayoutExecutionConfig,
   type TreasurySecret,
-} from './config.ts'
-import { utcDayKey } from '../ledger/utcDay.ts'
-import { isPayoutError, PayoutError } from './errors.ts'
-import { createPayoutService } from './service.ts'
+} from './config.js'
+import { utcDayKey } from '../ledger/utcDay.js'
+import { isPayoutError, PayoutError } from './errors.js'
+import { createPayoutService } from './service.js'
 import {
   AUTOMATED_PAYOUT_FEE_LUNA,
   type PayoutStore,
   type RewardPayout,
   type TreasuryAdapter,
-} from './types.ts'
+} from './types.js'
 
 export type PayoutWorkerReport = {
   readonly cycleId: string

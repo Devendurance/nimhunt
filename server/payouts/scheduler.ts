@@ -1,14 +1,14 @@
 import { createHash, randomUUID, timingSafeEqual } from 'node:crypto'
-import { automaticPayoutsAllowed, type PayoutExecutionConfig, type TreasurySecret } from './config.ts'
-import { isPayoutError, PayoutError } from './errors.ts'
-import { runPayoutWorker, type PayoutWorkerLog, type PayoutWorkerReport } from './worker.ts'
+import { automaticPayoutsAllowed, type PayoutExecutionConfig, type TreasurySecret } from './config.js'
+import { isPayoutError, PayoutError } from './errors.js'
+import { runPayoutWorker, type PayoutWorkerLog, type PayoutWorkerReport } from './worker.js'
 import {
   type PayoutCycleResult,
   type PayoutOperationsSnapshot,
   type PayoutStore,
   type TreasuryAdapter,
-} from './types.ts'
-import { utcDayKey } from '../ledger/utcDay.ts'
+} from './types.js'
+import { utcDayKey } from '../ledger/utcDay.js'
 
 export const PAYOUT_CYCLE_PATH = '/api/internal/payout-cycle'
 export const DEFAULT_PAYOUT_MAX_PER_CYCLE = 5

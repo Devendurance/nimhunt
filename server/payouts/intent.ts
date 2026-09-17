@@ -1,11 +1,11 @@
 import { Address } from '@nimiq/core'
-import { PayoutError } from './errors.ts'
+import { PayoutError } from './errors.js'
 import {
   NIMIQ_MAINNET_NETWORK_ID,
   NIMIQ_TESTNET_NETWORK_ID,
   PAYOUT_DATA_PREFIX,
   type PayoutNetwork,
-} from './types.ts'
+} from './types.js'
 
 export function payoutExtraData(payoutId: string): Uint8Array {
   return new TextEncoder().encode(`${PAYOUT_DATA_PREFIX}${payoutId}`)

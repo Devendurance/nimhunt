@@ -3,7 +3,7 @@ import {
   isUsablePayoutSchedulerSecret,
   PAYOUT_CYCLE_PATH,
   type ScheduledPayoutCycleResult,
-} from './scheduler.ts'
+} from './scheduler.js'
 
 const BASE_HEADERS = {
   'cache-control': 'no-store',

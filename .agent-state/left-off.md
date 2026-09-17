@@ -1,6 +1,31 @@
 # NimHunt - Left Off
 
-> Updated: 2026-09-17 (production-deploy slice)
+> Updated: 2026-09-17 (scheduler Vercel-compat slice)
+
+## Current Objective
+
+Push Vercel-compatible scheduler route (`/api/internal/payout-cycle` compiles on Vercel, stays DISABLED). Automation stays OFF. No NIM sent.
+
+## Completed (this slice)
+
+- Root cause: local `tsc -b` uses tsconfig.node.json (allowImportingTsExtensions:true, types:["node"]) so `.ts` imports + `process`/`node:*` pass; Vercel function compilation uses defaults/browser-like settings (no allowImportingTsExtensions → TS5097; no node types → TS2591) plus strict unknown→union check in store.ts.
+- Changed 11 scheduler-graph files `.ts`→`.js` (api route, runtime, scheduler, schedulerHttp, db, config, nimiqTreasury, store, worker, intent, service); no logic/auth/reward/cap change; no vercel.json.
+- store.ts: new `asCycleResult` validator (COMPLETED|DISABLED|FAILED|null, else PAYOUT_UNAVAILABLE) + `storeCycleResult.test.ts` (9 tests).
+- Added `tsconfig.server.json` + `npm run typecheck:server` (Vercel-like: allowImportingTsExtensions:false, types:node, nodenext).
+- Verified: scheduler+cycle tests 21 pass; full 616 pass / 69 skipped; lint 0; `tsc -b --force` 0; `npm run build` ok; `git diff --check` 0; `typecheck:server` 0; scheduler graph has 0 `.ts` imports.
+- Route behavior unchanged (existing tests): no-auth 401, wrong-bearer 401, cookie-only 401, query 400, automation-OFF 200 DISABLED signed 0 broadcast 0.
+
+## Changed paths
+
+- api/internal/payout-cycle.ts; server/payouts/{runtime,scheduler,schedulerHttp,db,config,nimiqTreasury,store,worker,intent,service}.ts; package.json (typecheck:server); tsconfig.server.json (new); server/payouts/storeCycleResult.test.ts (new).
+
+## Verification results
+
+- See Completed. No NIM sent; both kill switches OFF; reward 10,000,000 Luna / cap 690,000,000 unchanged.
+
+## Blockers / next
+
+- Push commit to origin/main (fetched: origin/main == a93a737, no advance), then owner observes Vercel auto-deploy: `/` 200, `/api/internal/payout-cycle` auth matrix on production (401/401/200-DISABLED). Do NOT create vercel.json/cron, enable automation, or send NIM.
 
 ## Current Objective
 
