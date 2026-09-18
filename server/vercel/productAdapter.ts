@@ -75,6 +75,47 @@ export function isPayoutCyclePath(pathname: string): boolean {
   return path === PAYOUT_CYCLE_PATH
 }
 
+export const PRODUCT_REWRITE_PARAM = '__nimhunt_route' as const
+
+/**
+ * Reconstruct the original public product path from the internal URL seen by
+ * the stable `/api/product` function after a Vercel rewrite.
+ *
+ * Vercel rewrite shape (see vercel.json):
+ *   source `/api/expeditions/:path*` ->
+ *   destination `/api/product?__nimhunt_route=/api/expeditions/:path*`
+ * Incoming query (`?runId=abc`) is merged by Vercel, so the function sees e.g.
+ *   `/api/product?__nimhunt_route=/api/expeditions/active&runId=abc`
+ * and this helper returns `/api/expeditions/active?runId=abc`.
+ *
+ * Security: the returned path is still validated by `dispatchProductHttp`
+ * against PRODUCT_OWNED_PATHS; forged/unknown routes fail closed there.
+ * Duplicate conflicting `__nimhunt_route` values fail closed to `/api/product`.
+ */
+export function resolveRewriteDispatchPath(internalPath: string): string {
+  let url: URL
+  try {
+    url = new URL(internalPath, 'http://localhost')
+  } catch {
+    return '/api/product'
+  }
+  const routedValues = url.searchParams.getAll(PRODUCT_REWRITE_PARAM)
+  if (routedValues.length === 0) return internalPath
+  const first = routedValues[0] ?? ''
+  for (const value of routedValues) {
+    if (value !== first) return '/api/product'
+  }
+  const routedPathname = (first.split('?')[0]?.split('#')[0] ?? '').trim()
+  if (!routedPathname.startsWith('/api/')) return '/api/product'
+  const preserved = new URLSearchParams()
+  for (const [key, value] of url.searchParams) {
+    if (key === PRODUCT_REWRITE_PARAM) continue
+    preserved.append(key, value)
+  }
+  const suffix = preserved.toString()
+  return suffix.length > 0 ? `${routedPathname}?${suffix}` : routedPathname
+}
+
 export type ProductHttpRequest = {
   readonly method: string
   readonly path: string

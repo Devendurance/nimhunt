@@ -17,15 +17,21 @@ describe('production /play routing', () => {
     expect(play?.destination).toBe('/index.html')
   })
 
-  it('does NOT rewrite /api/* to index.html', () => {
+  it('does NOT rewrite /api/* to index.html and keeps payout-cycle outside product rewrites', () => {
     const vercel = JSON.parse(read('vercel.json')) as {
       rewrites?: Array<{ source: string; destination: string }>
     }
     const rewrites = vercel.rewrites ?? []
     for (const entry of rewrites) {
-      expect(entry.destination).not.toContain('/api')
-      expect(entry.source.startsWith('/api')).toBe(false)
-      expect(entry.source.includes('*')).toBe(false)
+      // No API route may resolve to the SPA shell (/play -> /index.html stays allowed).
+      if (entry.source.startsWith('/api')) {
+        expect(entry.destination).not.toBe('/index.html')
+        expect(entry.destination.startsWith('/api/product')).toBe(true)
+      }
+      // Payout-cycle must never rewrite into the product adapter.
+      expect(entry.source).not.toContain('/api/internal')
+      expect(entry.destination).not.toContain('/api/internal')
+      expect(entry.destination).not.toContain('payout-cycle')
     }
     const raw = read('vercel.json')
     expect(raw).not.toContain('/api/*')

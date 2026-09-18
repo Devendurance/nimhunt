@@ -28,7 +28,7 @@
   },
   "include": [
     "api/internal/payout-cycle.ts",
-    "api/[...nimhunt].ts",
+    "api/product.ts",
     "server/ledger/config.ts",
     "server/ledger/errors.ts",
     "server/ledger/http.ts",

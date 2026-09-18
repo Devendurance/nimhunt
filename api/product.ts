@@ -5,8 +5,23 @@ import {
   readVercelHost,
   readVercelProtocol,
   readVercelRawBody,
+  resolveRewriteDispatchPath,
 } from '../server/vercel/productAdapter.js'
 
+/**
+ * Stable single Vercel Function for all product API routes.
+ *
+ * Vercel's `api/[...nimhunt].ts` catch-all did not reliably match nested
+ * multi-segment paths (e.g. `/api/expeditions/start-challenge`) in this
+ * Vite/Vercel configuration, while single-segment paths
+ * (e.g. `/api/daily-hunt-status`) did route. This stable single-segment
+ * filename (`api/product.ts` -> `/api/product`) is unambiguous, and explicit
+ * `vercel.json` rewrites map every product prefix to it with the original
+ * public path captured in `?__nimhunt_route=...` (incoming query merged).
+ *
+ * `api/internal/payout-cycle.ts` remains a separate physical function and has
+ * NO rewrite entry, so it can never route into the product adapter.
+ */
 export default async function productApiHandler(
   req: IncomingMessage,
   res: ServerResponse,
@@ -26,9 +41,11 @@ export default async function productApiHandler(
   }
 
   try {
+    const internalPath = req.url ?? '/api/product'
+    const dispatchPath = resolveRewriteDispatchPath(internalPath)
     const response = await dispatchProductHttp({
       method: req.method ?? 'GET',
-      path: req.url ?? '/',
+      path: dispatchPath,
       headers,
       host,
       protocol,

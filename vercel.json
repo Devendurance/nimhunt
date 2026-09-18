@@ -10,6 +10,26 @@
     {
       "source": "/play",
       "destination": "/index.html"
+    },
+    {
+      "source": "/api/daily-hunt-status",
+      "destination": "/api/product?__nimhunt_route=/api/daily-hunt-status"
+    },
+    {
+      "source": "/api/wallet-daily-status",
+      "destination": "/api/product?__nimhunt_route=/api/wallet-daily-status"
+    },
+    {
+      "source": "/api/expeditions/:path*",
+      "destination": "/api/product?__nimhunt_route=/api/expeditions/:path*"
+    },
+    {
+      "source": "/api/rewards/:path*",
+      "destination": "/api/product?__nimhunt_route=/api/rewards/:path*"
+    },
+    {
+      "source": "/api/wallet/:path*",
+      "destination": "/api/product?__nimhunt_route=/api/wallet/:path*"
     }
   ]
 }
