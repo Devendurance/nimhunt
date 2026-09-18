@@ -20,6 +20,8 @@ import {
 } from './productCheckpoint'
 import { ProductRewardClaimOutcome } from './ProductRewardClaimOutcome'
 import { ProductVaultOutcome } from './ProductVaultOutcome'
+import { useGameplaySfx, useMissionBgm } from '../../audio/useNimhuntAudio'
+import { SoundToggle } from './SoundToggle'
 import { useAngkorRun } from './useAngkorRun'
 import { useProductPayoutStatus } from './useProductPayoutStatus'
 import { useProductRewardClaim } from './useProductRewardClaim'
@@ -65,6 +67,10 @@ export function ExpeditionView(props: ExpeditionViewProps) {
     return { mode: 'product', mission, blueprint: active.blueprint, initialState: active.state, proof: checkpoint.proof }
   }, [active, checkpoint.proof, mission, mode])
   const { containerRef, hud, move } = useAngkorRun(gameOptions)
+  // Presentation-only audio: world BGM follows the mission; SFX follows
+  // actual HUD transitions. Never touches replay/checkpoint/server state.
+  useMissionBgm(mission)
+  useGameplaySfx(hud, props.mode === 'product' ? props.active.runId : `practice:${mission}`)
   const terminal = hud.runStatus !== 'PLAYING'
   const result = getExpeditionResult(hud)
   const isChestHunter = mission === 'chest-hunter'
@@ -132,7 +138,10 @@ export function ExpeditionView(props: ExpeditionViewProps) {
   return <div className={styles.shell}><main className={styles.viewport}>
     <header className={styles.header}>
       <div><span className={styles.kicker}>ANGKOR RUINS</span><h1 className={styles.title}>{missionTitle}</h1></div>
-      <button ref={leaveButtonRef} type="button" className={styles.leaveBtn} onClick={() => setConfirmingLeave(true)}>Leave expedition</button>
+      <div className={styles.headerActions}>
+        <SoundToggle />
+        <button ref={leaveButtonRef} type="button" className={styles.leaveBtn} onClick={() => setConfirmingLeave(true)}>Leave expedition</button>
+      </div>
     </header>
     {mode === 'practice' && <section className={styles.practiceNotice} aria-label="Practice run status">
       <strong>PRACTICE RUN</strong>

@@ -39,6 +39,7 @@
 .wordmark { display: flex; align-items: center; min-width: 44px; min-height: 44px; }
 .wordmark img { width: 142px; height: auto; }
 .headerContext { color: #a9b9aa; font-size: 9px; font-weight: 700; letter-spacing: 1.3px; }
+.headerRight { display: flex; align-items: center; gap: 8px; margin-left: auto; }
 
 .walletStrip {
   display: grid;

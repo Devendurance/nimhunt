@@ -1,6 +1,8 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { loadEnv, type Plugin } from 'vite'
 import { CHECKPOINT_PATH, GET_REWARD_PAYOUT_PATH } from '../../src/domain/expeditionProof.js'
+import { TREASURE_BANK_PATH } from '../../src/domain/treasureBank.js'
+import { MONTHLY_HEROES_PATH, WALLET_MONTHLY_STATS_PATH } from '../../src/domain/monthlyHeroes.js'
 import { RECOVER_SESSION_CHALLENGE_PATH, RECOVER_SESSION_PATH } from '../../src/domain/walletRecovery.js'
 import { createLazyValue } from './lazyValue.js'
 import { describeSessionCookie, WALLET_RECOVERY_SESSION_COOKIE } from './session.js'
@@ -49,6 +51,10 @@ export function expeditionProofPlugin(): Plugin {
     () => createDefaultProofService(runtime, env()),
   )
   const payoutStore = createLazyValue(async () => createDefaultPayoutStore(runtime, env()))
+  const treasureSource = createLazyValue(async () => {
+    const { createDefaultTreasureBankSource } = await import('../treasureBank/store.js')
+    return createDefaultTreasureBankSource(runtime, env())
+  })
   const payoutRuntime = createLazyValue(() => createDefaultPayoutRuntime(env()))
 
   return {
@@ -68,6 +74,7 @@ export function expeditionProofPlugin(): Plugin {
         () => payoutRuntime.ensure(),
         () => runtime,
         env,
+        () => treasureSource.ensure(),
       ))
     },
     configurePreviewServer(server) {
@@ -77,6 +84,7 @@ export function expeditionProofPlugin(): Plugin {
         () => payoutRuntime.ensure(),
         () => runtime,
         env,
+        () => treasureSource.ensure(),
       ))
     },
   }
@@ -88,12 +96,18 @@ function createHandler(
   getPayoutRuntime: () => Promise<PayoutRuntime | null>,
   getRuntime: () => ExpeditionRuntime,
   getEnv: () => Record<string, string | undefined>,
+  getTreasureSource?: () => Promise<Awaited<ReturnType<typeof import('../treasureBank/store.js').createDefaultTreasureBankSource>>>,
 ) {
   let dispatch: typeof import('./http.js').dispatchExpeditionHttp | undefined
   let dispatchPayout: typeof import('../payouts/http.js').dispatchPayoutHttp | undefined
+  let dispatchTreasure: typeof import('../treasureBank/http.js').dispatchTreasureBankHttp | undefined
+  let dispatchHeroes: typeof import('../monthlyHeroes/http.js').dispatchMonthlyHeroesHttp | undefined
+  let dispatchWalletStats: typeof import('../monthlyHeroes/http.js').dispatchWalletMonthlyStatsHttp | undefined
   return async (req: IncomingMessage, res: ServerResponse, next: () => void): Promise<void> => {
     const path = req.url?.split('?')[0] ?? ''
-    if (!isOwnedExpeditionPath(path) && !isOwnedPayoutSchedulerPath(path)) {
+    const isTreasurePath = path === TREASURE_BANK_PATH
+    const isHeroesPath = path === MONTHLY_HEROES_PATH || path === WALLET_MONTHLY_STATS_PATH
+    if (!isOwnedExpeditionPath(path) && !isOwnedPayoutSchedulerPath(path) && !isTreasurePath && !isHeroesPath) {
       next()
       return
     }
@@ -129,6 +143,51 @@ function createHandler(
       }
 
       const service = await getService()
+      if (path === MONTHLY_HEROES_PATH) {
+        if (!dispatchHeroes) ({ dispatchMonthlyHeroesHttp: dispatchHeroes } = await import('../monthlyHeroes/http.js'))
+        const { createDefaultMonthlyHeroesSource } = await import('../monthlyHeroes/store.js')
+        const source = await createDefaultMonthlyHeroesSource(runtime, getEnv())
+        const response = await dispatchHeroes(source, {
+          method: req.method ?? 'GET',
+          path: req.url ?? path,
+          headers: readHeaders(req),
+          host: req.headers.host,
+          protocol: isTlsRequest(req) ? 'https' : 'http',
+          rawBody,
+        }, runtime)
+        writeJson(res, response.status, response.body, response.headers)
+        return
+      }
+      if (path === WALLET_MONTHLY_STATS_PATH) {
+        if (!dispatchWalletStats) ({ dispatchWalletMonthlyStatsHttp: dispatchWalletStats } = await import('../monthlyHeroes/http.js'))
+        const { createDefaultMonthlyHeroesSource } = await import('../monthlyHeroes/store.js')
+        const source = await createDefaultMonthlyHeroesSource(runtime, getEnv())
+        const response = await dispatchWalletStats(service, source, {
+          method: req.method ?? 'GET',
+          path: req.url ?? path,
+          headers: readHeaders(req),
+          host: req.headers.host,
+          protocol: isTlsRequest(req) ? 'https' : 'http',
+          rawBody,
+        }, runtime)
+        writeJson(res, response.status, response.body, response.headers)
+        return
+      }
+      if (path === TREASURE_BANK_PATH) {
+        if (!dispatchTreasure) ({ dispatchTreasureBankHttp: dispatchTreasure } = await import('../treasureBank/http.js'))
+        const { createDefaultTreasureBankSource } = await import('../treasureBank/store.js')
+        const source = getTreasureSource ? await getTreasureSource() : await createDefaultTreasureBankSource(runtime, getEnv())
+        const response = await dispatchTreasure(service, source, {
+          method: req.method ?? 'GET',
+          path: req.url ?? path,
+          headers: readHeaders(req),
+          host: req.headers.host,
+          protocol: isTlsRequest(req) ? 'https' : 'http',
+          rawBody,
+        }, runtime, getEnv())
+        writeJson(res, response.status, response.body, response.headers)
+        return
+      }
       if (path === GET_REWARD_PAYOUT_PATH) {
         if (!dispatchPayout) ({ dispatchPayoutHttp: dispatchPayout } = await import('../payouts/http.js'))
         const response = await dispatchPayout(service, await getPayoutStore(), {

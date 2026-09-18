@@ -6,7 +6,7 @@ import { playFixture } from '../../data/play.fixtures'
 import type { Mission, MissionId, PlayTab } from '../../types/play'
 import { isMissionLaunchable } from './expeditionFlow'
 import { formatExpeditionsLeftToday } from './huntStatusView'
-import { HeroesPreview } from './HeroesPreview'
+import { MonthlyHeroesBlock, YourMonthBlock } from './MonthlyHeroes'
 import { HuntHeader } from './HuntHeader'
 import { HuntStatus } from './HuntStatus'
 import { MissionBrief } from './MissionBrief'
@@ -15,6 +15,9 @@ import { PlayBottomNav } from './PlayBottomNav'
 import { PLAY_WALLET_BOOTSTRAP_COPY } from './playWalletBootstrap'
 import { ProgressStrip } from './ProgressStrip'
 import { ProductPayoutStatusCard } from './ProductRewardClaimOutcome'
+import { TreasureBankSection } from './TreasureBank'
+import { useNimhuntBgm } from '../../audio/useNimhuntAudio'
+import { useTreasureBank } from './useTreasureBank'
 import { getRememberedProductWallet, rememberProductWallet } from './productWallet'
 import { shortenNqWallet } from './productVaultSeal'
 import { useDailyHuntStatus } from './useDailyHuntStatus'
@@ -33,6 +36,7 @@ import {
 import styles from './PlayShell.module.css'
 
 export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
+  useNimhuntBgm('main', 'shell')
   const bootstrap = usePlayWalletBootstrap()
   const hunt = useDailyHuntStatus(bootstrap.wallet ?? getRememberedProductWallet())
   const [payoutUnauthorized, setPayoutUnauthorized] = useState(false)
@@ -53,6 +57,12 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
     onUnavailable: code => {
       if (code === 'RUN_SESSION_INVALID') setPayoutUnauthorized(true)
     },
+  })
+  const treasureWalletConnected = bootstrap.status === 'CONNECTED' && Boolean(bootstrap.wallet)
+  const treasure = useTreasureBank({
+    enabled: treasureWalletConnected,
+    sessionKey: recovery.epoch,
+    onUnauthorized: () => setPayoutUnauthorized(true),
   })
   const expeditionsLeftToday = formatExpeditionsLeftToday(hunt.walletStatus)
   const [activeTab, setActiveTab] = useState<PlayTab>(initialTab)
@@ -125,22 +135,23 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
           </section>
           <HuntStatus fixture={playFixture} hunt={hunt} />
           {payout && <ProductPayoutStatusCard payout={payout} />}
+          {treasureWalletConnected && <TreasureBankSection state={treasure} onRetry={treasure.retry} />}
           <MissionList missions={playMissions} onEnter={openMission} compact expeditionsLeftToday={expeditionsLeftToday} />
           <ProgressStrip fixture={playFixture} />
-          <HeroesPreview fixture={playFixture} compact />
           <WorldStatus />
         </>}
         {activeTab === 'missions' && <>
           <section className={styles.pageIntro} aria-labelledby="missions-page-heading"><span className={styles.kicker}>THE DAILY BOARD · PREVIEW</span><h1 id="missions-page-heading">Today's missions</h1><p>Choose your route. The task is clear before the ruins open.</p></section>
           <HuntStatus fixture={playFixture} hunt={hunt} />
           {payout && <ProductPayoutStatusCard payout={payout} />}
+          {treasureWalletConnected && <TreasureBankSection state={treasure} onRetry={treasure.retry} />}
           <MissionList missions={playMissions} onEnter={openMission} expeditionsLeftToday={expeditionsLeftToday} />
           <WorldStatus />
         </>}
         {activeTab === 'heroes' && <>
-          <section className={styles.pageIntro} aria-labelledby="heroes-page-heading"><span className={styles.kicker}>HALL OF HEROES · PREVIEW</span><h1 id="heroes-page-heading">Hall of Heroes</h1><p>Early preview of expedition rankings. Points, streaks, and completed expeditions.</p></section>
-          <HeroesPreview fixture={playFixture} />
-          <ProgressStrip fixture={playFixture} />
+          <section className={styles.pageIntro} aria-labelledby="heroes-page-heading"><span className={styles.kicker}>HALL OF HEROES</span><h1 id="heroes-page-heading">Hall of Heroes</h1><p>Live monthly standings from verified expeditions. Only proven runs count.</p></section>
+          {treasureWalletConnected && <YourMonthBlock enabled sessionKey={recovery.epoch} onUnauthorized={() => setPayoutUnauthorized(true)} />}
+          <MonthlyHeroesBlock selfWallet={treasureWalletConnected ? bootstrap.wallet : null} />
         </>}
       </main>
       <PlayBottomNav activeTab={activeTab} onChange={setActiveTab} />

@@ -28,6 +28,14 @@
       "destination": "/api/product?__nimhunt_route=/api/rewards/:path*"
     },
     {
+      "source": "/api/monthly-heroes",
+      "destination": "/api/product?__nimhunt_route=/api/monthly-heroes"
+    },
+    {
+      "source": "/api/wallet/monthly-stats",
+      "destination": "/api/product?__nimhunt_route=/api/wallet/monthly-stats"
+    },
+    {
       "source": "/api/wallet/:path*",
       "destination": "/api/product?__nimhunt_route=/api/wallet/:path*"
     }

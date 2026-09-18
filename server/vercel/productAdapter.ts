@@ -22,6 +22,8 @@ import {
   RECOVER_SESSION_CHALLENGE_PATH,
   RECOVER_SESSION_PATH,
 } from '../../src/domain/walletRecovery.js'
+import { TREASURE_BANK_PATH } from '../../src/domain/treasureBank.js'
+import { MONTHLY_HEROES_PATH, WALLET_MONTHLY_STATS_PATH } from '../../src/domain/monthlyHeroes.js'
 import { WALLET_DAILY_STATUS_PATH } from '../../src/domain/dailyLedger.js'
 import { dispatchLedgerHttp } from '../ledger/http.js'
 import { dispatchExpeditionHttp, type ExpeditionHttpSecurity } from '../expeditions/http.js'
@@ -53,6 +55,9 @@ export const PRODUCT_OWNED_PATHS: readonly string[] = [
   GET_REWARD_PAYOUT_PATH,
   RECOVER_SESSION_CHALLENGE_PATH,
   RECOVER_SESSION_PATH,
+  TREASURE_BANK_PATH,
+  MONTHLY_HEROES_PATH,
+  WALLET_MONTHLY_STATS_PATH,
 ]
 
 const PRODUCT_OWNED_SET = new Set(PRODUCT_OWNED_PATHS)
@@ -151,6 +156,50 @@ export async function dispatchProductHttp(
     const service = await createDefaultProofService(runtime, env)
     const store = await createDefaultPayoutStore(runtime, env)
     return dispatchPayoutHttp(service, store, {
+      method: request.method,
+      path: request.path,
+      headers: request.headers,
+      host: request.host,
+      protocol: request.protocol,
+      rawBody: request.rawBody,
+    }, toSecurity(runtime))
+  }
+
+  if (pathname === TREASURE_BANK_PATH) {
+    const { dispatchTreasureBankHttp } = await import('../treasureBank/http.js')
+    const { createDefaultTreasureBankSource } = await import('../treasureBank/store.js')
+    const service = await createDefaultProofService(runtime, env)
+    const source = await createDefaultTreasureBankSource(runtime, env)
+    return dispatchTreasureBankHttp(service, source, {
+      method: request.method,
+      path: request.path,
+      headers: request.headers,
+      host: request.host,
+      protocol: request.protocol,
+      rawBody: request.rawBody,
+    }, toSecurity(runtime), env)
+  }
+
+  if (pathname === MONTHLY_HEROES_PATH) {
+    const { dispatchMonthlyHeroesHttp } = await import('../monthlyHeroes/http.js')
+    const { createDefaultMonthlyHeroesSource } = await import('../monthlyHeroes/store.js')
+    const source = await createDefaultMonthlyHeroesSource(runtime, env)
+    return dispatchMonthlyHeroesHttp(source, {
+      method: request.method,
+      path: request.path,
+      headers: request.headers,
+      host: request.host,
+      protocol: request.protocol,
+      rawBody: request.rawBody,
+    }, toSecurity(runtime))
+  }
+
+  if (pathname === WALLET_MONTHLY_STATS_PATH) {
+    const { dispatchWalletMonthlyStatsHttp } = await import('../monthlyHeroes/http.js')
+    const { createDefaultMonthlyHeroesSource } = await import('../monthlyHeroes/store.js')
+    const service = await createDefaultProofService(runtime, env)
+    const source = await createDefaultMonthlyHeroesSource(runtime, env)
+    return dispatchWalletMonthlyStatsHttp(service, source, {
       method: request.method,
       path: request.path,
       headers: request.headers,
