@@ -1,7 +1,7 @@
-import { clampHP, MAX_HP, type PlayerRunState } from '../domain/runState.ts'
-import { evaluateMission, type MissionType } from '../domain/mission.ts'
-import type { ItemState } from './items.ts'
-import type { GridCoord } from '../world/grid.ts'
+import { clampHP, MAX_HP, type PlayerRunState } from '../domain/runState.js'
+import { evaluateMission, type MissionType } from '../domain/mission.js'
+import type { ItemState } from './items.js'
+import type { GridCoord } from '../world/grid.js'
 
 export type ChestState = 'CLOSED' | 'OPEN'
 export type ChestLootType = 'GEMS' | 'POTION' | 'SWORD' | 'TRAP' | 'EMPTY'

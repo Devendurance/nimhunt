@@ -3,15 +3,15 @@ import {
   formatNimFromLuna,
   readPayoutExecutionConfig,
   type TreasurySecret,
-} from './config.ts'
-import { PayoutError } from './errors.ts'
-import { normalizeNimiqAddress } from './intent.ts'
-import { keyPairFromSecret, type NimiqTreasury, type SignedBasicTransfer } from './nimiqTreasury.ts'
+} from './config.js'
+import { PayoutError } from './errors.js'
+import { normalizeNimiqAddress } from './intent.js'
+import { keyPairFromSecret, type NimiqTreasury, type SignedBasicTransfer } from './nimiqTreasury.js'
 import {
   LUNA_PER_NIM,
   NIMIQ_MAINNET_NETWORK_ID,
   type TreasuryTransaction,
-} from './types.ts'
+} from './types.js'
 
 export const SWEEP_LEAVE_NIM = 100n
 export const SWEEP_LEAVE_LUNA = SWEEP_LEAVE_NIM * LUNA_PER_NIM

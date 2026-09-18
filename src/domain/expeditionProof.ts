@@ -1,4 +1,4 @@
-import type { ExpeditionBlueprint, ExpeditionCheckpoint, MissionType, ReplayAction, ReplayState, RewardClaimPayload } from '../game/replay/types.ts'
+import type { ExpeditionBlueprint, ExpeditionCheckpoint, MissionType, ReplayAction, ReplayState, RewardClaimPayload } from '../game/replay/types.js'
 
 export const START_CHALLENGE_PATH = '/api/expeditions/start-challenge'
 export const START_EXPEDITION_PATH = '/api/expeditions/start'

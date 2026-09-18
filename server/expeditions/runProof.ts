@@ -1,7 +1,7 @@
-import { hashBlueprint, hashCheckpoint, hashReplayState } from '../../src/game/replay/canonical.ts'
-import { CHECKPOINT_VERSION } from '../../src/game/replay/versions.ts'
-import type { ExpeditionCheckpoint } from '../../src/game/replay/types.ts'
-import type { DurableExpeditionRun } from './types.ts'
+import { hashBlueprint, hashCheckpoint, hashReplayState } from '../../src/game/replay/canonical.js'
+import { CHECKPOINT_VERSION } from '../../src/game/replay/versions.js'
+import type { ExpeditionCheckpoint } from '../../src/game/replay/types.js'
+import type { DurableExpeditionRun } from './types.js'
 
 export function createInitialCheckpoint(
   runId: string,

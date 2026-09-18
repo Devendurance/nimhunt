@@ -1,4 +1,4 @@
-import { clampHP, type PlayerRunState } from './runState.ts'
+import { clampHP, type PlayerRunState } from './runState.js'
 export const GEM_RUNNER_TARGET = 6
 export const CHEST_HUNTER_TARGET = 4
 export type MissionType = 'gem-runner' | 'chest-hunter' | 'vault-breaker'

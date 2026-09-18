@@ -1,5 +1,5 @@
-import type { PlayerRunState } from '../domain/runState.ts'
-import type { GridCoord } from '../world/grid.ts'
+import type { PlayerRunState } from '../domain/runState.js'
+import type { GridCoord } from '../world/grid.js'
 export interface GemPlacement extends GridCoord { readonly id: string }
 export function collectGem(state: PlayerRunState, id: string): PlayerRunState {
   if (state.runStatus !== 'PLAYING' || state.collectedGemIds.includes(id)) return state

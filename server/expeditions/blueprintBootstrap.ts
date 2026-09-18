@@ -1,7 +1,7 @@
-import { createRoom01Blueprint } from '../../src/game/world/room01.ts'
-import { createDailyAngkorBlueprint } from '../../src/game/world/dailyAngkorLayouts.ts'
-import { hashBlueprint } from '../../src/game/replay/canonical.ts'
-import type { ExpeditionBlueprint, MissionType } from '../../src/game/replay/types.ts'
+import { createRoom01Blueprint } from '../../src/game/world/room01.js'
+import { createDailyAngkorBlueprint } from '../../src/game/world/dailyAngkorLayouts.js'
+import { hashBlueprint } from '../../src/game/replay/canonical.js'
+import type { ExpeditionBlueprint, MissionType } from '../../src/game/replay/types.js'
 
 /** Built-in Room 01 templates. Publication may skip BFS only on exact prevalidated template hash match. */
 export function createBootstrapBlueprint(dayKey: string, mission: MissionType): ExpeditionBlueprint {

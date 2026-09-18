@@ -3,11 +3,11 @@ import {
   DAILY_EXPEDITION_LIMIT,
   DAILY_REWARD_SLOTS,
   type LedgerErrorCode,
-} from '../../src/domain/dailyLedger.ts'
-import { LedgerError } from './errors.ts'
-import { parseMissionType } from './mission.ts'
-import type { DailyLedger, ExpeditionRun } from './types.ts'
-import { normalizeNimiqWallet } from './wallet.ts'
+} from '../../src/domain/dailyLedger.js'
+import { LedgerError } from './errors.js'
+import { parseMissionType } from './mission.js'
+import type { DailyLedger, ExpeditionRun } from './types.js'
+import { normalizeNimiqWallet } from './wallet.js'
 
 type RpcMap = Record<string, unknown>
 

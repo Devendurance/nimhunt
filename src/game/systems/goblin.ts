@@ -1,6 +1,6 @@
-import { clampHP, type PlayerRunState } from '../domain/runState.ts'
-import { sameTile, type PuzzleState } from './puzzle.ts'
-import type { Direction, GridCoord, GridRoom } from '../world/grid.ts'
+import { clampHP, type PlayerRunState } from '../domain/runState.js'
+import { sameTile, type PuzzleState } from './puzzle.js'
+import type { Direction, GridCoord, GridRoom } from '../world/grid.js'
 
 export type GoblinAIState = 'PATROL' | 'CHASE' | 'STUNNED' | 'DEFEATED'
 

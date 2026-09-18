@@ -5,16 +5,16 @@ import {
   PRODUCT_REWARD_CLAIM_VERSION,
   serializeProductRewardClaim,
   type ProductRewardClaimPayload,
-} from '../../src/domain/productRewardClaim.ts'
+} from '../../src/domain/productRewardClaim.js'
 import type {
   FinalizeRewardClaimResult,
   PrepareRewardClaimResult,
-} from '../../src/domain/expeditionProof.ts'
-import { isSupportedBlueprintVersion, ROOM_VERSION, RULES_VERSION } from '../../src/game/replay/versions.ts'
-import { nextUtcResetAt } from '../ledger/utcDay.ts'
-import { sha256Hex, verifyNimiqSignedCanonicalMessage } from './crypto.ts'
-import { ProofError } from './errors.ts'
-import type { DurableExpeditionRun, DurableRewardClaim } from './types.ts'
+} from '../../src/domain/expeditionProof.js'
+import { isSupportedBlueprintVersion, ROOM_VERSION, RULES_VERSION } from '../../src/game/replay/versions.js'
+import { nextUtcResetAt } from '../ledger/utcDay.js'
+import { sha256Hex, verifyNimiqSignedCanonicalMessage } from './crypto.js'
+import { ProofError } from './errors.js'
+import type { DurableExpeditionRun, DurableRewardClaim } from './types.js'
 
 export function requireClaimEligible(run: DurableExpeditionRun): void {
   if (run.terminal?.type !== 'VERIFIED') throw new ProofError('CLAIM_NOT_ELIGIBLE')

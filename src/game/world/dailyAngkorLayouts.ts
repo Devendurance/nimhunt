@@ -8,13 +8,13 @@ import type {
   GridCoord,
   MissionType,
   TimedHazard,
-} from '../replay/types.ts'
+} from '../replay/types.js'
 import {
   BLUEPRINT_VERSION_V2,
   ROOM_VERSION,
   RULES_VERSION,
-} from '../replay/versions.ts'
-import { ANGKOR_ROOM_01 } from './room01.ts'
+} from '../replay/versions.js'
+import { ANGKOR_ROOM_01 } from './room01.js'
 
 export interface AngkorVariantDefinition {
   readonly name: string

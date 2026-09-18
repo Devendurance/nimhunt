@@ -1,4 +1,4 @@
-import type { LedgerErrorCode } from '../../src/domain/dailyLedger.ts'
+import type { LedgerErrorCode } from '../../src/domain/dailyLedger.js'
 
 export class LedgerError extends Error {
   readonly code: LedgerErrorCode

@@ -6,11 +6,11 @@ import {
   DAILY_HUNT_STATUS_PATH,
   FAIL_EXPEDITION_PATH,
   RESERVE_REWARD_PATH,
-} from '../../src/domain/dailyLedger.ts'
-import { createSupabaseAdminClient, readServerSupabaseConfig } from './config.ts'
-import { dispatchLedgerHttp, MAX_LEDGER_BODY_BYTES } from './http.ts'
-import { createPostgresDailyLedger } from './postgresLedger.ts'
-import type { DailyLedger } from './types.ts'
+} from '../../src/domain/dailyLedger.js'
+import { createSupabaseAdminClient, readServerSupabaseConfig } from './config.js'
+import { dispatchLedgerHttp, MAX_LEDGER_BODY_BYTES } from './http.js'
+import { createPostgresDailyLedger } from './postgresLedger.js'
+import type { DailyLedger } from './types.js'
 
 const LEDGER_PATHS = new Set([
   DAILY_HUNT_STATUS_PATH,

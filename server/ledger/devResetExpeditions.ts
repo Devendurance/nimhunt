@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { LedgerError } from './errors.ts'
-import { utcDayKey } from './utcDay.ts'
-import { normalizeNimiqWallet } from './wallet.ts'
+import { LedgerError } from './errors.js'
+import { utcDayKey } from './utcDay.js'
+import { normalizeNimiqWallet } from './wallet.js'
 
 export const DEV_RESET_ENABLE_FLAG = 'NIMHUNT_ENABLE_DEV_RESET'
 

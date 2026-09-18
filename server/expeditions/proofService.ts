@@ -1,5 +1,5 @@
-export { createMemoryProofService } from './memoryProofStore.ts'
-export { createPostgresProofService, createSupabaseProofService } from './postgresProofStore.ts'
+export { createMemoryProofService } from './memoryProofStore.js'
+export { createPostgresProofService, createSupabaseProofService } from './postgresProofStore.js'
 export type {
   DurableExpeditionRun,
   DurableStartChallenge,
@@ -8,4 +8,4 @@ export type {
   MemoryProofSnapshot,
   ProofService,
   StartAuthorizationResult,
-} from './types.ts'
+} from './types.js'

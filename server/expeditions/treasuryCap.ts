@@ -1,5 +1,5 @@
-import { DAILY_REWARD_SLOTS } from '../../src/domain/dailyLedger.ts'
-import { ProofError } from './errors.ts'
+import { DAILY_REWARD_SLOTS } from '../../src/domain/dailyLedger.js'
+import { ProofError } from './errors.js'
 
 export function assertRewardTreasuryCap(
   env: Record<string, string | undefined> = process.env,

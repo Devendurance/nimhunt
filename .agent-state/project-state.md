@@ -1,6 +1,6 @@
 # NimHunt — Project State
 
-> **Last updated**: 2026-09-18 (production UX cleanup slice verified locally: 661 tests / lint / typechecks / build green; manual phone checklist pending)
+> **Last updated**: 2026-09-18 (production deployment-gap fix verified locally: 683 tests / lint / typechecks / build green; NOT deployed)
 > **Phase**: Disabled daily Vercel cron configured (once/day 14:00 UTC). Automation stays OFF. No NIM sent.
 > **Latest milestone**: `vercel.json` daily cron committed (6934c0b) + pushed to main; production live (root 200, route 401 no-auth). Cron dashboard registration + first native DISABLED invocation pending (next window 14:00 UTC today).
 
@@ -23,13 +23,16 @@
 | Scheduler operations migration `011` | ✅ live (verified read-only; not replayed) |
 | Vercel Cron auth | ✅ compatible via native `CRON_SECRET` Bearer (previous Bearer-impossible conclusion corrected) |
 | Production cron (`vercel.json`) | ✅ CREATED+HOBBY-DAILY (single entry `/api/internal/payout-cycle` @ `0 14 * * *`, no secret; commit 6934c0b pushed; dashboard registration + native invocation PENDING) |
+| Production /play routing | 🟡 FIXED LOCALLY (vercel.json /play -> /index.html, no /api rewrite; NOT deployed) |
+| Production product API | 🟡 FIXED LOCALLY (catch-all api/[...nimhunt].ts reuses dispatchLedger/Expedition/Payout; payout-cycle separate; NOT deployed) |
+| Live landing hunt status | 🟡 FIXED LOCALLY (LandingHuntStatus live via /api/daily-hunt-status, no fixture; NOT deployed) |
 | Daily Mission Difficulty (Angkor v2) | ✅ PASS (9 canonical variants, FNV-1a selector, multi-goblin patrol/combat, BFS verified solvable ≤256 actions, v1 backward compatible) |
 | Timed Collapsing Boulder (Angkor v2) | ✅ PASS (ARMED/WARNING/FALLEN, authoritative TICK action stream @ 750ms / 3.0s warning, stand-still collapse, instant crush death, path blocking, goblin avoidance, push boulder preserved, 100% deterministic replay) |
 | Collapsing Boulder Server Timing Authority | ✅ PASS (server-owned warningStartedAt/collapseDeadlineAt anchor, instant crush death at deadline, movement into impact cell blocked at/after deadline, tick withholding fails closed, immediate client flush on trigger, v1 backward compatible) |
 
 ## Next Milestone
 
-Owner confirms in Vercel dashboard: production deployment of 6934c0b is READY, Cron Job `/api/internal/payout-cycle` registered once-daily; then observe first native DISABLED invocation (~14:00 UTC 2026-09-17, expect 200 DISABLED signed 0 broadcast 0). Do not enable switches, send NIM, fund treasury, or change reward/cap. (Sandbox has no Vercel CLI/token/linkage — dashboard + logs verification is owner-side.)
+Owner deploys this slice (no auto-deploy), then confirms in Vercel dashboard: production deployment is READY, Cron Job `/api/internal/payout-cycle` registered once-daily; then observe first native DISABLED invocation (~14:00 UTC 2026-09-17, expect 200 DISABLED signed 0 broadcast 0). Do not enable switches, send NIM, fund treasury, or change reward/cap. (Sandbox has no Vercel CLI/token/linkage — dashboard + logs verification is owner-side.)
 
 ## Canonical References
 

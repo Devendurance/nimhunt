@@ -3,17 +3,17 @@ import {
   parseTreasureSealJson,
   TEST_SEAL_ENVIRONMENT,
   TEST_SEAL_TYPE,
-} from '../src/domain/treasureSeal.ts'
-import { isCanonicalVaultSeal, parseVaultSealJson, VAULT_SEAL_TYPE } from '../src/domain/vaultSeal.ts'
+} from '../src/domain/treasureSeal.js'
+import { isCanonicalVaultSeal, parseVaultSealJson, VAULT_SEAL_TYPE } from '../src/domain/vaultSeal.js'
 import type {
   VerifyTreasureSealReason,
   VerifyTreasureSealRequest,
   VerifyTreasureSealResult,
-} from '../src/integrations/nimiq/verifySealTypes.ts'
-import { verifyNimiqSignedCanonicalMessage } from './expeditions/crypto.ts'
+} from '../src/integrations/nimiq/verifySealTypes.js'
+import { verifyNimiqSignedCanonicalMessage } from './expeditions/crypto.js'
 
-export { DEV_VERIFY_PATH } from '../src/integrations/nimiq/verifySealTypes.ts'
-export { nimiqSignedMessageHash } from './expeditions/crypto.ts'
+export { DEV_VERIFY_PATH } from '../src/integrations/nimiq/verifySealTypes.js'
+export { nimiqSignedMessageHash } from './expeditions/crypto.js'
 export const MAX_VERIFY_BODY_BYTES = 12_288
 export const MAX_PAYLOAD_CHARS = 8_192
 export const MAX_WALLET_CHARS = 80

@@ -1,22 +1,22 @@
-import { evaluateMission, type MissionType } from '../domain/mission.ts'
-import { createRunState } from '../domain/runState.ts'
-import { ANGKOR_ROOM_01 } from '../world/room01.ts'
-import { commitPuzzleMove, createPuzzleState, resolvePuzzleMove, sameTile, type PuzzleObjects } from '../systems/puzzle.ts'
-import { createChestStates, getChestAt, openChest } from '../systems/chests.ts'
-import { createGoblinState, resolveGoblinCombat, stepGoblin } from '../systems/goblin.ts'
-import { checkPotionConsumption, checkSwordPickup, createInitialItemState } from '../systems/items.ts'
+import { evaluateMission, type MissionType } from '../domain/mission.js'
+import { createRunState } from '../domain/runState.js'
+import { ANGKOR_ROOM_01 } from '../world/room01.js'
+import { commitPuzzleMove, createPuzzleState, resolvePuzzleMove, sameTile, type PuzzleObjects } from '../systems/puzzle.js'
+import { createChestStates, getChestAt, openChest } from '../systems/chests.js'
+import { createGoblinState, resolveGoblinCombat, stepGoblin } from '../systems/goblin.js'
+import { checkPotionConsumption, checkSwordPickup, createInitialItemState } from '../systems/items.js'
 import {
   MAX_ACCEPTED_ACTIONS,
   ROOM_VERSION,
   RULES_VERSION,
   type RoomVersion,
   type RulesVersion,
-} from './versions.ts'
+} from './versions.js'
 import type {
   ExpeditionBlueprint,
   ReplayAction,
   ReplayState,
-} from './types.ts'
+} from './types.js'
 
 export type StepRunResult = {
   readonly accepted: boolean

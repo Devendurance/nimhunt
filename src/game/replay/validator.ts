@@ -1,9 +1,9 @@
-import { CHEST_HUNTER_TARGET, GEM_RUNNER_TARGET } from '../domain/mission.ts'
-import { CHEST_GEM_AMOUNT } from '../systems/chests.ts'
-import { getTileAt, isWalkableTile } from '../world/grid.ts'
-import { ANGKOR_ROOM_01 } from '../world/room01.ts'
-import { hashBlueprint, serializeReplayState } from './canonical.ts'
-import { advanceRun, createInitialRun, type InitialRunInput } from './engine.ts'
+import { CHEST_HUNTER_TARGET, GEM_RUNNER_TARGET } from '../domain/mission.js'
+import { CHEST_GEM_AMOUNT } from '../systems/chests.js'
+import { getTileAt, isWalkableTile } from '../world/grid.js'
+import { ANGKOR_ROOM_01 } from '../world/room01.js'
+import { hashBlueprint, serializeReplayState } from './canonical.js'
+import { advanceRun, createInitialRun, type InitialRunInput } from './engine.js'
 import {
   MAX_ACCEPTED_ACTIONS,
   BLUEPRINT_VERSION_V1,
@@ -11,8 +11,8 @@ import {
   ROOM_VERSION,
   RULES_VERSION,
   isSupportedBlueprintVersion,
-} from './versions.ts'
-import type { ExpeditionBlueprint, MoveAction, ReplayAction, ReplayState, TickAction } from './types.ts'
+} from './versions.js'
+import type { ExpeditionBlueprint, MoveAction, ReplayAction, ReplayState, TickAction } from './types.js'
 
 export type BlueprintValidationReason =
   | 'INVALID_BLUEPRINT_HASH'

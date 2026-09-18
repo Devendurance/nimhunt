@@ -6,7 +6,7 @@ import type {
   ReserveDailyRewardResult,
   StartExpeditionResult,
   WalletDailyStatus,
-} from '../../src/domain/dailyLedger.ts'
+} from '../../src/domain/dailyLedger.js'
 
 export type Clock = {
   now(): Date

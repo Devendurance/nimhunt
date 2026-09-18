@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from 'node:crypto'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { parseProductVaultSeal } from '../../src/domain/productVaultSeal.ts'
+import { parseProductVaultSeal } from '../../src/domain/productVaultSeal.js'
 import type {
   CheckpointAcknowledgement,
   ProductActiveExpedition,
@@ -8,10 +8,10 @@ import type {
   StartChallengeResponse,
   StartResult,
   VerifyExpeditionResult,
-} from '../../src/domain/expeditionProof.ts'
-import { hashBlueprint, hashReplayState, hashTranscript } from '../../src/game/replay/canonical.ts'
-import { createInitialRun } from '../../src/game/replay/engine.ts'
-import { CHECKPOINT_VERSION, TRANSCRIPT_VERSION } from '../../src/game/replay/versions.ts'
+} from '../../src/domain/expeditionProof.js'
+import { hashBlueprint, hashReplayState, hashTranscript } from '../../src/game/replay/canonical.js'
+import { createInitialRun } from '../../src/game/replay/engine.js'
+import { CHECKPOINT_VERSION, TRANSCRIPT_VERSION } from '../../src/game/replay/versions.js'
 import type {
   ExpeditionBlueprint,
   ExpeditionCheckpoint,
@@ -19,23 +19,23 @@ import type {
   MissionType,
   MoveAction,
   ReplayState,
-} from '../../src/game/replay/types.ts'
-import { applyCheckpointBatch } from './checkpoint.ts'
+} from '../../src/game/replay/types.js'
+import { applyCheckpointBatch } from './checkpoint.js'
 import {
   fingerprintStartAuthorization,
   hashChallenge,
   parseStartPayload,
-} from './canonical.ts'
+} from './canonical.js'
 import {
   alignRecoveryConsumeTimestamps,
   fingerprintWalletRecoveryAuthorization,
   hashRecoveryChallenge,
   parseWalletRecoveryPayload,
-} from './walletRecovery.ts'
-import { verifyNimiqSignedCanonicalMessage } from './crypto.ts'
-import { ProofError } from './errors.ts'
-import { createSupabaseProofRpcClient, readProofRpc, type ProofRpcClient } from './proofDb.ts'
-import { createInitialCheckpoint, isRecoverableInitialRun } from './runProof.ts'
+} from './walletRecovery.js'
+import { verifyNimiqSignedCanonicalMessage } from './crypto.js'
+import { ProofError } from './errors.js'
+import { createSupabaseProofRpcClient, readProofRpc, type ProofRpcClient } from './proofDb.js'
+import { createInitialCheckpoint, isRecoverableInitialRun } from './runProof.js'
 import {
   createRunSessionCapability,
   hashRunSessionCapability,
@@ -43,7 +43,7 @@ import {
   requireWalletRecoverySession,
   type RunSessionRecord,
   type WalletRecoverySessionRecord,
-} from './session.ts'
+} from './session.js'
 import type {
   DurableCheckpointBatch,
   DurableExpeditionRun,
@@ -57,24 +57,24 @@ import type {
   ProofService,
   RiskContext,
   StartAuthorizationResult,
-} from './types.ts'
+} from './types.js'
 import {
   createPreparedRewardClaim,
   toFinalizeResult,
   toPrepareResult,
   verifySignedRewardClaim,
-} from './rewardClaim.ts'
+} from './rewardClaim.js'
 import {
   assessRewardRisk,
   hashInstallId,
   runPatternHash,
   toRiskPrepareResult,
-} from './riskGate.ts'
-import { assertRewardTreasuryCap } from './treasuryCap.ts'
-import { prepareProductVaultSeal, verifyProductVaultSeal } from './vaultSeal.ts'
-import { abandonExpeditionRun, verifyExpeditionRun } from './verify.ts'
-import { nextUtcResetAt, utcDayKey } from '../ledger/utcDay.ts'
-import { normalizeNimiqWallet } from '../ledger/wallet.ts'
+} from './riskGate.js'
+import { assertRewardTreasuryCap } from './treasuryCap.js'
+import { prepareProductVaultSeal, verifyProductVaultSeal } from './vaultSeal.js'
+import { abandonExpeditionRun, verifyExpeditionRun } from './verify.js'
+import { nextUtcResetAt, utcDayKey } from '../ledger/utcDay.js'
+import { normalizeNimiqWallet } from '../ledger/wallet.js'
 
 export async function createPostgresProofService(options: {
   readonly rpc: ProofRpcClient

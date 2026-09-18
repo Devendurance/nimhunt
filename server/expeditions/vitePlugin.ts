@@ -1,69 +1,34 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { loadEnv, type Plugin } from 'vite'
-import { WALLET_DAILY_STATUS_PATH } from '../../src/domain/dailyLedger.ts'
-import { RECOVER_SESSION_CHALLENGE_PATH, RECOVER_SESSION_PATH } from '../../src/domain/walletRecovery.ts'
+import { CHECKPOINT_PATH, GET_REWARD_PAYOUT_PATH } from '../../src/domain/expeditionProof.js'
+import { RECOVER_SESSION_CHALLENGE_PATH, RECOVER_SESSION_PATH } from '../../src/domain/walletRecovery.js'
+import { createLazyValue } from './lazyValue.js'
+import { describeSessionCookie, WALLET_RECOVERY_SESSION_COOKIE } from './session.js'
+import { createDefaultPayoutRuntime, type PayoutRuntime } from '../payouts/runtime.js'
+import { dispatchPayoutSchedulerHttp } from '../payouts/schedulerHttp.js'
+import { executeScheduledPayoutCycle, readPayoutSchedulerConfig } from '../payouts/scheduler.js'
 import {
-  ABANDON_EXPEDITION_PATH,
-  ACTIVE_EXPEDITION_PATH,
-  CHECKPOINT_PATH,
-  FINALIZE_REWARD_CLAIM_PATH,
-  GAMEPLAY_START_PATH,
-  GET_REWARD_PAYOUT_PATH,
-  PREPARE_REWARD_CLAIM_PATH,
-  PRODUCT_VAULT_SEAL_PREPARE_PATH,
-  PRODUCT_VAULT_SEAL_VERIFY_PATH,
-  START_CHALLENGE_PATH,
-  START_EXPEDITION_PATH,
-  VERIFY_EXPEDITION_PATH,
-} from '../../src/domain/expeditionProof.ts'
-import { createLazyValue, type LazyValue } from './lazyValue.ts'
-import { describeSessionCookie, WALLET_RECOVERY_SESSION_COOKIE } from './session.ts'
-import { createDefaultPayoutRuntime, type PayoutRuntime } from '../payouts/runtime.ts'
-import { dispatchPayoutSchedulerHttp } from '../payouts/schedulerHttp.ts'
-import { PAYOUT_CYCLE_PATH, executeScheduledPayoutCycle, readPayoutSchedulerConfig } from '../payouts/scheduler.ts'
-import type { ExpeditionProofService, MemoryProofService } from './types.ts'
+  createDefaultPayoutStore,
+  createDefaultProofService,
+  createProofBackendLoader,
+  isOwnedExpeditionPath,
+  isOwnedPayoutSchedulerPath,
+  isPrivateIpv4Host,
+  resolveExpeditionRuntime,
+  type ExpeditionRuntime,
+} from './proofRuntime.js'
+import type { ExpeditionProofService } from './types.js'
 
-const OWNED_EXPEDITION_PATHS = new Set([
-  START_CHALLENGE_PATH,
-  START_EXPEDITION_PATH,
-  ACTIVE_EXPEDITION_PATH,
-  GAMEPLAY_START_PATH,
-  CHECKPOINT_PATH,
-  VERIFY_EXPEDITION_PATH,
-  ABANDON_EXPEDITION_PATH,
-  PRODUCT_VAULT_SEAL_PREPARE_PATH,
-  PRODUCT_VAULT_SEAL_VERIFY_PATH,
-  PREPARE_REWARD_CLAIM_PATH,
-  FINALIZE_REWARD_CLAIM_PATH,
-  GET_REWARD_PAYOUT_PATH,
-  WALLET_DAILY_STATUS_PATH,
-  RECOVER_SESSION_CHALLENGE_PATH,
-  RECOVER_SESSION_PATH,
-])
-
-export function isOwnedExpeditionPath(path: string): boolean {
-  return OWNED_EXPEDITION_PATHS.has(path)
-}
-
-export function isOwnedPayoutSchedulerPath(path: string): boolean {
-  return path === PAYOUT_CYCLE_PATH
-}
-
-export type ExpeditionRuntimeInput = {
-  readonly mode: string
-  readonly backend: string | undefined
-  readonly appOrigin: string | undefined
-}
-
-export type ExpeditionRuntime = {
-  readonly backend: 'memory' | 'postgres' | 'unavailable'
-  readonly appOrigin: string
-  readonly expectedOrigin: string
-  readonly expectedHost: string
-  readonly expectedProtocol: 'http' | 'https'
-  readonly secureCookie: boolean
-  readonly allowAuthorizedLocalHttpOrigins: boolean
-}
+export {
+  createDefaultPayoutStore,
+  createDefaultProofService,
+  createDevelopmentMemoryProofService,
+  createProofBackendLoader,
+  isOwnedExpeditionPath,
+  isOwnedPayoutSchedulerPath,
+  resolveExpeditionRuntime,
+} from './proofRuntime.js'
+export type { ExpeditionRuntime, ExpeditionRuntimeInput } from './proofRuntime.js'
 
 const UNAVAILABLE_RUNTIME: ExpeditionRuntime = {
   backend: 'unavailable',
@@ -73,65 +38,6 @@ const UNAVAILABLE_RUNTIME: ExpeditionRuntime = {
   expectedProtocol: 'https',
   secureCookie: true,
   allowAuthorizedLocalHttpOrigins: false,
-}
-
-export function resolveExpeditionRuntime(input: ExpeditionRuntimeInput): ExpeditionRuntime {
-  const origin = parseOrigin(input.appOrigin)
-  if (!origin) return UNAVAILABLE_RUNTIME
-
-  const memoryEnabled = input.backend === 'memory' && (input.mode === 'development' || input.mode === 'test')
-  const postgresEnabled = input.backend === 'postgres'
-  const backend = memoryEnabled ? 'memory' : postgresEnabled ? 'postgres' : 'unavailable'
-  const localHttp = origin.protocol === 'http' && isAuthorizedHttpOrigin(origin, input.mode)
-
-  return {
-    backend,
-    appOrigin: origin.origin,
-    expectedOrigin: origin.origin,
-    expectedHost: origin.host,
-    expectedProtocol: origin.protocol,
-    secureCookie: backend === 'unavailable' ? true : !localHttp,
-    allowAuthorizedLocalHttpOrigins: backend !== 'unavailable' && localHttp,
-  }
-}
-
-export function createProofBackendLoader(
-  getRuntime: () => ExpeditionRuntime,
-  createService?: () => ExpeditionProofService | null | Promise<ExpeditionProofService | null>,
-): LazyValue<ExpeditionProofService | null> {
-  return createLazyValue(async () => {
-    const runtime = getRuntime()
-    if (runtime.backend === 'unavailable') return null
-    if (createService) return createService()
-    return createDefaultProofService(runtime)
-  })
-}
-
-export async function createDefaultProofService(
-  runtime: ExpeditionRuntime,
-  env: Record<string, string | undefined> = process.env,
-): Promise<ExpeditionProofService | null> {
-  if (runtime.backend === 'memory') return createDevelopmentMemoryProofService()
-  if (runtime.backend !== 'postgres') return null
-  const { readServerSupabaseConfig, createSupabaseAdminClient } = await import('../ledger/config.ts')
-  const config = readServerSupabaseConfig(env)
-  if (!config) return null
-  const { utcDayKey } = await import('../ledger/utcDay.ts')
-  const { createDailyPublishedBlueprints } = await import('./blueprintBootstrap.ts')
-  const { createSupabaseProofService } = await import('./postgresProofStore.ts')
-  return createSupabaseProofService({
-    client: createSupabaseAdminClient(config),
-    blueprints: createDailyPublishedBlueprints(utcDayKey(new Date())),
-  })
-}
-
-export async function createDevelopmentMemoryProofService(): Promise<MemoryProofService> {
-  const { utcDayKey } = await import('../ledger/utcDay.ts')
-  const { createDailyPublishedBlueprints } = await import('./blueprintBootstrap.ts')
-  const { createMemoryProofService } = await import('./memoryProofStore.ts')
-  return createMemoryProofService({
-    blueprints: createDailyPublishedBlueprints(utcDayKey(new Date())),
-  })
 }
 
 export function expeditionProofPlugin(): Plugin {
@@ -176,20 +82,6 @@ export function expeditionProofPlugin(): Plugin {
   }
 }
 
-async function createDefaultPayoutStore(
-  runtime: ExpeditionRuntime,
-  env: Record<string, string | undefined>,
-) {
-  const { createMemoryPayoutStore, createPayoutStore } = await import('../payouts/store.ts')
-  if (runtime.backend === 'memory') return createMemoryPayoutStore()
-  if (runtime.backend !== 'postgres') return null
-  const { readServerSupabaseConfig, createSupabaseAdminClient } = await import('../ledger/config.ts')
-  const config = readServerSupabaseConfig(env)
-  if (!config) return null
-  const { createSupabasePayoutRpcClient } = await import('../payouts/db.ts')
-  return createPayoutStore(createSupabasePayoutRpcClient(createSupabaseAdminClient(config)))
-}
-
 function createHandler(
   getService: () => ExpeditionProofService | null | Promise<ExpeditionProofService | null>,
   getPayoutStore: () => Promise<Awaited<ReturnType<typeof createDefaultPayoutStore>>>,
@@ -197,8 +89,8 @@ function createHandler(
   getRuntime: () => ExpeditionRuntime,
   getEnv: () => Record<string, string | undefined>,
 ) {
-  let dispatch: typeof import('./http.ts').dispatchExpeditionHttp | undefined
-  let dispatchPayout: typeof import('../payouts/http.ts').dispatchPayoutHttp | undefined
+  let dispatch: typeof import('./http.js').dispatchExpeditionHttp | undefined
+  let dispatchPayout: typeof import('../payouts/http.js').dispatchPayoutHttp | undefined
   return async (req: IncomingMessage, res: ServerResponse, next: () => void): Promise<void> => {
     const path = req.url?.split('?')[0] ?? ''
     if (!isOwnedExpeditionPath(path) && !isOwnedPayoutSchedulerPath(path)) {
@@ -238,7 +130,7 @@ function createHandler(
 
       const service = await getService()
       if (path === GET_REWARD_PAYOUT_PATH) {
-        if (!dispatchPayout) ({ dispatchPayoutHttp: dispatchPayout } = await import('../payouts/http.ts'))
+        if (!dispatchPayout) ({ dispatchPayoutHttp: dispatchPayout } = await import('../payouts/http.js'))
         const response = await dispatchPayout(service, await getPayoutStore(), {
           method: req.method ?? 'GET',
           path: req.url ?? path,
@@ -251,7 +143,7 @@ function createHandler(
         writeJson(res, response.status, response.body, response.headers)
         return
       }
-      if (!dispatch) ({ dispatchExpeditionHttp: dispatch } = await import('./http.ts'))
+      if (!dispatch) ({ dispatchExpeditionHttp: dispatch } = await import('./http.js'))
       const response = await dispatch(service, {
         method: req.method ?? 'GET',
         path: req.url ?? path,
@@ -447,42 +339,4 @@ function writeJson(
     return
   }
   res.end(JSON.stringify(body))
-}
-
-function parseOrigin(value: string | undefined): { origin: string; host: string; protocol: 'http' | 'https' } | null {
-  if (!value) return null
-  try {
-    const parsed = new URL(value)
-    if ((parsed.protocol !== 'http:' && parsed.protocol !== 'https:') || parsed.origin !== value.replace(/\/$/, '')) return null
-    return {
-      origin: parsed.origin,
-      host: parsed.host,
-      protocol: parsed.protocol === 'https:' ? 'https' : 'http',
-    }
-  } catch {
-    return null
-  }
-}
-
-function isAuthorizedHttpOrigin(
-  origin: { host: string; protocol: 'http' | 'https' },
-  mode: string,
-): boolean {
-  if (origin.protocol !== 'http') return false
-  if (mode === 'test') return isLoopbackHost(origin.host)
-  return isLoopbackHost(origin.host) || isPrivateIpv4Host(origin.host)
-}
-
-function isLoopbackHost(host: string): boolean {
-  const hostname = host.split(':')[0]?.replace('[', '').replace(']', '')
-  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1'
-}
-
-function isPrivateIpv4Host(host: string): boolean {
-  const hostname = host.split(':')[0]
-  const octets = hostname.split('.').map(Number)
-  if (octets.length !== 4 || octets.some(octet => !Number.isInteger(octet) || octet < 0 || octet > 255)) return false
-  return octets[0] === 10
-    || (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31)
-    || (octets[0] === 192 && octets[1] === 168)
 }

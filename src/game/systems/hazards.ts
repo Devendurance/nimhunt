@@ -1,5 +1,5 @@
-import { clampHP, type PlayerRunState } from '../domain/runState.ts'
-import type { GridCoord } from '../world/grid.ts'
+import { clampHP, type PlayerRunState } from '../domain/runState.js'
+import type { GridCoord } from '../world/grid.js'
 export type HazardType = 'SPIKES' | 'POISON'
 export interface HazardPlacement extends GridCoord { readonly type: HazardType }
 export const HAZARD_DAMAGE = { SPIKES: 25, POISON: 20 } as const

@@ -90,3 +90,12 @@ PASS
 - [`docs/architecture.md`](../docs/architecture.md)
 - [`docs/projectplan.md`](../docs/projectplan.md)
 - [`DESIGN.md`](../DESIGN.md)
+
+## Production deployment gap fix (2026-09-18, NOT deployed)
+
+- Root cause /play 404: BrowserRouter /play with no Vercel rewrite; /api 404: Vite-only vitePlugin handlers, production /api had only payout-cycle.
+- Fix: vercel.json rewrites /play -> /index.html (query preserved, no /api rewrite); catch-all api/[...nimhunt].ts reuses dispatchLedgerHttp/dispatchExpeditionHttp/dispatchPayoutHttp, payout-cycle stays separate and fails closed in adapter.
+- Vercel TLS: adapter reads x-forwarded-host/proto (socket.encrypted false behind proxy); preserves origin/host checks, HttpOnly SameSite=Strict Path=/api Secure=https cookies, 16k body cap, no service-role to client.
+- Serverless compat: product graph uses .js imports (allowImportingTsExtensions:false); proofRuntime.ts shared by vitePlugin + Vercel (no vite import in serverless); tsconfig.server.json covers product adapter.
+- Landing: HomePage uses LandingHuntStatus (live /api/daily-hunt-status, 45s poll + visibility + reset-timeout, per-second countdown from nextResetAt, no wallet, no fixture numbers); huntPreviewFixture kept for tests/dev only.
+- CTA: HuntCTA in-app uses Link to=/play, deep-link stays <a href=nimiq://...>.

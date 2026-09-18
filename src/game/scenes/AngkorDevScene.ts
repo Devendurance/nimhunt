@@ -37,15 +37,15 @@ import {
   tileToPixel,
   TILE_SIZE,
 } from '../world/grid'
-import type { RoomContents } from '../systems/tileEntry.ts'
-import type { ChestPlacement } from '../systems/chests.ts'
-import type { GoblinSpawnConfig } from '../world/room01.ts'
+import type { RoomContents } from '../systems/tileEntry.js'
+import type { ChestPlacement } from '../systems/chests.js'
+import type { GoblinSpawnConfig } from '../world/room01.js'
 import type { NimHuntGameBridge, PlayerHUDState } from '../events/gameEvents'
-import type { ReplayCollapsingBoulderState, ReplayState, TimedHazard } from '../replay/types.ts'
-import { TIMED_HAZARD_TICK_MS } from '../replay/types.ts'
+import type { ReplayCollapsingBoulderState, ReplayState, TimedHazard } from '../replay/types.js'
+import { TIMED_HAZARD_TICK_MS } from '../replay/types.js'
 import type { CreateGameOptions } from '../createNimHuntGame'
-import type { ProductProofBridge } from '../productProof.ts'
-import { mapProductBlueprint } from '../productBlueprint.ts'
+import type { ProductProofBridge } from '../productProof.js'
+import { mapProductBlueprint } from '../productBlueprint.js'
 
 interface OverlayItem {
   readonly x: number

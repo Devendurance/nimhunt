@@ -1,4 +1,4 @@
-import type { ExpeditionProofErrorCode } from '../../src/domain/expeditionProof.ts'
+import type { ExpeditionProofErrorCode } from '../../src/domain/expeditionProof.js'
 
 export class ProofError extends Error {
   readonly code: ExpeditionProofErrorCode

@@ -7,9 +7,9 @@ import {
   START_EXPEDITION_PATH,
   WALLET_DAILY_STATUS_PATH,
   type LedgerErrorCode,
-} from '../../src/domain/dailyLedger.ts'
-import { isLedgerError, LedgerError } from './errors.ts'
-import type { DailyLedger } from './types.ts'
+} from '../../src/domain/dailyLedger.js'
+import { isLedgerError, LedgerError } from './errors.js'
+import type { DailyLedger } from './types.js'
 
 export const MAX_LEDGER_BODY_BYTES = 12_288
 

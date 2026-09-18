@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { Link } from 'react-router-dom'
 import { init } from '@nimiq/mini-app-sdk'
 import { detectNimiqPayHost } from '../../integrations/nimiq/nimiqClient'
 import { HuntCTA } from './HuntCTA.tsx'
@@ -101,12 +102,15 @@ describe('landing hunt CTA environment detection', () => {
     const onUnavailable = vi.fn()
     const tree = HuntCTA({ onUnavailable, label: 'Hunt in Nimiq Pay' }) as {
       type: unknown
-      props: { href?: string; children: unknown[] }
+      props: { to?: string; href?: string; children: unknown[] }
     }
-    expect(tree.type).toBe('a')
-    expect(tree.props.href).toBe('/play')
+    expect(tree.type).toBe(Link)
+    expect(tree.props.to).toBe('/play')
+    expect(tree.props.href).toBeUndefined()
     expect(tree.props.children[0]).toBe(ENTER_TODAYS_HUNT_LABEL)
     expect(onUnavailable).not.toHaveBeenCalled()
     expect(init).not.toHaveBeenCalled()
   })
+
+
 })

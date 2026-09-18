@@ -1,7 +1,7 @@
 import type {
   PreparedProductVaultSeal,
   VerifiedProductVaultSeal,
-} from '../../src/domain/expeditionProof.ts'
+} from '../../src/domain/expeditionProof.js'
 import {
   parseProductVaultSeal,
   PRODUCT_VAULT_SEAL_OBJECTIVE,
@@ -11,11 +11,11 @@ import {
   PRODUCT_VAULT_SEAL_WORLD,
   serializeProductVaultSeal,
   type ProductVaultSealPayload,
-} from '../../src/domain/productVaultSeal.ts'
-import { isSupportedBlueprintVersion, ROOM_VERSION, RULES_VERSION } from '../../src/game/replay/versions.ts'
-import { ProofError } from './errors.ts'
-import { sha256Hex, verifyNimiqSignedCanonicalMessage } from './crypto.ts'
-import type { DurableExpeditionRun, DurableVaultSealProof } from './types.ts'
+} from '../../src/domain/productVaultSeal.js'
+import { isSupportedBlueprintVersion, ROOM_VERSION, RULES_VERSION } from '../../src/game/replay/versions.js'
+import { ProofError } from './errors.js'
+import { sha256Hex, verifyNimiqSignedCanonicalMessage } from './crypto.js'
+import type { DurableExpeditionRun, DurableVaultSealProof } from './types.js'
 
 export function prepareProductVaultSeal(run: DurableExpeditionRun): PreparedProductVaultSeal {
   const payload = buildBoundPayload(run)

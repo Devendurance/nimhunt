@@ -7,7 +7,7 @@ import type {
   ReplayAction,
   ReplayState,
   RewardClaimPayload,
-} from './types.ts'
+} from './types.js'
 
 const encoder = new TextEncoder()
 

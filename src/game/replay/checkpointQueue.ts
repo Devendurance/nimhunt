@@ -1,6 +1,6 @@
-import type { CheckpointAcknowledgement, CheckpointRequest, ProductProofState } from '../../domain/expeditionProof.ts'
-import { MAX_CHECKPOINT_BATCH_ACTIONS, MAX_UNACKNOWLEDGED_ACTIONS } from './versions.ts'
-import type { Direction, MoveAction, ReplayAction, TickAction } from './types.ts'
+import type { CheckpointAcknowledgement, CheckpointRequest, ProductProofState } from '../../domain/expeditionProof.js'
+import { MAX_CHECKPOINT_BATCH_ACTIONS, MAX_UNACKNOWLEDGED_ACTIONS } from './versions.js'
+import type { Direction, MoveAction, ReplayAction, TickAction } from './types.js'
 
 export type CheckpointQueueView = {
   readonly runId: string

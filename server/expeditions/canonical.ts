@@ -1,15 +1,15 @@
-import type { MissionType } from '../../src/game/replay/types.ts'
+import type { MissionType } from '../../src/game/replay/types.js'
 import {
   serializeStartPayload,
   START_EXPEDITION_TYPE,
   START_EXPEDITION_VERSION,
   type StartExpeditionPayload,
-} from '../../src/domain/startAuthorization.ts'
-import { normalizeNimiqWallet } from '../ledger/wallet.ts'
-import { sha256Hex } from './crypto.ts'
+} from '../../src/domain/startAuthorization.js'
+import { normalizeNimiqWallet } from '../ledger/wallet.js'
+import { sha256Hex } from './crypto.js'
 
-export { serializeStartPayload, START_EXPEDITION_TYPE, START_EXPEDITION_VERSION } from '../../src/domain/startAuthorization.ts'
-export type { StartExpeditionPayload } from '../../src/domain/startAuthorization.ts'
+export { serializeStartPayload, START_EXPEDITION_TYPE, START_EXPEDITION_VERSION } from '../../src/domain/startAuthorization.js'
+export type { StartExpeditionPayload } from '../../src/domain/startAuthorization.js'
 
 const START_FIELDS = [
   'version',

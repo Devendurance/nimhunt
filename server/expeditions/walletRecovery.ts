@@ -4,17 +4,17 @@ import {
   WALLET_RECOVERY_TYPE,
   WALLET_RECOVERY_VERSION,
   type WalletRecoveryPayload,
-} from '../../src/domain/walletRecovery.ts'
-import { normalizeNimiqWallet } from '../ledger/wallet.ts'
-import { sha256Hex } from './crypto.ts'
+} from '../../src/domain/walletRecovery.js'
+import { normalizeNimiqWallet } from '../ledger/wallet.js'
+import { sha256Hex } from './crypto.js'
 
 export {
   serializeWalletRecoveryPayload,
   WALLET_RECOVERY_PURPOSE,
   WALLET_RECOVERY_TYPE,
   WALLET_RECOVERY_VERSION,
-} from '../../src/domain/walletRecovery.ts'
-export type { WalletRecoveryPayload } from '../../src/domain/walletRecovery.ts'
+} from '../../src/domain/walletRecovery.js'
+export type { WalletRecoveryPayload } from '../../src/domain/walletRecovery.js'
 
 const RECOVERY_FIELDS = [
   'version',

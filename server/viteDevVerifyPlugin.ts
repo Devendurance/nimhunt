@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Plugin } from 'vite'
-import { DEV_VERIFY_PATH } from '../src/integrations/nimiq/verifySealTypes.ts'
-import { MAX_VERIFY_BODY_BYTES, verifyTreasureSeal } from './verifyTreasureSeal.ts'
+import { DEV_VERIFY_PATH } from '../src/integrations/nimiq/verifySealTypes.js'
+import { MAX_VERIFY_BODY_BYTES, verifyTreasureSeal } from './verifyTreasureSeal.js'
 
 export function nimiqDevVerifyPlugin(): Plugin {
   return {

@@ -1,8 +1,8 @@
-import type { PlayerRunState } from '../domain/runState.ts'
-import type { MissionType } from '../domain/mission.ts'
-import type { Direction, GridCoord, GridRoom } from '../world/grid.ts'
-import { calculateMove, type MoveResult } from './movement.ts'
-import { resolveTileEntry, type RoomContents } from './tileEntry.ts'
+import type { PlayerRunState } from '../domain/runState.js'
+import type { MissionType } from '../domain/mission.js'
+import type { Direction, GridCoord, GridRoom } from '../world/grid.js'
+import { calculateMove, type MoveResult } from './movement.js'
+import { resolveTileEntry, type RoomContents } from './tileEntry.js'
 
 export interface BoulderPosition extends GridCoord { readonly id: string }
 export interface PuzzleObjects {

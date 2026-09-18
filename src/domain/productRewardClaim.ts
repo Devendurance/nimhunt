@@ -1,4 +1,4 @@
-import { serializeCanonicalSeal } from './treasureSeal.ts'
+import { serializeCanonicalSeal } from './treasureSeal.js'
 
 export const PRODUCT_REWARD_CLAIM_VERSION = 1 as const
 export const PRODUCT_REWARD_CLAIM_TYPE = 'NIMHUNT_REWARD_CLAIM_V1' as const

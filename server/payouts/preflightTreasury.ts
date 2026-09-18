@@ -5,10 +5,10 @@ import {
   requirePayoutAmountLuna,
   requirePayoutNetwork,
   type TreasurySecret,
-} from './config.ts'
-import { PayoutError } from './errors.ts'
-import { keyPairFromSecret } from './nimiqTreasury.ts'
-import { normalizeNimiqAddress } from './intent.ts'
+} from './config.js'
+import { PayoutError } from './errors.js'
+import { keyPairFromSecret } from './nimiqTreasury.js'
+import { normalizeNimiqAddress } from './intent.js'
 
 export const TREASURY_PREFLIGHT_AMOUNT_LUNA = 10_000n
 export const TREASURY_PREFLIGHT_FEE_LUNA = 0n

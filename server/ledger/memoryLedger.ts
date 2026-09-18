@@ -3,12 +3,12 @@ import {
   DAILY_REWARD_LIMIT_PER_WALLET,
   DAILY_REWARD_SLOTS,
   type ExpeditionRewardStatus,
-} from '../../src/domain/dailyLedger.ts'
-import { LedgerError } from './errors.ts'
-import { parseMissionType } from './mission.ts'
-import type { Clock, DailyLedger, ExpeditionRun } from './types.ts'
-import { nextUtcResetAt, utcDayKey } from './utcDay.ts'
-import { normalizeNimiqWallet } from './wallet.ts'
+} from '../../src/domain/dailyLedger.js'
+import { LedgerError } from './errors.js'
+import { parseMissionType } from './mission.js'
+import type { Clock, DailyLedger, ExpeditionRun } from './types.js'
+import { nextUtcResetAt, utcDayKey } from './utcDay.js'
+import { normalizeNimiqWallet } from './wallet.js'
 
 type Pool = {
   reservedSlots: number

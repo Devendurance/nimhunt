@@ -1,19 +1,19 @@
-import { ABANDON_EXPEDITION_PATH, ACTIVE_EXPEDITION_PATH, CHECKPOINT_PATH, FINALIZE_REWARD_CLAIM_PATH, GAMEPLAY_START_PATH, PREPARE_REWARD_CLAIM_PATH, PRODUCT_VAULT_SEAL_PREPARE_PATH, PRODUCT_VAULT_SEAL_VERIFY_PATH, START_CHALLENGE_PATH, START_EXPEDITION_PATH, VERIFY_EXPEDITION_PATH } from '../../src/domain/expeditionProof.ts'
-import type { ReplayAction } from '../../src/game/replay/types.ts'
-import { MAX_CHECKPOINT_BATCH_ACTIONS } from '../../src/game/replay/versions.ts'
-import { WALLET_DAILY_STATUS_PATH } from '../../src/domain/dailyLedger.ts'
-import { RECOVER_SESSION_CHALLENGE_PATH, RECOVER_SESSION_PATH } from '../../src/domain/walletRecovery.ts'
-import { ProofError, isProofError } from './errors.ts'
-import { parseStartPayload, type SignedStartRequest } from './canonical.ts'
-import { parseWalletRecoveryPayload } from './walletRecovery.ts'
-import { parseRunSessionCookie, serializeRunSessionCookie, serializeWalletRecoverySessionCookie, type RunSessionRecord } from './session.ts'
-import { hashInstallId, parseInstallId } from './riskGate.ts'
+import { ABANDON_EXPEDITION_PATH, ACTIVE_EXPEDITION_PATH, CHECKPOINT_PATH, FINALIZE_REWARD_CLAIM_PATH, GAMEPLAY_START_PATH, PREPARE_REWARD_CLAIM_PATH, PRODUCT_VAULT_SEAL_PREPARE_PATH, PRODUCT_VAULT_SEAL_VERIFY_PATH, START_CHALLENGE_PATH, START_EXPEDITION_PATH, VERIFY_EXPEDITION_PATH } from '../../src/domain/expeditionProof.js'
+import type { ReplayAction } from '../../src/game/replay/types.js'
+import { MAX_CHECKPOINT_BATCH_ACTIONS } from '../../src/game/replay/versions.js'
+import { WALLET_DAILY_STATUS_PATH } from '../../src/domain/dailyLedger.js'
+import { RECOVER_SESSION_CHALLENGE_PATH, RECOVER_SESSION_PATH } from '../../src/domain/walletRecovery.js'
+import { ProofError, isProofError } from './errors.js'
+import { parseStartPayload, type SignedStartRequest } from './canonical.js'
+import { parseWalletRecoveryPayload } from './walletRecovery.js'
+import { parseRunSessionCookie, serializeRunSessionCookie, serializeWalletRecoverySessionCookie, type RunSessionRecord } from './session.js'
+import { hashInstallId, parseInstallId } from './riskGate.js'
 import {
   assertExpeditionRateLimit,
   createRateLimiter,
   type RateLimiter,
-} from './rateLimit.ts'
-import type { ExpeditionProofService, RiskContext } from './types.ts'
+} from './rateLimit.js'
+import type { ExpeditionProofService, RiskContext } from './types.js'
 
 export const MAX_EXPEDITION_BODY_BYTES = 16 * 1024
 

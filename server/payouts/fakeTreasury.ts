@@ -1,13 +1,13 @@
 import { createHash, randomBytes } from 'node:crypto'
-import { PayoutError } from './errors.ts'
-import { networkIdFor, normalizeNimiqAddress, parseTxHash, payoutExtraData } from './intent.ts'
+import { PayoutError } from './errors.js'
+import { networkIdFor, normalizeNimiqAddress, parseTxHash, payoutExtraData } from './intent.js'
 import type {
   PayoutNetwork,
   SignedPayoutIntent,
   TreasuryAdapter,
   TreasurySubmitInput,
   TreasuryTransaction,
-} from './types.ts'
+} from './types.js'
 
 export type FakeTreasuryOptions = {
   readonly network?: PayoutNetwork

@@ -10,12 +10,12 @@ import type {
   StartResult,
   VerifiedProductVaultSeal,
   VerifyExpeditionResult,
-} from '../../src/domain/expeditionProof.ts'
-import type { WalletDailyStatus } from '../../src/domain/dailyLedger.ts'
-import type { WalletRecoveryChallengeResponse } from '../../src/domain/walletRecovery.ts'
-import type { DurableHazardDeadline, ExpeditionBlueprint, ExpeditionCheckpoint, MissionType, ReplayAction, ReplayState } from '../../src/game/replay/types.ts'
-import type { Clock } from '../ledger/types.ts'
-import type { RunSessionRecord, WalletRecoverySessionRecord } from './session.ts'
+} from '../../src/domain/expeditionProof.js'
+import type { WalletDailyStatus } from '../../src/domain/dailyLedger.js'
+import type { WalletRecoveryChallengeResponse } from '../../src/domain/walletRecovery.js'
+import type { DurableHazardDeadline, ExpeditionBlueprint, ExpeditionCheckpoint, MissionType, ReplayAction, ReplayState } from '../../src/game/replay/types.js'
+import type { Clock } from '../ledger/types.js'
+import type { RunSessionRecord, WalletRecoverySessionRecord } from './session.js'
 
 export type { Clock, DurableHazardDeadline }
 

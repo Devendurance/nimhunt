@@ -1,9 +1,9 @@
-import { DAILY_REWARD_SLOTS } from '../../src/domain/dailyLedger.ts'
-import type { PrepareRewardClaimResult } from '../../src/domain/expeditionProof.ts'
-import { isInstallId } from '../../src/domain/installId.ts'
-import { PLAYER_MOVE_DURATION_MS, PLAYER_MOVE_FRAME_SLACK_MS } from '../../src/game/config/timing.ts'
-import { sha256Hex } from './crypto.ts'
-import type { DurableExpeditionRun } from './types.ts'
+import { DAILY_REWARD_SLOTS } from '../../src/domain/dailyLedger.js'
+import type { PrepareRewardClaimResult } from '../../src/domain/expeditionProof.js'
+import { isInstallId } from '../../src/domain/installId.js'
+import { PLAYER_MOVE_DURATION_MS, PLAYER_MOVE_FRAME_SLACK_MS } from '../../src/game/config/timing.js'
+import { sha256Hex } from './crypto.js'
+import type { DurableExpeditionRun } from './types.js'
 
 export const INSTALL_ID_HASH_PREFIX = 'nimhunt-install-v1:'
 export const RISK_NETWORK_RENDER_SLACK_MS = 750

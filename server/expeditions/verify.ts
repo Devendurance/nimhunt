@@ -1,14 +1,14 @@
 import type {
   AbandonExpeditionResult,
   VerifyExpeditionResult,
-} from '../../src/domain/expeditionProof.ts'
-import { CHEST_HUNTER_TARGET, GEM_RUNNER_TARGET } from '../../src/game/domain/mission.ts'
-import { hashBlueprint, hashReplayState, hashTranscript } from '../../src/game/replay/canonical.ts'
-import { createInitialRun, replayActions } from '../../src/game/replay/engine.ts'
-import { TRANSCRIPT_VERSION } from '../../src/game/replay/versions.ts'
-import type { ExpeditionTranscript, ReplayAction, ReplayState } from '../../src/game/replay/types.ts'
-import { ProofError } from './errors.ts'
-import type { DurableCheckpointBatch, DurableExpeditionRun } from './types.ts'
+} from '../../src/domain/expeditionProof.js'
+import { CHEST_HUNTER_TARGET, GEM_RUNNER_TARGET } from '../../src/game/domain/mission.js'
+import { hashBlueprint, hashReplayState, hashTranscript } from '../../src/game/replay/canonical.js'
+import { createInitialRun, replayActions } from '../../src/game/replay/engine.js'
+import { TRANSCRIPT_VERSION } from '../../src/game/replay/versions.js'
+import type { ExpeditionTranscript, ReplayAction, ReplayState } from '../../src/game/replay/types.js'
+import { ProofError } from './errors.js'
+import type { DurableCheckpointBatch, DurableExpeditionRun } from './types.js'
 
 export function reconstructActionsFromBatches(run: DurableExpeditionRun): readonly ReplayAction[] {
   const actions: ReplayAction[] = []

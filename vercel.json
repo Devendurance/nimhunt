@@ -5,5 +5,11 @@
       "path": "/api/internal/payout-cycle",
       "schedule": "0 14 * * *"
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/play",
+      "destination": "/index.html"
+    }
   ]
 }

@@ -1,6 +1,6 @@
 import { Entropy } from '@nimiq/core'
-import { normalizeNimiqAddress } from './intent.ts'
-import { keyPairFromSecret } from './nimiqTreasury.ts'
+import { normalizeNimiqAddress } from './intent.js'
+import { keyPairFromSecret } from './nimiqTreasury.js'
 
 export type GeneratedTreasury = {
   readonly secretType: 'mnemonic'

@@ -1,8 +1,8 @@
-import { evaluateMission, type MissionType } from '../domain/mission.ts'
-import type { PlayerRunState } from '../domain/runState.ts'
-import { collectGem, type GemPlacement } from './collectibles.ts'
-import { applyHazard, type HazardPlacement } from './hazards.ts'
-import type { MoveResult } from './movement.ts'
+import { evaluateMission, type MissionType } from '../domain/mission.js'
+import type { PlayerRunState } from '../domain/runState.js'
+import { collectGem, type GemPlacement } from './collectibles.js'
+import { applyHazard, type HazardPlacement } from './hazards.js'
+import type { MoveResult } from './movement.js'
 export interface RoomContents { readonly gems: readonly GemPlacement[]; readonly hazards: readonly HazardPlacement[] }
 /** Called once on completed, successful movement, never from frame updates. */
 export function resolveTileEntry(state: PlayerRunState, move: MoveResult, contents: RoomContents, mission: MissionType = 'gem-runner'): PlayerRunState {

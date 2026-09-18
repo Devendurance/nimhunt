@@ -1,5 +1,5 @@
-import type { CheckpointAcknowledgement, CheckpointProgress } from '../../domain/expeditionProof.ts'
-import type { ReplayState } from './types.ts'
+import type { CheckpointAcknowledgement, CheckpointProgress } from '../../domain/expeditionProof.js'
+import type { ReplayState } from './types.js'
 
 export function deriveCheckpointProgress(state: ReplayState, checkpointHash: string): CheckpointProgress {
   return {

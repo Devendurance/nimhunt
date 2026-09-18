@@ -1,9 +1,9 @@
-import type { GridCoord, GridRoom } from './grid.ts'
-import type { PuzzleObjects } from '../systems/puzzle.ts'
-import type { RoomContents } from '../systems/tileEntry.ts'
-import type { ChestPlacement } from '../systems/chests.ts'
-import { BLUEPRINT_VERSION_V1, ROOM_VERSION, RULES_VERSION } from '../replay/versions.ts'
-import type { ExpeditionBlueprint, MissionType } from '../replay/types.ts'
+import type { GridCoord, GridRoom } from './grid.js'
+import type { PuzzleObjects } from '../systems/puzzle.js'
+import type { RoomContents } from '../systems/tileEntry.js'
+import type { ChestPlacement } from '../systems/chests.js'
+import { BLUEPRINT_VERSION_V1, ROOM_VERSION, RULES_VERSION } from '../replay/versions.js'
+import type { ExpeditionBlueprint, MissionType } from '../replay/types.js'
 
 export const ROOM_01_CONTENTS: RoomContents = {
   gems: [[2, 3], [1, 1], [5, 1], [9, 1], [10, 4], [10, 8], [5, 8], [1, 8]].map(([x, y], i) => ({ id: `room01-gem-${i + 1}`, x, y })),

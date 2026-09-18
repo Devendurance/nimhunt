@@ -4,7 +4,7 @@ import { createRunState, type MissionStatus, type RunStatus } from '../domain/ru
 import { CHEST_HUNTER_TARGET, GEM_RUNNER_TARGET, parseMissionParam, type MissionType } from '../domain/mission'
 import { ANGKOR_ROOM_01, ROOM_01_PUZZLE } from '../world/room01'
 import type { GoblinAIState } from '../systems/goblin'
-import type { ReplayState } from '../replay/types.ts'
+import type { ReplayState } from '../replay/types.js'
 
 export interface PlayerHUDState {
   readonly hasTempleKey: boolean

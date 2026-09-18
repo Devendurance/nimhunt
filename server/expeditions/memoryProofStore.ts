@@ -1,36 +1,36 @@
 import { randomBytes, randomUUID } from 'node:crypto'
-import { DAILY_EXPEDITION_LIMIT, DAILY_REWARD_SLOTS } from '../../src/domain/dailyLedger.ts'
-import { parseProductVaultSeal } from '../../src/domain/productVaultSeal.ts'
+import { DAILY_EXPEDITION_LIMIT, DAILY_REWARD_SLOTS } from '../../src/domain/dailyLedger.js'
+import { parseProductVaultSeal } from '../../src/domain/productVaultSeal.js'
 import type {
   ProductActiveExpedition,
   ProductGameplayStartResponse,
   StartResult,
-} from '../../src/domain/expeditionProof.ts'
-import { hashBlueprint, hashReplayState, hashTranscript } from '../../src/game/replay/canonical.ts'
-import { createInitialRun } from '../../src/game/replay/engine.ts'
-import { TRANSCRIPT_VERSION } from '../../src/game/replay/versions.ts'
+} from '../../src/domain/expeditionProof.js'
+import { hashBlueprint, hashReplayState, hashTranscript } from '../../src/game/replay/canonical.js'
+import { createInitialRun } from '../../src/game/replay/engine.js'
+import { TRANSCRIPT_VERSION } from '../../src/game/replay/versions.js'
 import type {
   ExpeditionBlueprint,
   ExpeditionTranscript,
-} from '../../src/game/replay/types.ts'
-import { createInitialCheckpoint, isRecoverableInitialRun } from './runProof.ts'
-import { validateExpeditionBlueprint } from '../../src/game/replay/validator.ts'
-import { applyCheckpointBatch } from './checkpoint.ts'
-import { prepareProductVaultSeal, verifyProductVaultSeal } from './vaultSeal.ts'
-import { abandonExpeditionRun, verifyExpeditionRun } from './verify.ts'
-import { ProofError } from './errors.ts'
-import { isPrevalidatedRoom01Bootstrap } from './room01BootstrapPrevalidation.ts'
+} from '../../src/game/replay/types.js'
+import { createInitialCheckpoint, isRecoverableInitialRun } from './runProof.js'
+import { validateExpeditionBlueprint } from '../../src/game/replay/validator.js'
+import { applyCheckpointBatch } from './checkpoint.js'
+import { prepareProductVaultSeal, verifyProductVaultSeal } from './vaultSeal.js'
+import { abandonExpeditionRun, verifyExpeditionRun } from './verify.js'
+import { ProofError } from './errors.js'
+import { isPrevalidatedRoom01Bootstrap } from './room01BootstrapPrevalidation.js'
 import {
   fingerprintStartAuthorization,
   hashChallenge,
   parseStartPayload,
-} from './canonical.ts'
-import { verifyNimiqSignedCanonicalMessage } from './crypto.ts'
+} from './canonical.js'
+import { verifyNimiqSignedCanonicalMessage } from './crypto.js'
 import {
   fingerprintWalletRecoveryAuthorization,
   hashRecoveryChallenge,
   parseWalletRecoveryPayload,
-} from './walletRecovery.ts'
+} from './walletRecovery.js'
 import {
   createRunSessionCapability,
   hashRunSessionCapability,
@@ -38,20 +38,20 @@ import {
   requireWalletRecoverySession,
   type RunSessionRecord,
   type WalletRecoverySessionRecord,
-} from './session.ts'
+} from './session.js'
 import {
   createPreparedRewardClaim,
   toFinalizeResult,
   toPrepareResult,
   verifySignedRewardClaim,
-} from './rewardClaim.ts'
+} from './rewardClaim.js'
 import {
   assessRewardRisk,
   hashInstallId,
   runPatternHash,
   toRiskPrepareResult,
-} from './riskGate.ts'
-import { assertRewardTreasuryCap } from './treasuryCap.ts'
+} from './riskGate.js'
+import { assertRewardTreasuryCap } from './treasuryCap.js'
 import type {
   Clock,
   DurableExpeditionRun,
@@ -64,9 +64,9 @@ import type {
   MemoryProofSnapshot,
   RiskContext,
   StartAuthorizationResult,
-} from './types.ts'
-import { nextUtcResetAt, utcDayKey } from '../ledger/utcDay.ts'
-import { normalizeNimiqWallet } from '../ledger/wallet.ts'
+} from './types.js'
+import { nextUtcResetAt, utcDayKey } from '../ledger/utcDay.js'
+import { normalizeNimiqWallet } from '../ledger/wallet.js'
 
 const validatedBlueprintHashes = new Set<string>()
 let publicationValidationRuns = 0

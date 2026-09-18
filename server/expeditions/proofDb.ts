@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { ProofError } from './errors.ts'
-import type { ExpeditionProofErrorCode } from '../../src/domain/expeditionProof.ts'
+import { ProofError } from './errors.js'
+import type { ExpeditionProofErrorCode } from '../../src/domain/expeditionProof.js'
 
 const PROOF_RPCS = new Set([
   'create_start_challenge',

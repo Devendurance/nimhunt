@@ -24,7 +24,7 @@ import {
   type BlueprintVersion,
   type RoomVersion,
   type RulesVersion,
-} from './versions.ts'
+} from './versions.js'
 
 export type BlueprintStatus = 'DRAFT' | 'VALIDATED' | 'PUBLISHED' | 'RETIRED'
 

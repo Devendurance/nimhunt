@@ -1,5 +1,5 @@
-import { hashBlueprint } from '../../src/game/replay/canonical.ts'
-import type { ExpeditionBlueprint, MissionType, MoveAction } from '../../src/game/replay/types.ts'
+import { hashBlueprint } from '../../src/game/replay/canonical.js'
+import type { ExpeditionBlueprint, MissionType, MoveAction } from '../../src/game/replay/types.js'
 
 /**
  * Frozen day key used only to pin Room 01 bootstrap template hashes.

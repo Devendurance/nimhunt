@@ -1,4 +1,4 @@
-import type { Direction } from './world/grid.ts'
+import type { Direction } from './world/grid.js'
 
 export type ProductProofBridge = {
   canAcceptMove(): boolean

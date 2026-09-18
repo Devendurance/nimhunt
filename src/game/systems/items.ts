@@ -1,6 +1,6 @@
-import { clampHP, MAX_HP, type PlayerRunState } from '../domain/runState.ts'
-import { sameTile } from './puzzle.ts'
-import type { GridCoord } from '../world/grid.ts'
+import { clampHP, MAX_HP, type PlayerRunState } from '../domain/runState.js'
+import { sameTile } from './puzzle.js'
+import type { GridCoord } from '../world/grid.js'
 
 export const POTION_HEAL_AMOUNT = 25
 

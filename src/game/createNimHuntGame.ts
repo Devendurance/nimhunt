@@ -7,8 +7,8 @@ import {
   type NimHuntBridgeListener,
   type PlayerHUDState,
 } from './events/gameEvents'
-import type { ExpeditionBlueprint, MissionType, ReplayState } from './replay/types.ts'
-import type { ProductProofBridge } from './productProof.ts'
+import type { ExpeditionBlueprint, MissionType, ReplayState } from './replay/types.js'
+import type { ProductProofBridge } from './productProof.js'
 import type { Direction } from './world/grid'
 
 export type { ProductProofBridge }

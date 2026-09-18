@@ -1,4 +1,4 @@
-import type { MissionType } from '../game/replay/types.ts'
+import type { MissionType } from '../game/replay/types.js'
 
 export const START_EXPEDITION_VERSION = 1 as const
 export const START_EXPEDITION_TYPE = 'NIMHUNT_START_EXPEDITION' as const

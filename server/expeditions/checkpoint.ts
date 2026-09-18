@@ -1,7 +1,7 @@
-import type { CheckpointAcknowledgement } from '../../src/domain/expeditionProof.ts'
-import { hashActionBatch, hashCheckpoint, hashReplayState, hashTranscript } from '../../src/game/replay/canonical.ts'
-import { deriveCheckpointProgress } from '../../src/game/replay/checkpointProgress.ts'
-import { advanceRun } from '../../src/game/replay/engine.ts'
+import type { CheckpointAcknowledgement } from '../../src/domain/expeditionProof.js'
+import { hashActionBatch, hashCheckpoint, hashReplayState, hashTranscript } from '../../src/game/replay/canonical.js'
+import { deriveCheckpointProgress } from '../../src/game/replay/checkpointProgress.js'
+import { advanceRun } from '../../src/game/replay/engine.js'
 import {
   ACTION_BATCH_VERSION,
   CHECKPOINT_VERSION,
@@ -9,7 +9,7 @@ import {
   MAX_CHECKPOINT_BATCH_ACTIONS,
   TIMED_HAZARD_TICK_MS,
   TRANSCRIPT_VERSION,
-} from '../../src/game/replay/versions.ts'
+} from '../../src/game/replay/versions.js'
 import type {
   DurableHazardDeadline,
   ExpeditionActionBatch,
@@ -17,9 +17,9 @@ import type {
   ExpeditionTranscript,
   ReplayAction,
   ReplayState,
-} from '../../src/game/replay/types.ts'
-import { ProofError } from './errors.ts'
-import type { DurableCheckpointBatch, DurableExpeditionRun } from './types.ts'
+} from '../../src/game/replay/types.js'
+import { ProofError } from './errors.js'
+import type { DurableCheckpointBatch, DurableExpeditionRun } from './types.js'
 
 const sameCoord = (a: { x: number; y: number }, b: { x: number; y: number }) => a.x === b.x && a.y === b.y
 

@@ -1,12 +1,12 @@
-import type { ExpeditionBlueprint, ReplayCollapsingBoulderState, ReplayState, TimedHazard } from './replay/types.ts'
-import type { GridCoord } from './world/grid.ts'
-import type { PuzzleObjects, PuzzleState } from './systems/puzzle.ts'
-import type { RoomContents } from './systems/tileEntry.ts'
-import type { ChestInstance, ChestPlacement } from './systems/chests.ts'
-import type { GoblinState } from './systems/goblin.ts'
-import type { ItemState } from './systems/items.ts'
-import type { PlayerRunState } from './domain/runState.ts'
-import type { GoblinSpawnConfig } from './world/room01.ts'
+import type { ExpeditionBlueprint, ReplayCollapsingBoulderState, ReplayState, TimedHazard } from './replay/types.js'
+import type { GridCoord } from './world/grid.js'
+import type { PuzzleObjects, PuzzleState } from './systems/puzzle.js'
+import type { RoomContents } from './systems/tileEntry.js'
+import type { ChestInstance, ChestPlacement } from './systems/chests.js'
+import type { GoblinState } from './systems/goblin.js'
+import type { ItemState } from './systems/items.js'
+import type { PlayerRunState } from './domain/runState.js'
+import type { GoblinSpawnConfig } from './world/room01.js'
 
 export type ProductBlueprintRuntime = {
   readonly spawn: GridCoord

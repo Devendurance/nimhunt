@@ -1,8 +1,8 @@
-import { requirePayoutAmountLuna, requirePayoutNetwork, type PayoutExecutionConfig } from './config.ts'
-import { PayoutError } from './errors.ts'
-import { normalizeNimiqAddress } from './intent.ts'
-import { createPayoutService } from './service.ts'
-import type { PayoutStore, RewardPayout, TreasuryAdapter } from './types.ts'
+import { requirePayoutAmountLuna, requirePayoutNetwork, type PayoutExecutionConfig } from './config.js'
+import { PayoutError } from './errors.js'
+import { normalizeNimiqAddress } from './intent.js'
+import { createPayoutService } from './service.js'
+import type { PayoutStore, RewardPayout, TreasuryAdapter } from './types.js'
 
 export const AUTHORIZED_MAINNET_PAYOUT = {
   payoutId: 'd19bf406-2b81-4c5a-b271-da8eb7587cbd',

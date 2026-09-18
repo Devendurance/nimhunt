@@ -1,5 +1,5 @@
 import { Address } from '@nimiq/core'
-import { LedgerError } from './errors.ts'
+import { LedgerError } from './errors.js'
 
 export const MAX_WALLET_CHARS = 80
 

@@ -3,13 +3,13 @@ import {
   type ExpeditionHttpRequest,
   type ExpeditionHttpResponse,
   type ExpeditionHttpSecurity,
-} from '../expeditions/http.ts'
-import { parseRunSessionCookie, parseWalletRecoverySessionCookie } from '../expeditions/session.ts'
-import type { DurableRewardClaim, ExpeditionProofService } from '../expeditions/types.ts'
-import { GET_REWARD_PAYOUT_PATH } from '../../src/domain/expeditionProof.ts'
-import { isPayoutError, PayoutError } from './errors.ts'
-import { toPublicPayout } from './store.ts'
-import type { PayoutStore } from './types.ts'
+} from '../expeditions/http.js'
+import { parseRunSessionCookie, parseWalletRecoverySessionCookie } from '../expeditions/session.js'
+import type { DurableRewardClaim, ExpeditionProofService } from '../expeditions/types.js'
+import { GET_REWARD_PAYOUT_PATH } from '../../src/domain/expeditionProof.js'
+import { isPayoutError, PayoutError } from './errors.js'
+import { toPublicPayout } from './store.js'
+import type { PayoutStore } from './types.js'
 
 const BASE_HEADERS = {
   'cache-control': 'no-store',

@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import { PLAYER_MOVE_DURATION_MS } from '../config/timing.ts'
+import { PLAYER_MOVE_DURATION_MS } from '../config/timing.js'
 import {
   type Direction,
   type GridCoord,
