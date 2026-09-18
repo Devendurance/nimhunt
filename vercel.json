@@ -20,6 +20,10 @@
       "destination": "/api/product?__nimhunt_route=/api/wallet-daily-status"
     },
     {
+      "source": "/api/expeditions/session/recover",
+      "destination": "/api/product?__nimhunt_route=/api/expeditions/session/recover"
+    },
+    {
       "source": "/api/expeditions/:path*",
       "destination": "/api/product?__nimhunt_route=/api/expeditions/:path*"
     },

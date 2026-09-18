@@ -133,6 +133,12 @@ export type WalletRecoveryAuthorizationResult = {
   readonly session: WalletRecoverySessionRecord
 }
 
+export type RunSessionRecoveryResult = {
+  readonly runId: string
+  readonly sessionCapability: string
+  readonly session: RunSessionRecord
+}
+
 export type MemoryProofSnapshot = {
   readonly blueprints: readonly ExpeditionBlueprint[]
   readonly challenges: readonly DurableStartChallenge[]
@@ -189,6 +195,7 @@ export type MemoryProofService = {
   issueWalletRecoveryChallenge(wallet: string, risk?: RiskContext): Promise<WalletRecoveryChallengeResponse>
   authorizeWalletRecovery(input: { readonly payload: string; readonly publicKey: string; readonly signature: string; readonly risk?: RiskContext }): Promise<WalletRecoveryAuthorizationResult>
   authenticateWalletRecoverySession(raw: string): WalletRecoverySessionRecord
+  recoverRunSession(runId: string, recovery: WalletRecoverySessionRecord): RunSessionRecoveryResult
   getRewardClaimForWallet(claimId: string, session: WalletRecoverySessionRecord): DurableRewardClaim
   getReservedRewardClaimForWallet(session: WalletRecoverySessionRecord): DurableRewardClaim | null
   snapshot(): MemoryProofSnapshot
@@ -243,6 +250,7 @@ export type ProofService = {
   issueWalletRecoveryChallenge(wallet: string, risk?: RiskContext): Promise<WalletRecoveryChallengeResponse>
   authorizeWalletRecovery(input: { readonly payload: string; readonly publicKey: string; readonly signature: string; readonly risk?: RiskContext }): Promise<WalletRecoveryAuthorizationResult>
   authenticateWalletRecoverySession(raw: string): Promise<WalletRecoverySessionRecord>
+  recoverRunSession(runId: string, recovery: WalletRecoverySessionRecord): Promise<RunSessionRecoveryResult>
   getRewardClaimForWallet(claimId: string, session: WalletRecoverySessionRecord): Promise<DurableRewardClaim>
   getReservedRewardClaimForWallet(session: WalletRecoverySessionRecord): Promise<DurableRewardClaim | null>
   snapshot(): Promise<MemoryProofSnapshot>

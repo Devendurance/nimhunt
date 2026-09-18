@@ -15,6 +15,7 @@ const REQUIRED_PRODUCT_PATHS = [
   '/api/expeditions/start-challenge',
   '/api/expeditions/start',
   '/api/expeditions/active',
+  '/api/expeditions/session/recover',
   '/api/expeditions/gameplay-start',
   '/api/expeditions/checkpoint',
   '/api/expeditions/verify',

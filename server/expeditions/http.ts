@@ -1,4 +1,4 @@
-import { ABANDON_EXPEDITION_PATH, ACTIVE_EXPEDITION_PATH, CHECKPOINT_PATH, FINALIZE_REWARD_CLAIM_PATH, GAMEPLAY_START_PATH, PREPARE_REWARD_CLAIM_PATH, PRODUCT_VAULT_SEAL_PREPARE_PATH, PRODUCT_VAULT_SEAL_VERIFY_PATH, START_CHALLENGE_PATH, START_EXPEDITION_PATH, VERIFY_EXPEDITION_PATH } from '../../src/domain/expeditionProof.js'
+import { ABANDON_EXPEDITION_PATH, ACTIVE_EXPEDITION_PATH, CHECKPOINT_PATH, FINALIZE_REWARD_CLAIM_PATH, GAMEPLAY_START_PATH, PREPARE_REWARD_CLAIM_PATH, PRODUCT_VAULT_SEAL_PREPARE_PATH, PRODUCT_VAULT_SEAL_VERIFY_PATH, RECOVER_RUN_SESSION_PATH, START_CHALLENGE_PATH, START_EXPEDITION_PATH, VERIFY_EXPEDITION_PATH } from '../../src/domain/expeditionProof.js'
 import type { ReplayAction } from '../../src/game/replay/types.js'
 import { MAX_CHECKPOINT_BATCH_ACTIONS } from '../../src/game/replay/versions.js'
 import { WALLET_DAILY_STATUS_PATH } from '../../src/domain/dailyLedger.js'
@@ -6,7 +6,7 @@ import { RECOVER_SESSION_CHALLENGE_PATH, RECOVER_SESSION_PATH } from '../../src/
 import { ProofError, isProofError } from './errors.js'
 import { parseStartPayload, type SignedStartRequest } from './canonical.js'
 import { parseWalletRecoveryPayload } from './walletRecovery.js'
-import { parseRunSessionCookie, serializeRunSessionCookie, serializeWalletRecoverySessionCookie, type RunSessionRecord } from './session.js'
+import { parseRunSessionCookie, parseWalletRecoverySessionCookie, serializeRunSessionCookie, serializeWalletRecoverySessionCookie, type RunSessionRecord } from './session.js'
 import { hashInstallId, parseInstallId } from './riskGate.js'
 import {
   assertExpeditionRateLimit,
@@ -147,6 +147,24 @@ export async function dispatchExpeditionHttp(
       return response(200, { ok: true, ...active })
     }
 
+    if (path === RECOVER_RUN_SESSION_PATH) {
+      const runId = readRecoverRunSessionRequest(readJsonBody(request)).runId
+      const recovery = await authenticateWalletRecoverySession(service, request)
+      const recovered = await service.recoverRunSession(runId, recovery)
+      return {
+        ...response(200, { ok: true, runId: recovered.runId }),
+        headers: {
+          ...BASE_HEADERS,
+          'set-cookie': serializeRunSessionCookie(
+            recovered.sessionCapability,
+            new Date(recovered.session.expiresAt),
+            new Date(recovered.session.createdAt),
+            security.secureCookie,
+          ),
+        },
+      }
+    }
+
     if (path === GAMEPLAY_START_PATH) {
       const session = await authenticateSession(service, request)
       const runId = readGameplayStartRequest(readJsonBody(request)).runId
@@ -236,8 +254,17 @@ export async function dispatchExpeditionHttp(
   } catch (error) {
     if (isProofError(error)) return response(statusFor(error.code), { ok: false, error: publicErrorCode(error.code) })
     if (error instanceof SyntaxError) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
-    return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
+    if (isSessionInvalidLike(error)) return response(401, { ok: false, error: 'RUN_SESSION_INVALID' })
+    return response(503, { ok: false, error: 'PROOF_UNAVAILABLE' })
   }
+}
+
+export function isSessionInvalidLike(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false
+  const code = (error as { code?: unknown }).code
+  if (code === 'RUN_SESSION_INVALID' || code === 'INVALID_SESSION' || code === 'SESSION_EXPIRED' || code === 'SESSION_REVOKED') return true
+  const message = (error as { message?: unknown }).message
+  return message === 'INVALID_SESSION' || message === 'SESSION_EXPIRED' || message === 'SESSION_REVOKED'
 }
 
 function parseRequestUrl(path: string, expectedOrigin: string): URL | null {
@@ -253,6 +280,7 @@ function isExpeditionPath(path: string): boolean {
   return path === START_CHALLENGE_PATH
     || path === START_EXPEDITION_PATH
     || path === ACTIVE_EXPEDITION_PATH
+    || path === RECOVER_RUN_SESSION_PATH
     || path === GAMEPLAY_START_PATH
     || path === CHECKPOINT_PATH
     || path === VERIFY_EXPEDITION_PATH
@@ -487,6 +515,26 @@ function requireExactKeys(body: Record<string, unknown>, expected: readonly stri
   }
 }
 
+function readRecoverRunSessionRequest(body: Record<string, unknown>): { runId: string } {
+  requireExactKeys(body, ['runId'])
+  if (!isBoundedString(body.runId, 128)) throw new ProofError('MALFORMED_REQUEST')
+  return { runId: body.runId }
+}
+
+async function authenticateWalletRecoverySession(service: ExpeditionProofService, request: ExpeditionHttpRequest) {
+  const raw = parseWalletRecoverySessionCookie(getHeader(request, 'cookie'))
+  if (!raw) throw new ProofError('RUN_SESSION_INVALID')
+  try {
+    return await service.authenticateWalletRecoverySession(raw)
+  } catch (error) {
+    if (isProofError(error) && (error.code === 'INVALID_SESSION' || error.code === 'SESSION_EXPIRED' || error.code === 'SESSION_REVOKED')) {
+      throw new ProofError('RUN_SESSION_INVALID')
+    }
+    if (isSessionInvalidLike(error)) throw new ProofError('RUN_SESSION_INVALID')
+    throw error
+  }
+}
+
 async function authenticateSession(service: ExpeditionProofService, request: ExpeditionHttpRequest): Promise<RunSessionRecord> {
   const raw = parseRunSessionCookie(getHeader(request, 'cookie'))
   if (!raw) throw new ProofError('RUN_SESSION_INVALID')
@@ -546,7 +594,8 @@ function assertHttpRateLimit(
 function statusFor(code: string): number {
   if (code === 'PROOF_UNAVAILABLE' || code === 'DAILY_BLUEPRINT_UNAVAILABLE' || code === 'REWARD_UNAVAILABLE') return 503
   if (code === 'RATE_LIMITED') return 429
-  if (code === 'RUN_SESSION_INVALID') return 401
+  if (code === 'RUN_SESSION_INVALID' || code === 'INVALID_SESSION' || code === 'SESSION_EXPIRED' || code === 'SESSION_REVOKED') return 401
+  if (code === 'RUN_NOT_FOUND') return 404
   if (code === 'ACTIVE_RUN_UNAVAILABLE' || code === 'CHECKPOINT_MISMATCH' || code === 'PROOF_LOST' || code === 'RUN_NOT_ACTIVE' || code === 'RUN_INCOMPLETE' || code === 'CLAIM_WINDOW_EXPIRED') return 409
   if (code === 'DAILY_EXPEDITION_LIMIT_REACHED' || code === 'START_CHALLENGE_EXPIRED' || code === 'START_CHALLENGE_DAY_EXPIRED' || code === 'RECOVERY_CHALLENGE_EXPIRED') return 409
   return 400

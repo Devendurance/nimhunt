@@ -7,11 +7,12 @@ export type ProductGateError =
   | 'ACTIVE_RUN_UNAVAILABLE'
   | 'MALFORMED_ACTIVE'
   | 'RUN_SESSION_INVALID'
+  | 'RECOVERY_FAILED'
   | 'PROOF_UNAVAILABLE'
   | 'NETWORK_ERROR'
   | 'GAMEPLAY_START_FAILED'
 
-export type ProductGateStatus = 'LOADING_ACTIVE' | 'MARKING_GAMEPLAY_START' | 'RETRY_GAMEPLAY_START' | 'READY' | 'ERROR'
+export type ProductGateStatus = 'LOADING_ACTIVE' | 'RECOVERING_SESSION' | 'MARKING_GAMEPLAY_START' | 'RETRY_GAMEPLAY_START' | 'READY' | 'ERROR'
 
 export type ProductGateState = {
   readonly status: ProductGateStatus
@@ -27,6 +28,8 @@ export const INITIAL_PRODUCT_GATE_STATE: ProductGateState = {
 
 export type ProductGateAction =
   | { readonly type: 'RESET' }
+  | { readonly type: 'RECOVERY_STARTED' }
+  | { readonly type: 'RECOVERY_FAILED' }
   | { readonly type: 'ACTIVE_RECEIVED'; readonly active: ProductActiveExpedition }
   | { readonly type: 'GAMEPLAY_STARTED'; readonly runId: string; readonly outcome: ProductGameplayStartResponse['outcome'] }
   | { readonly type: 'GAMEPLAY_START_RETRYABLE' }
@@ -36,6 +39,10 @@ export function reduceProductGate(state: ProductGateState, action: ProductGateAc
   switch (action.type) {
     case 'RESET':
       return { status: 'LOADING_ACTIVE', active: null, error: null }
+    case 'RECOVERY_STARTED':
+      return { status: 'RECOVERING_SESSION', active: null, error: null }
+    case 'RECOVERY_FAILED':
+      return { status: 'ERROR', active: null, error: 'RECOVERY_FAILED' }
     case 'ACTIVE_RECEIVED':
       return { status: 'MARKING_GAMEPLAY_START', active: action.active, error: null }
     case 'GAMEPLAY_STARTED':

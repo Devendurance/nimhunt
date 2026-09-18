@@ -91,6 +91,29 @@ PASS
 - [`docs/projectplan.md`](../docs/projectplan.md)
 - [`DESIGN.md`](../DESIGN.md)
 
+## Treasure Bank read model (2026-09-18, NOT deployed)
+
+- Read-only slice over existing `reward_claims` (RESERVED only) + `reward_payouts` + `reward_risk_assessments`; no new RPC/SQL migration, no payout mutation path.
+- Endpoint `GET /api/wallet/treasure-bank` (covered by existing `/api/wallet/:path*` Vercel rewrite); wallet comes from wallet-recovery session (run-session fallback), query wallet params rejected.
+- Display mapping: no-payout/PENDING/PROCESSING/FAILED_RETRYABLE→SECURED, SUBMITTED→PROCESSING, CONFIRMED→DELIVERED, FAILED_FINAL or REVIEW/BLOCK→REVIEW; tx hash only for PROCESSING/DELIVERED; amounts NIM-only (BETA 100 NIM fallback); LIFETIME = pending + delivered; multi-day claims aggregate.
+- UI `TreasureBankSection` in /play hunt+missions tabs for connected wallets, reuses the single existing wallet-recovery signature flow; no manual-withdraw language, no fake values.
+- Payout engine proof: `git diff HEAD -- server/payouts/ api/ vercel.json` empty; scheduler independence covered by `server/treasureBank/http.test.ts` (listUnpaidReservedClaims still sees both reservations, zero payouts created by reads).
+
+## Monthly Heroes + live player stats (2026-09-18, NOT deployed)
+
+- No migration: stats derive read-only from existing `expedition_runs` (terminal VERIFIED replay truth, server timestamps) + `expedition_vault_seals` + `reward_claims` (RESERVED) + `reward_payouts` (CONFIRMED, frozen amount_luna, rewardDay attribution). Practice is client-local and never creates runs.
+- Semantics: points = gems*10 + chests*25 + completions*100 + vaultSeals*50; vault-breaker completion = VAULT_GAMEPLAY_VERIFIED + objective + survived (seal adds +50); time = endedAt - (gameplayStartedAt ?? startedAt), 0-floored, 15-min/run cap; streak day = UTC day with >=1 verified completion; currentStreak ends today else yesterday (62-day pre-month look-back for exactness), bestStreak month-internal; nimDelivered = CONFIRMED only by claim-day month; tie-break metric desc, completions desc, earliest activity, wallet.
+- Endpoints: public `GET /api/monthly-heroes` (current UTC month, masked wallets, top 10/category, empty never fixtures) + authed `GET /api/wallet/monthly-stats` (same wallet-session model as Treasure Bank, own stats + ranks). Explicit Vercel rewrites for both; payout-cycle separate and unchanged.
+- UI: landing HallOfHeroesLive + /play heroes tab (six cards + YOUR MONTH panel) replace fixtures; HeroesPreview.tsx deleted; mobile-first, no backend terminology.
+- Treasure Bank fix: SECURED fallback now resolves from server `NIMHUNT_REWARD_AMOUNT_LUNA` (same config the payout worker requires), frozen payout amount_luna preferred; Day1+Day2 => pending 200 preserved.
+- Validation: 805 tests / lint / typecheck:server / tsc -b / build / diff-check green; `git diff HEAD -- server/payouts/ api/` empty.
+
+## Gameplay audio polish (2026-09-18, NOT deployed)
+
+- Client-only singleton (`src/audio/nimhuntAudio.ts` + `useNimhuntAudio.ts`): one active BGM max, same-track no-restart, world->track map (all playable missions -> angkor; bavaria/siberia entries ready), SFX pool with per-key throttle, gesture unlock (capture listeners) + pending-track retry, visibility pause/resume, localStorage mute (`nimhunt:sound-enabled`, default on). All play() rejections swallowed; audio never throws into gameplay.
+- SFX derive only from HUD transitions (`detectGameplaySfx` + arming tracker keyed by runId): gem (suppressed on same-move chest open), chest, gate LOCKED->OPEN, goblin alive->DEFEATED, damage on HP decrease only, completion once on entering MISSION_COMPLETE. Restore/verification rerenders stay silent; new runKey re-arms.
+- Toggle in shell + gameplay headers (aria-label, 44px target). 25 new tests; full suite 830 pass. No server/game/replay/payout/DB files touched by this slice; no deps added.
+
 ## Production deployment gap fix (2026-09-18, NOT deployed)
 
 - Root cause /play 404: BrowserRouter /play with no Vercel rewrite; /api 404: Vite-only vitePlugin handlers, production /api had only payout-cycle.
@@ -99,3 +122,11 @@ PASS
 - Serverless compat: product graph uses .js imports (allowImportingTsExtensions:false); proofRuntime.ts shared by vitePlugin + Vercel (no vite import in serverless); tsconfig.server.json covers product adapter.
 - Landing: HomePage uses LandingHuntStatus (live /api/daily-hunt-status, 45s poll + visibility + reset-timeout, per-second countdown from nextResetAt, no wallet, no fixture numbers); huntPreviewFixture kept for tests/dev only.
 - CTA: HuntCTA in-app uses Link to=/play, deep-link stays <a href=nimiq://...>.
+
+## Session recovery bugfix (2026-09-18, NOT deployed)
+
+- Active-handoff 400 + Treasure 400 share session-normalization root: stale/expired/missing/plain-Error session failures and transient service errors were normalized to generic 400 MALFORMED_REQUEST instead of 401 RUN_SESSION_INVALID, so wallet-recovery never triggered; gate had no recovery path at all.
+- Fix: INVALID_SESSION/SESSION_EXPIRED/SESSION_REVOKED/missing -> 401 RUN_SESSION_INVALID on expedition/treasure/monthly/payout-recovery boundaries (incl. plain-Error messages); unknown service errors -> 503 unavailable (never 400); statusFor covers INVALID_SESSION family + RUN_NOT_FOUND 404.
+- Recovery reuses existing `bind_run_session` RPC (no migration): POST /api/expeditions/session/recover {runId} requires valid wallet-recovery HttpOnly session, wallet must equal run.wallet, run must be STARTED non-terminal unexpired; mints new run-session hash only, sets HttpOnly SameSite=Strict Path=/api Secure cookie, body {ok:true,runId} only; zero attempts, zero runs, zero rewards.
+- SameSite=Strict unchanged (no evidence for WebView third-party block on same-origin; changing would weaken CSRF without proof).
+- Gate UX: RUN_SESSION_INVALID -> "Restoring your expedition…" -> wallet recovery if needed -> recover same runId -> refetch active; failure -> retryable RECOVERY_FAILED, never offers new Start as primary.

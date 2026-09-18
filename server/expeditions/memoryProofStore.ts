@@ -360,6 +360,27 @@ export function createMemoryProofService(options: {
       }
     },
 
+    recoverRunSession(runId, recovery) {
+      requireRecoverySession(recovery)
+      const run = runs.get(runId)
+      if (!run || run.wallet !== recovery.wallet) throw new ProofError('RUN_NOT_FOUND')
+      const now = clock.now()
+      if (run.status !== 'STARTED' || run.terminal !== null || now.getTime() >= new Date(run.expiresAt).getTime()) {
+        throw new ProofError('ACTIVE_RUN_UNAVAILABLE')
+      }
+      const capability = createRunSessionCapability()
+      const record: RunSessionRecord = {
+        sessionHash: hashRunSessionCapability(capability.raw),
+        runId: run.runId,
+        wallet: run.wallet,
+        createdAt: now.toISOString(),
+        expiresAt: run.expiresAt,
+        revokedAt: null,
+      }
+      sessions.set(record.sessionHash, record)
+      return { runId: run.runId, sessionCapability: capability.raw, session: record }
+    },
+
     getRewardClaimForWallet(claimId, session) {
       requireRecoverySession(session)
       const claim = claims.get(claimId)

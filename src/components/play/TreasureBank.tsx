@@ -25,7 +25,7 @@ export function TreasureBankSection({
   if (state.status === 'unauthorized') {
     return <section className={styles.bank} aria-labelledby="treasure-bank-heading">
       <div className={styles.bankEyebrow}><span id="treasure-bank-heading">TREASURE BANK</span></div>
-      <p className={styles.bankState} role="status">Connect your wallet to see your treasure.</p>
+      <p className={styles.bankState} role="status">Restoring your treasure…</p>
     </section>
   }
   if (state.status === 'unavailable') {

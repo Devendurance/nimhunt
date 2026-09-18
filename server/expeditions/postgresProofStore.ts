@@ -628,6 +628,36 @@ export async function createPostgresProofService(options: {
       }
     },
 
+    async recoverRunSession(runId, recovery) {
+      await requireRecoverySession(rpc, recovery)
+      const run = await loadRun(rpc, runId)
+      if (!run || run.wallet !== recovery.wallet) throw new ProofError('RUN_NOT_FOUND')
+      const now = new Date()
+      if (run.status !== 'STARTED' || run.terminal !== null || now.getTime() >= new Date(run.expiresAt).getTime()) {
+        throw new ProofError('ACTIVE_RUN_UNAVAILABLE')
+      }
+      const capability = createRunSessionCapability()
+      const sessionHash = hashRunSessionCapability(capability.raw)
+      const bound = readProofRpc(await rpc.rpc('bind_run_session', {
+        p_run_id: run.runId,
+        p_wallet: run.wallet,
+        p_run_session_hash: sessionHash,
+        p_expires_at: run.expiresAt,
+      }))
+      return {
+        runId: run.runId,
+        sessionCapability: capability.raw,
+        session: {
+          sessionHash,
+          runId: run.runId,
+          wallet: run.wallet,
+          createdAt: asIso(bound.created_at),
+          expiresAt: asIso(bound.expires_at),
+          revokedAt: null,
+        },
+      }
+    },
+
     async getRewardClaimForWallet(claimId, session) {
       await requireRecoverySession(rpc, session)
       const loaded = readProofRpc(await rpc.rpc('get_reward_claim_for_wallet_session', {

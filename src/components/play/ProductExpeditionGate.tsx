@@ -3,8 +3,14 @@ import type { ReactNode } from 'react'
 import {
   fetchActiveExpedition,
   markGameplayStarted,
+  recoverRunSession,
+  requestWalletRecoveryChallenge,
+  authorizeWalletRecovery,
   ExpeditionProofApiError,
 } from '../../api/expeditionProof.ts'
+import { serializeWalletRecoveryPayload, WALLET_RECOVERY_TYPE, WALLET_RECOVERY_VERSION } from '../../domain/walletRecovery.ts'
+import { initializeNimiqProvider, signNimiqMessage } from '../../integrations/nimiq/nimiqClient'
+import { getRememberedProductWallet } from './productWallet.ts'
 import type { ProductActiveExpedition } from '../../domain/expeditionProof.ts'
 import type { PlayableMission } from './expeditionFlow'
 import { HuntHeader } from './HuntHeader'
@@ -90,10 +96,82 @@ export function ProductExpeditionGate({ mission, runId, onBackToMissions, onRetu
         }
       } catch (error) {
         if (!isCurrent()) return
+        if (error instanceof ExpeditionProofApiError && error.code === 'RUN_SESSION_INVALID') {
+          void recoverAndReload()
+          return
+        }
         dispatch({ type: 'ERROR', error: mapGateError(error, false) })
       }
     }
+
+    async function recoverAndReload(): Promise<void> {
+      if (!isCurrent()) return
+      dispatch({ type: 'RECOVERY_STARTED' })
+      try {
+        await restoreRunSession(runId)
+        if (!isCurrent()) return
+        const active = await fetchActiveExpedition(runId)
+        if (!isCurrent()) return
+        const validation = validateProductActive(active, mission, runId)
+        if (validation) {
+          dispatch({ type: 'ERROR', error: validation })
+          return
+        }
+        dispatch({ type: 'ACTIVE_RECEIVED', active })
+        try {
+          const gameplayStart = await markGameplayStarted(active.runId)
+          if (!isCurrent()) return
+          dispatch({ type: 'GAMEPLAY_STARTED', runId: gameplayStart.runId, outcome: gameplayStart.outcome })
+        } catch (error) {
+          if (!isCurrent()) return
+          if (error instanceof ExpeditionProofApiError && error.code === 'NETWORK_ERROR') {
+            dispatch({ type: 'GAMEPLAY_START_RETRYABLE' })
+            return
+          }
+          dispatch({ type: 'ERROR', error: mapGateError(error, true) })
+        }
+      } catch {
+        if (!isCurrent()) return
+        dispatch({ type: 'RECOVERY_FAILED' })
+      }
+    }
   }, [isCurrent, mission, routeKey, runId])
+
+  const retryRecovery = useCallback(() => {
+    if (state.status !== 'ERROR' || state.error !== 'RECOVERY_FAILED' || !isCurrent()) return
+    dispatch({ type: 'RECOVERY_STARTED' })
+    void restoreRunSession(runId)
+      .then(() => {
+        if (!isCurrent()) return
+        return fetchActiveExpedition(runId).then(active => {
+          if (!isCurrent()) return
+          const validation = validateProductActive(active, mission, runId)
+          if (validation) {
+            dispatch({ type: 'ERROR', error: validation })
+            return
+          }
+          dispatch({ type: 'ACTIVE_RECEIVED', active })
+          return markGameplayStarted(active.runId).then(
+            result => {
+              if (!isCurrent()) return
+              dispatch({ type: 'GAMEPLAY_STARTED', runId: result.runId, outcome: result.outcome })
+            },
+            error => {
+              if (!isCurrent()) return
+              if (error instanceof ExpeditionProofApiError && error.code === 'NETWORK_ERROR') {
+                dispatch({ type: 'GAMEPLAY_START_RETRYABLE' })
+                return
+              }
+              dispatch({ type: 'ERROR', error: mapGateError(error, true) })
+            },
+          )
+        })
+      })
+      .catch(() => {
+        if (!isCurrent()) return
+        dispatch({ type: 'RECOVERY_FAILED' })
+      })
+  }, [isCurrent, mission, runId, state])
 
   const retryGameplayStart = useCallback(() => {
     if (state.status !== 'RETRY_GAMEPLAY_START' || !state.active || !isCurrent()) return
@@ -127,10 +205,11 @@ export function ProductExpeditionGate({ mission, runId, onBackToMissions, onRetu
   return <div className={styles.shell}><div className={styles.viewport}>
     <HuntHeader />
     <main className={styles.main}>
-      <section className={styles.gateCard} aria-labelledby="product-gate-heading" aria-busy={state.status === 'LOADING_ACTIVE' || state.status === 'MARKING_GAMEPLAY_START'}>
+      <section className={styles.gateCard} aria-labelledby="product-gate-heading" aria-busy={state.status === 'LOADING_ACTIVE' || state.status === 'RECOVERING_SESSION' || state.status === 'MARKING_GAMEPLAY_START'}>
         <span className={styles.kicker}>AUTHENTICATED EXPEDITION</span>
         <h1 id="product-gate-heading">Preparing the ruins</h1>
         {state.status === 'LOADING_ACTIVE' && <p className={styles.gateStatus} role="status">Checking your expedition session…</p>}
+        {state.status === 'RECOVERING_SESSION' && <p className={styles.gateStatus} role="status">Restoring your expedition…</p>}
         {state.status === 'MARKING_GAMEPLAY_START' && <p className={styles.gateStatus} role="status">Opening the server-bound route…</p>}
         {state.status === 'RETRY_GAMEPLAY_START' && <>
           <div className={styles.productNotice} role="status">
@@ -143,11 +222,39 @@ export function ProductExpeditionGate({ mission, runId, onBackToMissions, onRetu
           <strong>{gateErrorCopy(state.error)}</strong>
           <p>This route will not start a local substitute.</p>
         </div>}
+        {state.status === 'ERROR' && state.error === 'RECOVERY_FAILED' && <button className={styles.sheetPrimary} type="button" onClick={retryRecovery}>Retry restoring the expedition</button>}
         {state.status === 'ERROR' && <button className={styles.sheetSecondary} type="button" onClick={onBackToMissions}>Back to missions</button>}
       </section>
     </main>
   </div></div>
 
+}
+
+async function restoreRunSession(runId: string): Promise<void> {
+  try {
+    const recovered = await recoverRunSession(runId)
+    if (recovered.runId !== runId) throw new ExpeditionProofApiError('MALFORMED_RESPONSE')
+    return
+  } catch (error) {
+    if (!(error instanceof ExpeditionProofApiError) || error.code !== 'RUN_SESSION_INVALID') throw error
+  }
+  const wallet = getRememberedProductWallet()
+  if (!wallet) throw new ExpeditionProofApiError('RUN_SESSION_INVALID')
+  const provider = await initializeNimiqProvider()
+  const challenge = await requestWalletRecoveryChallenge(wallet)
+  const canonicalPayload = serializeWalletRecoveryPayload({
+    version: WALLET_RECOVERY_VERSION,
+    type: WALLET_RECOVERY_TYPE,
+    wallet: challenge.wallet,
+    challenge: challenge.challenge,
+    issuedAt: challenge.issuedAt,
+    expiresAt: challenge.expiresAt,
+    purpose: challenge.purpose,
+  })
+  const signature = await signNimiqMessage(provider, canonicalPayload)
+  await authorizeWalletRecovery({ payload: canonicalPayload, publicKey: signature.publicKey, signature: signature.signature })
+  const recovered = await recoverRunSession(runId)
+  if (recovered.runId !== runId) throw new ExpeditionProofApiError('MALFORMED_RESPONSE')
 }
 
 function mapGateError(error: unknown, gameplayStart: boolean): ProductGateError {
@@ -162,6 +269,7 @@ function mapGateError(error: unknown, gameplayStart: boolean): ProductGateError 
 
 function gateErrorCopy(error: ProductGateError): string {
   if (error === 'RUN_SESSION_INVALID') return 'This expedition session is no longer valid.'
+  if (error === 'RECOVERY_FAILED') return 'Restoring your expedition did not complete. Retry is safe and uses the same expedition.'
   if (error === 'ACTIVE_RUN_UNAVAILABLE') return 'This expedition is no longer ready to enter.'
   if (error === 'MISSION_MISMATCH') return 'This route does not match the authorized expedition.'
   if (error === 'MALFORMED_ACTIVE') return 'The expedition could not be loaded.'

@@ -8,6 +8,7 @@ import {
   PREPARE_REWARD_CLAIM_PATH,
   PRODUCT_VAULT_SEAL_PREPARE_PATH,
   PRODUCT_VAULT_SEAL_VERIFY_PATH,
+  RECOVER_RUN_SESSION_PATH,
   START_CHALLENGE_PATH,
   START_EXPEDITION_PATH,
   VERIFY_EXPEDITION_PATH,
@@ -124,6 +125,24 @@ export async function fetchActiveExpedition(
     getRequest(),
     parseActiveExpedition,
   )
+}
+
+export type RecoverRunSessionResult = {
+  readonly ok: true
+  readonly runId: string
+}
+
+export function parseRecoverRunSessionResult(value: unknown): RecoverRunSessionResult | null {
+  if (!isRecord(value) || !hasExactKeys(value, ['ok', 'runId'])) return null
+  if (value.ok !== true || !isBoundedString(value.runId, 128)) return null
+  return { ok: true, runId: value.runId }
+}
+
+export async function recoverRunSession(
+  runId: string,
+  fetcher: typeof fetch = fetch,
+): Promise<RecoverRunSessionResult> {
+  return requestJson(fetcher, RECOVER_RUN_SESSION_PATH, postRequest({ runId }), parseRecoverRunSessionResult)
 }
 
 export async function markGameplayStarted(

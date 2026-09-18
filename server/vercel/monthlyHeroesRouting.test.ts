@@ -50,6 +50,7 @@ describe('monthly heroes production routing', () => {
     const examples: Record<string, string> = {
       '/api/daily-hunt-status': '/api/product?__nimhunt_route=/api/daily-hunt-status',
       '/api/wallet-daily-status': '/api/product?__nimhunt_route=/api/wallet-daily-status',
+      '/api/expeditions/session/recover': '/api/product?__nimhunt_route=/api/expeditions/session/recover',
       '/api/expeditions/:path*': '/api/product?__nimhunt_route=/api/expeditions/active',
       '/api/rewards/:path*': '/api/product?__nimhunt_route=/api/rewards/claim/payout',
       '/api/wallet/:path*': '/api/product?__nimhunt_route=/api/wallet/monthly-stats',

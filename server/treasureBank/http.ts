@@ -50,13 +50,19 @@ export async function dispatchTreasureBankHttp(
         error: error.code,
       })
     }
-    if (error && typeof error === 'object' && 'code' in error && typeof error.code === 'string') {
-      if (error.code === 'RUN_SESSION_INVALID' || error.code === 'INVALID_SESSION' || error.code === 'SESSION_EXPIRED' || error.code === 'SESSION_REVOKED') {
-        return response(401, { ok: false, error: 'RUN_SESSION_INVALID' })
-      }
+    if (isSessionInvalidLike(error)) {
+      return response(401, { ok: false, error: 'RUN_SESSION_INVALID' })
     }
-    return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
+    return response(503, { ok: false, error: 'TREASURE_UNAVAILABLE' })
   }
+}
+
+export function isSessionInvalidLike(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false
+  const code = (error as { code?: unknown }).code
+  if (code === 'RUN_SESSION_INVALID' || code === 'INVALID_SESSION' || code === 'SESSION_EXPIRED' || code === 'SESSION_REVOKED') return true
+  const message = (error as { message?: unknown }).message
+  return message === 'INVALID_SESSION' || message === 'SESSION_EXPIRED' || message === 'SESSION_REVOKED'
 }
 
 async function readAuthorizedWallet(proof: ExpeditionProofService, request: ExpeditionHttpRequest): Promise<string> {
