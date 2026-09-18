@@ -1,13 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { playFixture } from '../../data/play.fixtures'
 import { formatExpeditionsLeftToday, formatResetCountdown, resolveHuntStatusView } from './huntStatusView.ts'
 
 describe('HuntStatus live treasure view', () => {
   it('does not present the fixture treasure count as live while loading or unavailable', () => {
-    const loading = resolveHuntStatusView({ kind: 'loading', walletStatus: null }, playFixture)
-    const unavailable = resolveHuntStatusView({ kind: 'unavailable', walletStatus: null }, playFixture)
+    const loading = resolveHuntStatusView({ kind: 'loading', walletStatus: null })
+    const unavailable = resolveHuntStatusView({ kind: 'unavailable', walletStatus: null })
     expect(loading.treasuresRemaining).toBe('—')
+    expect(loading.treasuresTotal).toBe('—')
     expect(unavailable.treasuresRemaining).toBe('—')
+    expect(unavailable.treasuresTotal).toBe('—')
+    expect(loading.resetDisplay).toBe('—')
+    expect(unavailable.resetDisplay).toBe('—')
     expect(unavailable.badge).toBe('UNAVAILABLE')
     expect(loading.badge).toBe('CHECKING')
     expect(loading.expeditionsRemaining).toBe('—')
@@ -23,12 +26,10 @@ describe('HuntStatus live treasure view', () => {
         nextResetAt: '2026-09-09T00:00:00.000Z',
         walletStatus: null,
       },
-      playFixture,
     )
     expect(view.treasuresRemaining).toBe('21')
     expect(view.treasuresTotal).toBe('69')
     expect(view.badge).toBe('LIVE')
-    expect(view.treasuresRemaining).not.toBe(String(playFixture.treasuresRemaining))
     expect(view.expeditionsRemaining).toBe('—')
   })
 
@@ -47,7 +48,6 @@ describe('HuntStatus live treasure view', () => {
           nextResetAt: '2026-09-10T00:00:00.000Z',
         },
       },
-      playFixture,
     )
     expect(view.expeditionsRemaining).toBe('2')
     expect(view.expeditionsLabel).toBe('expeditions left today')
@@ -62,7 +62,7 @@ describe('HuntStatus live treasure view', () => {
 
   it('keeps attempts unknown before a wallet is known and shows 0 after three starts', () => {
     expect(formatExpeditionsLeftToday(null)).toBeNull()
-    const empty = resolveHuntStatusView({ kind: 'live', remainingSlots: 21, totalSlots: 69, nextResetAt: '2026-09-09T00:00:00.000Z', walletStatus: null }, playFixture)
+    const empty = resolveHuntStatusView({ kind: 'live', remainingSlots: 21, totalSlots: 69, nextResetAt: '2026-09-09T00:00:00.000Z', walletStatus: null })
     expect(empty.expeditionsRemaining).toBe('—')
     expect(empty.expeditionsLabel).toBe('wallet required')
     expect(formatExpeditionsLeftToday({

@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { NimiqProvider } from '@nimiq/mini-app-sdk'
 import { useMemo } from 'react'
-import { playFixture } from '../../data/play.fixtures'
 import { playMissions } from '../../data/play'
 import type { ProductStartResult } from '../../api/expeditionProof.ts'
 import {
@@ -1758,7 +1757,7 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
         rewardAlreadyReserved: false,
         nextResetAt: '2026-09-10T00:00:00.000Z',
       },
-    }, playFixture).expeditionsRemaining).toBe('2')
+    }).expeditionsRemaining).toBe('2')
     const huntStatus = findPropsWith(harness.current.shell, 'hunt')
     expect(huntStatus?.hunt).toMatchObject({
       walletStatus: { expeditionsStarted: 1, expeditionsRemaining: 2 },
@@ -1792,7 +1791,7 @@ describe('wallet daily-status refresh lifecycle', () => {
     const beforeWallet = createHookHarness(() => useDailyHuntStatus(null))
     await settle()
 
-    const beforeView = resolveHuntStatusView(beforeWallet.current, playFixture)
+    const beforeView = resolveHuntStatusView(beforeWallet.current)
     expect(beforeView.expeditionsRemaining).toBe('—')
     expect(beforeView.expeditionsLabel).toBe('wallet required')
     expect(fetchWalletStatus).not.toHaveBeenCalled()
@@ -1811,7 +1810,7 @@ describe('wallet daily-status refresh lifecycle', () => {
     expect(fetchWalletStatus).toHaveBeenCalledTimes(1)
     expect(fetchWalletStatus).toHaveBeenCalledWith('NQ00 NORMALIZED WALLET')
     expect(afterWallet.current.walletStatus).toMatchObject({ expeditionsStarted: 1, expeditionsRemaining: 2 })
-    expect(resolveHuntStatusView(afterWallet.current, playFixture).expeditionsRemaining).toBe('2')
+    expect(resolveHuntStatusView(afterWallet.current).expeditionsRemaining).toBe('2')
     afterWallet.unmount()
   })
 

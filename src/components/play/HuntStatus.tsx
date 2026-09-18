@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
-import type { PlayFixture } from '../../types/play'
 import { formatExpeditionsLeftToday, resolveHuntStatusView, type HuntTreasureSource } from './huntStatusView'
 import styles from './PlayShell.module.css'
 
-export function HuntStatus({ fixture, hunt }: { fixture: PlayFixture; hunt: HuntTreasureSource }) {
+export function HuntStatus({ hunt }: { hunt: HuntTreasureSource }) {
   const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
@@ -12,7 +11,7 @@ export function HuntStatus({ fixture, hunt }: { fixture: PlayFixture; hunt: Hunt
     return () => window.clearInterval(timer)
   }, [hunt.kind])
 
-  const view = resolveHuntStatusView(hunt, fixture, now)
+  const view = resolveHuntStatusView(hunt, now)
   const attemptsLabel = formatExpeditionsLeftToday(hunt.walletStatus) ?? 'Expedition attempts unknown'
 
   return <section className={styles.status} aria-labelledby="hunt-status-heading" aria-busy={view.busy}>
@@ -32,7 +31,7 @@ export function HuntStatus({ fixture, hunt }: { fixture: PlayFixture; hunt: Hunt
       </div>
       <div className={styles.statusMetric}>
         <strong>{view.resetDisplay}</strong>
-        <span>{view.live ? 'reset in' : 'reset preview'}</span>
+        <span>reset in</span>
       </div>
     </div>
   </section>

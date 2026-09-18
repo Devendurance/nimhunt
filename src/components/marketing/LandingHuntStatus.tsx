@@ -51,7 +51,6 @@ export function LandingHuntStatus() {
       claimed={claimed}
       total={status.totalSlots}
       resetsAt={Number.isNaN(resetsAt.getTime()) ? undefined : resetsAt}
-      preview={false}
     />
   )
 }

@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { playAssets } from '../../data/assets'
 import { playMissions } from '../../data/play'
-import { playFixture } from '../../data/play.fixtures'
 import type { Mission, MissionId, PlayTab } from '../../types/play'
 import { isMissionLaunchable } from './expeditionFlow'
 import { formatExpeditionsLeftToday } from './huntStatusView'
@@ -133,16 +132,16 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
             <div className={styles.heroCopy}><span className={styles.kicker}>NIMHUNT · DAILY EXPEDITION</span><h1 id="play-heading">Today's hunt</h1><p>Choose your task, enter the ruins, and make it out alive.</p></div>
             <div className={styles.heroScene}><img src={playAssets.angkor} alt="Angkor Ruins" width={1672} height={941} loading="eager" decoding="async" /><img className={styles.heroExplorer} src={playAssets.explorer} alt="" width={1280} height={1280} loading="eager" decoding="async" /><span className={styles.sceneTag}>ANGKOR RUINS · AVAILABLE</span></div>
           </section>
-          <HuntStatus fixture={playFixture} hunt={hunt} />
+          <HuntStatus hunt={hunt} />
           {payout && <ProductPayoutStatusCard payout={payout} />}
           {treasureWalletConnected && <TreasureBankSection state={treasure} onRetry={treasure.retry} />}
           <MissionList missions={playMissions} onEnter={openMission} compact expeditionsLeftToday={expeditionsLeftToday} />
-          <ProgressStrip fixture={playFixture} />
+          <ProgressStrip />
           <WorldStatus />
         </>}
         {activeTab === 'missions' && <>
-          <section className={styles.pageIntro} aria-labelledby="missions-page-heading"><span className={styles.kicker}>THE DAILY BOARD · PREVIEW</span><h1 id="missions-page-heading">Today's missions</h1><p>Choose your route. The task is clear before the ruins open.</p></section>
-          <HuntStatus fixture={playFixture} hunt={hunt} />
+          <section className={styles.pageIntro} aria-labelledby="missions-page-heading"><span className={styles.kicker}>THE DAILY BOARD</span><h1 id="missions-page-heading">Today's missions</h1><p>Choose your route. The task is clear before the ruins open.</p></section>
+          <HuntStatus hunt={hunt} />
           {payout && <ProductPayoutStatusCard payout={payout} />}
           {treasureWalletConnected && <TreasureBankSection state={treasure} onRetry={treasure.retry} />}
           <MissionList missions={playMissions} onEnter={openMission} expeditionsLeftToday={expeditionsLeftToday} />

@@ -1,4 +1,3 @@
-import type { PlayFixture } from '../../types/play'
 import type { WalletDailyStatus } from '../../domain/dailyLedger'
 
 export type HuntTreasureSource =
@@ -17,11 +16,11 @@ export type HuntStatusView = {
   busy: boolean
 }
 
-export function resolveHuntStatusView(source: HuntTreasureSource, fixture: PlayFixture, nowMs = Date.now()): HuntStatusView {
+export function resolveHuntStatusView(source: HuntTreasureSource, nowMs = Date.now()): HuntStatusView {
   if (source.kind === 'loading') {
     return {
       treasuresRemaining: '—',
-      treasuresTotal: String(fixture.treasuresTotal),
+      treasuresTotal: '—',
       ...walletAttemptView(source.walletStatus),
       resetDisplay: '—',
       badge: 'CHECKING',
@@ -32,7 +31,7 @@ export function resolveHuntStatusView(source: HuntTreasureSource, fixture: PlayF
   if (source.kind === 'unavailable') {
     return {
       treasuresRemaining: '—',
-      treasuresTotal: String(fixture.treasuresTotal),
+      treasuresTotal: '—',
       ...walletAttemptView(source.walletStatus),
       resetDisplay: '—',
       badge: 'UNAVAILABLE',
