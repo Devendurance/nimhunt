@@ -40,8 +40,8 @@ describe('monthly heroes production routing', () => {
     expect(publicRoute?.destination).toBe('/api/product?__nimhunt_route=/api/monthly-heroes')
     const walletRoute = entries.find(entry => entry.source === '/api/wallet/monthly-stats')
     expect(walletRoute?.destination).toBe('/api/product?__nimhunt_route=/api/wallet/monthly-stats')
-    // Existing wallet wildcard still covers the wallet route as fallback.
-    expect(entries.some(entry => entry.source === '/api/wallet/:path*')).toBe(true)
+    // Every wallet route has its own explicit entry (no wildcard fallback).
+    expect(entries.some(entry => entry.source === '/api/wallet/treasure-bank')).toBe(true)
   })
 
   it('resolves the REAL rewrite destinations through the adapter helper', () => {
@@ -51,11 +51,26 @@ describe('monthly heroes production routing', () => {
       '/api/daily-hunt-status': '/api/product?__nimhunt_route=/api/daily-hunt-status',
       '/api/wallet-daily-status': '/api/product?__nimhunt_route=/api/wallet-daily-status',
       '/api/expeditions/session/recover': '/api/product?__nimhunt_route=/api/expeditions/session/recover',
-      '/api/expeditions/:path*': '/api/product?__nimhunt_route=/api/expeditions/active',
-      '/api/rewards/:path*': '/api/product?__nimhunt_route=/api/rewards/claim/payout',
-      '/api/wallet/:path*': '/api/product?__nimhunt_route=/api/wallet/monthly-stats',
-      '/api/monthly-heroes': '/api/product?__nimhunt_route=/api/monthly-heroes',
+      '/api/expeditions/start-challenge': '/api/product?__nimhunt_route=/api/expeditions/start-challenge',
+      '/api/expeditions/start': '/api/product?__nimhunt_route=/api/expeditions/start',
+      '/api/expeditions/active': '/api/product?__nimhunt_route=/api/expeditions/active',
+      '/api/expeditions/gameplay-start': '/api/product?__nimhunt_route=/api/expeditions/gameplay-start',
+      '/api/expeditions/checkpoint': '/api/product?__nimhunt_route=/api/expeditions/checkpoint',
+      '/api/expeditions/verify': '/api/product?__nimhunt_route=/api/expeditions/verify',
+      '/api/expeditions/abandon': '/api/product?__nimhunt_route=/api/expeditions/abandon',
+      '/api/expeditions/vault-seal/prepare': '/api/product?__nimhunt_route=/api/expeditions/vault-seal/prepare',
+      '/api/expeditions/vault-seal/verify': '/api/product?__nimhunt_route=/api/expeditions/vault-seal/verify',
+      '/api/expeditions/complete': '/api/product?__nimhunt_route=/api/expeditions/complete',
+      '/api/expeditions/fail': '/api/product?__nimhunt_route=/api/expeditions/fail',
+      '/api/rewards/claim/prepare': '/api/product?__nimhunt_route=/api/rewards/claim/prepare',
+      '/api/rewards/claim/finalize': '/api/product?__nimhunt_route=/api/rewards/claim/finalize',
+      '/api/rewards/claim/payout': '/api/product?__nimhunt_route=/api/rewards/claim/payout',
+      '/api/rewards/reserve': '/api/product?__nimhunt_route=/api/rewards/reserve',
+      '/api/wallet/recover-challenge': '/api/product?__nimhunt_route=/api/wallet/recover-challenge',
+      '/api/wallet/recover-session': '/api/product?__nimhunt_route=/api/wallet/recover-session',
+      '/api/wallet/treasure-bank': '/api/product?__nimhunt_route=/api/wallet/treasure-bank',
       '/api/wallet/monthly-stats': '/api/product?__nimhunt_route=/api/wallet/monthly-stats',
+      '/api/monthly-heroes': '/api/product?__nimhunt_route=/api/monthly-heroes',
     }
     for (const entry of rewrites()) {
       if (!entry.source.startsWith('/api/')) continue

@@ -70,11 +70,17 @@ const REQUIRED_PRODUCT_PATHS = [
   '/api/expeditions/abandon',
   '/api/expeditions/vault-seal/prepare',
   '/api/expeditions/vault-seal/verify',
+  '/api/expeditions/complete',
+  '/api/expeditions/fail',
   '/api/rewards/claim/prepare',
   '/api/rewards/claim/finalize',
   '/api/rewards/claim/payout',
+  '/api/rewards/reserve',
   '/api/wallet/recover-challenge',
   '/api/wallet/recover-session',
+  '/api/wallet/treasure-bank',
+  '/api/wallet/monthly-stats',
+  '/api/monthly-heroes',
 ] as const
 
 // Section 7 minimum multi-segment set (plus query variants below).
@@ -117,15 +123,20 @@ describe('deployment routing: vercel.json product rewrites', () => {
     }
   })
 
-  it('maps nested PRODUCT prefixes with :path* wildcards', () => {
+  it('uses explicit per-route rewrites with NO wildcard captures', () => {
     const rewrites = loadRewrites()
-    for (const source of ['/api/expeditions/:path*', '/api/rewards/:path*', '/api/wallet/:path*']) {
-      const entry = rewrites.find(rewrite => rewrite.source === source)
-      expect(entry, source).toBeDefined()
-      expect(entry?.destination).toContain('/api/product?')
-      expect(entry?.destination).toContain(PRODUCT_REWRITE_PARAM)
-      expect(entry?.destination).toContain(':path*')
+    for (const entry of rewrites) {
+      if (!entry.source.startsWith('/api')) continue
+      // A `:param` capture variable must never exist: any surviving capture
+      // key (e.g. `path=active`) breaks the strict query validators
+      // (ACTIVE requires exactly `?runId=...`, Treasure/Monthly require zero keys).
+      expect(entry.source, `wildcard source ${entry.source}`).not.toContain(':')
+      expect(entry.destination, `capture in ${entry.source}`).not.toContain(':path')
+      expect(entry.destination).toContain('/api/product?')
+      expect(entry.destination).toContain(PRODUCT_REWRITE_PARAM)
     }
+    expect(rewrites.some(entry => entry.source.includes(':path*'))).toBe(false)
+    expect(rewrites.some(entry => entry.source.includes('*'))).toBe(false)
   })
 
   it('leaves /api/internal/payout-cycle outside every product rewrite', () => {
@@ -300,14 +311,14 @@ describe('deployment routing: security / fail-closed', () => {
     expect(response.body).toEqual({ ok: false, error: 'MALFORMED_REQUEST' })
   })
 
-  it('unknown product path fails closed as JSON', async () => {
-    const internal = simulateVercelRewrite('/api/expeditions/unknown') as string
-    expect(internal).toContain('/api/product?')
-    const dispatchPath = resolveRewriteDispatchPath(internal)
-    expect(dispatchPath).toBe('/api/expeditions/unknown')
-    const response = await dispatchProductHttp({ method: 'GET', path: dispatchPath }, MOCK_ENV)
-    expect(response.status).toBe(404)
-    expect(response.body).toEqual({ ok: false, error: 'MALFORMED_REQUEST' })
+  it('unknown product path matches NO rewrite (platform 404, never product logic)', () => {
+    // With explicit-only rewrites, unknown sub-paths have no matching source,
+    // so Vercel answers 404 before any product code runs. The adapter itself
+    // stays fail-closed JSON 404 for defense in depth.
+    expect(simulateVercelRewrite('/api/expeditions/unknown')).toBeNull()
+    expect(simulateVercelRewrite('/api/expeditions/unknown?runId=x')).toBeNull()
+    expect(simulateVercelRewrite('/api/wallet/unknown')).toBeNull()
+    expect(simulateVercelRewrite('/api/rewards/unknown')).toBeNull()
   })
 
   it('Origin/Host/protocol security unchanged through rewritten dispatch', async () => {

@@ -130,3 +130,8 @@ PASS
 - Recovery reuses existing `bind_run_session` RPC (no migration): POST /api/expeditions/session/recover {runId} requires valid wallet-recovery HttpOnly session, wallet must equal run.wallet, run must be STARTED non-terminal unexpired; mints new run-session hash only, sets HttpOnly SameSite=Strict Path=/api Secure cookie, body {ok:true,runId} only; zero attempts, zero runs, zero rewards.
 - SameSite=Strict unchanged (no evidence for WebView third-party block on same-origin; changing would weaken CSRF without proof).
 - Gate UX: RUN_SESSION_INVALID -> "Restoring your expedition…" -> wallet recovery if needed -> recover same runId -> refetch active; failure -> retryable RECOVERY_FAILED, never offers new Start as primary.
+
+## Wildcard rewrite bugfix (2026-09-18, NOT deployed)
+
+- Production Active 400 START_CHALLENGE_INVALID + Treasure 400 MALFORMED_REQUEST with Start 200s came from Vercel `:path*` wildcard ambiguity: any surviving capture key (e.g. `path=active`) breaks strict validators (ACTIVE needs exactly 1x runId, Treasure/Monthly need 0 keys); Start POSTs never validate URL query so they passed; explicit-rewrite Monthly Heroes worked. Reproduced against real handlers (clean 200 vs leaked 400).
+- Fix is routing-only: vercel.json now enumerates all 23 owned routes explicitly (10 expeditions incl. session/recover, 4 rewards, 4 wallet, daily/wallet-daily/monthly-heroes, 3 legacy ledger), zero `:`/`*` captures; unknown sub-paths match no rewrite (platform 404, adapter still JSON 404); payout-cycle untouched/isolated. resolveRewriteDispatchPath unchanged (already fail-closed). No parser weakening, no session/gameplay/reward/payout changes, no migration.

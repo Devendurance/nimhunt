@@ -16,8 +16,12 @@ import {
  * Vite/Vercel configuration, while single-segment paths
  * (e.g. `/api/daily-hunt-status`) did route. This stable single-segment
  * filename (`api/product.ts` -> `/api/product`) is unambiguous, and explicit
- * `vercel.json` rewrites map every product prefix to it with the original
+ * `vercel.json` rewrites map every owned product path to it with the original
  * public path captured in `?__nimhunt_route=...` (incoming query merged).
+ * Wildcard rewrites are deliberately NOT used: a `:path*` capture variable
+ * must never survive into the dispatched query string, because ACTIVE
+ * requires exactly `?runId=...` and Treasure Bank / Monthly Stats require
+ * zero query keys — any extra capture-like key breaks them with 400.
  *
  * `api/internal/payout-cycle.ts` remains a separate physical function and has
  * NO rewrite entry, so it can never route into the product adapter.

@@ -1,6 +1,6 @@
 # NimHunt — Project State
 
-> **Last updated**: 2026-09-18 (Session-recovery bugfix PASS locally: 859 tests / lint / typechecks / build green; NOT deployed/pushed, no gameplay/reward/treasury/risk changes, no migration)
+> **Last updated**: 2026-09-18 (Wildcard-rewrite bugfix PASS locally: 879 tests / lint / typechecks / build green; NOT deployed/pushed, routing-only, no logic changes)
 > **Phase**: Disabled daily Vercel cron configured (once/day 14:00 UTC). Automation stays OFF. No NIM sent.
 > **Latest milestone**: Authoritative monthly player stats + public Monthly Heroes + wallet monthly-stats + Treasure Bank amount-source fix implemented locally (payout engine untouched, no migration); production live state unchanged (deploy + cron dashboard registration still owner-side pending).
 > **Phase**: Disabled daily Vercel cron configured (once/day 14:00 UTC). Automation stays OFF. No NIM sent.

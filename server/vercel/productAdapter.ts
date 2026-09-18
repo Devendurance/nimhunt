@@ -88,9 +88,9 @@ export const PRODUCT_REWRITE_PARAM = '__nimhunt_route' as const
  * Reconstruct the original public product path from the internal URL seen by
  * the stable `/api/product` function after a Vercel rewrite.
  *
- * Vercel rewrite shape (see vercel.json):
- *   source `/api/expeditions/:path*` ->
- *   destination `/api/product?__nimhunt_route=/api/expeditions/:path*`
+ * Vercel rewrite shape (see vercel.json — explicit per-route entries, no wildcards):
+ *   source `/api/expeditions/active` ->
+ *   destination `/api/product?__nimhunt_route=/api/expeditions/active`
  * Incoming query (`?runId=abc`) is merged by Vercel, so the function sees e.g.
  *   `/api/product?__nimhunt_route=/api/expeditions/active&runId=abc`
  * and this helper returns `/api/expeditions/active?runId=abc`.

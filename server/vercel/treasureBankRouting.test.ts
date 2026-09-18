@@ -21,14 +21,13 @@ describe('treasure bank production routing', () => {
     expect(isOwnedProductPath('/api/internal/payout-cycle')).toBe(false)
   })
 
-  it('is covered by the existing /api/wallet/* Vercel rewrite', () => {
+  it('is covered by an explicit Vercel rewrite (no wildcard)', () => {
     const vercel = JSON.parse(read('vercel.json')) as {
       rewrites?: Array<{ source: string; destination: string }>
     }
-    const wallet = (vercel.rewrites ?? []).find(entry => entry.source === '/api/wallet/:path*')
-    expect(wallet).toBeDefined()
-    expect(wallet?.destination).toContain('/api/product')
-    expect(wallet?.destination).toContain('__nimhunt_route')
+    const treasure = (vercel.rewrites ?? []).find(entry => entry.source === '/api/wallet/treasure-bank')
+    expect(treasure).toBeDefined()
+    expect(treasure?.destination).toBe('/api/product?__nimhunt_route=/api/wallet/treasure-bank')
   })
 
   it('fails closed through the product adapter without credentials', async () => {
