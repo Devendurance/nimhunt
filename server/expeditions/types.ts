@@ -190,6 +190,7 @@ export type MemoryProofService = {
   }): Promise<FinalizeRewardClaimResult>
   getRewardClaim(claimId: string, session: RunSessionRecord): DurableRewardClaim
   getReservedRewardClaim(session: RunSessionRecord): DurableRewardClaim | null
+  getVerifiedExpeditionResult(runId: string, wallet: string): VerifyExpeditionResult
   getRun(runId: string): DurableExpeditionRun | null
   getWalletDailyStatus(wallet: string): WalletDailyStatus
   issueWalletRecoveryChallenge(wallet: string, risk?: RiskContext): Promise<WalletRecoveryChallengeResponse>
@@ -245,6 +246,7 @@ export type ProofService = {
   }): Promise<FinalizeRewardClaimResult>
   getRewardClaim(claimId: string, session: RunSessionRecord): Promise<DurableRewardClaim>
   getReservedRewardClaim(session: RunSessionRecord): Promise<DurableRewardClaim | null>
+  getVerifiedExpeditionResult(runId: string, wallet: string): Promise<VerifyExpeditionResult>
   getRun(runId: string): Promise<DurableExpeditionRun | null>
   getWalletDailyStatus(wallet: string): Promise<WalletDailyStatus>
   issueWalletRecoveryChallenge(wallet: string, risk?: RiskContext): Promise<WalletRecoveryChallengeResponse>

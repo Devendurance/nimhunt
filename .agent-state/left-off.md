@@ -1,32 +1,32 @@
 # NimHunt - Left Off
 
-> Updated: 2026-09-18 (Wildcard-rewrite bugfix PASS locally: 879 tests / lint / typechecks / build green; NOT pushed/deployed, routing-only)
+> Updated: 2026-09-18 (False-concurrent fix + verified recovery PASS locally: 898 tests / lint / typechecks / build green; NOT pushed/deployed, migration 012 NOT applied to hosted DB)
 
 ## Current Objective
 
-Eliminate Vercel wildcard rewrite ambiguity (Active 400 + Treasure 400 with Start 200s on a4bbb2d) via explicit per-route rewrites. Preserve a4bbb2d session recovery. Do not deploy automatically.
+Fix false CONCURRENT_ACTIVE_RUN BLOCK (never-played stranded Starts) and recover verified run 2655df20's claim flow after refresh without a new expedition. Do not apply hosted migration, push, deploy, or mutate production.
 
 ## Completed (this slice)
 
-- **Root cause confirmed**: reproduced against real handlers — clean Active 200 vs `path=active` leak 400 START_CHALLENGE_INVALID; Treasure/Monthly leak 400 MALFORMED_REQUEST. Capture key fires strict validators before auth; Start POSTs skip query validation (hence 200s); explicit-rewrite Monthly Heroes unaffected.
-- **Explicit rewrites**: vercel.json enumerates all 23 owned routes (expeditions x10 incl. session/recover, rewards x3 + reserve, wallet x4, daily/wallet-daily/monthly-heroes, legacy complete/fail; plus /play). No `:`/`*` anywhere on /api entries. Unknown sub-paths match nothing (platform 404; adapter still JSON 404). Payout-cycle has no entry.
-- **Router**: resolveRewriteDispatchPath unchanged (fail-closed); api/product.ts + productAdapter.ts comments updated (no wildcard shape).
-- **Tests**: new server/vercel/wildcardCaptureRegression.test.ts (14: mechanism proof, zero-capture assertions, per-route query purity incl. claimId, recovery-through-rewritten-paths same-run resume, fail-closed + payout isolation); updated deployment/monthlyHeroes/treasureBank routing tests to explicit inventory.
-- **Preserved**: a4bbb2d recovery endpoint/logic/client untouched (verified via git status + full suite).
-- **Verification**: 879 passed / 69 skipped (100 files); lint 0; typecheck:server 0; tsc -b 0; build ok (chunk warning only); diff-check clean; `git diff -- server/payouts/ api/internal/payout-cycle.ts` empty.
+- **Migration 012** (forward-only, 008 byte-untouched): concurrent predicate + gameplay_started_at NOT NULL + terminal NULL + unexpired; memory mirror countsAsConcurrentGameplayRun(); impossible-speed/install rules unchanged.
+- **session/recover**: also mints for terminal-VERIFIED unexpired runs (active fetch still 409s; abandoned/failed/expired/foreign rejected).
+- **Result endpoint**: GET /api/expeditions/result?runId=, VerifyExpeditionResult-only, dual auth, fail-closed 404/409, explicit rewrite.
+- **Gate**: ACTIVE_RUN_UNAVAILABLE -> terminal restore -> verified panel + claim; SESSION BLOCK retry button; TIMING/ELIGIBILITY terminal.
+- **Tests**: concurrentGameplayRisk (10: migration scope, A-E, production replay PREPARED, genuine-concurrency BLOCK, speed BLOCK) + expeditionResult (6: auth, cross-wallet, masquerade, session fallback, full recovery->PREPARED, zero attempts/runs) + reducer/retry/rewrite additions.
+- **Verification**: 898 passed / 69 skipped (102 files); lint 0; typecheck:server 0; tsc -b 0; build ok; diff-check clean; `git diff -- server/payouts/ api/internal/payout-cycle.ts` empty.
 
 ## Changed paths
 
-- Modified: vercel.json, api/product.ts (comment), server/vercel/productAdapter.ts (comment), server/vercel/{deploymentRouting,monthlyHeroesRouting,treasureBankRouting}.test.ts, .agent-state/*
-- New: server/vercel/wildcardCaptureRegression.test.ts
-- Untouched: session/gameplay/proof/reward/payout logic, SQL, payout-cycle, parsers (not weakened)
+- New: server/ledger/sql/012_concurrent_gameplay_risk.sql, server/expeditions/concurrentGameplayRisk.test.ts, server/expeditions/expeditionResult.test.ts
+- Modified: server/expeditions/{http,types,memoryProofStore,postgresProofStore,proofRuntime,riskGate}.ts, server/vercel/{productAdapter,deploymentRouting,monthlyHeroesRouting,productAdapter}.test.ts (+wildcardCapture), src/{domain,api}/expeditionProof.ts, src/components/play/{ProductExpeditionGate,productGateState,productRewardClaim,useProductRewardClaim,ProductRewardClaimOutcome}.tsx/ts (+tests), vercel.json, .agent-state/*
+- Untouched: 008, gameplay/replay/checkpoint/verify, reward amounts/69 slots, treasury/payout/scheduler, parsers
 
 ## Verification results
 
-- npm test: 100 files passed / 5 skipped; 879 passed / 69 skipped.
-- npm run lint: 0 errors. npm run typecheck:server: 0 errors. npx tsc -b --force: 0 errors. npm run build: ok. git diff --check: clean (LF/CRLF warnings only).
+- npm test: 102 files passed / 5 skipped; 898 passed / 69 skipped.
+- npm run lint: 0 errors. npm run typecheck:server: 0 errors. npx tsc -b --force: 0 errors. npm run build: ok. git diff --check: clean.
 - Payout diff: `git diff -- server/payouts/ api/internal/payout-cycle.ts` empty.
 
 ## Next action
 
-- Owner reviews diff, deploys manually (no auto-deploy), then runs non-mutating preflight BEFORE any Start: active?runId=test without auth -> 401 RUN_SESSION_INVALID; treasure-bank without auth -> 401; monthly-heroes -> 200. Only then attempt recovery of the existing STARTED run (no new Start).
+- Owner: review diff, apply migration 012 to hosted DB, deploy manually (no auto-deploy), then verify 2655df20 via /play?run=gem-runner&runId=... -> verified panel -> Retry/Claim -> PREPARED. Do not abandon stranded runs, reset attempts, reserve manually, or start expeditions from here.

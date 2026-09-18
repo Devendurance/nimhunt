@@ -1,4 +1,4 @@
-import { ABANDON_EXPEDITION_PATH, ACTIVE_EXPEDITION_PATH, CHECKPOINT_PATH, FINALIZE_REWARD_CLAIM_PATH, GAMEPLAY_START_PATH, PREPARE_REWARD_CLAIM_PATH, PRODUCT_VAULT_SEAL_PREPARE_PATH, PRODUCT_VAULT_SEAL_VERIFY_PATH, RECOVER_RUN_SESSION_PATH, START_CHALLENGE_PATH, START_EXPEDITION_PATH, VERIFY_EXPEDITION_PATH } from '../../src/domain/expeditionProof.js'
+import { ABANDON_EXPEDITION_PATH, ACTIVE_EXPEDITION_PATH, CHECKPOINT_PATH, EXPEDITION_RESULT_PATH, FINALIZE_REWARD_CLAIM_PATH, GAMEPLAY_START_PATH, PREPARE_REWARD_CLAIM_PATH, PRODUCT_VAULT_SEAL_PREPARE_PATH, PRODUCT_VAULT_SEAL_VERIFY_PATH, RECOVER_RUN_SESSION_PATH, START_CHALLENGE_PATH, START_EXPEDITION_PATH, VERIFY_EXPEDITION_PATH } from '../../src/domain/expeditionProof.js'
 import type { ReplayAction } from '../../src/game/replay/types.js'
 import { MAX_CHECKPOINT_BATCH_ACTIONS } from '../../src/game/replay/versions.js'
 import { WALLET_DAILY_STATUS_PATH } from '../../src/domain/dailyLedger.js'
@@ -147,6 +147,13 @@ export async function dispatchExpeditionHttp(
       return response(200, { ok: true, ...active })
     }
 
+    if (path === EXPEDITION_RESULT_PATH) {
+      const runId = readActiveRunId(url)
+      const wallet = await authenticateResultWallet(service, request, runId)
+      const result = await service.getVerifiedExpeditionResult(runId, wallet)
+      return response(200, { ok: true, ...result })
+    }
+
     if (path === RECOVER_RUN_SESSION_PATH) {
       const runId = readRecoverRunSessionRequest(readJsonBody(request)).runId
       const recovery = await authenticateWalletRecoverySession(service, request)
@@ -280,6 +287,7 @@ function isExpeditionPath(path: string): boolean {
   return path === START_CHALLENGE_PATH
     || path === START_EXPEDITION_PATH
     || path === ACTIVE_EXPEDITION_PATH
+    || path === EXPEDITION_RESULT_PATH
     || path === RECOVER_RUN_SESSION_PATH
     || path === GAMEPLAY_START_PATH
     || path === CHECKPOINT_PATH
@@ -295,14 +303,14 @@ function isExpeditionPath(path: string): boolean {
 }
 
 function isExpectedMethod(path: string, method: string): boolean {
-  return path === ACTIVE_EXPEDITION_PATH ? method === 'GET' : method === 'POST'
+  return path === ACTIVE_EXPEDITION_PATH || path === EXPEDITION_RESULT_PATH ? method === 'GET' : method === 'POST'
 }
 
 function isAllowedRequest(request: ExpeditionHttpRequest, path: string, security: ExpeditionHttpSecurity): boolean {
   const host = request.host ?? getHeader(request, 'host')
   const protocol = request.protocol ?? getProtocolHeader(request)
   const origin = getHeader(request, 'origin')
-  const isRead = path === ACTIVE_EXPEDITION_PATH && request.method.toUpperCase() === 'GET'
+  const isRead = (path === ACTIVE_EXPEDITION_PATH || path === EXPEDITION_RESULT_PATH) && request.method.toUpperCase() === 'GET'
   if (!host || !protocol) return false
 
   if (host === security.expectedHost && protocol === security.expectedProtocol) {
@@ -533,6 +541,23 @@ async function authenticateWalletRecoverySession(service: ExpeditionProofService
     if (isSessionInvalidLike(error)) throw new ProofError('RUN_SESSION_INVALID')
     throw error
   }
+}
+
+async function authenticateResultWallet(service: ExpeditionProofService, request: ExpeditionHttpRequest, runId: string): Promise<string> {
+  const cookie = getHeader(request, 'cookie')
+  const recoveryRaw = parseWalletRecoverySessionCookie(cookie)
+  if (recoveryRaw) {
+    try {
+      const recovery = await authenticateWalletRecoverySession(service, request)
+      if (recovery.wallet) return recovery.wallet
+    } catch (error) {
+      if (!parseRunSessionCookie(cookie)) throw error
+    }
+  }
+  const session = await authenticateSession(service, request)
+  if (session.runId !== runId) throw new ProofError('RUN_SESSION_INVALID')
+  if (!session.wallet) throw new ProofError('RUN_SESSION_INVALID')
+  return session.wallet
 }
 
 async function authenticateSession(service: ExpeditionProofService, request: ExpeditionHttpRequest): Promise<RunSessionRecord> {

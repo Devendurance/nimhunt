@@ -292,6 +292,7 @@ describe('explicit rewrites emit zero capture keys', () => {
     const suspects = ['path', 'slug', 'wildcard', 'capture', 'rest']
     const samples = [
       '/api/expeditions/active?runId=abc',
+      '/api/expeditions/result?runId=abc',
       '/api/expeditions/session/recover',
       '/api/rewards/claim/payout?claimId=test',
       '/api/wallet/treasure-bank',

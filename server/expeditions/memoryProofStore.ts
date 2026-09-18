@@ -47,6 +47,7 @@ import {
 } from './rewardClaim.js'
 import {
   assessRewardRisk,
+  countsAsConcurrentGameplayRun,
   hashInstallId,
   runPatternHash,
   toRiskPrepareResult,
@@ -158,10 +159,7 @@ export function createMemoryProofService(options: {
       now: clock.now(),
       installIdHash,
       concurrentActiveRuns: [...runs.values()].filter(candidate =>
-        candidate.wallet === run.wallet
-        && candidate.dayKey === run.dayKey
-        && candidate.status === 'STARTED'
-        && candidate.runId !== run.runId,
+        countsAsConcurrentGameplayRun(candidate, run, clock.now()),
       ).length,
       installWalletCount: new Set(sameInstall.map(signal => signal.wallet)).size,
       installStartCount: sameInstall.filter(signal => signal.kind === 'START_CHALLENGE' || signal.kind === 'START').length,
@@ -365,7 +363,9 @@ export function createMemoryProofService(options: {
       const run = runs.get(runId)
       if (!run || run.wallet !== recovery.wallet) throw new ProofError('RUN_NOT_FOUND')
       const now = clock.now()
-      if (run.status !== 'STARTED' || run.terminal !== null || now.getTime() >= new Date(run.expiresAt).getTime()) {
+      const resumableActive = run.status === 'STARTED' && run.terminal === null
+      const verifiedComplete = run.terminal?.type === 'VERIFIED'
+      if ((!resumableActive && !verifiedComplete) || now.getTime() >= new Date(run.expiresAt).getTime()) {
         throw new ProofError('ACTIVE_RUN_UNAVAILABLE')
       }
       const capability = createRunSessionCapability()
@@ -634,6 +634,13 @@ export function createMemoryProofService(options: {
         if (claim.runId === session.runId && claim.status === 'RESERVED') return claim
       }
       return null
+    },
+
+    getVerifiedExpeditionResult(runId, wallet) {
+      const run = runs.get(runId)
+      if (!run || run.wallet !== wallet) throw new ProofError('RUN_NOT_FOUND')
+      if (run.terminal?.type !== 'VERIFIED') throw new ProofError('ACTIVE_RUN_UNAVAILABLE')
+      return { ...run.terminal.result }
     },
   }
 

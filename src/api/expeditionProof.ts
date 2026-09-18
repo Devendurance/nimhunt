@@ -2,6 +2,7 @@ import {
   ABANDON_EXPEDITION_PATH,
   ACTIVE_EXPEDITION_PATH,
   CHECKPOINT_PATH,
+  EXPEDITION_RESULT_PATH,
   FINALIZE_REWARD_CLAIM_PATH,
   GAMEPLAY_START_PATH,
   GET_REWARD_PAYOUT_PATH,
@@ -124,6 +125,18 @@ export async function fetchActiveExpedition(
     `${ACTIVE_EXPEDITION_PATH}?runId=${encodeURIComponent(runId)}`,
     getRequest(),
     parseActiveExpedition,
+  )
+}
+
+export async function fetchExpeditionResult(
+  runId: string,
+  fetcher: typeof fetch = fetch,
+): Promise<VerifyExpeditionResult> {
+  return requestJson(
+    fetcher,
+    `${EXPEDITION_RESULT_PATH}?runId=${encodeURIComponent(runId)}`,
+    getRequest(),
+    parseVerifyExpeditionResult,
   )
 }
 

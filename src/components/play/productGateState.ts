@@ -30,6 +30,7 @@ export type ProductGateAction =
   | { readonly type: 'RESET' }
   | { readonly type: 'RECOVERY_STARTED' }
   | { readonly type: 'RECOVERY_FAILED' }
+  | { readonly type: 'TERMINAL_RESTORED' }
   | { readonly type: 'ACTIVE_RECEIVED'; readonly active: ProductActiveExpedition }
   | { readonly type: 'GAMEPLAY_STARTED'; readonly runId: string; readonly outcome: ProductGameplayStartResponse['outcome'] }
   | { readonly type: 'GAMEPLAY_START_RETRYABLE' }
@@ -43,6 +44,8 @@ export function reduceProductGate(state: ProductGateState, action: ProductGateAc
       return { status: 'RECOVERING_SESSION', active: null, error: null }
     case 'RECOVERY_FAILED':
       return { status: 'ERROR', active: null, error: 'RECOVERY_FAILED' }
+    case 'TERMINAL_RESTORED':
+      return { status: 'READY', active: null, error: null }
     case 'ACTIVE_RECEIVED':
       return { status: 'MARKING_GAMEPLAY_START', active: action.active, error: null }
     case 'GAMEPLAY_STARTED':

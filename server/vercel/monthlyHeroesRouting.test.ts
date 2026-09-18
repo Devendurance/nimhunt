@@ -51,6 +51,7 @@ describe('monthly heroes production routing', () => {
       '/api/daily-hunt-status': '/api/product?__nimhunt_route=/api/daily-hunt-status',
       '/api/wallet-daily-status': '/api/product?__nimhunt_route=/api/wallet-daily-status',
       '/api/expeditions/session/recover': '/api/product?__nimhunt_route=/api/expeditions/session/recover',
+      '/api/expeditions/result': '/api/product?__nimhunt_route=/api/expeditions/result',
       '/api/expeditions/start-challenge': '/api/product?__nimhunt_route=/api/expeditions/start-challenge',
       '/api/expeditions/start': '/api/product?__nimhunt_route=/api/expeditions/start',
       '/api/expeditions/active': '/api/product?__nimhunt_route=/api/expeditions/active',

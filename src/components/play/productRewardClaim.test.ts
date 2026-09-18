@@ -72,3 +72,26 @@ describe('product reward claim client state', () => {
     })
     expect(blocked.status).toBe('BLOCK')
   })
+
+describe('session block retry', () => {
+  it('retries eligibility only for SESSION blocks; TIMING/ELIGIBILITY stay terminal', () => {
+    const sessionBlocked = reduceProductRewardClaim(initialProductRewardClaimState, {
+      type: 'CLAIM_PREPARED_TERMINAL',
+      result: { outcome: 'BLOCK', runId: 'run-9', reasonCategory: 'SESSION' },
+    })
+    expect(sessionBlocked.status).toBe('BLOCK')
+    expect(reduceProductRewardClaim(sessionBlocked, { type: 'CLAIM_REQUESTED' }).status).toBe('SIGNING')
+
+    const timingBlocked = reduceProductRewardClaim(initialProductRewardClaimState, {
+      type: 'CLAIM_PREPARED_TERMINAL',
+      result: { outcome: 'BLOCK', runId: 'run-9', reasonCategory: 'TIMING' },
+    })
+    expect(reduceProductRewardClaim(timingBlocked, { type: 'CLAIM_REQUESTED' }).status).toBe('BLOCK')
+
+    const eligibilityBlocked = reduceProductRewardClaim(initialProductRewardClaimState, {
+      type: 'CLAIM_PREPARED_TERMINAL',
+      result: { outcome: 'BLOCK', runId: 'run-9', reasonCategory: 'ELIGIBILITY' },
+    })
+    expect(reduceProductRewardClaim(eligibilityBlocked, { type: 'CLAIM_REQUESTED' }).status).toBe('BLOCK')
+  })
+})

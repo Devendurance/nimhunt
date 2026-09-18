@@ -41,6 +41,12 @@ export function reduceProductRewardClaim(
         ? { status: action.result.outcome, result: action.result, error: null }
         : { ...initialProductRewardClaimState }
     case 'CLAIM_REQUESTED':
+      if (state.status === 'BLOCK'
+        && state.result !== null
+        && 'reasonCategory' in state.result
+        && state.result.reasonCategory === 'SESSION') {
+        return { ...state, status: 'SIGNING', error: null }
+      }
       if (state.status === 'SIGNING' || state.status === 'RESERVED' || state.status === 'SOLD_OUT' || state.status === 'ALREADY_REWARDED' || state.status === 'REVIEW' || state.status === 'BLOCK') {
         return state
       }

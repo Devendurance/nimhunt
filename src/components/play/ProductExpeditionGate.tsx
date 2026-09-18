@@ -2,6 +2,7 @@ import { useCallback, useEffect, useReducer, useRef } from 'react'
 import type { ReactNode } from 'react'
 import {
   fetchActiveExpedition,
+  fetchExpeditionResult,
   markGameplayStarted,
   recoverRunSession,
   requestWalletRecoveryChallenge,
@@ -16,7 +17,7 @@ import type { PlayableMission } from './expeditionFlow'
 import { HuntHeader } from './HuntHeader'
 import { ExpeditionVerifiedPanel } from './ExpeditionVerifiedPanel'
 import { createProductGateAttemptGuard, canMountProduct, reduceProductGate, validateProductActive, INITIAL_PRODUCT_GATE_STATE } from './productGateState.ts'
-import { getRememberedProductTerminal } from './productRunSession.ts'
+import { getRememberedProductTerminal, rememberProductTerminal } from './productRunSession.ts'
 import { useProductPayoutStatus } from './useProductPayoutStatus'
 import { useProductRewardClaim } from './useProductRewardClaim'
 import { useProductVaultSeal } from './useProductVaultSeal'
@@ -65,6 +66,48 @@ export function ProductExpeditionGate({ mission, runId, onBackToMissions, onRetu
     routeKeyRef.current = routeKey
   }, [routeKey])
 
+  const restoreTerminalResult = useCallback(async (): Promise<void> => {
+    // Restore a previously verified terminal for this run so the normal claim
+    // flow can continue after reload. Read-only: never marks gameplay start,
+    // never creates an expedition. Throws for unavailable terminals.
+    const accept = (result: { readonly runId: string; readonly outcome: string }): boolean => {
+      if (!isCurrent()) return false
+      if (result.runId !== runId) throw new ExpeditionProofApiError('MALFORMED_RESPONSE')
+      if (result.outcome !== 'VERIFIED_ELIGIBLE' && result.outcome !== 'VAULT_GAMEPLAY_VERIFIED') {
+        dispatch({ type: 'ERROR', error: 'ACTIVE_RUN_UNAVAILABLE' })
+        return false
+      }
+      rememberProductTerminal(mission, result as Parameters<typeof rememberProductTerminal>[1])
+      if (!isCurrent()) return false
+      dispatch({ type: 'TERMINAL_RESTORED' })
+      return true
+    }
+    try {
+      if (accept(await fetchExpeditionResult(runId))) return
+      return
+    } catch (error) {
+      if (!isCurrent()) return
+      if (!(error instanceof ExpeditionProofApiError) || error.code !== 'RUN_SESSION_INVALID') throw error
+    }
+    try {
+      await restoreRunSession(runId)
+    } catch {
+      if (!isCurrent()) return
+      dispatch({ type: 'RECOVERY_FAILED' })
+      return
+    }
+    try {
+      accept(await fetchExpeditionResult(runId))
+    } catch (error) {
+      if (!isCurrent()) return
+      if (error instanceof ExpeditionProofApiError && error.code === 'RUN_SESSION_INVALID') {
+        dispatch({ type: 'RECOVERY_FAILED' })
+        return
+      }
+      throw error
+    }
+  }, [isCurrent, mission, runId])
+
   useEffect(() => {
     // VERIFIED_ELIGIBLE is a current-session terminal. Do not re-resolve /active after the run completes.
     if (getRememberedProductTerminal(mission, runId)) return
@@ -98,6 +141,14 @@ export function ProductExpeditionGate({ mission, runId, onBackToMissions, onRetu
         if (!isCurrent()) return
         if (error instanceof ExpeditionProofApiError && error.code === 'RUN_SESSION_INVALID') {
           void recoverAndReload()
+          return
+        }
+        if (error instanceof ExpeditionProofApiError && error.code === 'ACTIVE_RUN_UNAVAILABLE') {
+          dispatch({ type: 'RECOVERY_STARTED' })
+          void restoreTerminalResult().catch(() => {
+            if (!isCurrent()) return
+            dispatch({ type: 'ERROR', error: 'ACTIVE_RUN_UNAVAILABLE' })
+          })
           return
         }
         dispatch({ type: 'ERROR', error: mapGateError(error, false) })
@@ -135,15 +186,17 @@ export function ProductExpeditionGate({ mission, runId, onBackToMissions, onRetu
         dispatch({ type: 'RECOVERY_FAILED' })
       }
     }
-  }, [isCurrent, mission, routeKey, runId])
+  }, [isCurrent, mission, restoreTerminalResult, routeKey, runId])
 
   const retryRecovery = useCallback(() => {
     if (state.status !== 'ERROR' || state.error !== 'RECOVERY_FAILED' || !isCurrent()) return
     dispatch({ type: 'RECOVERY_STARTED' })
-    void restoreRunSession(runId)
-      .then(() => {
+    void (async () => {
+      try {
+        await restoreRunSession(runId)
         if (!isCurrent()) return
-        return fetchActiveExpedition(runId).then(active => {
+        try {
+          const active = await fetchActiveExpedition(runId)
           if (!isCurrent()) return
           const validation = validateProductActive(active, mission, runId)
           if (validation) {
@@ -151,27 +204,38 @@ export function ProductExpeditionGate({ mission, runId, onBackToMissions, onRetu
             return
           }
           dispatch({ type: 'ACTIVE_RECEIVED', active })
-          return markGameplayStarted(active.runId).then(
-            result => {
+          try {
+            const result = await markGameplayStarted(active.runId)
+            if (!isCurrent()) return
+            dispatch({ type: 'GAMEPLAY_STARTED', runId: result.runId, outcome: result.outcome })
+          } catch (error) {
+            if (!isCurrent()) return
+            if (error instanceof ExpeditionProofApiError && error.code === 'NETWORK_ERROR') {
+              dispatch({ type: 'GAMEPLAY_START_RETRYABLE' })
+              return
+            }
+            dispatch({ type: 'ERROR', error: mapGateError(error, true) })
+          }
+        } catch (error) {
+          if (!isCurrent()) return
+          if (error instanceof ExpeditionProofApiError && error.code === 'ACTIVE_RUN_UNAVAILABLE') {
+            try {
+              await restoreTerminalResult()
+            } catch {
               if (!isCurrent()) return
-              dispatch({ type: 'GAMEPLAY_STARTED', runId: result.runId, outcome: result.outcome })
-            },
-            error => {
-              if (!isCurrent()) return
-              if (error instanceof ExpeditionProofApiError && error.code === 'NETWORK_ERROR') {
-                dispatch({ type: 'GAMEPLAY_START_RETRYABLE' })
-                return
-              }
-              dispatch({ type: 'ERROR', error: mapGateError(error, true) })
-            },
-          )
-        })
-      })
-      .catch(() => {
+              dispatch({ type: 'ERROR', error: 'ACTIVE_RUN_UNAVAILABLE' })
+            }
+            return
+          }
+          if (error instanceof ExpeditionProofApiError && error.code === 'NETWORK_ERROR') return
+          dispatch({ type: 'ERROR', error: mapGateError(error, true) })
+        }
+      } catch {
         if (!isCurrent()) return
         dispatch({ type: 'RECOVERY_FAILED' })
-      })
-  }, [isCurrent, mission, runId, state])
+      }
+    })()
+  }, [isCurrent, mission, restoreTerminalResult, runId, state])
 
   const retryGameplayStart = useCallback(() => {
     if (state.status !== 'RETRY_GAMEPLAY_START' || !state.active || !isCurrent()) return

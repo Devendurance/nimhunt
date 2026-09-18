@@ -135,3 +135,18 @@ PASS
 
 - Production Active 400 START_CHALLENGE_INVALID + Treasure 400 MALFORMED_REQUEST with Start 200s came from Vercel `:path*` wildcard ambiguity: any surviving capture key (e.g. `path=active`) breaks strict validators (ACTIVE needs exactly 1x runId, Treasure/Monthly need 0 keys); Start POSTs never validate URL query so they passed; explicit-rewrite Monthly Heroes worked. Reproduced against real handlers (clean 200 vs leaked 400).
 - Fix is routing-only: vercel.json now enumerates all 23 owned routes explicitly (10 expeditions incl. session/recover, 4 rewards, 4 wallet, daily/wallet-daily/monthly-heroes, 3 legacy ledger), zero `:`/`*` captures; unknown sub-paths match no rewrite (platform 404, adapter still JSON 404); payout-cycle untouched/isolated. resolveRewriteDispatchPath unchanged (already fail-closed). No parser weakening, no session/gameplay/reward/payout changes, no migration.
+
+## Reward-BLOCK diagnostic (2026-09-18, READ-ONLY, no writes)
+
+- Verified Gem run 2655df20 (wallet NQ21 8B…6GEB): COMPLETED/ELIGIBLE, VERIFIED_ELIGIBLE, hp 75, 6 gems, 14 actions / 2 checkpoint batches, gs 15:47:48Z, verified 15:48:30Z. Stored assessment: BLOCK / [CONCURRENT_ACTIVE_RUN] only (15:48:56Z).
+- Same-wallet day has 2 stranded STARTED/seq-0/terminal-NULL/gs-NULL runs (14:42:08Z routing-bug era + 15:14:37Z); exact predicate replication counts both as concurrent (2).
+- `load_reward_risk_context` concurrent predicate counts status='STARTED' same wallet+day excluding current run — NO gameplay_started_at, terminal, or expiry filter. Never-played debris therefore BLOCKs genuine runs: false positive.
+- Speed ruled out: 42,604ms actual vs 1,266ms minimum (14 actions); no IMPOSSIBLE_SPEED, no INSTALL codes. Attempts 3/3 consumed, rewards_reserved 0, zero claim rows for the run (BLOCK reserved nothing).
+- Minimum fix (not applied): predicate should count only gameplay-started, non-terminal, unexpired STARTED runs.
+
+## False-concurrent fix + verified-run recovery (2026-09-18, NOT deployed)
+
+- Migration 012_concurrent_gameplay_risk.sql (forward-only, 008 untouched): load_reward_risk_context concurrent predicate now requires gameplay_started_at NOT NULL + terminal NULL + next_utc_reset_at(day_key) > now(); whitespace-insensitive diff proves only +3 predicate lines. Memory mirror: new countsAsConcurrentGameplayRun() in riskGate.ts used by memoryProofStore.
+- session/recover now also mints for terminal-VERIFIED unexpired runs (ABANDONED/FAILED/expired/foreign still 409/404); minting != active access (getActiveExpedition still requires STARTED, proven by test). This is what lets a reloaded client call prepare for the SAME verified run.
+- Result endpoint GET /api/expeditions/result?runId= (read-only, VerifyExpeditionResult contract only): wallet-recovery preferred, run-session fallback bound to runId; foreign/unknown 404, non-terminal/abandoned 409, no challenge/capability/replay/risk/signature leakage; explicit Vercel rewrite, no wildcard.
+- Gate: ACTIVE_RUN_UNAVAILABLE -> result fetch -> VERIFIED_* same runId -> rememberProductTerminal -> existing ExpeditionVerifiedPanel + claim flow; no gameplay-start marking, no new expedition. Claim: BLOCK+SESSION exposes "Retry eligibility check" (prepare again, no new signature unless PREPARED); TIMING/ELIGIBILITY stay terminal.

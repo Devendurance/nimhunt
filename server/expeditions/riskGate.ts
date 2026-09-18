@@ -65,6 +65,25 @@ export function runPatternHash(run: Pick<DurableExpeditionRun, 'actions'>): stri
   return sha256Hex(run.actions.map(action => action.type === 'MOVE' ? action.direction : 'TICK').join(','))
 }
 
+export function countsAsConcurrentGameplayRun(
+  candidate: Pick<DurableExpeditionRun, 'runId' | 'wallet' | 'dayKey' | 'status' | 'gameplayStartedAt' | 'terminal' | 'expiresAt'>,
+  current: Pick<DurableExpeditionRun, 'runId' | 'wallet' | 'dayKey'>,
+  now: Date,
+): boolean {
+  // Only real active gameplay counts: a signed Start that never entered
+  // gameplay, a terminal run, or an expired run is not concurrent play.
+  // Mirrors the load_reward_risk_context predicate in 012_concurrent_gameplay_risk.sql.
+  const expiresAt = Date.parse(candidate.expiresAt)
+  return candidate.wallet === current.wallet
+    && candidate.dayKey === current.dayKey
+    && candidate.status === 'STARTED'
+    && candidate.runId !== current.runId
+    && candidate.gameplayStartedAt !== null
+    && candidate.terminal === null
+    && Number.isFinite(expiresAt)
+    && expiresAt > now.getTime()
+}
+
 export function minimumPlausibleCompletionMs(actionCount: number): number | null {
   if (!Number.isInteger(actionCount) || actionCount < 1) return null
   const perAction = PLAYER_MOVE_DURATION_MS - PLAYER_MOVE_FRAME_SLACK_MS

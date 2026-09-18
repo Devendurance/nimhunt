@@ -76,10 +76,15 @@ export function ProductRewardClaimOutcome({
     />
   }
   if (claim.status === 'BLOCK') {
+    const sessionRetryable = claim.result !== null
+      && 'reasonCategory' in claim.result
+      && claim.result.reasonCategory === 'SESSION'
     return <ClaimTerminal
       headingRef={headingRef}
       title={REWARD_BLOCK_TITLE}
       lines={[REWARD_BLOCK_DETAIL]}
+      onPrimary={sessionRetryable ? onClaimTreasure : undefined}
+      primaryLabel={sessionRetryable ? 'Retry eligibility check' : undefined}
       onBackToMissions={onBackToMissions}
       onReturnToHunt={onReturnToHunt}
     />
@@ -124,6 +129,8 @@ function ClaimTerminal({
   amountLabel,
   txHashShort,
   verified,
+  onPrimary,
+  primaryLabel,
   onBackToMissions,
   onReturnToHunt,
 }: {
@@ -133,6 +140,8 @@ function ClaimTerminal({
   readonly amountLabel?: string | null
   readonly txHashShort?: string | null
   readonly verified?: boolean
+  readonly onPrimary?: () => void
+  readonly primaryLabel?: string
   readonly onBackToMissions: () => void
   readonly onReturnToHunt: () => void
 }) {
@@ -143,6 +152,7 @@ function ClaimTerminal({
     {txHashShort && <p className={styles.subtle}>{txHashShort}</p>}
     {verified && <p className={styles.verified}>Verified ✓</p>}
     <div className={styles.actions}>
+      {onPrimary && primaryLabel && <button type="button" onClick={onPrimary}>{primaryLabel}</button>}
       <button type="button" onClick={onBackToMissions}>Back to missions</button>
       <button type="button" onClick={onReturnToHunt}>Return to Hunt</button>
     </div>

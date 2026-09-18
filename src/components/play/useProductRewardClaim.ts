@@ -48,12 +48,17 @@ export function useProductRewardClaim(options: {
 
   const claimTreasure = useCallback(() => {
     if (!enabled || !runId) return
-    const busy = stateRef.current.status === 'SIGNING'
-      || stateRef.current.status === 'RESERVED'
-      || stateRef.current.status === 'SOLD_OUT'
-      || stateRef.current.status === 'ALREADY_REWARDED'
-      || stateRef.current.status === 'REVIEW'
-      || stateRef.current.status === 'BLOCK'
+    const current = stateRef.current
+    const sessionRetryable = current.status === 'BLOCK'
+      && current.result !== null
+      && 'reasonCategory' in current.result
+      && current.result.reasonCategory === 'SESSION'
+    const busy = current.status === 'SIGNING'
+      || current.status === 'RESERVED'
+      || current.status === 'SOLD_OUT'
+      || current.status === 'ALREADY_REWARDED'
+      || current.status === 'REVIEW'
+      || (current.status === 'BLOCK' && !sessionRetryable)
     if (busy) return
     const token = runRef.current + 1
     runRef.current = token

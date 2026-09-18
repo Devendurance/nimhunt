@@ -482,6 +482,13 @@ export async function createPostgresProofService(options: {
       }
     },
 
+    async getVerifiedExpeditionResult(runId, wallet) {
+      const run = await loadRun(rpc, runId)
+      if (!run || run.wallet !== wallet) throw new ProofError('RUN_NOT_FOUND')
+      if (run.terminal?.type !== 'VERIFIED') throw new ProofError('ACTIVE_RUN_UNAVAILABLE')
+      return { ...run.terminal.result }
+    },
+
     async verifyVaultSeal(input) {
       const parsed = parseProductVaultSeal(input.payload)
       if (!parsed) throw new ProofError('VAULT_SEAL_MISMATCH')
@@ -633,7 +640,9 @@ export async function createPostgresProofService(options: {
       const run = await loadRun(rpc, runId)
       if (!run || run.wallet !== recovery.wallet) throw new ProofError('RUN_NOT_FOUND')
       const now = new Date()
-      if (run.status !== 'STARTED' || run.terminal !== null || now.getTime() >= new Date(run.expiresAt).getTime()) {
+      const resumableActive = run.status === 'STARTED' && run.terminal === null
+      const verifiedComplete = run.terminal?.type === 'VERIFIED'
+      if ((!resumableActive && !verifiedComplete) || now.getTime() >= new Date(run.expiresAt).getTime()) {
         throw new ProofError('ACTIVE_RUN_UNAVAILABLE')
       }
       const capability = createRunSessionCapability()

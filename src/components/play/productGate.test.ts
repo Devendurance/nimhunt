@@ -55,4 +55,12 @@ describe('product expedition gate', () => {
     expect(guard.begin('gem-runner:run-1')).toBe(false)
     expect(guard.begin('gem-runner:run-2')).toBe(true)
   })
+
+  it('lands a restored verified terminal without mounting gameplay', () => {
+    const recovering = reduceProductGate(INITIAL_PRODUCT_GATE_STATE, { type: 'RECOVERY_STARTED' })
+    expect(recovering.status).toBe('RECOVERING_SESSION')
+    const restored = reduceProductGate(recovering, { type: 'TERMINAL_RESTORED' })
+    expect(restored).toMatchObject({ status: 'READY', active: null, error: null })
+    expect(canMountProduct(restored)).toBe(false)
+  })
 })

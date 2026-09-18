@@ -32,6 +32,10 @@
       "destination": "/api/product?__nimhunt_route=/api/expeditions/active"
     },
     {
+      "source": "/api/expeditions/result",
+      "destination": "/api/product?__nimhunt_route=/api/expeditions/result"
+    },
+    {
       "source": "/api/expeditions/session/recover",
       "destination": "/api/product?__nimhunt_route=/api/expeditions/session/recover"
     },
