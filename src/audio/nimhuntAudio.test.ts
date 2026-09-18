@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  BGM_TRACK_CONFIG,
   BGM_VOLUME,
   MISSION_WORLD_MAP,
   NIMHUNT_AUDIO_SFX_GUARD,
@@ -29,7 +30,7 @@ function hud(patch: Partial<HudSfxSnapshot>): HudSfxSnapshot {
 }
 
 describe('world -> music mapping', () => {
-  it('maps shell and every world to a distinct loopable track', () => {
+  it('maps shell and every world to a distinct track', () => {
     const urls = Object.values(WORLD_TRACK_URLS)
     expect(new Set(urls).size).toBe(4)
     for (const url of urls) {
@@ -154,13 +155,14 @@ describe('transition tracker (dedup / re-arm / restore)', () => {
   })
 })
 
-/** Controllable fake audio element for manager tests. Models paused/currentTime like a real element. */
+/** Controllable fake audio element for manager tests. Models paused/currentTime/ended like a real element. */
 function createFakeAudioHarness(options: { rejectPlay?: boolean } = {}) {
   const instances: Array<{
     src: string
     played: number
     pauseCount: number
     paused: boolean
+    ended: boolean
     currentTime: number
     currentTimeWrites: number
     volume: number
@@ -172,6 +174,7 @@ function createFakeAudioHarness(options: { rejectPlay?: boolean } = {}) {
       played: 0,
       pauseCount: 0,
       paused: true,
+      ended: false,
       currentTime: 0,
       currentTimeWrites: 0,
       volume: 0,
@@ -203,6 +206,9 @@ function createFakeAudioHarness(options: { rejectPlay?: boolean } = {}) {
       },
       get paused() {
         return instance.paused
+      },
+      get ended() {
+        return instance.ended
       },
       get currentTime() {
         return instance.currentTime
@@ -247,16 +253,25 @@ describe('NimhuntAudioManager', () => {
     manager.dispose()
   })
 
-  it('loops BGM at presentation volume', () => {
+  it('loops the main theme and plays world tracks as one-shot entrance themes', () => {
+    expect(BGM_TRACK_CONFIG.main.loop).toBe(true)
+    expect(BGM_TRACK_CONFIG.angkor.loop).toBe(false)
+    expect(BGM_TRACK_CONFIG.bavaria.loop).toBe(false)
+    expect(BGM_TRACK_CONFIG.siberia.loop).toBe(false)
     const harness = createFakeAudioHarness()
     const manager = new NimhuntAudioManager({
       createAudio: harness.createAudio,
       ...createStore(),
       subscribeToDom: false,
     })
-    manager.playBgm('bavaria')
+    manager.playBgm('main')
     expect(harness.instances[0]?.loop).toBe(true)
     expect(harness.instances[0]?.volume).toBe(BGM_VOLUME)
+    for (const world of ['angkor', 'bavaria', 'siberia'] as const) {
+      manager.playBgm(world)
+      expect(manager.currentTrack()).toBe(world)
+      expect(harness.instances[harness.instances.length - 1]?.loop).toBe(false)
+    }
     manager.dispose()
   })
 
@@ -374,6 +389,7 @@ function createGatedAudioHarness() {
     played: number
     pauseCount: number
     paused: boolean
+    ended: boolean
     currentTime: number
     currentTimeWrites: number
     volume: number
@@ -385,6 +401,7 @@ function createGatedAudioHarness() {
       played: 0,
       pauseCount: 0,
       paused: true,
+      ended: false,
       currentTime: 0,
       currentTimeWrites: 0,
       volume: 0,
@@ -416,6 +433,9 @@ function createGatedAudioHarness() {
       },
       get paused() {
         return instance.paused
+      },
+      get ended() {
+        return instance.ended
       },
       get currentTime() {
         return instance.currentTime
@@ -690,5 +710,227 @@ describe('BGM restart regression (one-shot unlock + idempotence)', () => {
 describe('audio regression guard', () => {
   it('documents the presentation-only contract for reviewers', () => {
     expect(NIMHUNT_AUDIO_SFX_GUARD).toContain('ReplayAction')
+  })
+})
+
+/** Simulates a non-looping track reaching its natural end. */
+function finishNaturally(instance: { paused: boolean; ended: boolean }): void {
+  instance.paused = true
+  instance.ended = true
+}
+
+describe('world entrance one-shot themes', () => {
+  it('ended Angkor + same-track request never replays (no play, no seek, no new element)', async () => {
+    const harness = createFakeAudioHarness()
+    const manager = new NimhuntAudioManager({
+      createAudio: harness.createAudio,
+      ...createStore(),
+      subscribeToDom: false,
+    })
+    manager.playBgm('angkor')
+    await flushMicrotasks()
+    expect(harness.instances).toHaveLength(1)
+    expect(harness.instances[0]?.played).toBe(1)
+    finishNaturally(harness.instances[0]!)
+    const writes = harness.instances[0]?.currentTimeWrites ?? 0
+    manager.playBgm('angkor')
+    await flushMicrotasks()
+    expect(harness.instances).toHaveLength(1)
+    expect(harness.instances[0]?.played).toBe(1)
+    expect(harness.instances[0]?.currentTimeWrites).toBe(writes)
+    manager.dispose()
+  })
+
+  it('10 rerenders after the world track ended cause zero additional plays', async () => {
+    const harness = createFakeAudioHarness()
+    const manager = new NimhuntAudioManager({
+      createAudio: harness.createAudio,
+      ...createStore(),
+      subscribeToDom: false,
+    })
+    manager.playBgm('siberia')
+    await flushMicrotasks()
+    finishNaturally(harness.instances[0]!)
+    for (let i = 0; i < 10; i += 1) manager.playBgm('siberia')
+    await flushMicrotasks()
+    expect(harness.instances).toHaveLength(1)
+    expect(harness.instances[0]?.played).toBe(1)
+    manager.dispose()
+  })
+
+  it('repeated unlock gestures after the world track ended never replay it', async () => {
+    const harness = createFakeAudioHarness()
+    const manager = new NimhuntAudioManager({
+      createAudio: harness.createAudio,
+      ...createStore(),
+      subscribeToDom: false,
+    })
+    manager.playBgm('angkor')
+    await flushMicrotasks()
+    finishNaturally(harness.instances[0]!)
+    const played = harness.instances[0]?.played ?? 0
+    for (let i = 0; i < 10; i += 1) manager.unlock()
+    await flushMicrotasks()
+    expect(harness.instances).toHaveLength(1)
+    expect(harness.instances[0]?.played).toBe(played)
+    manager.dispose()
+  })
+
+  it('hide/show while the world track is playing resumes from the same currentTime', async () => {
+    const dom = installDomStubs()
+    try {
+      const harness = createFakeAudioHarness()
+      const manager = new NimhuntAudioManager({
+        createAudio: harness.createAudio,
+        ...createStore(),
+      })
+      manager.playBgm('bavaria')
+      await flushMicrotasks()
+      harness.instances[0]!.currentTime = 33
+      const playedBefore = harness.instances[0]?.played ?? 0
+      dom.setHidden(true)
+      dom.fireVisibility()
+      expect(harness.instances[0]?.pauseCount).toBeGreaterThanOrEqual(1)
+      expect(harness.instances[0]?.currentTime).toBe(33)
+      dom.setHidden(false)
+      dom.fireVisibility()
+      await flushMicrotasks()
+      expect(harness.instances).toHaveLength(1)
+      expect(harness.instances[0]?.played).toBe(playedBefore + 1)
+      expect(harness.instances[0]?.currentTime).toBe(33)
+      manager.dispose()
+    } finally {
+      dom.cleanup()
+    }
+  })
+
+  it('hide/show after the world track ended stays silent', async () => {
+    const dom = installDomStubs()
+    try {
+      const harness = createFakeAudioHarness()
+      const manager = new NimhuntAudioManager({
+        createAudio: harness.createAudio,
+        ...createStore(),
+      })
+      manager.playBgm('angkor')
+      await flushMicrotasks()
+      finishNaturally(harness.instances[0]!)
+      const played = harness.instances[0]?.played ?? 0
+      dom.setHidden(true)
+      dom.fireVisibility()
+      dom.setHidden(false)
+      dom.fireVisibility()
+      await flushMicrotasks()
+      expect(harness.instances).toHaveLength(1)
+      expect(harness.instances[0]?.played).toBe(played)
+      manager.dispose()
+    } finally {
+      dom.cleanup()
+    }
+  })
+
+  it('mute/unmute while the world track is playing resumes instead of restarting', async () => {
+    const harness = createFakeAudioHarness()
+    const manager = new NimhuntAudioManager({
+      createAudio: harness.createAudio,
+      ...createStore(),
+      subscribeToDom: false,
+    })
+    manager.playBgm('angkor')
+    await flushMicrotasks()
+    harness.instances[0]!.currentTime = 21
+    const playedBefore = harness.instances[0]?.played ?? 0
+    manager.setEnabled(false)
+    expect(harness.instances[0]?.pauseCount).toBeGreaterThanOrEqual(1)
+    manager.setEnabled(true)
+    await flushMicrotasks()
+    expect(harness.instances).toHaveLength(1)
+    expect(harness.instances[0]?.played).toBe(playedBefore + 1)
+    expect(harness.instances[0]?.currentTime).toBe(21)
+    manager.dispose()
+  })
+
+  it('mute/unmute after the world track ended stays silent', async () => {
+    const harness = createFakeAudioHarness()
+    const manager = new NimhuntAudioManager({
+      createAudio: harness.createAudio,
+      ...createStore(),
+      subscribeToDom: false,
+    })
+    manager.playBgm('angkor')
+    await flushMicrotasks()
+    finishNaturally(harness.instances[0]!)
+    const played = harness.instances[0]?.played ?? 0
+    manager.setEnabled(false)
+    manager.setEnabled(true)
+    await flushMicrotasks()
+    expect(harness.instances).toHaveLength(1)
+    expect(harness.instances[0]?.played).toBe(played)
+    manager.dispose()
+  })
+
+  it('exiting gameplay restores the looping main theme', async () => {
+    const harness = createFakeAudioHarness()
+    const manager = new NimhuntAudioManager({
+      createAudio: harness.createAudio,
+      ...createStore(),
+      subscribeToDom: false,
+    })
+    manager.playBgm('main')
+    await flushMicrotasks()
+    manager.playBgm('angkor')
+    await flushMicrotasks()
+    finishNaturally(harness.instances[1]!)
+    manager.playBgm('main')
+    await flushMicrotasks()
+    expect(harness.instances).toHaveLength(3)
+    expect(harness.instances[2]?.loop).toBe(true)
+    expect(harness.instances[2]?.played).toBe(1)
+    expect(manager.currentTrack()).toBe('main')
+    manager.dispose()
+  })
+
+  it('re-entering a world after the main theme starts a fresh one-shot once', async () => {
+    const harness = createFakeAudioHarness()
+    const manager = new NimhuntAudioManager({
+      createAudio: harness.createAudio,
+      ...createStore(),
+      subscribeToDom: false,
+    })
+    manager.playBgm('main')
+    await flushMicrotasks()
+    manager.playBgm('angkor')
+    await flushMicrotasks()
+    finishNaturally(harness.instances[1]!)
+    manager.playBgm('main')
+    await flushMicrotasks()
+    manager.playBgm('angkor')
+    await flushMicrotasks()
+    expect(harness.instances).toHaveLength(4)
+    expect(harness.instances[3]?.loop).toBe(false)
+    expect(harness.instances[3]?.played).toBe(1)
+    expect(harness.instances[3]?.currentTime).toBe(0)
+    expect(manager.currentTrack()).toBe('angkor')
+    manager.dispose()
+  })
+
+  it('gameplay SFX still fire after the world entrance theme ends', async () => {
+    const harness = createFakeAudioHarness()
+    const manager = new NimhuntAudioManager({
+      createAudio: harness.createAudio,
+      ...createStore(),
+      subscribeToDom: false,
+    })
+    manager.playBgm('angkor')
+    await flushMicrotasks()
+    finishNaturally(harness.instances[0]!)
+    manager.playSfx('treasure')
+    manager.playSfx('magic-circle')
+    const played = harness.instances.filter(instance => instance.played > 0)
+    expect(played.some(instance => instance.src.includes('Treasure'))).toBe(true)
+    expect(played.some(instance => String(instance.src).includes('Magic%20Circle'))).toBe(true)
+    // The finished BGM element itself gained no extra plays.
+    expect(harness.instances[0]?.played).toBe(1)
+    manager.dispose()
   })
 })

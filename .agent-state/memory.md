@@ -150,3 +150,9 @@ PASS
 - session/recover now also mints for terminal-VERIFIED unexpired runs (ABANDONED/FAILED/expired/foreign still 409/404); minting != active access (getActiveExpedition still requires STARTED, proven by test). This is what lets a reloaded client call prepare for the SAME verified run.
 - Result endpoint GET /api/expeditions/result?runId= (read-only, VerifyExpeditionResult contract only): wallet-recovery preferred, run-session fallback bound to runId; foreign/unknown 404, non-terminal/abandoned 409, no challenge/capability/replay/risk/signature leakage; explicit Vercel rewrite, no wildcard.
 - Gate: ACTIVE_RUN_UNAVAILABLE -> result fetch -> VERIFIED_* same runId -> rememberProductTerminal -> existing ExpeditionVerifiedPanel + claim flow; no gameplay-start marking, no new expedition. Claim: BLOCK+SESSION exposes "Retry eligibility check" (prepare again, no new signature unless PREPARED); TIMING/ELIGIBILITY stay terminal.
+
+## World entrance one-shot music (2026-09-18, NOT deployed)
+
+- BGM_TRACK_CONFIG in src/audio/nimhuntAudio.ts: main loop=true, angkor/bavaria/siberia loop=false. Loop flag is per-track-type at element creation, not a global.
+- Finished one-shot guard: ManagedAudio gains optional `ended` (real elements expose el.ended); same-track playBgm returns immediately on ended (no play/seek/recreate), checked before hidden/muted resume paths. Re-entry works because track switches always create a fresh element (no localStorage).
+- Hooks untouched (useNimhuntBgm/useMissionBgm flow through playBgm); SFX mapping/timing untouched; unlock/visibility semantics preserved.

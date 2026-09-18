@@ -34,6 +34,15 @@ export const SOUND_STORAGE_KEY = 'nimhunt:sound-enabled'
 export const NIMHUNT_AUDIO_SFX_GUARD =
   'PRESENTATION_ONLY: never ReplayAction, checkpoint, hash, server, reward, payout, or DB.'
 
+/** Loop behavior belongs to the track type, not the manager.
+ * main loops forever; world tracks are one-shot entrance themes. */
+export const BGM_TRACK_CONFIG: Record<BgmTrackKey, { readonly loop: boolean }> = {
+  main: { loop: true },
+  angkor: { loop: false },
+  bavaria: { loop: false },
+  siberia: { loop: false },
+}
+
 /** World -> background music file. Presentation mapping only. */
 export const WORLD_TRACK_URLS: Record<BgmTrackKey, string> = {
   main: encodeURI('/audio/music/01 - Main NimHunt Theme.mp3'),
@@ -147,6 +156,12 @@ export interface ManagedAudio {
    */
   readonly paused?: boolean
   currentTime?: number
+  /**
+   * True once a non-looping track played to its natural end. Lets the
+   * manager tell "finished one-shot" (never replay) from "paused"
+   * (resume). Fakes may omit it (treated as not ended).
+   */
+  readonly ended?: boolean
 }
 
 export interface NimhuntAudioDeps {
@@ -203,6 +218,13 @@ function defaultCreateAudio(src: string): ManagedAudio | null {
       get paused(): boolean | undefined {
         try {
           return el.paused
+        } catch {
+          return undefined
+        }
+      },
+      get ended(): boolean | undefined {
+        try {
+          return el.ended
         } catch {
           return undefined
         }
@@ -333,13 +355,17 @@ export class NimhuntAudioManager {
    * Request a BGM track. Idempotent: a same-track request while already
    * playing returns immediately without touching src, currentTime, or
    * playback. A same-track request while paused (hidden/muted/blocked)
-   * resumes from the preserved currentTime. Only a DIFFERENT track swaps
-   * the element and starts from the beginning.
+   * resumes from the preserved currentTime — UNLESS the track is a finished
+   * one-shot (naturally ended), which must never replay within the same
+   * room entry. Only a DIFFERENT track swaps the element and starts over.
    */
   playBgm(track: BgmTrackKey): void {
     this.desiredTrack = track
     if (!this.enabled) return
     if (this.bgmTrack === track && this.bgmAudio) {
+      // Finished one-shot: stay silent. No play(), no seek, no new element.
+      // (Checked first: an ended track also looks "paused".)
+      if (this.isBgmEnded(this.bgmAudio)) return
       // Paused for a reason owned elsewhere: visibility resumes it, unmute
       // resumes it. Never steal that resume here (it would restart/mis-time).
       if (this.hiddenPaused || this.mutedPaused) return
@@ -354,7 +380,7 @@ export class NimhuntAudioManager {
     const audio = createAudioSafe(this.createAudio, WORLD_TRACK_URLS[track])
     if (!audio) return
     try {
-      audio.loop = true
+      audio.loop = BGM_TRACK_CONFIG[track].loop
       audio.volume = BGM_VOLUME
     } catch {
       // Flags are best-effort.
@@ -362,7 +388,6 @@ export class NimhuntAudioManager {
     this.bgmAudio = audio
     this.attemptBgmPlay()
   }
-
   stopBgm(): void {
     this.desiredTrack = null
     this.bgmTrack = null
@@ -571,6 +596,18 @@ export class NimhuntAudioManager {
       // Unknown state falls through to "attempt playback".
     }
     return false
+  }
+
+  /**
+   * True only when the element reports a natural end. Missing/throwing
+   * `ended` (older fakes) means "not ended" so behavior is unchanged.
+   */
+  private isBgmEnded(audio: ManagedAudio): boolean {
+    try {
+      return audio.ended === true
+    } catch {
+      return false
+    }
   }
 
   /**
