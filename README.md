@@ -203,6 +203,40 @@ In three words:
 - Players gain a **reason to return daily**: fresh missions, streaks and monthly Heroes.
 - Blockchain complexity stays **behind the adventure** — the player explores ruins first and signs second.
 
+## Beyond the game: onboarding through play
+
+NimHunt is a game first. It is also designed as an onboarding and retention layer for Nimiq Pay — and as a product intended to keep growing after the competition.
+
+Most crypto onboarding starts with infrastructure. A new user is asked to download a wallet, understand addresses, fund it, understand signatures, then learn networks and tokens — all before they have a reason to care. None of that knowledge is unnecessary. It is just asked for too early, before there is any motivation to learn it.
+
+NimHunt flips that sequence. The experience comes first.
+
+Someone can discover NimHunt simply because a daily treasure adventure looks fun. The path then becomes:
+
+```text
+game → Nimiq Pay → wallet interaction → meaningful signature → first NIM experience → repeated daily use → ecosystem familiarity
+```
+
+Play creates the reason. Crypto is learned only when it is needed to keep playing.
+
+The wallet is introduced at the moment it becomes useful. Instead of an abstract signature request, the player sees "Start my expedition." Instead of an unexplained token transfer, they seal treasure they just earned through verified play. Instead of learning NIM first, they encounter NIM through an activity they already understand: finishing a mission and claiming what they earned through skill.
+
+That is why the game works better as an onboarding surface than a tutorial. No lesson explains a signature as clearly as using one to enter ruins you want to explore.
+
+For existing Nimiq Pay users, NimHunt adds a reason to return. This is not a one-use faucet. Three daily expeditions, daily room variation across nine Angkor variants, three mission types, streaks, points, gems, chest stats, Vault completions, the Treasure Bank, Monthly Heroes, leaderboard competition and future worlds form a progression loop: come for the game, grow familiar with Nimiq through use, return for daily missions and standing, and become increasingly comfortable inside Nimiq Pay.
+
+For Nimiq, that turns the wallet from a transactional destination into an application surface. The value is practical: acquisition, because a game gives non-crypto-native players a reason to enter; activation, because first wallet actions happen inside a clear context; education, because signatures and NIM behavior are learned through use rather than documentation; retention, because daily missions create reasons to reopen Nimiq Pay; and ecosystem familiarity, because Nimiq becomes part of repeated behavior instead of a one-time setup step.
+
+Angkor is World 01, not the end state. Future growth means more places to explore and more reasons to play: Bavaria, Siberia, additional worlds, new puzzle systems, new enemies, new mission classes, seasonal hunts, community challenges, richer Hero profiles, competitive events, deeper social and leaderboard loops, and cosmetics and progression that never compromise the skill-based reward rule — random loot never decides value.
+
+Over time, that same structure could become a reusable engagement surface for the ecosystem: ecosystem-themed skill quests, sponsored seasonal expeditions, community events, partner challenges. Those are future possibilities, not current partnerships. Whatever expands, the experience stays game-first. NimHunt will never become an ad wall.
+
+The current product is free, with no pay-to-win and no connection between spending and reward eligibility. If NimHunt ever sustains itself commercially, the believable paths follow the same rule: sponsored skill-based expeditions, seasonal collaborations, optional cosmetics, branded or community worlds and quests, and campaign infrastructure for ecosystem events — all built around play, not around paying for advantage.
+
+NimHunt is not really competing with another wallet feature. It is competing for a few minutes of someone's free time.
+
+If Nimiq Pay can become somewhere users voluntarily return for fun, that creates a very different relationship between the user and the wallet.
+
 ## What is live
 
 Verified in production inside Nimiq Pay (no simulated reward transactions):
