@@ -23,7 +23,7 @@ export interface NimHuntGameInstance {
 }
 
 export type CreateGameOptions =
-  | { readonly mode: 'dev'; readonly mission: MissionType }
+  | { readonly mode: 'dev'; readonly mission: MissionType; readonly blueprint?: ExpeditionBlueprint }
   | {
     readonly mode: 'product'
     readonly mission: MissionType
@@ -42,7 +42,15 @@ export function createNimHuntGame(container: HTMLElement, options: CreateGameOpt
 
   const initialHUDState = options.mode === 'product'
     ? createInitialHUDStateFromReplay(options.initialState)
-    : createInitialHUDState(options.mission)
+    : options.blueprint
+      ? {
+        ...createInitialHUDState(options.mission),
+        gemTarget: options.blueprint.missionParameters.gemTarget,
+        chestTarget: options.blueprint.missionParameters.chestTarget,
+        gridX: options.blueprint.spawn.x,
+        gridY: options.blueprint.spawn.y,
+      }
+      : createInitialHUDState(options.mission)
 
   const bridge = createGameBridge(initialHUDState)
   const config = createGameConfig(container, bridge, options)

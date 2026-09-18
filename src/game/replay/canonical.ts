@@ -4,6 +4,7 @@ import type {
   ExpeditionBlueprint,
   ExpeditionCheckpoint,
   ExpeditionTranscript,
+  ReplayAction,
   ReplayState,
   RewardClaimPayload,
 } from './types.ts'
@@ -47,8 +48,15 @@ export function serializeBlueprintHashPayload(blueprint: ExpeditionBlueprint): s
       type: hazard.type,
       trigger: hazard.trigger,
       delay: hazard.delay,
+      triggerCells: (hazard.triggerCells ?? [{ x: hazard.x, y: hazard.y }]).map(coordinate),
     })),
   })
+}
+
+function serializeAction(action: ReplayAction): Record<string, unknown> {
+  return action.type === 'MOVE'
+    ? { seq: action.seq, type: action.type, direction: action.direction }
+    : { seq: action.seq, type: action.type }
 }
 
 export function serializeTranscript(transcript: ExpeditionTranscript): string {
@@ -62,11 +70,7 @@ export function serializeTranscript(transcript: ExpeditionTranscript): string {
     blueprintVersion: transcript.blueprintVersion,
     blueprintId: transcript.blueprintId,
     blueprintHash: transcript.blueprintHash,
-    actions: transcript.actions.map(action => ({
-      seq: action.seq,
-      type: action.type,
-      direction: action.direction,
-    })),
+    actions: transcript.actions.map(serializeAction),
   })
 }
 
@@ -116,6 +120,15 @@ export function serializeReplayState(state: ReplayState): string {
       patrolIndex: goblin.patrolIndex,
       patrolDirection: goblin.patrolDirection,
     })),
+    ...(state.collapsingBoulders && state.collapsingBoulders.length > 0 ? {
+      collapsingBoulders: state.collapsingBoulders.map(b => ({
+        id: b.id,
+        state: b.state,
+        triggeredAtTick: b.triggeredAtTick,
+        elapsedTicks: b.elapsedTicks,
+        targetTicks: b.targetTicks,
+      })),
+    } : {}),
   })
 }
 
@@ -138,7 +151,7 @@ export function serializeActionBatch(batch: ExpeditionActionBatch): string {
     previousCheckpointHash: batch.previousCheckpointHash,
     seqStart: batch.seqStart,
     seqEnd: batch.seqEnd,
-    actions: batch.actions.map(action => ({ seq: action.seq, type: action.type, direction: action.direction })),
+    actions: batch.actions.map(serializeAction),
   })
 }
 

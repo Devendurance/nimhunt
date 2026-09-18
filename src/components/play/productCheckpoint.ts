@@ -15,7 +15,7 @@ import { deriveCheckpointProgress, progressConflicts } from '../../game/replay/c
 import { createCheckpointQueue } from '../../game/replay/checkpointQueue.ts'
 import { advanceRun, replayActions } from '../../game/replay/engine.ts'
 import type { Direction } from '../../game/world/grid.ts'
-import type { MoveAction, ReplayState } from '../../game/replay/types.ts'
+import type { ReplayAction, ReplayState } from '../../game/replay/types.ts'
 import { rememberProductTerminal } from './productRunSession.ts'
 
 export const SYNCING_COPY = 'Syncing expedition…'
@@ -28,8 +28,9 @@ export const TREASURE_RESERVED_TITLE = 'TREASURE RESERVED'
 export const TREASURE_RESERVED_DETAIL = "You secured one of today's 69 reward slots."
 export const TREASURE_RESERVED_NOTE = 'Reservation confirmed.'
 export const TODAY_FULL_TITLE = "TODAY'S TREASURE IS FULL"
-export const TODAY_FULL_DETAIL = 'All 69 reward slots have been reserved.'
+export const TODAY_FULL_DETAIL = 'All 69 reward slots have been reserved. You can keep playing — new treasure opens tomorrow.'
 export const ALREADY_REWARDED_TITLE = "TODAY'S REWARD ALREADY RESERVED"
+export const ALREADY_REWARDED_DETAIL = "Today's reward is already secured. You can keep playing your remaining expeditions — nothing is broken."
 export const REWARD_REVIEW_TITLE = 'REWARD CHECK IN PROGRESS'
 export const REWARD_REVIEW_DETAIL = 'Your expedition is verified, but this reward needs an additional eligibility check.'
 export const REWARD_BLOCK_TITLE = 'REWARD NOT ELIGIBLE'
@@ -42,9 +43,9 @@ export const TREASURE_SEALED_TITLE = 'TREASURE SEALED'
 export const TREASURE_SEALED_DETAIL = 'Your Nimiq signature was verified for this expedition.'
 export const SIGNATURE_CANCELLED_COPY = 'Signature request was cancelled.'
 export const PROOF_LOST_TITLE = 'Reward proof was interrupted.'
-export const PROOF_LOST_DETAIL = "You can keep exploring, but this run can no longer reserve today's treasure."
+export const PROOF_LOST_DETAIL = "You can keep exploring, but this run can no longer reserve today's treasure. Starting a new expedition is safe."
 export const VERIFY_REJECTED_TITLE = 'Expedition could not be verified.'
-export const VERIFY_REJECTED_DETAIL = 'Reward proof does not match the server record.'
+export const VERIFY_REJECTED_DETAIL = 'This expedition could not be verified. Starting a new expedition is safe.'
 export const MISSION_INCOMPLETE_COPY = 'Mission objective is not complete yet.'
 
 export type ProductCheckpointView = {
@@ -64,6 +65,7 @@ export type ProductCheckpointSession = {
   readonly proof: ProductProofBridge
   canAcceptMove(): boolean
   recordAcceptedMove(direction: Direction): void
+  recordAcceptedTick(): void
   notifyGameplayEvent(event: 'MISSION_COMPLETE' | 'DEATH' | 'VAULT_REACHED'): void
   flushPending(): Promise<void>
   leaveAndAbandon(): Promise<void>
@@ -108,7 +110,7 @@ export function createProductCheckpointSession(
     roomVersion: active.state.roomVersion,
     blueprint: active.state.blueprint,
   }
-  const accepted: MoveAction[] = []
+  const accepted: ReplayAction[] = []
   let localReplay: ReplayState = cloneReplay(active.state)
   let stopped = false
   let pumping: Promise<void> | null = null
@@ -123,6 +125,7 @@ export function createProductCheckpointSession(
   const proof: ProductProofBridge = {
     canAcceptMove: () => canAcceptMove(),
     recordAcceptedMove: (direction) => recordAcceptedMove(direction),
+    recordAcceptedTick: () => recordAcceptedTick(),
     notifyGameplayEvent: (event) => notifyGameplayEvent(event),
   }
 
@@ -130,6 +133,7 @@ export function createProductCheckpointSession(
     proof,
     canAcceptMove,
     recordAcceptedMove,
+    recordAcceptedTick,
     notifyGameplayEvent,
     flushPending,
     leaveAndAbandon,
@@ -148,6 +152,7 @@ export function createProductCheckpointSession(
   }
 
   function recordAcceptedMove(direction: Direction): void {
+    const priorBoulders = localReplay.collapsingBoulders
     const action = queue.recordAcceptedMove(direction)
     if (!action) return
     const result = advanceRun(localReplay, action)
@@ -158,6 +163,31 @@ export function createProductCheckpointSession(
     accepted.push(action)
     localReplay = result.state
     if (missionIncomplete) missionIncomplete = false
+
+    if (result.state.collapsingBoulders) {
+      const transitionedToWarning = result.state.collapsingBoulders.some(b => {
+        const prior = priorBoulders?.find(pb => pb.id === b.id)
+        return (!prior || prior.state === 'ARMED') && b.state === 'WARNING'
+      })
+      if (transitionedToWarning) {
+        queue.requestFlush()
+      }
+    }
+
+    emit()
+    schedulePump()
+  }
+
+  function recordAcceptedTick(): void {
+    const action = queue.recordAcceptedTick()
+    if (!action) return
+    const result = advanceRun(localReplay, action)
+    if (!result.accepted) {
+      loseProof(`LOCAL_REPLAY_REJECTED:${result.reason ?? 'unknown'}`)
+      return
+    }
+    accepted.push(action)
+    localReplay = result.state
     emit()
     schedulePump()
   }
@@ -223,7 +253,7 @@ export function createProductCheckpointSession(
         const seqEnd = request.actions[request.actions.length - 1]?.seq
         traceCheckpoint(
           'CHECKPOINT_BATCH_READY',
-          `seq=${seqStart ?? '?'}-${seqEnd ?? '?'} prev=${truncateHash(request.previousCheckpointHash)} dirs=${request.actions.map(action => action.direction).join(',')}`,
+          `seq=${seqStart ?? '?'}-${seqEnd ?? '?'} prev=${truncateHash(request.previousCheckpointHash)} dirs=${request.actions.map(action => action.type === 'MOVE' ? action.direction : 'TICK').join(',')}`,
         )
         emit()
         try {
@@ -351,6 +381,9 @@ export function useProductCheckpoint(active: ProductActiveExpedition | null): {
     canAcceptMove: () => sessionRef.current?.canAcceptMove() ?? true,
     recordAcceptedMove: (direction) => {
       sessionRef.current?.recordAcceptedMove(direction)
+    },
+    recordAcceptedTick: () => {
+      sessionRef.current?.recordAcceptedTick()
     },
     notifyGameplayEvent: (event) => {
       sessionRef.current?.notifyGameplayEvent(event)

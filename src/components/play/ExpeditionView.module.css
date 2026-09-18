@@ -36,6 +36,7 @@
 .keyState svg { color:#81b4ff; flex:none; }
 .keyState .itemBadge { display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
 .keyState .notice { margin-left:auto; color:#c0d0c6; white-space:nowrap; }
+.warningNotice { margin-left:auto; color:#ffd86a; font-weight:700; white-space:nowrap; }
 .outcome { width:100%; padding:16px; border:1px solid #81b4ff; border-radius:12px; background:#1b3833; }
 .outcome h2 { margin:0 0 12px; font:400 26px/30px 'Jungle Fever',Impact,sans-serif; color:#f3ead7; }
 .outcome p { margin:6px 0; font-size:13px; line-height:20px; }
@@ -56,4 +57,5 @@
 .sealProof { margin:10px 0; padding:10px 12px; border:1px solid rgba(243,234,215,.16); border-radius:10px; background:#132a26; }
 .sealProof p { display:flex; justify-content:space-between; gap:12px; margin:4px 0 !important; font-size:12px !important; font-variant-numeric:tabular-nums; }
 .sealProof span { color:#8fa59a; font-size:10px; font-weight:700; letter-spacing:.8px; }
+@media (max-width:380px) { .metrics { flex-wrap:wrap; row-gap:6px; } .keyState .notice, .keyState .warningNotice { flex-basis:100%; margin-left:0; white-space:normal; } }
 @media (max-width:350px) { .title { font-size:16px; line-height:20px; } .metrics { gap:8px; font-size:11px; } .metrics strong { font-size:13px; } }

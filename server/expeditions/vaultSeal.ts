@@ -12,7 +12,7 @@ import {
   serializeProductVaultSeal,
   type ProductVaultSealPayload,
 } from '../../src/domain/productVaultSeal.ts'
-import { BLUEPRINT_VERSION, ROOM_VERSION, RULES_VERSION } from '../../src/game/replay/versions.ts'
+import { isSupportedBlueprintVersion, ROOM_VERSION, RULES_VERSION } from '../../src/game/replay/versions.ts'
 import { ProofError } from './errors.ts'
 import { sha256Hex, verifyNimiqSignedCanonicalMessage } from './crypto.ts'
 import type { DurableExpeditionRun, DurableVaultSealProof } from './types.ts'
@@ -111,7 +111,7 @@ function requireBoundPayload(run: DurableExpeditionRun, payload: ProductVaultSea
   if (payload.roomVersion !== run.blueprint.roomVersion || payload.roomVersion !== ROOM_VERSION) {
     throw new ProofError('VAULT_SEAL_MISMATCH')
   }
-  if (payload.blueprintVersion !== run.blueprint.blueprintVersion || payload.blueprintVersion !== BLUEPRINT_VERSION) {
+  if (payload.blueprintVersion !== run.blueprint.blueprintVersion || !isSupportedBlueprintVersion(payload.blueprintVersion)) {
     throw new ProofError('VAULT_SEAL_MISMATCH')
   }
   if (payload.blueprintId !== run.blueprint.blueprintId) throw new ProofError('VAULT_SEAL_MISMATCH')
@@ -135,7 +135,7 @@ function requireVaultGameplayVerified(run: DurableExpeditionRun): void {
   }
   if (run.blueprint.rulesVersion !== RULES_VERSION
     || run.blueprint.roomVersion !== ROOM_VERSION
-    || run.blueprint.blueprintVersion !== BLUEPRINT_VERSION) {
+    || !isSupportedBlueprintVersion(run.blueprint.blueprintVersion)) {
     throw new ProofError('VAULT_SEAL_MISMATCH')
   }
 }

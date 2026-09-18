@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { hashBlueprint } from '../../src/game/replay/canonical.ts'
 import { replayActions } from '../../src/game/replay/engine.ts'
-import type { ExpeditionBlueprint, MoveAction } from '../../src/game/replay/types.ts'
+import type { ExpeditionBlueprint, ReplayAction } from '../../src/game/replay/types.ts'
 import { validateExpeditionBlueprint } from '../../src/game/replay/validator.ts'
 import { createMemoryProofService, publicationValidationStats } from './memoryProofStore.ts'
 import { createBootstrapBlueprint, createPublishedBootstrapBlueprint } from './blueprintBootstrap.ts'
@@ -20,11 +20,11 @@ function rehash(blueprint: ExpeditionBlueprint, changes: Partial<ExpeditionBluep
   return { ...candidate, blueprintHash: hashBlueprint(candidate) }
 }
 
-function encodeSequence(actions: readonly MoveAction[]): string {
-  return actions.map(action => action.direction[0]!).join('')
+function encodeSequence(actions: readonly ReplayAction[]): string {
+  return actions.map(action => action.type === 'MOVE' ? action.direction[0]! : 'T').join('')
 }
 
-function isLiveWin(blueprint: ExpeditionBlueprint, actions: readonly MoveAction[]): boolean {
+function isLiveWin(blueprint: ExpeditionBlueprint, actions: readonly ReplayAction[]): boolean {
   const final = replayActions({
     mission: blueprint.mission,
     rulesVersion: blueprint.rulesVersion,

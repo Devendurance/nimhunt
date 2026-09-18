@@ -66,9 +66,16 @@ function setup() {
   return { scene, internals, bridge }
 }
 
-function setupProduct(proof: ProductProofBridge, mission: 'gem-runner' | 'chest-hunter' | 'vault-breaker' = 'gem-runner') {
+function setupProduct(proof: Partial<ProductProofBridge>, mission: 'gem-runner' | 'chest-hunter' | 'vault-breaker' = 'gem-runner') {
   pending.steps = []; pending.tweens = []; pending.timers = []
   vi.stubGlobal('window', { matchMedia: () => ({ matches: true }) })
+  const fullProof: ProductProofBridge = {
+    canAcceptMove: () => true,
+    recordAcceptedMove: () => {},
+    recordAcceptedTick: () => {},
+    notifyGameplayEvent: () => {},
+    ...proof,
+  }
   const source = createRoom01Blueprint('2026-09-09', mission, 'scene-checkpoint')
   const blueprint = { ...source, status: 'PUBLISHED' as const, blueprintHash: 'a'.repeat(64) }
   const initialState = createInitialRun({
@@ -83,7 +90,7 @@ function setupProduct(proof: ProductProofBridge, mission: 'gem-runner' | 'chest-
     mission,
     blueprint,
     initialState,
-    proof,
+    proof: fullProof,
   })
   const internals = scene as unknown as {
     player: { gridX: number; gridY: number }

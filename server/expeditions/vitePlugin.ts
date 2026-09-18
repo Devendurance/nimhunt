@@ -117,20 +117,20 @@ export async function createDefaultProofService(
   const config = readServerSupabaseConfig(env)
   if (!config) return null
   const { utcDayKey } = await import('../ledger/utcDay.ts')
-  const { createPublishedBootstrapBlueprints } = await import('./blueprintBootstrap.ts')
+  const { createDailyPublishedBlueprints } = await import('./blueprintBootstrap.ts')
   const { createSupabaseProofService } = await import('./postgresProofStore.ts')
   return createSupabaseProofService({
     client: createSupabaseAdminClient(config),
-    blueprints: createPublishedBootstrapBlueprints(utcDayKey(new Date())),
+    blueprints: createDailyPublishedBlueprints(utcDayKey(new Date())),
   })
 }
 
 export async function createDevelopmentMemoryProofService(): Promise<MemoryProofService> {
   const { utcDayKey } = await import('../ledger/utcDay.ts')
-  const { createPublishedBootstrapBlueprints } = await import('./blueprintBootstrap.ts')
+  const { createDailyPublishedBlueprints } = await import('./blueprintBootstrap.ts')
   const { createMemoryProofService } = await import('./memoryProofStore.ts')
   return createMemoryProofService({
-    blueprints: createPublishedBootstrapBlueprints(utcDayKey(new Date())),
+    blueprints: createDailyPublishedBlueprints(utcDayKey(new Date())),
   })
 }
 

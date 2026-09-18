@@ -10,7 +10,7 @@ import type {
   FinalizeRewardClaimResult,
   PrepareRewardClaimResult,
 } from '../../src/domain/expeditionProof.ts'
-import { BLUEPRINT_VERSION, ROOM_VERSION, RULES_VERSION } from '../../src/game/replay/versions.ts'
+import { isSupportedBlueprintVersion, ROOM_VERSION, RULES_VERSION } from '../../src/game/replay/versions.ts'
 import { nextUtcResetAt } from '../ledger/utcDay.ts'
 import { sha256Hex, verifyNimiqSignedCanonicalMessage } from './crypto.ts'
 import { ProofError } from './errors.ts'
@@ -200,7 +200,7 @@ export function toFinalizeResult(
 function requireBoundVersions(run: DurableExpeditionRun): void {
   if (run.blueprint.rulesVersion !== RULES_VERSION
     || run.blueprint.roomVersion !== ROOM_VERSION
-    || run.blueprint.blueprintVersion !== BLUEPRINT_VERSION) {
+    || !isSupportedBlueprintVersion(run.blueprint.blueprintVersion)) {
     throw new ProofError('CLAIM_MISMATCH')
   }
 }

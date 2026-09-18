@@ -13,9 +13,9 @@ export function getMissionTitle(mission: MissionType): string {
   return 'GEM RUNNER'
 }
 export function getMissionObjective(mission: MissionType): string {
-  if (mission === 'chest-hunter') return 'Open 4 chests and finish alive.'
-  if (mission === 'vault-breaker') return 'Find the Temple Key, reach the Vault, and seal the treasure.'
-  return 'Collect 6 gems and stay alive.'
+  if (mission === 'chest-hunter') return 'Open 4 chests and survive.'
+  if (mission === 'vault-breaker') return 'Find the key. Unlock the gate. Reach the vault.'
+  return 'Collect 6 gems and survive.'
 }
 export function evaluateMission(state: PlayerRunState, mission: MissionType = 'gem-runner'): PlayerRunState {
   const hp = clampHP(state.hp)

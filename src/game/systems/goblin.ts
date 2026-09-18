@@ -43,7 +43,8 @@ export function isWalkableForGoblin(
   room: GridRoom,
   puzzle: PuzzleState,
   coord: GridCoord,
-  lockedGateCoord: GridCoord = { x: 8, y: 3 }
+  lockedGateCoord: GridCoord = { x: 8, y: 3 },
+  fallenBoulders: readonly GridCoord[] = [],
 ): boolean {
   // 1. Bounds check
   if (coord.x < 0 || coord.x >= room.width || coord.y < 0 || coord.y >= room.height) {
@@ -65,6 +66,11 @@ export function isWalkableForGoblin(
     return false
   }
 
+  // 5. Fallen boulder obstruction check
+  if (fallenBoulders.some(b => sameTile(b, coord))) {
+    return false
+  }
+
   return true
 }
 
@@ -73,7 +79,8 @@ export function getValidGoblinStep(
   puzzle: PuzzleState,
   from: GridCoord,
   target: GridCoord,
-  lockedGateCoord: GridCoord = { x: 8, y: 3 }
+  lockedGateCoord: GridCoord = { x: 8, y: 3 },
+  fallenBoulders: readonly GridCoord[] = [],
 ): { step: GridCoord; facing: Direction } | null {
   const dx = target.x - from.x
   const dy = target.y - from.y
@@ -107,7 +114,7 @@ export function getValidGoblinStep(
   }
 
   for (const cand of candidates) {
-    if (isWalkableForGoblin(room, puzzle, cand.step, lockedGateCoord)) {
+    if (isWalkableForGoblin(room, puzzle, cand.step, lockedGateCoord, fallenBoulders)) {
       return cand
     }
   }
@@ -121,7 +128,8 @@ export function stepGoblin(
   goblin: GoblinState,
   playerPos: GridCoord,
   patrolRoute: readonly GridCoord[],
-  lockedGateCoord: GridCoord = { x: 8, y: 3 }
+  lockedGateCoord: GridCoord = { x: 8, y: 3 },
+  fallenBoulders: readonly GridCoord[] = [],
 ): GoblinState {
   if (goblin.state === 'DEFEATED' || goblin.state === 'STUNNED') {
     return goblin
@@ -135,7 +143,8 @@ export function stepGoblin(
       puzzle,
       { x: goblin.gridX, y: goblin.gridY },
       playerPos,
-      lockedGateCoord
+      lockedGateCoord,
+      fallenBoulders,
     )
     if (!step) {
       return { ...goblin, state: 'CHASE' }
@@ -177,7 +186,8 @@ export function stepGoblin(
     puzzle,
     { x: goblin.gridX, y: goblin.gridY },
     destination,
-    lockedGateCoord
+    lockedGateCoord,
+    fallenBoulders,
   )
 
   if (!step) {

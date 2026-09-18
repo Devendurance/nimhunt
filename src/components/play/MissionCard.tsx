@@ -13,7 +13,7 @@ export function MissionCard({ mission, onEnter }: { mission: Mission; onEnter: (
       <h3>{mission.title}</h3>
       <p>{mission.objective}</p>
       {locked
-        ? <button className={styles.enterButton} type="button" disabled aria-disabled="true" title="Vault Breaker arrives in a later build">Coming next <PlayIcon name="arrowUpRight" size={16} /></button>
+        ? <button className={styles.enterButton} type="button" disabled aria-disabled="true" title="This mission is not available right now">Unavailable <PlayIcon name="arrowUpRight" size={16} /></button>
         : <button className={styles.enterButton} type="button" onClick={event => onEnter(mission, event.currentTarget)}>Enter ruins <PlayIcon name="arrowUpRight" size={16} /></button>}
     </div>
   </article>

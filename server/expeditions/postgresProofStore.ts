@@ -339,7 +339,7 @@ export async function createPostgresProofService(options: {
       const applied = applyCheckpointBatch(run, {
         previousCheckpointHash: input.previousCheckpointHash,
         actions: input.actions,
-      })
+      }, { now })
       const persisted = readProofRpc(await rpc.rpc('append_checkpoint_batch', {
         p_run_id: input.runId,
         p_run_session_hash: input.session.sessionHash,
@@ -774,6 +774,7 @@ function mapRun(payload: Record<string, unknown>): DurableExpeditionRun {
     seq,
     actions,
     batches,
+    hazardDeadlines: state.hazardDeadlines ? [...state.hazardDeadlines] : undefined,
     terminal: asTerminal(row.terminal),
     vaultSeal: asVaultSeal(payload.vault_seal),
   }

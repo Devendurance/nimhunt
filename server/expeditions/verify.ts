@@ -6,12 +6,12 @@ import { CHEST_HUNTER_TARGET, GEM_RUNNER_TARGET } from '../../src/game/domain/mi
 import { hashBlueprint, hashReplayState, hashTranscript } from '../../src/game/replay/canonical.ts'
 import { createInitialRun, replayActions } from '../../src/game/replay/engine.ts'
 import { TRANSCRIPT_VERSION } from '../../src/game/replay/versions.ts'
-import type { ExpeditionTranscript, MoveAction, ReplayState } from '../../src/game/replay/types.ts'
+import type { ExpeditionTranscript, ReplayAction, ReplayState } from '../../src/game/replay/types.ts'
 import { ProofError } from './errors.ts'
 import type { DurableCheckpointBatch, DurableExpeditionRun } from './types.ts'
 
-export function reconstructActionsFromBatches(run: DurableExpeditionRun): readonly MoveAction[] {
-  const actions: MoveAction[] = []
+export function reconstructActionsFromBatches(run: DurableExpeditionRun): readonly ReplayAction[] {
+  const actions: ReplayAction[] = []
   let previousHash = run.initialCheckpointHash
   let expectedSeq = 1
   for (const batch of run.batches) {
@@ -20,7 +20,7 @@ export function reconstructActionsFromBatches(run: DurableExpeditionRun): readon
     if (batch.seqEnd !== batch.seqStart + batch.actions.length - 1) throw new ProofError('PROOF_LOST')
     for (let index = 0; index < batch.actions.length; index += 1) {
       const action = batch.actions[index]
-      if (!action || action.seq !== batch.seqStart + index || action.type !== 'MOVE') {
+      if (!action || action.seq !== batch.seqStart + index || (action.type !== 'MOVE' && action.type !== 'TICK')) {
         throw new ProofError('PROOF_LOST')
       }
     }
@@ -119,7 +119,7 @@ export function abandonExpeditionRun(
 }
 
 type RunAudit = {
-  readonly actions: readonly MoveAction[]
+  readonly actions: readonly ReplayAction[]
   readonly state: ReplayState
   readonly transcriptHash: string
   readonly stateHash: string
@@ -161,6 +161,27 @@ function auditTrustedRun(run: DurableExpeditionRun, checkpointHash: string): Run
   if (stateHash !== run.checkpoint.stateHash) throw new ProofError('PROOF_LOST')
   if (state.seq !== run.seq || state.seq !== run.checkpoint.seq) throw new ProofError('PROOF_LOST')
   if (hashReplayState(run.state) !== stateHash) throw new ProofError('PROOF_LOST')
+
+  // Verify authoritative hazard deadlines if timed hazards were triggered
+  if (state.collapsingBoulders && state.collapsingBoulders.length > 0) {
+    for (const boulder of state.collapsingBoulders) {
+      if (boulder.state === 'WARNING' || boulder.state === 'FALLEN') {
+        const deadline = run.hazardDeadlines?.find(d => d.hazardId === boulder.id)
+        if (!deadline || boulder.state !== 'FALLEN') {
+          throw new ProofError('PROOF_LOST')
+        }
+      }
+    }
+  }
+  if (run.hazardDeadlines && run.hazardDeadlines.length > 0) {
+    for (const deadline of run.hazardDeadlines) {
+      const boulder = state.collapsingBoulders?.find(b => b.id === deadline.hazardId)
+      if (!boulder || boulder.state !== 'FALLEN') {
+        throw new ProofError('PROOF_LOST')
+      }
+    }
+  }
+
   return { actions, state, transcriptHash, stateHash }
 }
 
@@ -209,7 +230,7 @@ function createVerifyResult(
   }
 }
 
-function transcriptFor(run: DurableExpeditionRun, actions: readonly MoveAction[]): ExpeditionTranscript {
+function transcriptFor(run: DurableExpeditionRun, actions: readonly ReplayAction[]): ExpeditionTranscript {
   return {
     version: TRANSCRIPT_VERSION,
     runId: run.runId,

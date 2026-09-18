@@ -1,4 +1,4 @@
-import type { ExpeditionBlueprint, ReplayState } from './replay/types.ts'
+import type { ExpeditionBlueprint, ReplayCollapsingBoulderState, ReplayState, TimedHazard } from './replay/types.ts'
 import type { GridCoord } from './world/grid.ts'
 import type { PuzzleObjects, PuzzleState } from './systems/puzzle.ts'
 import type { RoomContents } from './systems/tileEntry.ts'
@@ -13,11 +13,13 @@ export type ProductBlueprintRuntime = {
   readonly contents: RoomContents
   readonly puzzle: PuzzleObjects
   readonly goblin: GoblinSpawnConfig | null
+  readonly goblins: readonly GoblinSpawnConfig[]
   readonly chests: readonly ChestPlacement[]
   readonly sword: GridCoord | null
   readonly potion: GridCoord | null
   readonly gemTarget: number
   readonly chestTarget: number
+  readonly timedHazards: readonly TimedHazard[]
 }
 
 export type ProductInitialRuntimeState = {
@@ -27,6 +29,8 @@ export type ProductInitialRuntimeState = {
   readonly items: ItemState
   readonly chests: readonly ChestInstance[]
   readonly goblin: GoblinState | null
+  readonly goblins: readonly GoblinState[]
+  readonly collapsingBoulders?: readonly ReplayCollapsingBoulderState[]
 }
 
 export function mapProductBlueprint(blueprint: ExpeditionBlueprint): ProductBlueprintRuntime {
@@ -48,11 +52,19 @@ export function mapProductBlueprint(blueprint: ExpeditionBlueprint): ProductBlue
         patrolRoute: blueprint.goblins[0].patrolRoute.map(coord => ({ ...coord })),
       }
       : null,
+    goblins: blueprint.goblins.map(goblin => ({
+      spawn: { ...goblin.spawn },
+      patrolRoute: goblin.patrolRoute.map(coord => ({ ...coord })),
+    })),
     chests: blueprint.chests.map(chest => ({ ...chest })),
     sword: blueprint.sword ? { ...blueprint.sword } : null,
     potion: blueprint.potion ? { ...blueprint.potion } : null,
     gemTarget: blueprint.missionParameters.gemTarget,
     chestTarget: blueprint.missionParameters.chestTarget,
+    timedHazards: blueprint.timedHazards.map(h => ({
+      ...h,
+      triggerCells: h.triggerCells ? h.triggerCells.map(c => ({ ...c })) : undefined,
+    })),
   }
 }
 
@@ -67,5 +79,7 @@ export function mapProductInitialState(state: ReplayState): ProductInitialRuntim
     items: { ...state.items },
     chests: state.chests.map(chest => ({ ...chest })),
     goblin: state.goblins[0] ? { ...state.goblins[0] } : null,
+    goblins: state.goblins.map(goblin => ({ ...goblin })),
+    collapsingBoulders: state.collapsingBoulders ? state.collapsingBoulders.map(cb => ({ ...cb })) : undefined,
   }
 }

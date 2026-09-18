@@ -69,6 +69,7 @@
 .status, .progressSection, .heroesSection, .worldSection, .missionSection, .missionSectionCompact { margin-top: 18px; }
 .status { padding: 16px; border: 1px solid rgba(243, 234, 215, .17); border-radius: 18px; background: #1b3833; }
 .statusEyebrow, .sectionHeading, .missionMeta, .sheetTopline { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.missionMeta { flex-wrap: wrap; row-gap: 4px; }
 .statusEyebrow { color: #f3ead7; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; }
 .statusDot { width: 7px; height: 7px; margin-right: -6px; border-radius: 50%; background: #3e88f7; box-shadow: 0 0 10px rgba(62, 136, 247, .7); }
 .fixtureBadge, .sampleLabel { color: #8fb5a3; font-size: 8px; font-weight: 700; letter-spacing: 1px; }

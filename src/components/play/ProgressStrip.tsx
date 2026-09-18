@@ -10,6 +10,6 @@ export function ProgressStrip({ fixture }: { fixture: PlayFixture }) {
       <div><span className={`${styles.progressIcon} ${styles.pointsIcon}`}><PlayIcon name="star" size={18} /></span><strong>{fixture.points.toLocaleString()}</strong><span>points</span></div>
       <div><span className={`${styles.progressIcon} ${styles.streakIcon}`}><PlayIcon name="flame" size={18} /></span><strong>{fixture.streakDays}</strong><span>day streak</span></div>
     </div>
-    <p className={styles.disclosure}>Gems are not redeemable for NIM in the current build.</p>
+    <p className={styles.disclosure}>Preview progress. Reserved NIM treasure is tracked separately.</p>
   </section>
 }

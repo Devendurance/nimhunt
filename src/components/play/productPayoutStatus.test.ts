@@ -22,7 +22,7 @@ describe('payout status copy', () => {
     for (const status of ['PENDING', 'PROCESSING'] as const) {
       expect(payoutStatusCopy(view({ status }))).toEqual({
         title: 'TREASURE RESERVED',
-        lines: ['Your treasure is reserved and waiting for payout.'],
+        lines: ['Your reward is secured.', 'Daily rewards are paid in the next payout batch.'],
         amountLabel: null,
         txHashShort: null,
         verified: false,
@@ -68,10 +68,10 @@ describe('payout status copy', () => {
 
   it('keeps the reservation safe on retryable and final failure', () => {
     expect(payoutStatusCopy(view({ status: 'FAILED_RETRYABLE' })).lines).toEqual([
-      'Your reservation is safe. Payout is being retried safely.',
+      'Your reward is secured.', 'Daily rewards are paid in the next payout batch.',
     ])
     expect(payoutStatusCopy(view({ status: 'FAILED_FINAL' })).lines).toEqual([
-      'Your reservation is safe. Payout needs review.',
+      'Your reward is secured. Payout needs review.',
     ])
   })
 

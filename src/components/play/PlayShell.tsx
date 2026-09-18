@@ -138,7 +138,7 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
           <WorldStatus />
         </>}
         {activeTab === 'heroes' && <>
-          <section className={styles.pageIntro} aria-labelledby="heroes-page-heading"><span className={styles.kicker}>SAMPLE RANKING · NOT LIVE</span><h1 id="heroes-page-heading">Hall of Heroes</h1><p>Leave a mark in the ruins with points, streaks, and completed expeditions.</p></section>
+          <section className={styles.pageIntro} aria-labelledby="heroes-page-heading"><span className={styles.kicker}>HALL OF HEROES · PREVIEW</span><h1 id="heroes-page-heading">Hall of Heroes</h1><p>Early preview of expedition rankings. Points, streaks, and completed expeditions.</p></section>
           <HeroesPreview fixture={playFixture} />
           <ProgressStrip fixture={playFixture} />
         </>}
@@ -154,7 +154,7 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
         onStartPractice={handleStartPractice}
         onFreshStart={productStart.reset}
       />}
-      <div className={styles.footerMark}>Built for Nimiq Pay · shell preview</div>
+      <div className={styles.footerMark}>Built for Nimiq Pay</div>
     </div>
   </div>
 }
@@ -184,6 +184,13 @@ function PlayWalletStrip({
   }
   if (bootstrap.status === 'CANCELLED') {
     return <div className={styles.walletStrip}>
+      <p className={styles.walletCopy}>Account access was cancelled. Retry is safe.</p>
+      <button className={styles.sheetPrimary} type="button" onClick={() => void bootstrap.connect()}>{PLAY_WALLET_BOOTSTRAP_COPY.CONNECT}</button>
+    </div>
+  }
+  if (bootstrap.status === 'UNAVAILABLE' || bootstrap.status === 'IDLE') {
+    return <div className={styles.walletStrip}>
+      <p className={styles.walletCopy}>Open this hunt inside Nimiq Pay to connect your wallet.</p>
       <button className={styles.sheetPrimary} type="button" onClick={() => void bootstrap.connect()}>{PLAY_WALLET_BOOTSTRAP_COPY.CONNECT}</button>
     </div>
   }

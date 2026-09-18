@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Gem, Heart, LogOut, RotateCcw, Triangle, Droplets, KeyRound, Sword, Package } from 'lucide-react'
 import { getMissionObjective, getMissionTitle, parseMissionParam } from '../../game/domain/mission'
+import { createDailyAngkorBlueprint } from '../../game/world/dailyAngkorLayouts'
 import type { Direction } from '../../game/world/grid'
 import { useAngkorRun } from './useAngkorRun'
 import styles from './GameDevView.module.css'
@@ -19,7 +20,11 @@ export function GameDevView() {
   const mission = parseMissionParam(params.get('mission'))
   const isChestHunter = mission === 'chest-hunter'
   const isVault = mission === 'vault-breaker'
-  const gameOptions = useMemo(() => ({ mode: 'dev' as const, mission }), [mission])
+  const variantParam = parseInt(params.get('variant') || '1', 10)
+  const variantIndex = isNaN(variantParam) ? 0 : Math.max(0, Math.min(2, variantParam - 1))
+  const today = useMemo(() => new Date().toISOString().slice(0, 10), [])
+  const blueprint = useMemo(() => createDailyAngkorBlueprint(today, mission, variantIndex), [today, mission, variantIndex])
+  const gameOptions = useMemo(() => ({ mode: 'dev' as const, mission, blueprint }), [mission, blueprint])
   const { containerRef: canvasContainerRef, hud, move, reset } = useAngkorRun(gameOptions)
   const headingRef = useRef<HTMLHeadingElement>(null)
   const upRef = useRef<HTMLButtonElement>(null)
@@ -68,6 +73,31 @@ export function GameDevView() {
         <span className={styles.itemBadge}><Sword size={14} aria-hidden="true" />SWORD <strong>{hud.hasSword ? 'Ready' : 'None'}</strong></span>
         <span className={styles.notice} role="status">{hud.notice}</span>
       </div>
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '8px', fontSize: '12px' }}>
+        <span style={{ opacity: 0.7 }}>Variant:</span>
+        {[1, 2, 3].map(v => (
+          <button
+            key={v}
+            type="button"
+            style={{
+              padding: '2px 8px',
+              borderRadius: '4px',
+              border: variantIndex === v - 1 ? '1px solid #e2b714' : '1px solid rgba(255,255,255,0.2)',
+              background: variantIndex === v - 1 ? 'rgba(226,183,20,0.15)' : 'transparent',
+              color: variantIndex === v - 1 ? '#e2b714' : '#bbb',
+              cursor: 'pointer',
+              fontWeight: variantIndex === v - 1 ? 600 : 400,
+            }}
+            onClick={() => {
+              const next = new URLSearchParams(params)
+              next.set('variant', String(v))
+              navigate(`?${next.toString()}`)
+            }}
+          >
+            V{v}
+          </button>
+        ))}
+      </div>
     </section>
     <div className={styles.canvasWrapper}><div ref={canvasContainerRef} className={styles.canvasInner} role="img" aria-label="Room 01: push the stone boulder to reach the Temple Key. The blue shrine is visible beyond the locked gate on the right. Eight sapphire gems, spikes and poison remain in the ruins. Use the directional controls to move." /></div>
     <p className={styles.legend}><span><Triangle size={14} aria-hidden="true" />Spikes −25 HP</span><span><Droplets size={14} aria-hidden="true" />Poison −20 HP</span></p>
@@ -86,6 +116,6 @@ export function GameDevView() {
         <button type="button" className={styles.dpadBtn + ' ' + styles.dpadCenter} aria-label="Reset run" onClick={reset}><RotateCcw size={16} aria-hidden="true" /><span>Reset run</span></button>
       </div>}
     </div>
-    <details className={styles.debug}><summary>Debug details</summary><p data-testid="coordinates">X {hud.gridX} · Y {hud.gridY} · {hud.facing} · Steps {hud.stepCount} · {hud.isMoving ? 'MOVING' : 'IDLE'}</p><p>{hud.missionStatus} · {hud.runStatus}</p><p>Arrow keys / WASD to move · R to reset</p></details>
+    <details className={styles.debug}><summary>Debug details</summary><p data-testid="coordinates">X {hud.gridX} · Y {hud.gridY} · {hud.facing} · Steps {hud.stepCount} · {hud.isMoving ? 'MOVING' : 'IDLE'}</p><p>{hud.missionStatus} · {hud.runStatus}</p><p>Blueprint: {blueprint.blueprintId} ({blueprint.blueprintVersion}) · Goblins: {blueprint.goblins.length} · Gems: {blueprint.gems.length} · Hazards: {blueprint.hazards.length}</p><p>Arrow keys / WASD to move · R to reset</p></details>
   </main></div>
 }

@@ -101,7 +101,8 @@ export function ProductStartPanel({
     {failure && <>
       <div className={styles.productError} role="alert">
         <strong>{failureCopy(state.status)}</strong>
-        {state.errorCode && <p>Reference: {state.errorCode}</p>}
+        {(state.status === 'BLUEPRINT_UNAVAILABLE' || state.status === 'PROOF_UNAVAILABLE') && <p>Retry is safe — no expedition is used until authorization succeeds.</p>}
+        {state.status === 'LIMIT_REACHED' && <p>You can still play practice runs or come back tomorrow.</p>}
       </div>
       <div className={styles.productActions}>
         <button className={styles.sheetPrimary} type="button" onClick={onFreshStart}>Start again</button>

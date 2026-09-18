@@ -13,11 +13,11 @@ import type {
 } from '../../src/domain/expeditionProof.ts'
 import type { WalletDailyStatus } from '../../src/domain/dailyLedger.ts'
 import type { WalletRecoveryChallengeResponse } from '../../src/domain/walletRecovery.ts'
-import type { ExpeditionBlueprint, ExpeditionCheckpoint, MissionType, MoveAction, ReplayState } from '../../src/game/replay/types.ts'
+import type { DurableHazardDeadline, ExpeditionBlueprint, ExpeditionCheckpoint, MissionType, ReplayAction, ReplayState } from '../../src/game/replay/types.ts'
 import type { Clock } from '../ledger/types.ts'
 import type { RunSessionRecord, WalletRecoverySessionRecord } from './session.ts'
 
-export type { Clock }
+export type { Clock, DurableHazardDeadline }
 
 export type RiskContext = {
   readonly installId?: string
@@ -42,7 +42,7 @@ export type DurableCheckpointBatch = {
   readonly previousCheckpointHash: string
   readonly seqStart: number
   readonly seqEnd: number
-  readonly actions: readonly MoveAction[]
+  readonly actions: readonly ReplayAction[]
   readonly batchFingerprint: string
   readonly transcriptHash: string
   readonly stateHash: string
@@ -105,8 +105,9 @@ export type DurableExpeditionRun = {
   readonly initialCheckpointHash: string
   readonly checkpointHash: string
   readonly seq: number
-  readonly actions: readonly MoveAction[]
+  readonly actions: readonly ReplayAction[]
   readonly batches: readonly DurableCheckpointBatch[]
+  readonly hazardDeadlines?: readonly DurableHazardDeadline[]
   readonly terminal: DurableRunTerminal | null
   readonly vaultSeal: DurableVaultSealProof | null
 }
@@ -153,7 +154,7 @@ export type MemoryProofService = {
     readonly runId: string
     readonly session: RunSessionRecord
     readonly previousCheckpointHash: string
-    readonly actions: readonly MoveAction[]
+    readonly actions: readonly ReplayAction[]
   }): Promise<CheckpointAcknowledgement>
   verifyExpedition(input: {
     readonly runId: string
@@ -207,7 +208,7 @@ export type ProofService = {
     readonly runId: string
     readonly session: RunSessionRecord
     readonly previousCheckpointHash: string
-    readonly actions: readonly MoveAction[]
+    readonly actions: readonly ReplayAction[]
   }): Promise<CheckpointAcknowledgement>
   verifyExpedition(input: {
     readonly runId: string

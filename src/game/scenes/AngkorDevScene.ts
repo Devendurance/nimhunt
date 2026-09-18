@@ -21,6 +21,7 @@ import {
   stepGoblin,
   resolveGoblinCombat,
   type GoblinState,
+  type GoblinAIState,
 } from '../systems/goblin'
 import {
   createInitialItemState,
@@ -40,7 +41,8 @@ import type { RoomContents } from '../systems/tileEntry.ts'
 import type { ChestPlacement } from '../systems/chests.ts'
 import type { GoblinSpawnConfig } from '../world/room01.ts'
 import type { NimHuntGameBridge, PlayerHUDState } from '../events/gameEvents'
-import type { ReplayState } from '../replay/types.ts'
+import type { ReplayCollapsingBoulderState, ReplayState, TimedHazard } from '../replay/types.ts'
+import { TIMED_HAZARD_TICK_MS } from '../replay/types.ts'
 import type { CreateGameOptions } from '../createNimHuntGame'
 import type { ProductProofBridge } from '../productProof.ts'
 import { mapProductBlueprint } from '../productBlueprint.ts'
@@ -76,8 +78,8 @@ const FOREGROUND_OVERLAYS: readonly OverlayItem[] = [
 export class AngkorDevScene extends Phaser.Scene {
   private bridge?: NimHuntGameBridge
   private player?: Player
-  private goblin?: Goblin
-  private goblinState: GoblinState = createGoblinState(ROOM_01_GOBLIN.spawn)
+  private goblins: Goblin[] = []
+  private goblinStates: GoblinState[] = [createGoblinState(ROOM_01_GOBLIN.spawn)]
   private items: ItemState = createInitialItemState()
   private swordSprite?: Phaser.GameObjects.Image
   private potionSprite?: Phaser.GameObjects.Image
@@ -90,7 +92,7 @@ export class AngkorDevScene extends Phaser.Scene {
   private puzzle = createPuzzleState(ROOM_01_PUZZLE)
   private roomContents: RoomContents = ROOM_01_CONTENTS
   private puzzleObjects: PuzzleObjects = ROOM_01_PUZZLE
-  private goblinConfig: GoblinSpawnConfig | null = ROOM_01_GOBLIN
+  private goblinConfigs: readonly GoblinSpawnConfig[] = [ROOM_01_GOBLIN]
   private chestPlacements: readonly ChestPlacement[] = ROOM_01_CHESTS
   private swordCoord: GridCoord | null = ROOM_01_SWORD
   private potionCoord: GridCoord | null = ROOM_01_POTION
@@ -108,20 +110,30 @@ export class AngkorDevScene extends Phaser.Scene {
   private gems = new Map<string, Phaser.GameObjects.Image | Phaser.GameObjects.Arc>()
   private hazardObjects: (Phaser.GameObjects.Image | Phaser.GameObjects.Graphics)[] = []
   private overlaySprites: Phaser.GameObjects.Image[] = []
+  private timedHazards: readonly TimedHazard[] = []
+  private collapsingBoulders: ReplayCollapsingBoulderState[] = []
+  private hazardTickTimer?: Phaser.Time.TimerEvent
+  private collapsingBoulderSprites = new Map<string, {
+    marker?: Phaser.GameObjects.Graphics
+    text?: Phaser.GameObjects.Text
+    boulder?: Phaser.GameObjects.Image
+  }>()
   private readonly onMove = (direction: Direction) => this.handleMove(direction)
   private readonly onReset = () => this.handleReset()
 
   constructor(bridge?: NimHuntGameBridge, options?: CreateGameOptions) {
     super('AngkorDevScene')
     this.bridge = bridge
-    if (options?.mode === 'product') {
+    if (options?.blueprint) {
       const runtime = mapProductBlueprint(options.blueprint)
-      this.productMode = true
-      this.proof = options.proof ?? null
-      this.initialState = options.initialState
+      if (options.mode === 'product') {
+        this.productMode = true
+        this.proof = options.proof ?? null
+        this.initialState = options.initialState
+      }
       this.roomContents = runtime.contents
       this.puzzleObjects = runtime.puzzle
-      this.goblinConfig = runtime.goblin
+      this.goblinConfigs = runtime.goblins
       this.chestPlacements = runtime.chests
       this.swordCoord = runtime.sword
       this.potionCoord = runtime.potion
@@ -130,8 +142,21 @@ export class AngkorDevScene extends Phaser.Scene {
       this.chestTarget = runtime.chestTarget
       this.puzzle = createPuzzleState(runtime.puzzle)
       this.chests = createChestStates(runtime.chests)
-      this.goblinState = runtime.goblin ? createGoblinState(runtime.goblin.spawn) : createGoblinState(runtime.spawn)
+      this.goblinStates = runtime.goblins.map(g => createGoblinState(g.spawn))
       this.mission = options.mission
+      this.timedHazards = runtime.timedHazards
+      this.collapsingBoulders = (this.initialState?.collapsingBoulders && this.initialState.collapsingBoulders.length > 0)
+        ? this.initialState.collapsingBoulders.map(b => ({ ...b }))
+        : this.timedHazards
+          .filter(h => h.type === 'COLLAPSING_BOULDER')
+          .map(h => ({
+            id: h.id,
+            state: 'ARMED' as const,
+            triggeredAtTick: null,
+            elapsedTicks: 0,
+            targetTicks: h.warningTicks ?? h.delay,
+            collapseAtTick: h.warningTicks ?? h.delay,
+          }))
     }
   }
 
@@ -150,7 +175,23 @@ export class AngkorDevScene extends Phaser.Scene {
     this.puzzle = this.initialState?.puzzle ?? createPuzzleState(this.puzzleObjects)
     this.items = this.initialState?.items ?? createInitialItemState()
     this.chests = this.initialState?.chests.map(chest => ({ ...chest })) ?? createChestStates(this.chestPlacements)
-    this.goblinState = this.initialState?.goblins[0] ?? (this.goblinConfig ? createGoblinState(this.goblinConfig.spawn) : createGoblinState(this.spawnCoord))
+    this.goblinStates = this.initialState?.goblins.map(g => ({ ...g }))
+      ?? this.goblinConfigs.map(c => createGoblinState(c.spawn))
+    if (this.initialState?.collapsingBoulders && this.initialState.collapsingBoulders.length > 0) {
+      this.collapsingBoulders = this.initialState.collapsingBoulders.map(b => ({ ...b }))
+    } else if (this.collapsingBoulders.length === 0 && this.timedHazards.length > 0) {
+      this.collapsingBoulders = this.timedHazards
+        .filter(h => h.type === 'COLLAPSING_BOULDER')
+        .map(h => ({
+          id: h.id,
+          state: 'ARMED' as const,
+          triggeredAtTick: null,
+          elapsedTicks: 0,
+          targetTicks: h.warningTicks ?? h.delay,
+          collapseAtTick: h.warningTicks ?? h.delay,
+        }))
+    }
+    this.startHazardTickTimerIfNeeded()
     this.transitioning = false
     this.notice = ''
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this)
@@ -165,15 +206,20 @@ export class AngkorDevScene extends Phaser.Scene {
     // 3. Render Puzzle Objects (Boulder, Key, Gate, Shrine)
     this.renderPuzzle()
 
-    // 4. Render Items (Sword, Potion) + Chests
+    // 4. Render Items (Sword, Potion) + Chests + Collapsing Boulders
     this.renderItems()
     this.renderChests()
+    this.renderCollapsingBoulders()
 
-    // 5. Spawn Goblin
-    if (this.goblinConfig) {
-      const goblinStart = this.initialState?.goblins[0]
-      this.goblin = new Goblin(this, goblinStart ? { x: goblinStart.gridX, y: goblinStart.gridY } : this.goblinConfig.spawn)
-      this.goblin.setAIState(this.goblinState.state)
+    // 5. Spawn Goblins
+    this.goblins = []
+    for (let i = 0; i < this.goblinConfigs.length; i += 1) {
+      const config = this.goblinConfigs[i]!
+      const existing = this.goblinStates[i]
+      const goblinStart = existing ? { x: existing.gridX, y: existing.gridY } : config.spawn
+      const goblin = new Goblin(this, goblinStart)
+      if (existing) goblin.setAIState(existing.state)
+      this.goblins.push(goblin)
     }
 
     // 6. Spawn Player at deterministic start position
@@ -201,7 +247,25 @@ export class AngkorDevScene extends Phaser.Scene {
     if (!this.player || this.transitioning || this.player.isMoving || this.run.runStatus !== 'PLAYING') return
     if (this.productMode && this.proof && !this.proof.canAcceptMove()) return
     const chestTiles = this.chests.filter(c => c.state === 'CLOSED').map(c => ({ x: c.x, y: c.y }))
-    const transition = resolvePuzzleMove(ANGKOR_ROOM_01, this.roomContents, this.puzzleObjects, this.run, this.puzzle, { x: this.player.gridX, y: this.player.gridY }, direction, chestTiles, this.mission)
+    const fallenBoulders = this.collapsingBoulders
+      .filter(b => b.state === 'FALLEN')
+      .map(b => {
+        const hazard = this.timedHazards.find(th => th.id === b.id)
+        return hazard ? { x: hazard.x, y: hazard.y } : null
+      })
+      .filter((c): c is GridCoord => c !== null)
+    const transition = resolvePuzzleMove(
+      ANGKOR_ROOM_01,
+      this.roomContents,
+      this.puzzleObjects,
+      this.run,
+      this.puzzle,
+      { x: this.player.gridX, y: this.player.gridY },
+      direction,
+      chestTiles,
+      this.mission,
+      fallenBoulders,
+    )
     const generation = this.generation
     this.notice = ''
     if (!transition.move.success) {
@@ -271,39 +335,93 @@ export class AngkorDevScene extends Phaser.Scene {
           }
         }
 
-        // Check Goblin combat if player stepped onto Goblin
-        if (this.goblin) {
-          const preCombat = resolveGoblinCombat(this.run, this.items.hasSword, this.goblinState, transition.move.to)
+        // Collapsing Boulder Hazard trigger check
+        const currentTick = this.stepCount
+        this.collapsingBoulders = this.collapsingBoulders.map(boulder => {
+          const hazard = this.timedHazards.find(th => th.id === boulder.id)
+          if (!hazard) return boulder
+
+          if (boulder.state === 'ARMED') {
+            const triggerCells = hazard.triggerCells && hazard.triggerCells.length > 0
+              ? hazard.triggerCells
+              : [{ x: hazard.x, y: hazard.y }]
+            const hitTrigger = triggerCells.some(
+              tc => tc.x === transition.move.to.x && tc.y === transition.move.to.y
+            )
+            if (hitTrigger) {
+              const targetTicks = hazard.warningTicks ?? hazard.delay
+              this.notice = 'The ruins tremble — get clear of the marked stone!'
+              return {
+                ...boulder,
+                state: 'WARNING' as const,
+                triggeredAtTick: currentTick,
+                elapsedTicks: 0,
+                targetTicks,
+                collapseAtTick: targetTicks,
+              }
+            }
+            return boulder
+          }
+
+          return boulder
+        })
+
+        // Render collapsing boulders with update and start timer if needed
+        this.renderCollapsingBoulders(false)
+        this.startHazardTickTimerIfNeeded()
+
+        // Updated fallen boulders for goblin pathing
+        const updatedFallenBoulders = this.collapsingBoulders
+          .filter(b => b.state === 'FALLEN')
+          .map(b => {
+            const hazard = this.timedHazards.find(th => th.id === b.id)
+            return hazard ? { x: hazard.x, y: hazard.y } : null
+          })
+          .filter((c): c is GridCoord => c !== null)
+
+        // Check Goblin combat + movement sequentially across all Goblins
+        for (let i = 0; i < this.goblinConfigs.length; i += 1) {
+          const config = this.goblinConfigs[i]
+          const goblinEntity = this.goblins[i]
+          const activeState = this.goblinStates[i]
+          if (!config || !goblinEntity || !activeState || activeState.state === 'DEFEATED' || this.run.runStatus !== 'PLAYING') {
+            continue
+          }
+
+          // Pre-combat: player stepped onto Goblin
+          const preCombat = resolveGoblinCombat(this.run, this.items.hasSword, activeState, transition.move.to)
           if (preCombat.damageDealt > 0 || preCombat.swordUsed) {
             this.run = preCombat.nextRun
             this.items = { ...this.items, hasSword: preCombat.hasSword }
-            this.goblinState = preCombat.nextGoblin
-            this.goblin.setAIState(preCombat.nextGoblin.state)
+            this.goblinStates[i] = preCombat.nextGoblin
+            goblinEntity.setAIState(preCombat.nextGoblin.state)
             if (preCombat.damageDealt > 0) this.player?.showHit()
             if (preCombat.notice) this.notice = preCombat.notice
           }
 
           // If Goblin is active and player is still playing, Goblin takes turn
-          if (this.goblinState.state !== 'DEFEATED' && this.run.runStatus === 'PLAYING') {
+          const afterPreState = this.goblinStates[i]
+          if (afterPreState && afterPreState.state !== 'DEFEATED' && this.run.runStatus === 'PLAYING') {
             const nextGoblin = stepGoblin(
               ANGKOR_ROOM_01,
               this.puzzle,
-              this.goblinState,
+              afterPreState,
               transition.move.to,
-              this.goblinConfig?.patrolRoute ?? [],
+              config.patrolRoute,
               this.puzzleObjects.gate,
+              updatedFallenBoulders,
             )
-            this.goblinState = nextGoblin
-            this.goblin.setAIState(nextGoblin.state)
-            this.goblin.moveTo({ x: nextGoblin.gridX, y: nextGoblin.gridY }, nextGoblin.facing)
+            this.goblinStates[i] = nextGoblin
+            goblinEntity.setAIState(nextGoblin.state)
+            goblinEntity.moveTo({ x: nextGoblin.gridX, y: nextGoblin.gridY }, nextGoblin.facing)
 
             // Check Goblin combat after Goblin moves onto player
-            const postCombat = resolveGoblinCombat(this.run, this.items.hasSword, this.goblinState, transition.move.to)
+            const postCombat = resolveGoblinCombat(this.run, this.items.hasSword, nextGoblin, transition.move.to)
             if (postCombat.damageDealt > 0 || postCombat.swordUsed) {
               this.run = postCombat.nextRun
               this.items = { ...this.items, hasSword: postCombat.hasSword }
-              this.goblinState = postCombat.nextGoblin
-              this.goblin.setAIState(postCombat.nextGoblin.state)
+              this.goblinStates[i] = postCombat.nextGoblin
+              goblinEntity.setAIState(postCombat.nextGoblin.state)
               if (postCombat.damageDealt > 0) this.player?.showHit()
               if (postCombat.notice) this.notice = postCombat.notice
             }
@@ -346,14 +464,214 @@ export class AngkorDevScene extends Phaser.Scene {
     this.renderItems()
     this.chests = createChestStates(this.chestPlacements)
     this.renderChests()
-    this.goblinState = createGoblinState(this.goblinConfig?.spawn ?? this.spawnCoord)
-    this.goblin?.reset(this.goblinConfig?.spawn ?? this.spawnCoord)
+    this.collapsingBoulders = this.timedHazards
+      .filter(h => h.type === 'COLLAPSING_BOULDER')
+      .map(h => ({
+        id: h.id,
+        state: 'ARMED' as const,
+        triggeredAtTick: null,
+        elapsedTicks: 0,
+        targetTicks: h.warningTicks ?? h.delay,
+        collapseAtTick: h.warningTicks ?? h.delay,
+      }))
+    this.renderCollapsingBoulders()
+    this.goblinStates = this.goblinConfigs.map(c => createGoblinState(c.spawn))
+    for (let i = 0; i < this.goblins.length; i += 1) {
+      const g = this.goblins[i]
+      const config = this.goblinConfigs[i]
+      if (g && config) {
+        g.reset(config.spawn)
+      }
+    }
     this.player.reset(this.spawnCoord)
     if (this.cameras?.main) {
       const startPixel = tileToPixel(this.spawnCoord)
       this.cameras.main.centerOn(startPixel.x, startPixel.y)
     }
     this.stepCount = 0
+    this.emitState()
+  }
+
+  public renderCollapsingBoulders(justFallen = false): void {
+    const boulderTexture = this.hasTexture(ANGKOR_TEXTURES.BOULDER)
+      ? ANGKOR_TEXTURES.BOULDER
+      : PUZZLE_TEXTURES.boulder
+    const boulderScale = this.hasTexture(ANGKOR_TEXTURES.BOULDER) ? (28 / 256) : 1
+
+    for (const hazard of this.timedHazards) {
+      if (hazard.type !== 'COLLAPSING_BOULDER') continue
+
+      const state = this.collapsingBoulders.find(b => b.id === hazard.id)
+      const currentState = state?.state ?? 'ARMED'
+      const { x, y } = tileToPixel(hazard)
+
+      let entry = this.collapsingBoulderSprites.get(hazard.id)
+      if (entry) {
+        entry.marker?.destroy()
+        entry.text?.destroy()
+        entry.marker = undefined
+        entry.text = undefined
+      } else {
+        entry = {}
+        this.collapsingBoulderSprites.set(hazard.id, entry)
+      }
+
+      if (currentState === 'ARMED') {
+        if (entry.boulder) {
+          entry.boulder.destroy()
+          entry.boulder = undefined
+        }
+        // Subtle cracked rune / ancient floor outline
+        const marker = this.add.graphics().setDepth(ANGKOR_DEPTH.FLOOR_OVERLAYS)
+        marker.lineStyle(1.5, 0x8b6534, 0.45)
+        marker.strokeRect(x - 13, y - 13, 26, 26)
+        marker.lineBetween(x - 6, y - 6, x + 6, y + 6)
+        marker.lineBetween(x + 6, y - 6, x - 6, y + 6)
+        entry.marker = marker
+      } else if (currentState === 'WARNING') {
+        if (entry.boulder) {
+          entry.boulder.destroy()
+          entry.boulder = undefined
+        }
+        // Pulsing warning border / danger fill
+        const marker = this.add.graphics().setDepth(ANGKOR_DEPTH.HAZARDS)
+        marker.fillStyle(0xd9534f, 0.28)
+        marker.fillRoundedRect(x - 14, y - 14, 28, 28, 3)
+        marker.lineStyle(2, 0xffa500, 0.9)
+        marker.strokeRoundedRect(x - 14, y - 14, 28, 28, 3)
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          try {
+            this.tweens?.add({
+              targets: marker,
+              alpha: 0.45,
+              duration: 220,
+              yoyo: true,
+              repeat: -1,
+            })
+          } catch { /* headless */ }
+        }
+        entry.marker = marker
+
+        // Countdown text
+        const target = state?.targetTicks ?? hazard.warningTicks ?? hazard.delay ?? 4
+        const elapsed = state?.elapsedTicks ?? 0
+        const remaining = Math.max(0, target - elapsed)
+        const displayText = remaining > 1 ? String(remaining - 1) : '!'
+        const text = this.add.text(x, y, displayText, {
+          fontFamily: 'Cinzel, Georgia, serif',
+          fontSize: '14px',
+          fontStyle: 'bold',
+          color: '#ffecb3',
+          stroke: '#3e1a00',
+          strokeThickness: 3,
+        }).setOrigin(0.5, 0.5).setDepth(ANGKOR_DEPTH.EFFECTS)
+        entry.text = text
+      } else if (currentState === 'FALLEN') {
+        if (!entry.boulder) {
+          const sprite = this.add.image(x, y, boulderTexture)
+            .setOrigin(0.5, 0.5)
+            .setScale(boulderScale)
+            .setDepth(ANGKOR_DEPTH.BOULDER)
+          entry.boulder = sprite
+
+          if (justFallen && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            try {
+              this.cameras?.main?.shake(120, 0.005)
+              this.tweens?.add({
+                targets: sprite,
+                scaleY: boulderScale * 0.88,
+                y: y + 2,
+                duration: 60,
+                yoyo: true,
+                ease: 'Sine.easeOut',
+              })
+            } catch { /* headless */ }
+          }
+        }
+      }
+    }
+  }
+
+  private startHazardTickTimerIfNeeded(): void {
+    if (this.hazardTickTimer) return
+    const hasWarning = this.collapsingBoulders.some(b => b.state === 'WARNING')
+    if (!hasWarning) return
+
+    this.hazardTickTimer = this.time.addEvent({
+      delay: TIMED_HAZARD_TICK_MS,
+      callback: () => this.handleHazardTick(),
+      loop: true,
+    })
+  }
+
+  private stopHazardTickTimer(): void {
+    if (this.hazardTickTimer) {
+      this.hazardTickTimer.destroy()
+      this.hazardTickTimer = undefined
+    }
+  }
+
+  private handleHazardTick(): void {
+    if (this.run.runStatus !== 'PLAYING') {
+      this.stopHazardTickTimer()
+      return
+    }
+
+    const hasWarning = this.collapsingBoulders.some(b => b.state === 'WARNING')
+    if (!hasWarning) {
+      this.stopHazardTickTimer()
+      return
+    }
+
+    this.proof?.recordAcceptedTick()
+    this.stepCount += 1
+
+    const prevCollapsingBoulders = this.collapsingBoulders
+    this.collapsingBoulders = this.collapsingBoulders.map(boulder => {
+      if (boulder.state !== 'WARNING') return boulder
+      const target = boulder.targetTicks ?? 4
+      const nextElapsed = boulder.elapsedTicks + 1
+      if (nextElapsed >= target) {
+        return {
+          ...boulder,
+          state: 'FALLEN' as const,
+          elapsedTicks: nextElapsed,
+        }
+      }
+      return {
+        ...boulder,
+        elapsedTicks: nextElapsed,
+      }
+    })
+
+    const newlyFallenBoulders = this.collapsingBoulders.filter(b => {
+      const prev = prevCollapsingBoulders.find(p => p.id === b.id)
+      return b.state === 'FALLEN' && prev?.state === 'WARNING'
+    })
+
+    for (const fallen of newlyFallenBoulders) {
+      const hazard = this.timedHazards.find(th => th.id === fallen.id)
+      const playerCoord = this.player ? { x: this.player.gridX, y: this.player.gridY } : null
+      if (hazard && playerCoord && playerCoord.x === hazard.x && playerCoord.y === hazard.y) {
+        this.run = {
+          ...this.run,
+          hp: 0,
+          runStatus: 'FAILED',
+          missionStatus: 'FAILED',
+        }
+        this.player?.showHit()
+        this.notice = 'Crushed by collapsing boulder!'
+        this.proof?.notifyGameplayEvent('DEATH')
+      }
+    }
+
+    this.renderCollapsingBoulders(newlyFallenBoulders.length > 0)
+
+    const stillWarning = this.collapsingBoulders.some(b => b.state === 'WARNING')
+    if (!stillWarning) {
+      this.stopHazardTickTimer()
+    }
+
     this.emitState()
   }
 
@@ -723,10 +1041,21 @@ export class AngkorDevScene extends Phaser.Scene {
   private emitState(): void {
     if (!this.bridge || !this.player) return
 
+    let aggregateGoblinState: GoblinAIState = 'PATROL'
+    if (this.goblinStates.length > 0) {
+      if (this.goblinStates.some(g => g.state === 'CHASE')) {
+        aggregateGoblinState = 'CHASE'
+      } else if (this.goblinStates.every(g => g.state === 'DEFEATED')) {
+        aggregateGoblinState = 'DEFEATED'
+      } else {
+        aggregateGoblinState = 'PATROL'
+      }
+    }
+
     const state: PlayerHUDState = {
       hasTempleKey: this.puzzle.hasTempleKey,
       hasSword: this.items.hasSword,
-      goblinState: this.goblinState.state,
+      goblinState: aggregateGoblinState,
       gateState: this.puzzle.gateState,
       objectiveReached: this.puzzle.objectiveReached,
       notice: this.notice,
@@ -780,8 +1109,8 @@ export class AngkorDevScene extends Phaser.Scene {
     this.game.events.off('cmd_reset', this.onReset)
     this.player?.destroy()
     this.player = undefined
-    this.goblin?.destroy()
-    this.goblin = undefined
+    for (const g of this.goblins) g.destroy()
+    this.goblins = []
     this.swordSprite?.destroy()
     this.swordSprite = undefined
     this.potionSprite?.destroy()
@@ -791,5 +1120,14 @@ export class AngkorDevScene extends Phaser.Scene {
     this.hazardObjects = []
     for (const spr of this.overlaySprites) spr.destroy()
     this.overlaySprites = []
+    for (const entry of this.collapsingBoulderSprites.values()) {
+      entry.marker?.destroy()
+      entry.text?.destroy()
+      if (entry.boulder) {
+        try { this.tweens?.killTweensOf(entry.boulder) } catch { /* headless */ }
+        entry.boulder.destroy()
+      }
+    }
+    this.collapsingBoulderSprites.clear()
   }
 }

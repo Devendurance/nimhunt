@@ -89,4 +89,37 @@ describe('Goblin entity lifecycle', () => {
     expect(goblin.aiState).toBe('PATROL')
     expect(container.setPosition).toHaveBeenCalledWith(240, 144)
   })
+
+  it('completes immediately and does not tween when target coordinate equals current position', () => {
+    const { goblin, tweens, container } = setup()
+    const done = vi.fn()
+    goblin.moveTo({ x: 7, y: 4 }, 'UP', done)
+    expect(goblin.isMoving).toBe(false)
+    expect(tweens).toHaveLength(0)
+    expect(done).toHaveBeenCalled()
+    expect(goblin.facing).toBe('UP')
+    expect(container.setPosition).toHaveBeenCalledWith(240, 144)
+  })
+
+  it('handles incoming move while already moving by completing prior target and starting new tween', () => {
+    const { goblin, tweens, scene } = setup()
+    const done1 = vi.fn()
+    const done2 = vi.fn()
+    goblin.moveTo({ x: 7, y: 5 }, 'DOWN', done1)
+    expect(goblin.isMoving).toBe(true)
+    expect(tweens).toHaveLength(1)
+
+    // Second move arrives before first completes
+    goblin.moveTo({ x: 7, y: 6 }, 'DOWN', done2)
+    expect(scene.tweens.killTweensOf).toHaveBeenCalled()
+    expect(goblin.isMoving).toBe(true)
+    expect(tweens).toHaveLength(2)
+
+    // Complete second tween
+    tweens[1].onComplete?.()
+    expect(goblin.isMoving).toBe(false)
+    expect(goblin.gridX).toBe(7)
+    expect(goblin.gridY).toBe(6)
+    expect(done2).toHaveBeenCalled()
+  })
 })

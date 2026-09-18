@@ -1,12 +1,12 @@
 import type { CheckpointAcknowledgement, CheckpointRequest, ProductProofState } from '../../domain/expeditionProof.ts'
 import { MAX_CHECKPOINT_BATCH_ACTIONS, MAX_UNACKNOWLEDGED_ACTIONS } from './versions.ts'
-import type { Direction, MoveAction } from './types.ts'
+import type { Direction, MoveAction, ReplayAction, TickAction } from './types.ts'
 
 export type CheckpointQueueView = {
   readonly runId: string
   readonly acknowledgedSeq: number
   readonly checkpointHash: string
-  readonly unacked: readonly MoveAction[]
+  readonly unacked: readonly ReplayAction[]
   readonly inFlight: CheckpointRequest | null
   readonly proofState: ProductProofState
   readonly movementPaused: boolean
@@ -17,6 +17,7 @@ export type CheckpointQueueView = {
 export type CheckpointQueue = {
   canAcceptMove(): boolean
   recordAcceptedMove(direction: Direction): MoveAction | null
+  recordAcceptedTick(): TickAction | null
   requestFlush(): void
   nextRequest(): CheckpointRequest | null
   acknowledge(ack: CheckpointAcknowledgement): 'ok' | 'conflict'
@@ -29,7 +30,7 @@ export function createCheckpointQueue(input: {
   readonly runId: string
   readonly checkpointHash: string
 }): CheckpointQueue {
-  const recorded: MoveAction[] = []
+  const recorded: ReplayAction[] = []
   let acknowledgedSeq = 0
   let checkpointHash = input.checkpointHash
   let inFlight: CheckpointRequest | null = null
@@ -46,6 +47,15 @@ export function createCheckpointQueue(input: {
       if (proofState === 'PROOF_LOST') return null
       if (unackedCount() >= MAX_UNACKNOWLEDGED_ACTIONS) return null
       const action: MoveAction = { seq: recorded.length + 1, type: 'MOVE', direction }
+      recorded.push(action)
+      if (proofState === 'CHECKPOINT_SYNCED') proofState = 'PROOF_ACTIVE'
+      return action
+    },
+
+    recordAcceptedTick() {
+      if (proofState === 'PROOF_LOST') return null
+      if (unackedCount() >= MAX_UNACKNOWLEDGED_ACTIONS) return null
+      const action: TickAction = { seq: recorded.length + 1, type: 'TICK' }
       recorded.push(action)
       if (proofState === 'CHECKPOINT_SYNCED') proofState = 'PROOF_ACTIVE'
       return action

@@ -1,8 +1,8 @@
 # NimHunt — Project State
 
-> **Last updated**: 2026-09-17 (scheduler Vercel-compat slice: local green, push pending)
-> **Phase**: Scheduler route Vercel serverless-compatible (.js imports, typecheck:server, validated cycle-result). Automation and production cron disabled.
-> **Latest milestone**: Canonical CRON_SECRET refactor + local disabled-cycle proof. No new NIM sent. Production deploy + native cron invocation pending owner/Vercel action.
+> **Last updated**: 2026-09-18 (production UX cleanup slice verified locally: 661 tests / lint / typechecks / build green; manual phone checklist pending)
+> **Phase**: Disabled daily Vercel cron configured (once/day 14:00 UTC). Automation stays OFF. No NIM sent.
+> **Latest milestone**: `vercel.json` daily cron committed (6934c0b) + pushed to main; production live (root 200, route 401 no-auth). Cron dashboard registration + first native DISABLED invocation pending (next window 14:00 UTC today).
 
 ## Verified Product Proof
 
@@ -22,11 +22,14 @@
 | Scheduled payout route | ✅ CRON_SECRET-canonical, unit/auth/overlap re-validated locally 2026-09-17 (616 tests); production deploy PENDING (no Vercel CLI/credentials in sandbox) |
 | Scheduler operations migration `011` | ✅ live (verified read-only; not replayed) |
 | Vercel Cron auth | ✅ compatible via native `CRON_SECRET` Bearer (previous Bearer-impossible conclusion corrected) |
-| Production cron (`vercel.json`) | ❌ NOT CREATED (deliberate; creation+deploy would immediately activate schedule) |
+| Production cron (`vercel.json`) | ✅ CREATED+HOBBY-DAILY (single entry `/api/internal/payout-cycle` @ `0 14 * * *`, no secret; commit 6934c0b pushed; dashboard registration + native invocation PENDING) |
+| Daily Mission Difficulty (Angkor v2) | ✅ PASS (9 canonical variants, FNV-1a selector, multi-goblin patrol/combat, BFS verified solvable ≤256 actions, v1 backward compatible) |
+| Timed Collapsing Boulder (Angkor v2) | ✅ PASS (ARMED/WARNING/FALLEN, authoritative TICK action stream @ 750ms / 3.0s warning, stand-still collapse, instant crush death, path blocking, goblin avoidance, push boulder preserved, 100% deterministic replay) |
+| Collapsing Boulder Server Timing Authority | ✅ PASS (server-owned warningStartedAt/collapseDeadlineAt anchor, instant crush death at deadline, movement into impact cell blocked at/after deadline, tick withholding fails closed, immediate client flush on trigger, v1 backward compatible) |
 
 ## Next Milestone
 
-Owner deploys `/api/internal/payout-cycle` via Vercel with `NIMHUNT_AUTOMATIC_PAYOUTS_ENABLED=false`, DB OFF, `CRON_SECRET` set (sandbox has no Vercel CLI/token/linkage); test deployed auth matrix; then (only on approval) create `vercel.json` cron and observe one native DISABLED invocation. Do not send NIM, fund treasury, or change reward/cap. vercel.json still NOT created (correct — gated on deployed-route auth PASS).
+Owner confirms in Vercel dashboard: production deployment of 6934c0b is READY, Cron Job `/api/internal/payout-cycle` registered once-daily; then observe first native DISABLED invocation (~14:00 UTC 2026-09-17, expect 200 DISABLED signed 0 broadcast 0). Do not enable switches, send NIM, fund treasury, or change reward/cap. (Sandbox has no Vercel CLI/token/linkage — dashboard + logs verification is owner-side.)
 
 ## Canonical References
 

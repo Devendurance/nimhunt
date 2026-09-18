@@ -1,5 +1,5 @@
 import type { ProductGameplayStartResponse, ProductActiveExpedition } from '../../domain/expeditionProof.ts'
-import { BLUEPRINT_VERSION, ROOM_VERSION, RULES_VERSION } from '../../game/replay/versions.ts'
+import { isSupportedBlueprintVersion, ROOM_VERSION, RULES_VERSION } from '../../game/replay/versions.ts'
 import type { PlayableMission } from './expeditionFlow'
 
 export type ProductGateError =
@@ -78,13 +78,13 @@ export function validateProductActive(active: ProductActiveExpedition, mission: 
     || active.state.run.missionStatus !== 'IN_PROGRESS'
     || active.rulesVersion !== RULES_VERSION
     || active.roomVersion !== ROOM_VERSION
-    || active.blueprintVersion !== BLUEPRINT_VERSION
+    || !isSupportedBlueprintVersion(active.blueprintVersion)
     || active.blueprint.rulesVersion !== RULES_VERSION
     || active.blueprint.roomVersion !== ROOM_VERSION
-    || active.blueprint.blueprintVersion !== BLUEPRINT_VERSION
+    || !isSupportedBlueprintVersion(active.blueprint.blueprintVersion)
     || active.state.rulesVersion !== RULES_VERSION
     || active.state.roomVersion !== ROOM_VERSION
-    || active.state.blueprintVersion !== BLUEPRINT_VERSION
+    || !isSupportedBlueprintVersion(active.state.blueprintVersion)
     || active.blueprintId !== active.blueprint.blueprintId
     || active.blueprintHash !== active.blueprint.blueprintHash
     || active.state.blueprintId !== active.blueprintId

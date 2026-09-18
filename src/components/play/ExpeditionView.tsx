@@ -5,6 +5,7 @@ import type { Direction } from '../../game/world/grid'
 import type { ProductActiveExpedition } from '../../domain/expeditionProof.ts'
 import type { CreateGameOptions } from '../../game/createNimHuntGame'
 import { getExpeditionResult, type PlayableMission } from './expeditionFlow'
+import { formatGoblinStatus, isWarningNotice } from './hudStatusView'
 import {
   MISSION_COMPLETE_COPY,
   MISSION_INCOMPLETE_COPY,
@@ -162,7 +163,8 @@ export function ExpeditionView(props: ExpeditionViewProps) {
       <div className={styles.keyState}>
         <span className={styles.itemBadge}><KeyRound size={14} aria-hidden="true" />KEY <strong>{hud.hasTempleKey ? 'Found' : 'Not found'}</strong></span>
         <span className={styles.itemBadge}><Sword size={14} aria-hidden="true" />SWORD <strong>{hud.hasSword ? 'Ready' : 'None'}</strong></span>
-        <span className={styles.notice} role="status">{hud.notice}</span>
+        <span className={styles.itemBadge}>GOBLIN <strong data-testid="goblin">{formatGoblinStatus(hud.goblinState)}</strong></span>
+        {hud.notice && <span className={isWarningNotice(hud.notice) ? styles.warningNotice : styles.notice} role="status">{hud.notice}</span>}
       </div>
     </section>
     <div className={styles.canvasWrapper}><div ref={containerRef} className={styles.canvasInner} role="img" aria-label="Angkor Ruins expedition. Use the directional controls to move." /></div>

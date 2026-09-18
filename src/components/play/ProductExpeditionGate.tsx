@@ -164,7 +164,7 @@ function gateErrorCopy(error: ProductGateError): string {
   if (error === 'RUN_SESSION_INVALID') return 'This expedition session is no longer valid.'
   if (error === 'ACTIVE_RUN_UNAVAILABLE') return 'This expedition is no longer ready to enter.'
   if (error === 'MISSION_MISMATCH') return 'This route does not match the authorized expedition.'
-  if (error === 'MALFORMED_ACTIVE') return 'The expedition data could not be trusted.'
+  if (error === 'MALFORMED_ACTIVE') return 'The expedition could not be loaded.'
   if (error === 'PROOF_UNAVAILABLE') return 'Reward expeditions are temporarily unavailable.'
   if (error === 'NETWORK_ERROR') return 'The expedition session could not be reached.'
   return 'The expedition could not be opened.'

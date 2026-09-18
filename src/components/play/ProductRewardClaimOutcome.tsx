@@ -1,5 +1,6 @@
 import type { Ref } from 'react'
 import {
+  ALREADY_REWARDED_DETAIL,
   ALREADY_REWARDED_TITLE,
   CLAIM_TODAY_COPY,
   REWARD_BLOCK_DETAIL,
@@ -60,7 +61,7 @@ export function ProductRewardClaimOutcome({
     return <ClaimTerminal
       headingRef={headingRef}
       title={ALREADY_REWARDED_TITLE}
-      lines={[]}
+      lines={[ALREADY_REWARDED_DETAIL]}
       onBackToMissions={onBackToMissions}
       onReturnToHunt={onReturnToHunt}
     />

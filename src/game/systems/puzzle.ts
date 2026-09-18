@@ -28,12 +28,23 @@ export function createPuzzleState(objects: PuzzleObjects): PuzzleState {
   return { hasTempleKey: false, gateState: 'LOCKED', boulderPositions: objects.boulders.map(b => ({ ...b })), objectiveReached: false }
 }
 
-/** Static movement stays authoritative; puzzle objects form a separate blocking layer. */
-export function resolvePuzzleMove(room: GridRoom, contents: RoomContents, objects: PuzzleObjects, run: PlayerRunState, puzzle: PuzzleState, from: GridCoord, direction: Direction, chestTiles: readonly GridCoord[] = [], mission: MissionType = 'gem-runner'): PuzzleMove {
+export function resolvePuzzleMove(
+  room: GridRoom,
+  contents: RoomContents,
+  objects: PuzzleObjects,
+  run: PlayerRunState,
+  puzzle: PuzzleState,
+  from: GridCoord,
+  direction: Direction,
+  chestTiles: readonly GridCoord[] = [],
+  mission: MissionType = 'gem-runner',
+  fallenBoulders: readonly GridCoord[] = [],
+): PuzzleMove {
   const move = calculateMove(room, from, direction)
   const blocked = (reason: string): PuzzleMove => ({ move: { ...move, success: false, to: from }, blockedReason: reason, opensGate: false })
   if (run.runStatus !== 'PLAYING') return blocked('RUN_ENDED')
   if (!move.success) return blocked(move.reason ?? 'BLOCKED')
+  if (fallenBoulders.some(f => sameTile(f, move.to))) return blocked('BOULDER_BLOCKED')
   const atGate = sameTile(move.to, objects.gate)
   if (atGate && puzzle.gateState === 'LOCKED' && !puzzle.hasTempleKey) return blocked('KEY_REQUIRED')
   const boulder = puzzle.boulderPositions.find(b => sameTile(b, move.to))
@@ -46,6 +57,7 @@ export function resolvePuzzleMove(room: GridRoom, contents: RoomContents, object
       ...chestTiles,
       ...(!puzzle.hasTempleKey ? [objects.key] : []),
       objects.gate, objects.shrine,
+      ...fallenBoulders,
     ].some(item => sameTile(item, push.to))
     if (!push.success || occupied) return blocked('BOULDER_BLOCKED')
     return { move, pushed: { id: boulder.id, to: push.to }, opensGate: false }

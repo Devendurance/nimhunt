@@ -55,7 +55,7 @@ export function payoutStatusCopy(view: ProductPayoutView | null): ProductPayoutC
   if (status === 'FAILED_RETRYABLE') {
     return {
       title: 'TREASURE RESERVED',
-      lines: ['Your reservation is safe. Payout is being retried safely.'],
+      lines: ['Your reward is secured.', 'Daily rewards are paid in the next payout batch.'],
       amountLabel: null,
       txHashShort: null,
       verified: false,
@@ -64,7 +64,7 @@ export function payoutStatusCopy(view: ProductPayoutView | null): ProductPayoutC
   if (status === 'FAILED_FINAL') {
     return {
       title: 'TREASURE RESERVED',
-      lines: ['Your reservation is safe. Payout needs review.'],
+      lines: ['Your reward is secured. Payout needs review.'],
       amountLabel: null,
       txHashShort: null,
       verified: false,
@@ -72,7 +72,7 @@ export function payoutStatusCopy(view: ProductPayoutView | null): ProductPayoutC
   }
   return {
     title: 'TREASURE RESERVED',
-    lines: ['Your treasure is reserved and waiting for payout.'],
+    lines: ['Your reward is secured.', 'Daily rewards are paid in the next payout batch.'],
     amountLabel: null,
     txHashShort: null,
     verified: false,

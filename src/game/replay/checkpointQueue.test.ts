@@ -108,11 +108,25 @@ describe('product checkpoint queue', () => {
     const dirs = ['LEFT', 'RIGHT', 'UP', 'DOWN', 'LEFT', 'RIGHT', 'UP', 'DOWN', 'LEFT', 'RIGHT'] as const
     for (const direction of dirs) queue.recordAcceptedMove(direction)
     const first = queue.nextRequest()
-    expect(first?.actions.map(action => action.direction)).toEqual(['LEFT', 'RIGHT', 'UP', 'DOWN', 'LEFT', 'RIGHT', 'UP', 'DOWN'])
+    expect(first?.actions.map(action => action.type === 'MOVE' ? action.direction : null)).toEqual(['LEFT', 'RIGHT', 'UP', 'DOWN', 'LEFT', 'RIGHT', 'UP', 'DOWN'])
     queue.acknowledge(ack())
     queue.requestFlush()
     const second = queue.nextRequest()
-    expect(second?.actions.map(action => action.direction)).toEqual(['LEFT', 'RIGHT'])
+    expect(second?.actions.map(action => action.type === 'MOVE' ? action.direction : null)).toEqual(['LEFT', 'RIGHT'])
     expect(second?.previousCheckpointHash).toBe(HASH_B)
+  })
+
+  it('records accepted simulation ticks into the queue', () => {
+    const queue = createCheckpointQueue({ runId: 'run-1', checkpointHash: HASH_A })
+    queue.recordAcceptedMove('LEFT')
+    queue.recordAcceptedTick()
+    queue.recordAcceptedMove('RIGHT')
+    queue.requestFlush()
+    const req = queue.nextRequest()
+    expect(req?.actions).toEqual([
+      { seq: 1, type: 'MOVE', direction: 'LEFT' },
+      { seq: 2, type: 'TICK' },
+      { seq: 3, type: 'MOVE', direction: 'RIGHT' },
+    ])
   })
 })

@@ -1,56 +1,81 @@
 # NimHunt - Left Off
 
-> Updated: 2026-09-17 (scheduler Vercel-compat slice)
+> Updated: 2026-09-18 (production gameplay/UX cleanup slice completed; no mechanics/economics/architecture changes)
 
 ## Current Objective
 
-Push Vercel-compatible scheduler route (`/api/internal/payout-cycle` compiles on Vercel, stays DISABLED). Automation stays OFF. No NIM sent.
+Production gameplay/UX cleanup only: hide dev surfaces, tighten mission copy,
+polish HUD, clarify treasure-reserved + daily-batch messaging, soften error
+states, fix mobile overlap risks, verify landing CTA logic, add a manual
+fresh-user checklist. No new gameplay systems, no reward/payout/risk changes.
 
 ## Completed (this slice)
 
-- Root cause: local `tsc -b` uses tsconfig.node.json (allowImportingTsExtensions:true, types:["node"]) so `.ts` imports + `process`/`node:*` pass; Vercel function compilation uses defaults/browser-like settings (no allowImportingTsExtensions → TS5097; no node types → TS2591) plus strict unknown→union check in store.ts.
-- Changed 11 scheduler-graph files `.ts`→`.js` (api route, runtime, scheduler, schedulerHttp, db, config, nimiqTreasury, store, worker, intent, service); no logic/auth/reward/cap change; no vercel.json.
-- store.ts: new `asCycleResult` validator (COMPLETED|DISABLED|FAILED|null, else PAYOUT_UNAVAILABLE) + `storeCycleResult.test.ts` (9 tests).
-- Added `tsconfig.server.json` + `npm run typecheck:server` (Vercel-like: allowImportingTsExtensions:false, types:node, nodenext).
-- Verified: scheduler+cycle tests 21 pass; full 616 pass / 69 skipped; lint 0; `tsc -b --force` 0; `npm run build` ok; `git diff --check` 0; `typecheck:server` 0; scheduler graph has 0 `.ts` imports.
-- Route behavior unchanged (existing tests): no-auth 401, wrong-bearer 401, cookie-only 401, query 400, automation-OFF 200 DISABLED signed 0 broadcast 0.
+- **Mission copy** (`game/domain/mission.ts`, `data/play.ts`, `data/marketing.ts`):
+  Gem "Collect 6 gems and survive.", Chest "Open 4 chests and survive.",
+  Vault "Find the key. Unlock the gate. Reach the vault." Fixed landing
+  preview stale "12 gems" → "6 gems".
+- **Dev surfaces**: MissionBrief dead "Vault coming next" block + "— daily
+  status" removed; MissionCard stale disabled title neutralized; Heroes tab
+  "SAMPLE RANKING · NOT LIVE" → "HALL OF HEROES · PREVIEW"; footer "shell
+  preview" dropped; ProgressStrip "not redeemable in current build" replaced;
+  HuntStatus badges "LOADING"/"TREASURE COUNT UNAVAILABLE"/"LIVE · SERVER" →
+  "CHECKING"/"UNAVAILABLE"/"LIVE". Dev views stay behind `?dev=` query paths.
+- **HUD** (`ExpeditionView.tsx`, `hudStatusView.ts` new, CSS): added Goblin
+  status badge (Patrol/Close!/Stunned/Defeated, `data-testid="goblin"`);
+  boulder warning/crush notices render emphasized via `isWarningNotice`;
+  ≤380px wrap fix so HP/objective/key/sword/goblin/notice never overlap.
+- **Boulder warning copy** (`AngkorDevScene.ts`, presentation only, no
+  mechanics): trigger sets "The ruins tremble — get clear of the marked
+  stone!" surfacing in the HUD notice + existing 3-2-1-! canvas countdown.
+- **Reward messaging** (`productPayoutStatus.ts`, `productCheckpoint.ts`,
+  `ProductRewardClaimOutcome.tsx`): every reserved state now reads "Your
+  reward is secured." + "Daily rewards are paid in the next payout batch."
+  ALREADY_REWARDED renders explanatory detail (was empty lines); SOLD_OUT
+  adds keep-playing note; PROOF_LOST/VERIFY_REJECTED add "Starting a new
+  expedition is safe."; verify-rejected no longer cites "server record".
+- **Error states**: PlayShell wallet strip now covers UNAVAILABLE/IDLE ("Open
+  this hunt inside Nimiq Pay…") and CANCELLED ("Retry is safe.");
+  ProductStartPanel adds retry-safe notes (blueprint/proof unavailable) and
+  limit-reached practice hint; raw `errorCode` reference line removed;
+  gate MALFORMED copy softened to "could not be loaded."
+- **Landing**: verified unchanged logic — `detectNimiqPayHost()` (injected
+  `nimiqPay`/`nimiq`, no UA sniffing) → "Enter today's hunt" in-app,
+  "Hunt in Nimiq Pay" outside. Explore/Survive/Seal + 3-expeditions copy
+  already correct.
+- **Checklist**: `docs/manual-production-ux-checklist.md` (12 steps, manual
+  only, no product system added).
+- **Tests**: new `productionUxCopy.test.ts` (objectives, batch language,
+  no-Luna/SQL/enums, already-rewarded, goblin/warning helpers); updated
+  `productPayoutStatus`, `huntStatusView`, `productCheckpoint`,
+  `useProductStart.integration` expectations.
 
-## Changed paths
+## Changed paths (this slice only; prior-slice uncommitted work preserved)
 
-- api/internal/payout-cycle.ts; server/payouts/{runtime,scheduler,schedulerHttp,db,config,nimiqTreasury,store,worker,intent,service}.ts; package.json (typecheck:server); tsconfig.server.json (new); server/payouts/storeCycleResult.test.ts (new).
+- `src/game/domain/mission.ts`, `src/data/play.ts`, `src/data/marketing.ts`
+- `src/components/play/productPayoutStatus.ts`, `productCheckpoint.ts`
+- `src/components/play/ProductRewardClaimOutcome.tsx`, `ProductExpeditionGate.tsx`
+- `src/components/play/ProductStartPanel.tsx`, `PlayShell.tsx`, `ProgressStrip.tsx`
+- `src/components/play/MissionBrief.tsx`, `MissionCard.tsx`
+- `src/components/play/ExpeditionView.tsx`, `ExpeditionView.module.css`
+- `src/components/play/PlayShell.module.css`, `huntStatusView.ts`
+- `src/components/play/hudStatusView.ts` (new), `productionUxCopy.test.ts` (new)
+- `src/game/scenes/AngkorDevScene.ts` (1-line warning notice only)
+- `docs/manual-production-ux-checklist.md` (new)
+- Test expectation updates: `huntStatusView`, `productPayoutStatus`,
+  `productCheckpoint`, `useProductStart.integration`
 
 ## Verification results
 
-- See Completed. No NIM sent; both kill switches OFF; reward 10,000,000 Luna / cap 690,000,000 unchanged.
+- `npm test`: 87 files (82 passed, 5 integration skipped), 661 passed, 0 failed.
+- `npm run lint`: 0 errors.
+- `npm run typecheck:server`: 0 errors.
+- `npx tsc -b --force`: 0 errors.
+- `npm run build`: ✓ built in 2.09s (pre-existing chunk-size warning only).
+- `git diff --check`: 0 whitespace errors.
 
-## Blockers / next
+## Next action
 
-- Push commit to origin/main (fetched: origin/main == a93a737, no advance), then owner observes Vercel auto-deploy: `/` 200, `/api/internal/payout-cycle` auth matrix on production (401/401/200-DISABLED). Do NOT create vercel.json/cron, enable automation, or send NIM.
-
-## Current Objective
-
-Production deployment + native Vercel cron disabled-cycle validation. Automation stays OFF. No NIM sent; no payout switch enabled.
-
-## Completed (this slice)
-
-- Confirmed deployable unit: `api/internal/payout-cycle.ts` present, existing route only, no second scheduler endpoint.
-- Confirmed `vercel.json` does NOT exist (correct — creation gated on deployed-route auth PASS; `vercel.json.example` reference-only with `*/10 * * * *`).
-- Local env: `NIMHUNT_AUTOMATIC_PAYOUTS_ENABLED=false`; scheduler resolves `source=CRON_SECRET`, `maxPerCycle=5`; reward `10000000` Luna / cap `690000000` unchanged.
-- Local auth dispatch proof (fake cycle, real config): no-auth 401, wrong-bearer 401, cookie-only 401, query-string 400. True-positive 200 DISABLED covered by `scheduler.test.ts` with generated secrets (no real secret used/printed).
-- Client-bundle scan: zero `VITE_(CRON_SECRET|NIMHUNT_PAYOUT_CRON_SECRET)` hits in `dist/`; zero `CRON_SECRET` value strings in client chunks.
-- Full suite: npm test 605 pass / 69 skipped, lint 0, `tsc -b --force` 0, `npm run build` ok, `git diff --check` 0.
-- Did NOT create `vercel.json`, did NOT enable either kill switch, sent no NIM, changed no reward/cap, funded nothing.
-- Updated `project-state.md` + `memory.md` with deploy-readiness + blocker.
-
-## NOT completed (blocked — needs owner/Vercel access)
-
-1. Production deployment of current app (no Vercel CLI, no `.vercel` linkage, no Vercel token in sandbox).
-2. Production env `CRON_SECRET` configuration + deployed-route auth matrix (401/401/401/200-DISABLED).
-3. Cold-start repeat test against production URL.
-4. Fresh live payout-status re-query (`npm run payout:status` timed out in sandbox; last verified 2026-09-17 stands: env OFF, DB OFF, PENDING/PROCESSING/SUBMITTED 0, CONFIRMED-today 1, execution-day committed 10,000,000 Luna, remaining 680,000,000, lastCycle DISABLED).
-5. `vercel.json` creation + cron-config deploy (correctly deferred — gated on deployed-route auth PASS).
-6. First/second native cron DISABLED observations.
-
-## Next Session
-
-Owner (or Vercel-connected session): `vercel link` + `vercel --prod` WITHOUT `vercel.json`; set production `CRON_SECRET` (server-only, never `VITE_*`); run deployed auth matrix + cold-start repeat; only then create/review/deploy `vercel.json` and observe native DISABLED invocations. Do not enable switches, send NIM, or spoof native-cron proof.
+- Owner runs `docs/manual-production-ux-checklist.md` on a real phone inside
+  Nimiq Pay (fresh wallet → expedition → verify → claim → reserved → reopen
+  → second expedition → already-rewarded → vault seal → failure/retry).

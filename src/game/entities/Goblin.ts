@@ -20,11 +20,13 @@ export class Goblin {
   private shadow: Phaser.GameObjects.Ellipse
   private alertIndicator: Phaser.GameObjects.Arc
   private generation = 0
+  private targetCoord?: GridCoord
 
   constructor(scene: Phaser.Scene, startCoord: GridCoord) {
     this.scene = scene
     this.gridX = startCoord.x
     this.gridY = startCoord.y
+    this.targetCoord = startCoord
     this.facing = 'DOWN'
     this.isMoving = false
     this.aiState = 'PATROL'
@@ -82,13 +84,21 @@ export class Goblin {
     facing: Direction,
     onComplete?: () => void
   ): void {
-    if (this.isMoving || this.aiState === 'DEFEATED') {
+    if (this.aiState === 'DEFEATED') {
       onComplete?.()
       return
     }
 
-    this.isMoving = true
-    const generation = this.generation
+    // If an in-flight tween was moving towards a prior target, complete that position first
+    if (this.isMoving && this.targetCoord) {
+      this.scene.tweens.killTweensOf(this.container)
+      this.gridX = this.targetCoord.x
+      this.gridY = this.targetCoord.y
+      const { x: prevX, y: prevY } = tileToPixel(this.targetCoord)
+      this.container.setPosition(prevX, prevY)
+      this.isMoving = false
+    }
+
     this.facing = facing
 
     // Flip sprite horizontally when moving left vs right
@@ -100,6 +110,17 @@ export class Goblin {
       }
     }
 
+    // Stationary: already at destination, no visual translation tween needed
+    if (targetCoord.x === this.gridX && targetCoord.y === this.gridY) {
+      const { x: targetX, y: targetY } = tileToPixel(targetCoord)
+      this.container.setPosition(targetX, targetY)
+      onComplete?.()
+      return
+    }
+
+    this.isMoving = true
+    this.targetCoord = targetCoord
+    const generation = this.generation
     const { x: targetX, y: targetY } = tileToPixel(targetCoord)
 
     this.scene.tweens.add({
@@ -123,6 +144,7 @@ export class Goblin {
     this.scene.tweens.killTweensOf(this.container)
     this.gridX = startCoord.x
     this.gridY = startCoord.y
+    this.targetCoord = startCoord
     this.facing = 'DOWN'
     this.isMoving = false
     this.setAIState('PATROL')

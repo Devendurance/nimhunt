@@ -62,7 +62,7 @@ export function hashInstallId(installId: string): string {
 }
 
 export function runPatternHash(run: Pick<DurableExpeditionRun, 'actions'>): string {
-  return sha256Hex(run.actions.map(action => action.direction).join(','))
+  return sha256Hex(run.actions.map(action => action.type === 'MOVE' ? action.direction : 'TICK').join(','))
 }
 
 export function minimumPlausibleCompletionMs(actionCount: number): number | null {

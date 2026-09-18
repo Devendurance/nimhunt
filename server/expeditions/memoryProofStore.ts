@@ -447,7 +447,7 @@ export function createMemoryProofService(options: {
         const result = applyCheckpointBatch(run, {
           previousCheckpointHash: input.previousCheckpointHash,
           actions: input.actions,
-        })
+        }, { now })
         runs.set(input.runId, result.run)
         return result.acknowledgement
       })
@@ -907,6 +907,7 @@ function cloneChallenge(challenge: DurableStartChallenge): DurableStartChallenge
 function cloneRun(run: DurableExpeditionRun): DurableExpeditionRun {
   return {
     ...run,
+    hazardDeadlines: run.hazardDeadlines ? run.hazardDeadlines.map(d => ({ ...d })) : undefined,
     blueprint: cloneBlueprint(run.blueprint),
     state: JSON.parse(JSON.stringify(run.state)) as DurableExpeditionRun['state'],
     checkpoint: { ...run.checkpoint },

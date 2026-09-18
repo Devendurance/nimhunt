@@ -24,7 +24,7 @@ export function resolveHuntStatusView(source: HuntTreasureSource, fixture: PlayF
       treasuresTotal: String(fixture.treasuresTotal),
       ...walletAttemptView(source.walletStatus),
       resetDisplay: '—',
-      badge: 'LOADING',
+      badge: 'CHECKING',
       live: false,
       busy: true,
     }
@@ -35,7 +35,7 @@ export function resolveHuntStatusView(source: HuntTreasureSource, fixture: PlayF
       treasuresTotal: String(fixture.treasuresTotal),
       ...walletAttemptView(source.walletStatus),
       resetDisplay: '—',
-      badge: 'TREASURE COUNT UNAVAILABLE',
+      badge: 'UNAVAILABLE',
       live: false,
       busy: false,
     }
@@ -45,7 +45,7 @@ export function resolveHuntStatusView(source: HuntTreasureSource, fixture: PlayF
     treasuresTotal: String(source.totalSlots),
     ...walletAttemptView(source.walletStatus),
     resetDisplay: formatResetCountdown(source.nextResetAt, nowMs),
-    badge: 'LIVE · SERVER',
+    badge: 'LIVE',
     live: true,
     busy: false,
   }

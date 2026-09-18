@@ -2,9 +2,9 @@ import type { HuntLaunchConfig } from './marketing.types'
 
 export type Mission = { name: string; objective: string; icon: 'gem' | 'chest' | 'key' }
 export const missionPreviews: readonly Mission[] = [
-  { name: 'Gem Runner', objective: 'Collect 12 gems and escape alive.', icon: 'gem' },
-  { name: 'Chest Hunter', objective: 'Open 4 chests and finish alive.', icon: 'chest' },
-  { name: 'Vault Breaker', objective: 'Find the Temple Key, reach the Vault, and seal the treasure.', icon: 'key' },
+  { name: 'Gem Runner', objective: 'Collect 6 gems and survive.', icon: 'gem' },
+  { name: 'Chest Hunter', objective: 'Open 4 chests and survive.', icon: 'chest' },
+  { name: 'Vault Breaker', objective: 'Find the key. Unlock the gate. Reach the vault.', icon: 'key' },
 ]
 export const adventureSteps = [
   { name: 'Explore', text: 'Navigate compact rooms, find keys, push boulders, and choose your route.' },

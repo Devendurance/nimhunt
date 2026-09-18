@@ -1,7 +1,7 @@
 import { evaluateMission, type MissionType } from '../domain/mission.ts'
 import { createRunState } from '../domain/runState.ts'
 import { ANGKOR_ROOM_01 } from '../world/room01.ts'
-import { commitPuzzleMove, createPuzzleState, resolvePuzzleMove, type PuzzleObjects } from '../systems/puzzle.ts'
+import { commitPuzzleMove, createPuzzleState, resolvePuzzleMove, sameTile, type PuzzleObjects } from '../systems/puzzle.ts'
 import { createChestStates, getChestAt, openChest } from '../systems/chests.ts'
 import { createGoblinState, resolveGoblinCombat, stepGoblin } from '../systems/goblin.ts'
 import { checkPotionConsumption, checkSwordPickup, createInitialItemState } from '../systems/items.ts'
@@ -14,21 +14,27 @@ import {
 } from './versions.ts'
 import type {
   ExpeditionBlueprint,
-  MoveAction,
+  ReplayAction,
   ReplayState,
 } from './types.ts'
 
-export interface InitialRunInput {
-  readonly mission: MissionType
-  readonly rulesVersion: RulesVersion
-  readonly roomVersion: RoomVersion
-  readonly blueprint: ExpeditionBlueprint
-}
-
-export interface ReplayAdvanceResult {
+export type StepRunResult = {
   readonly accepted: boolean
   readonly state: ReplayState
   readonly reason?: string
+}
+
+export type ReplayAdvanceResult = {
+  readonly accepted: boolean
+  readonly state: ReplayState
+  readonly reason?: string
+}
+
+export type InitialRunInput = {
+  readonly rulesVersion: RulesVersion
+  readonly roomVersion: RoomVersion
+  readonly mission: MissionType
+  readonly blueprint: ExpeditionBlueprint
 }
 
 export function createInitialRun(input: InitialRunInput): ReplayState {
@@ -64,12 +70,76 @@ export function createInitialRun(input: InitialRunInput): ReplayState {
     puzzle: createPuzzleState(puzzleObjects),
     chests: createChestStates(input.blueprint.chests),
     goblins: input.blueprint.goblins.map(goblin => createGoblinState(goblin.spawn)),
+    collapsingBoulders: input.blueprint.timedHazards
+      .filter(h => h.type === 'COLLAPSING_BOULDER')
+      .map(h => ({
+        id: h.id,
+        state: 'ARMED',
+        triggeredAtTick: null,
+        elapsedTicks: 0,
+        targetTicks: h.warningTicks ?? h.delay,
+        collapseAtTick: h.warningTicks ?? h.delay,
+      })),
   }
 }
 
-export function advanceRun(state: ReplayState, action: MoveAction): ReplayAdvanceResult {
+export function advanceRun(state: ReplayState, action: ReplayAction): ReplayAdvanceResult {
   if (state.run.runStatus !== 'PLAYING') return rejected(state, 'RUN_ENDED')
   if (action.seq !== state.seq + 1) return rejected(state, 'INVALID_SEQUENCE')
+
+  // Handle simulation TICK actions (emitted while a timed hazard is WARNING)
+  if (action.type === 'TICK') {
+    const hasWarningHazard = (state.collapsingBoulders ?? []).some(b => b.state === 'WARNING')
+    if (!hasWarningHazard) {
+      return rejected(state, 'UNEXPECTED_TICK')
+    }
+
+    const nextSeq = state.seq + 1
+    let nextRun = state.run
+    const prevBoulders = state.collapsingBoulders ?? []
+    const nextCollapsingBoulders = prevBoulders.map(b => {
+      if (b.state !== 'WARNING') return b
+      const target = b.targetTicks ?? 4
+      const nextElapsed = b.elapsedTicks + 1
+      if (nextElapsed >= target) {
+        return {
+          ...b,
+          state: 'FALLEN' as const,
+          elapsedTicks: nextElapsed,
+        }
+      }
+      return {
+        ...b,
+        elapsedTicks: nextElapsed,
+      }
+    })
+
+    // Check if player occupies impact cell at the moment of collapse
+    for (const b of nextCollapsingBoulders) {
+      const prev = prevBoulders.find(p => p.id === b.id)
+      if (b.state === 'FALLEN' && prev?.state === 'WARNING') {
+        const config = state.blueprint.timedHazards.find(h => h.id === b.id)
+        if (config && sameTile(state.player, { x: config.x, y: config.y })) {
+          nextRun = {
+            ...nextRun,
+            hp: 0,
+            runStatus: 'FAILED',
+            missionStatus: 'FAILED',
+          }
+        }
+      }
+    }
+
+    return {
+      accepted: true,
+      state: {
+        ...state,
+        seq: nextSeq,
+        run: nextRun,
+        collapsingBoulders: nextCollapsingBoulders,
+      },
+    }
+  }
 
   const contents = {
     gems: state.blueprint.gems,
@@ -82,6 +152,11 @@ export function advanceRun(state: ReplayState, action: MoveAction): ReplayAdvanc
     shrine: state.blueprint.objective,
   }
   const closedChestTiles = state.chests.filter(chest => chest.state === 'CLOSED').map(chest => ({ x: chest.x, y: chest.y }))
+
+  const fallenBoulders = state.blueprint.timedHazards
+    .filter(h => (state.collapsingBoulders ?? []).find(cb => cb.id === h.id)?.state === 'FALLEN')
+    .map(h => ({ x: h.x, y: h.y }))
+
   const transition = resolvePuzzleMove(
     ANGKOR_ROOM_01,
     contents,
@@ -92,6 +167,7 @@ export function advanceRun(state: ReplayState, action: MoveAction): ReplayAdvanc
     action.direction,
     closedChestTiles,
     state.mission,
+    fallenBoulders,
   )
   if (!transition.move.success) {
     return rejected(state, transition.blockedReason ?? transition.move.reason ?? 'BLOCKED')
@@ -103,6 +179,34 @@ export function advanceRun(state: ReplayState, action: MoveAction): ReplayAdvanc
   let nextItems = state.items
   let nextChests = state.chests
   const nextGoblins = [...state.goblins]
+
+  // Update collapsing boulder hazards on player move
+  const nextSeq = state.seq + 1
+  const nextCollapsingBoulders = (state.collapsingBoulders ?? []).map(b => {
+    const config = state.blueprint.timedHazards.find(h => h.id === b.id)
+    if (!config) return b
+
+    if (b.state === 'ARMED') {
+      const triggerCells = config.triggerCells && config.triggerCells.length > 0
+        ? config.triggerCells
+        : [{ x: config.x, y: config.y }]
+      const isTriggered = triggerCells.some(cell => sameTile(cell, transition.move.to))
+      if (isTriggered) {
+        const targetTicks = config.warningTicks ?? config.delay
+        return {
+          ...b,
+          state: 'WARNING' as const,
+          triggeredAtTick: nextSeq,
+          elapsedTicks: 0,
+          targetTicks,
+          collapseAtTick: targetTicks,
+        }
+      }
+      return b
+    }
+
+    return b
+  })
 
   const sword = state.blueprint.sword
     ? checkSwordPickup(nextItems, transition.move.to, state.blueprint.sword)
@@ -125,6 +229,10 @@ export function advanceRun(state: ReplayState, action: MoveAction): ReplayAdvanc
     }
   }
 
+  const activeFallenBoulders = state.blueprint.timedHazards
+    .filter(h => nextCollapsingBoulders.find(cb => cb.id === h.id)?.state === 'FALLEN')
+    .map(h => ({ x: h.x, y: h.y }))
+
   if (nextRun.runStatus === 'PLAYING') {
     for (let index = 0; index < nextGoblins.length; index += 1) {
       const currentGoblin = nextGoblins[index]
@@ -140,7 +248,7 @@ export function advanceRun(state: ReplayState, action: MoveAction): ReplayAdvanc
 
       const activeGoblin = nextGoblins[index]
       if (!activeGoblin || activeGoblin.state === 'DEFEATED' || nextRun.runStatus !== 'PLAYING') continue
-      const steppedGoblin = stepGoblin(ANGKOR_ROOM_01, nextPuzzle, activeGoblin, transition.move.to, config.patrolRoute)
+      const steppedGoblin = stepGoblin(ANGKOR_ROOM_01, nextPuzzle, activeGoblin, transition.move.to, config.patrolRoute, state.blueprint.gate, activeFallenBoulders)
       nextGoblins[index] = steppedGoblin
 
       const afterStep = resolveGoblinCombat(nextRun, nextItems.hasSword, steppedGoblin, transition.move.to)
@@ -157,18 +265,19 @@ export function advanceRun(state: ReplayState, action: MoveAction): ReplayAdvanc
     accepted: true,
     state: {
       ...state,
-      seq: state.seq + 1,
+      seq: nextSeq,
       player: { ...transition.move.to },
       run: nextRun,
       items: nextItems,
       puzzle: nextPuzzle,
       chests: nextChests,
       goblins: nextGoblins,
+      collapsingBoulders: nextCollapsingBoulders,
     },
   }
 }
 
-export function replayActions(input: InitialRunInput, actions: readonly MoveAction[]): ReplayState {
+export function replayActions(input: InitialRunInput, actions: readonly ReplayAction[]): ReplayState {
   if (actions.length > MAX_ACCEPTED_ACTIONS) throw new Error('ACTION_LIMIT_EXCEEDED')
   let state = createInitialRun(input)
   for (const action of actions) {

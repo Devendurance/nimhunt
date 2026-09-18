@@ -1,5 +1,5 @@
 import { ABANDON_EXPEDITION_PATH, ACTIVE_EXPEDITION_PATH, CHECKPOINT_PATH, FINALIZE_REWARD_CLAIM_PATH, GAMEPLAY_START_PATH, PREPARE_REWARD_CLAIM_PATH, PRODUCT_VAULT_SEAL_PREPARE_PATH, PRODUCT_VAULT_SEAL_VERIFY_PATH, START_CHALLENGE_PATH, START_EXPEDITION_PATH, VERIFY_EXPEDITION_PATH } from '../../src/domain/expeditionProof.ts'
-import type { MoveAction } from '../../src/game/replay/types.ts'
+import type { ReplayAction } from '../../src/game/replay/types.ts'
 import { MAX_CHECKPOINT_BATCH_ACTIONS } from '../../src/game/replay/versions.ts'
 import { WALLET_DAILY_STATUS_PATH } from '../../src/domain/dailyLedger.ts'
 import { RECOVER_SESSION_CHALLENGE_PATH, RECOVER_SESSION_PATH } from '../../src/domain/walletRecovery.ts'
@@ -421,7 +421,7 @@ function readRunLocatorRequest(body: Record<string, unknown>): {
 function readCheckpointRequest(body: Record<string, unknown>): {
   runId: string
   previousCheckpointHash: string
-  actions: readonly MoveAction[]
+  actions: readonly ReplayAction[]
 } {
   const keys = Object.keys(body)
   if (keys.length !== 3 || !keys.includes('runId') || !keys.includes('previousCheckpointHash') || !keys.includes('actions')) {
@@ -440,18 +440,26 @@ function readCheckpointRequest(body: Record<string, unknown>): {
   }
 }
 
-function readCheckpointAction(value: unknown): MoveAction {
+function readCheckpointAction(value: unknown): ReplayAction {
   if (!isRecord(value)) throw new ProofError('MALFORMED_REQUEST')
   const keys = Object.keys(value)
-  if (keys.length !== 3 || !keys.includes('seq') || !keys.includes('type') || !keys.includes('direction')) {
-    throw new ProofError('MALFORMED_REQUEST')
-  }
   if (typeof value.seq !== 'number' || !Number.isInteger(value.seq) || value.seq < 1) throw new ProofError('INVALID_SEQUENCE')
-  if (value.type !== 'MOVE') throw new ProofError('INVALID_ACTION')
-  if (value.direction !== 'UP' && value.direction !== 'DOWN' && value.direction !== 'LEFT' && value.direction !== 'RIGHT') {
-    throw new ProofError('INVALID_ACTION')
+  if (value.type === 'MOVE') {
+    if (keys.length !== 3 || !keys.includes('seq') || !keys.includes('type') || !keys.includes('direction')) {
+      throw new ProofError('MALFORMED_REQUEST')
+    }
+    if (value.direction !== 'UP' && value.direction !== 'DOWN' && value.direction !== 'LEFT' && value.direction !== 'RIGHT') {
+      throw new ProofError('INVALID_ACTION')
+    }
+    return { seq: value.seq, type: 'MOVE', direction: value.direction }
   }
-  return { seq: value.seq, type: 'MOVE', direction: value.direction }
+  if (value.type === 'TICK') {
+    if (keys.length !== 2 || !keys.includes('seq') || !keys.includes('type')) {
+      throw new ProofError('MALFORMED_REQUEST')
+    }
+    return { seq: value.seq, type: 'TICK' }
+  }
+  throw new ProofError('INVALID_ACTION')
 }
 
 function isHash(value: unknown): value is string {

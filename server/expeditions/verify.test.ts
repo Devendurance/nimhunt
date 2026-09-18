@@ -232,7 +232,7 @@ describe('server final replay verification', () => {
       checkpointHash: run.checkpointHash,
       now: new Date('2026-09-09T12:10:00.000Z'),
     })
-    expect(fromBatches.map(action => action.direction[0]).join('')).toBe(PREVALIDATED_ROOM_01_BOOTSTRAP_WINNING_SEQUENCES['gem-runner'])
+    expect(fromBatches.map(action => action.type === 'MOVE' ? action.direction[0] : 'T').join('')).toBe(PREVALIDATED_ROOM_01_BOOTSTRAP_WINNING_SEQUENCES['gem-runner'])
     expect(result.result.outcome).toBe('VERIFIED_ELIGIBLE')
     expect(result.result.finalSeq).toBe(fromBatches.length)
   }, 15_000)
@@ -243,7 +243,7 @@ describe('server final replay verification', () => {
     const altered = {
       ...run,
       batches: run.batches.map((batch, index) => index === 0
-        ? { ...batch, actions: batch.actions.map((action, actionIndex) => actionIndex === 0 ? { ...action, direction: 'RIGHT' as const } : action) }
+        ? { ...batch, actions: batch.actions.map((action, actionIndex) => actionIndex === 0 && action.type === 'MOVE' ? { ...action, direction: 'RIGHT' as const } : action) }
         : batch),
     }
     expect(() => verifyExpeditionRun(altered, {

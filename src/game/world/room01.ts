@@ -2,7 +2,7 @@ import type { GridCoord, GridRoom } from './grid.ts'
 import type { PuzzleObjects } from '../systems/puzzle.ts'
 import type { RoomContents } from '../systems/tileEntry.ts'
 import type { ChestPlacement } from '../systems/chests.ts'
-import { BLUEPRINT_VERSION, ROOM_VERSION, RULES_VERSION } from '../replay/versions.ts'
+import { BLUEPRINT_VERSION_V1, ROOM_VERSION, RULES_VERSION } from '../replay/versions.ts'
 import type { ExpeditionBlueprint, MissionType } from '../replay/types.ts'
 
 export const ROOM_01_CONTENTS: RoomContents = {
@@ -85,7 +85,7 @@ export function createRoom01Blueprint(
   const blueprint: ExpeditionBlueprint = {
     rulesVersion: RULES_VERSION,
     roomVersion: ROOM_VERSION,
-    blueprintVersion: BLUEPRINT_VERSION,
+    blueprintVersion: BLUEPRINT_VERSION_V1,
     dayKey,
     mission,
     blueprintId,

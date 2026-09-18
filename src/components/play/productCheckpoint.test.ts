@@ -352,7 +352,7 @@ describe('product checkpoint session', () => {
     })
     expect(session.canAcceptMove()).toBe(true)
     expect(MISSION_INCOMPLETE_COPY).toBe('Mission objective is not complete yet.')
-    expect(VERIFY_REJECTED_DETAIL).toBe('Reward proof does not match the server record.')
+    expect(VERIFY_REJECTED_DETAIL).toBe('This expedition could not be verified. Starting a new expedition is safe.')
     expect(VERIFY_REJECTED_DETAIL.toLowerCase()).not.toMatch(/reserv/)
     expect(MISSION_INCOMPLETE_COPY.toLowerCase()).not.toMatch(/reserv/)
 

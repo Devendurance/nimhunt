@@ -40,10 +40,10 @@ import type {
 import { parseProductRewardClaim } from '../domain/productRewardClaim.ts'
 import { parseProductVaultSeal } from '../domain/productVaultSeal.ts'
 import {
-  BLUEPRINT_VERSION,
   CHECKPOINT_VERSION,
   ROOM_VERSION,
   RULES_VERSION,
+  isSupportedBlueprintVersion,
 } from '../game/replay/versions.ts'
 import type {
   BlueprintBoulder,
@@ -55,6 +55,7 @@ import type {
   ExpeditionBlueprint,
   ExpeditionCheckpoint,
   ReplayChestState,
+  ReplayCollapsingBoulderState,
   ReplayGoblinState,
   ReplayState,
   TimedHazard,
@@ -140,7 +141,7 @@ export async function submitCheckpoint(
   const seqEnd = request.actions[request.actions.length - 1]?.seq
   traceCheckpoint(
     'CHECKPOINT_REQUEST_BEGIN',
-    `url=${CHECKPOINT_PATH} seq=${seqStart ?? '?'}-${seqEnd ?? '?'} prev=${truncateHash(request.previousCheckpointHash)} actionCount=${request.actions.length} dirs=${request.actions.map(action => action.direction).join(',')}`,
+    `url=${CHECKPOINT_PATH} seq=${seqStart ?? '?'}-${seqEnd ?? '?'} prev=${truncateHash(request.previousCheckpointHash)} actionCount=${request.actions.length} dirs=${request.actions.map(action => action.type === 'MOVE' ? action.direction : 'TICK').join(',')}`,
   )
   return requestJson(fetcher, CHECKPOINT_PATH, postRequest(request), parseCheckpointAcknowledgement)
 }
@@ -867,8 +868,9 @@ function parseBlueprint(value: unknown): ExpeditionBlueprint | null {
   return value as unknown as ExpeditionBlueprint
 }
 
+
 function parseReplayState(value: unknown): ReplayState | null {
-  if (!isRecord(value) || !hasExactKeys(value, [
+  const required = [
     'seq',
     'blueprint',
     'mission',
@@ -883,7 +885,9 @@ function parseReplayState(value: unknown): ReplayState | null {
     'puzzle',
     'chests',
     'goblins',
-  ])
+  ] as const
+  const optional = ['collapsingBoulders'] as const
+  if (!isRecord(value) || !hasAllowedKeys(value, required, optional)
     || !isNonNegativeInteger(value.seq)
     || !isMission(value.mission)
     || !isSupportedVersions(value)
@@ -900,6 +904,11 @@ function parseReplayState(value: unknown): ReplayState | null {
   if (!blueprint || !run || !items || !puzzle || !chests || !goblins
     || blueprint.mission !== value.mission
     || !sameBlueprintIdentity(blueprint, value)) return null
+
+  if ('collapsingBoulders' in value && value.collapsingBoulders !== undefined && !isArrayOf(value.collapsingBoulders, parseCollapsingBoulder)) {
+    return null
+  }
+
   return value as unknown as ReplayState
 }
 
@@ -1024,13 +1033,25 @@ function parseBoulder(value: unknown): BlueprintBoulder | null {
 }
 
 function parseTimedHazard(value: unknown): TimedHazard | null {
-  if (!isRecord(value) || !hasExactKeys(value, ['id', 'x', 'y', 'type', 'trigger', 'delay'])
+  if (!isRecord(value) || !hasAllowedKeys(value, ['id', 'x', 'y', 'type', 'trigger', 'delay'], ['triggerCells', 'warningTicks'])
     || !isBoundedString(value.id, 128)
     || !isCoord(value)
     || (!isHazardType(value.type) && value.type !== 'COLLAPSING_BOULDER')
     || (value.trigger !== 'TURN' && value.trigger !== 'REAL_TIME')
     || !isNonNegativeInteger(value.delay)) return null
+  if ('triggerCells' in value && !isArrayOf(value.triggerCells, isCoord)) return null
+  if ('warningTicks' in value && !isNonNegativeInteger(value.warningTicks)) return null
   return value as unknown as TimedHazard
+}
+
+function parseCollapsingBoulder(value: unknown): ReplayCollapsingBoulderState | null {
+  if (!isRecord(value) || !hasAllowedKeys(value, ['id', 'state', 'triggeredAtTick', 'elapsedTicks', 'targetTicks'], ['collapseAtTick'])
+    || !isBoundedString(value.id, 128)
+    || (value.state !== 'ARMED' && value.state !== 'WARNING' && value.state !== 'FALLEN')
+    || (value.triggeredAtTick !== null && !isNonNegativeInteger(value.triggeredAtTick))
+    || !isNonNegativeInteger(value.elapsedTicks)
+    || (value.targetTicks !== null && !isNonNegativeInteger(value.targetTicks))) return null
+  return value as unknown as ReplayCollapsingBoulderState
 }
 
 function parseMissionParameters(value: unknown): boolean {
@@ -1053,7 +1074,8 @@ function sameBlueprintIdentity(value: ExpeditionBlueprint, other: Record<string,
 function isSupportedVersions(value: Record<string, unknown>): boolean {
   return value.rulesVersion === RULES_VERSION
     && value.roomVersion === ROOM_VERSION
-    && value.blueprintVersion === BLUEPRINT_VERSION
+    && typeof value.blueprintVersion === 'string'
+    && isSupportedBlueprintVersion(value.blueprintVersion)
 }
 
 function readErrorCode(value: unknown): ExpeditionProofErrorCode | null {
