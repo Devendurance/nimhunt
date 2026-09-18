@@ -141,6 +141,12 @@ export interface ManagedAudio {
   pause: () => void
   volume: number
   loop: boolean
+  /**
+   * Present on real elements; lets the manager tell "already playing"
+   * (no-op) from "paused" (resume). Fakes may omit these fields.
+   */
+  readonly paused?: boolean
+  currentTime?: number
 }
 
 export interface NimhuntAudioDeps {
@@ -162,15 +168,11 @@ function defaultCreateAudio(src: string): ManagedAudio | null {
     if (typeof Audio === 'undefined') return null
     const el = new Audio(src)
     el.preload = 'auto'
+    // NOTE: play() must NEVER reset currentTime here. This factory backs
+    // both BGM (resume from currentTime) and SFX (SFX seeks explicitly in
+    // playSfx). Resetting here restarted the BGM on every user gesture.
     return {
-      play: () => {
-        try {
-          el.currentTime = 0
-        } catch {
-          // currentTime reset is best-effort; play must still be attempted.
-        }
-        return el.play()
-      },
+      play: () => el.play(),
       pause: () => {
         try {
           el.pause()
@@ -196,6 +198,27 @@ function defaultCreateAudio(src: string): ManagedAudio | null {
           el.loop = value
         } catch {
           // Loop flag is best-effort.
+        }
+      },
+      get paused(): boolean | undefined {
+        try {
+          return el.paused
+        } catch {
+          return undefined
+        }
+      },
+      get currentTime(): number | undefined {
+        try {
+          return el.currentTime
+        } catch {
+          return undefined
+        }
+      },
+      set currentTime(value: number | undefined) {
+        try {
+          if (typeof value === 'number') el.currentTime = value
+        } catch {
+          // Seek is best-effort.
         }
       },
     }
@@ -239,12 +262,18 @@ export class NimhuntAudioManager {
   private bgmTrack: BgmTrackKey | null = null
   private bgmAudio: ManagedAudio | null = null
   private bgmBlocked = false
+  /** One-shot gesture latch: once true, later gestures are no-ops for BGM. */
+  private unlocked = false
+  /** Monotonic attempt id so stale async play() settlements can't clobber fresh state. */
+  private bgmAttempt = 0
   private hiddenPaused = false
+  private mutedPaused = false
   private readonly pools = new Map<SfxKey, ManagedAudio[]>()
   private poolCursor = 0
   private readonly lastSfxAt = new Map<SfxKey, number>()
   private readonly listeners = new Set<(enabled: boolean) => void>()
   private domSubscribed = false
+  private gestureSubscribed = false
   private readonly onGesture = () => this.unlock()
   private readonly onVisibility = () => this.handleVisibility()
 
@@ -269,9 +298,11 @@ export class NimhuntAudioManager {
       // Persistence must never throw into UI.
     }
     if (!enabled) {
+      this.mutedPaused = true
       this.safePauseBgm()
-    } else if (this.desiredTrack) {
-      this.playBgm(this.desiredTrack)
+    } else {
+      this.mutedPaused = false
+      if (this.desiredTrack) this.playBgm(this.desiredTrack)
     }
     for (const listener of this.listeners) {
       try {
@@ -293,11 +324,27 @@ export class NimhuntAudioManager {
     return this.bgmTrack
   }
 
-  /** Request a BGM track. Same-track requests never restart the audio. */
+  /** One-shot latch state: true once audio is unlocked (gesture or autoplay). */
+  isUnlocked(): boolean {
+    return this.unlocked
+  }
+
+  /**
+   * Request a BGM track. Idempotent: a same-track request while already
+   * playing returns immediately without touching src, currentTime, or
+   * playback. A same-track request while paused (hidden/muted/blocked)
+   * resumes from the preserved currentTime. Only a DIFFERENT track swaps
+   * the element and starts from the beginning.
+   */
   playBgm(track: BgmTrackKey): void {
     this.desiredTrack = track
     if (!this.enabled) return
     if (this.bgmTrack === track && this.bgmAudio) {
+      // Paused for a reason owned elsewhere: visibility resumes it, unmute
+      // resumes it. Never steal that resume here (it would restart/mis-time).
+      if (this.hiddenPaused || this.mutedPaused) return
+      // Already playing: no-op. No src/currentTime/load()/play() writes.
+      if (!this.bgmBlocked && this.isBgmPlaying(this.bgmAudio)) return
       this.attemptBgmPlay()
       return
     }
@@ -343,7 +390,14 @@ export class NimhuntAudioManager {
     } catch {
       // Volume is best-effort.
     }
-    this.swallowPlay(audio)
+    // One-shots always restart from the beginning. Scoped to SFX only:
+    // BGM resume must preserve currentTime.
+    try {
+      audio.currentTime = 0
+    } catch {
+      // Seek is best-effort.
+    }
+    this.swallowSfxPlay(audio)
   }
 
   /**
@@ -359,23 +413,43 @@ export class NimhuntAudioManager {
     }
   }
 
-  /** Called on first user gesture; retries the desired track if blocked. */
+  /**
+   * One-shot gesture unlock. Idempotent: after the latch is set, every
+   * later pointerdown/touchstart/keydown is a no-op for BGM, so scrolling
+   * or tapping never restarts the current song. The latch is set
+   * synchronously on the first valid gesture so the touchstart+pointerdown
+   * double-fire of a single physical touch cannot double-start the track;
+   * an async autoplay rejection afterwards clears the latch and re-arms
+   * the listeners for a future gesture.
+   */
   unlock(): void {
+    if (this.unlocked) return
     if (!this.enabled || !this.desiredTrack) return
-    if (this.bgmTrack === this.desiredTrack && this.bgmAudio && !this.bgmBlocked) {
-      this.attemptBgmPlay()
+    if (this.hiddenPaused || this.mutedPaused) return
+    if (
+      this.bgmTrack === this.desiredTrack &&
+      this.bgmAudio &&
+      !this.bgmBlocked &&
+      this.isBgmPlaying(this.bgmAudio)
+    ) {
+      // Already playing: latch only, never touch playback.
+      this.markUnlocked()
       return
     }
+    this.unlocked = true
+    this.detachGestureListeners()
     this.bgmBlocked = false
     this.playBgm(this.desiredTrack)
+    if (!this.bgmAudio) {
+      // Nothing playable (factory unavailable): stay armed for a later retry.
+      this.rearmGestureListeners()
+    }
   }
 
   dispose(): void {
-    if (typeof window !== 'undefined' && this.domSubscribed) {
+    this.detachGestureListeners()
+    if (typeof document !== 'undefined' && this.domSubscribed) {
       try {
-        window.removeEventListener('pointerdown', this.onGesture, true)
-        window.removeEventListener('touchstart', this.onGesture, true)
-        window.removeEventListener('keydown', this.onGesture, true)
         document.removeEventListener('visibilitychange', this.onVisibility)
       } catch {
         // Teardown is best-effort.
@@ -388,9 +462,7 @@ export class NimhuntAudioManager {
   private subscribeDom(): void {
     try {
       if (typeof window === 'undefined' || typeof document === 'undefined') return
-      window.addEventListener('pointerdown', this.onGesture, true)
-      window.addEventListener('touchstart', this.onGesture, true)
-      window.addEventListener('keydown', this.onGesture, true)
+      this.attachGestureListeners()
       document.addEventListener('visibilitychange', this.onVisibility)
       this.domSubscribed = true
     } catch {
@@ -398,16 +470,58 @@ export class NimhuntAudioManager {
     }
   }
 
+  private attachGestureListeners(): void {
+    if (this.gestureSubscribed) return
+    try {
+      if (typeof window === 'undefined') return
+      window.addEventListener('pointerdown', this.onGesture, true)
+      window.addEventListener('touchstart', this.onGesture, true)
+      window.addEventListener('keydown', this.onGesture, true)
+      this.gestureSubscribed = true
+    } catch {
+      // Audio unlock handling is best-effort.
+    }
+  }
+
+  private detachGestureListeners(): void {
+    if (!this.gestureSubscribed) return
+    this.gestureSubscribed = false
+    try {
+      if (typeof window === 'undefined') return
+      window.removeEventListener('pointerdown', this.onGesture, true)
+      window.removeEventListener('touchstart', this.onGesture, true)
+      window.removeEventListener('keydown', this.onGesture, true)
+    } catch {
+      // Teardown is best-effort.
+    }
+  }
+
+  private markUnlocked(): void {
+    this.unlocked = true
+    this.detachGestureListeners()
+  }
+
+  private rearmGestureListeners(): void {
+    this.unlocked = false
+    this.attachGestureListeners()
+  }
+
   private handleVisibility(): void {
     try {
+      if (typeof document === 'undefined') return
       if (document.hidden) {
+        // Pause only; currentTime is preserved for resume.
         this.hiddenPaused = true
         this.safePauseBgm()
         return
       }
       if (this.hiddenPaused) {
         this.hiddenPaused = false
-        if (this.enabled && this.desiredTrack) this.playBgm(this.desiredTrack)
+        // visibilitychange is not a user gesture: resume only the already-
+        // unlocked track from its preserved currentTime. Never reset it.
+        if (this.enabled && !this.mutedPaused && this.unlocked && this.desiredTrack) {
+          this.playBgm(this.desiredTrack)
+        }
       }
     } catch {
       // Visibility handling must never throw into gameplay.
@@ -417,27 +531,64 @@ export class NimhuntAudioManager {
   private attemptBgmPlay(): void {
     const audio = this.bgmAudio
     if (!audio) return
-    if (this.swallowPlay(audio)) this.bgmBlocked = false
-    else this.bgmBlocked = true
+    const epoch = (this.bgmAttempt += 1)
+    let outcome: Promise<void> | void
+    try {
+      outcome = audio.play()
+    } catch {
+      this.onBgmAttemptFailed(epoch)
+      return
+    }
+    if (outcome && typeof (outcome as Promise<void>).then === 'function') {
+      ;(outcome as Promise<void>).then(
+        () => this.onBgmAttemptSucceeded(epoch),
+        () => this.onBgmAttemptFailed(epoch),
+      )
+      return
+    }
+    this.onBgmAttemptSucceeded(epoch)
+  }
+
+  private onBgmAttemptSucceeded(epoch: number): void {
+    // Stale settlements (superseded by a newer attempt) must not move state.
+    if (epoch !== this.bgmAttempt) return
+    this.bgmBlocked = false
+    // Autoplay was permitted: latch so later gestures stay no-ops.
+    this.markUnlocked()
+  }
+
+  private onBgmAttemptFailed(epoch: number): void {
+    if (epoch !== this.bgmAttempt) return
+    this.bgmBlocked = true
+    // Still blocked: keep the one-shot listeners armed for a future gesture.
+    this.rearmGestureListeners()
+  }
+
+  private isBgmPlaying(audio: ManagedAudio): boolean {
+    try {
+      if (typeof audio.paused === 'boolean') return !audio.paused
+    } catch {
+      // Unknown state falls through to "attempt playback".
+    }
+    return false
   }
 
   /**
-   * Attempts playback, swallowing every autoplay rejection / sync throw so
+   * Attempts SFX playback, swallowing every rejection / sync throw so
    * audio failures never surface as console noise or unhandled rejections.
-   * Returns true when playback was (re)attempted without an immediate block.
+   * Deliberately decoupled from BGM unlock/blocked state: an SFX failure
+   * must never move BGM bookkeeping.
    */
-  private swallowPlay(audio: ManagedAudio): boolean {
+  private swallowSfxPlay(audio: ManagedAudio): void {
     try {
       const result = audio.play()
       if (result && typeof (result as Promise<void>).catch === 'function') {
         ;(result as Promise<void>).catch(() => {
-          this.bgmBlocked = true
+          // SFX failures stay silent and never touch BGM state.
         })
-        return true
       }
-      return true
     } catch {
-      return false
+      // SFX failures must never throw into gameplay.
     }
   }
 

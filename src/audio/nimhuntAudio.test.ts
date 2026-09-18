@@ -154,20 +154,40 @@ describe('transition tracker (dedup / re-arm / restore)', () => {
   })
 })
 
-/** Controllable fake audio element for manager tests. */
+/** Controllable fake audio element for manager tests. Models paused/currentTime like a real element. */
 function createFakeAudioHarness(options: { rejectPlay?: boolean } = {}) {
-  const instances: Array<{ src: string; played: number; paused: number; volume: number; loop: boolean }> = []
+  const instances: Array<{
+    src: string
+    played: number
+    pauseCount: number
+    paused: boolean
+    currentTime: number
+    currentTimeWrites: number
+    volume: number
+    loop: boolean
+  }> = []
   const createAudio = (src: string): ManagedAudio => {
-    const instance = { src, played: 0, paused: 0, volume: 0, loop: false }
+    const instance = {
+      src,
+      played: 0,
+      pauseCount: 0,
+      paused: true,
+      currentTime: 0,
+      currentTimeWrites: 0,
+      volume: 0,
+      loop: false,
+    }
     instances.push(instance)
     return {
       play: () => {
         instance.played += 1
         if (options.rejectPlay) return Promise.reject(new Error('AUTOPLAY_BLOCKED'))
+        instance.paused = false
         return Promise.resolve()
       },
       pause: () => {
-        instance.paused += 1
+        instance.pauseCount += 1
+        instance.paused = true
       },
       get volume() {
         return instance.volume
@@ -180,6 +200,16 @@ function createFakeAudioHarness(options: { rejectPlay?: boolean } = {}) {
       },
       set loop(value: boolean) {
         instance.loop = value
+      },
+      get paused() {
+        return instance.paused
+      },
+      get currentTime() {
+        return instance.currentTime
+      },
+      set currentTime(value: number | undefined) {
+        instance.currentTimeWrites += 1
+        if (typeof value === 'number') instance.currentTime = value
       },
     }
   }
@@ -209,10 +239,10 @@ describe('NimhuntAudioManager', () => {
     manager.playBgm('main')
     manager.playBgm('main')
     expect(harness.instances).toHaveLength(1)
-    expect(harness.instances[0]?.played).toBe(3)
+    expect(harness.instances[0]?.played).toBe(1)
     manager.playBgm('angkor')
     expect(harness.instances).toHaveLength(2)
-    expect(harness.instances[0]?.paused).toBeGreaterThanOrEqual(1)
+    expect(harness.instances[0]?.pauseCount).toBeGreaterThanOrEqual(1)
     expect(manager.currentTrack()).toBe('angkor')
     manager.dispose()
   })
@@ -243,7 +273,7 @@ describe('NimhuntAudioManager', () => {
     manager.playBgm('main')
     manager.setEnabled(false)
     expect(store.get()).toBe(false)
-    expect(harness.instances[0]?.paused).toBeGreaterThanOrEqual(1)
+    expect(harness.instances[0]?.pauseCount).toBeGreaterThanOrEqual(1)
     const playedBefore = harness.instances[0]?.played ?? 0
     manager.playBgm('angkor')
     expect(harness.instances[0]?.played).toBe(playedBefore)
@@ -328,6 +358,331 @@ describe('NimhuntAudioManager', () => {
     manager.playSfx('magic-circle')
     const played = harness.instances.filter(instance => instance.played > 0)
     expect(played).toHaveLength(2)
+    manager.dispose()
+  })
+})
+
+function flushMicrotasks(): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, 0))
+}
+
+/** Fake with a mutable autoplay gate: blocked (mobile) until the test allows playback. */
+function createGatedAudioHarness() {
+  const gate = { reject: true }
+  const instances: Array<{
+    src: string
+    played: number
+    pauseCount: number
+    paused: boolean
+    currentTime: number
+    currentTimeWrites: number
+    volume: number
+    loop: boolean
+  }> = []
+  const createAudio = (src: string): ManagedAudio => {
+    const instance = {
+      src,
+      played: 0,
+      pauseCount: 0,
+      paused: true,
+      currentTime: 0,
+      currentTimeWrites: 0,
+      volume: 0,
+      loop: false,
+    }
+    instances.push(instance)
+    return {
+      play: () => {
+        instance.played += 1
+        if (gate.reject) return Promise.reject(new Error('AUTOPLAY_BLOCKED'))
+        instance.paused = false
+        return Promise.resolve()
+      },
+      pause: () => {
+        instance.pauseCount += 1
+        instance.paused = true
+      },
+      get volume() {
+        return instance.volume
+      },
+      set volume(value: number) {
+        instance.volume = value
+      },
+      get loop() {
+        return instance.loop
+      },
+      set loop(value: boolean) {
+        instance.loop = value
+      },
+      get paused() {
+        return instance.paused
+      },
+      get currentTime() {
+        return instance.currentTime
+      },
+      set currentTime(value: number | undefined) {
+        instance.currentTimeWrites += 1
+        if (typeof value === 'number') instance.currentTime = value
+      },
+    }
+  }
+  return { gate, instances, createAudio }
+}
+
+/** Minimal window/document stubs so gesture + visibility listener lifecycle is testable in node. */
+function installDomStubs() {
+  const gestureHandlers = new Map<string, () => void>()
+  const removed: string[] = []
+  let visibilityHandler: (() => void) | null = null
+  let hidden = false
+  const fakeWindow = {
+    addEventListener: (type: string, cb: () => void) => {
+      gestureHandlers.set(type, cb)
+    },
+    removeEventListener: (type: string) => {
+      removed.push(type)
+      gestureHandlers.delete(type)
+    },
+  }
+  const fakeDocument = {
+    get hidden() {
+      return hidden
+    },
+    addEventListener: (type: string, cb: () => void) => {
+      if (type === 'visibilitychange') visibilityHandler = cb
+    },
+    removeEventListener: () => {},
+  }
+  ;(globalThis as Record<string, unknown>).window = fakeWindow
+  ;(globalThis as Record<string, unknown>).document = fakeDocument
+  return {
+    gestureHandlers,
+    removed,
+    fireVisibility: () => visibilityHandler?.(),
+    setHidden: (value: boolean) => {
+      hidden = value
+    },
+    cleanup: () => {
+      delete (globalThis as Record<string, unknown>).window
+      delete (globalThis as Record<string, unknown>).document
+    },
+  }
+}
+
+describe('BGM restart regression (one-shot unlock + idempotence)', () => {
+  it('first gesture unlocks/starts BGM; 10 repeated gestures never restart it', async () => {
+    const harness = createGatedAudioHarness()
+    const manager = new NimhuntAudioManager({
+      createAudio: harness.createAudio,
+      ...createStore(),
+      subscribeToDom: false,
+    })
+    manager.playBgm('main')
+    await flushMicrotasks()
+    // Autoplay blocked: still locked, track remembered.
+    expect(manager.isUnlocked()).toBe(false)
+    expect(harness.instances).toHaveLength(1)
+    const blockedPlays = harness.instances[0]?.played ?? 0
+    harness.gate.reject = false
+    manager.unlock()
+    await flushMicrotasks()
+    expect(manager.isUnlocked()).toBe(true)
+    const startedPlays = harness.instances[0]?.played ?? 0
+    expect(startedPlays).toBe(blockedPlays + 1)
+    // Simulate playback progress, then hammer with gestures (scrolls/taps).
+    harness.instances[0]!.currentTime = 42
+    for (let i = 0; i < 10; i += 1) manager.unlock()
+    await flushMicrotasks()
+    expect(harness.instances).toHaveLength(1)
+    expect(harness.instances[0]?.played).toBe(startedPlays)
+    expect(harness.instances[0]?.currentTime).toBe(42)
+    expect(manager.currentTrack()).toBe('main')
+    manager.dispose()
+  })
+
+  it('touchstart + pointerdown double-fire starts the track once and detaches listeners', async () => {
+    const dom = installDomStubs()
+    try {
+      const harness = createGatedAudioHarness()
+      const manager = new NimhuntAudioManager({
+        createAudio: harness.createAudio,
+        ...createStore(),
+      })
+      manager.playBgm('main')
+      await flushMicrotasks()
+      expect(manager.isUnlocked()).toBe(false)
+      harness.gate.reject = false
+      const before = harness.instances[0]?.played ?? 0
+      // One physical touch fires both: the second must be a no-op.
+      dom.gestureHandlers.get('touchstart')?.()
+      dom.gestureHandlers.get('pointerdown')?.()
+      await flushMicrotasks()
+      expect(harness.instances).toHaveLength(1)
+      expect(harness.instances[0]?.played).toBe(before + 1)
+      expect(manager.isUnlocked()).toBe(true)
+      expect(dom.removed).toContain('pointerdown')
+      expect(dom.removed).toContain('touchstart')
+      expect(dom.removed).toContain('keydown')
+      // A stale keydown closure after detach still cannot restart playback.
+      const staleKeydown = dom.gestureHandlers.get('keydown')
+      staleKeydown?.()
+      await flushMicrotasks()
+      expect(harness.instances[0]?.played).toBe(before + 1)
+      manager.dispose()
+    } finally {
+      dom.cleanup()
+    }
+  })
+
+  it('same-track playBgm never touches currentTime once playing', async () => {
+    const harness = createFakeAudioHarness()
+    const manager = new NimhuntAudioManager({
+      createAudio: harness.createAudio,
+      ...createStore(),
+      subscribeToDom: false,
+    })
+    manager.playBgm('main')
+    await flushMicrotasks()
+    harness.instances[0]!.currentTime = 42
+    const writes = harness.instances[0]?.currentTimeWrites ?? 0
+    manager.playBgm('main')
+    manager.playBgm('main')
+    manager.playBgm('main')
+    await flushMicrotasks()
+    expect(harness.instances).toHaveLength(1)
+    expect(harness.instances[0]?.played).toBe(1)
+    expect(harness.instances[0]?.currentTime).toBe(42)
+    expect(harness.instances[0]?.currentTimeWrites).toBe(writes)
+    manager.dispose()
+  })
+
+  it('visibility hide/show pauses and resumes the same track from its currentTime', async () => {
+    const dom = installDomStubs()
+    try {
+      const harness = createFakeAudioHarness()
+      const manager = new NimhuntAudioManager({
+        createAudio: harness.createAudio,
+        ...createStore(),
+      })
+      manager.playBgm('main')
+      await flushMicrotasks()
+      expect(manager.isUnlocked()).toBe(true)
+      harness.instances[0]!.currentTime = 77
+      const playedBefore = harness.instances[0]?.played ?? 0
+      dom.setHidden(true)
+      dom.fireVisibility()
+      expect(harness.instances[0]?.pauseCount).toBeGreaterThanOrEqual(1)
+      expect(harness.instances[0]?.currentTime).toBe(77)
+      expect(harness.instances[0]?.played).toBe(playedBefore)
+      dom.setHidden(false)
+      dom.fireVisibility()
+      await flushMicrotasks()
+      expect(harness.instances).toHaveLength(1)
+      expect(harness.instances[0]?.played).toBe(playedBefore + 1)
+      expect(harness.instances[0]?.currentTime).toBe(77)
+      expect(manager.currentTrack()).toBe('main')
+      manager.dispose()
+    } finally {
+      dom.cleanup()
+    }
+  })
+
+  it('mute/unmute resumes from currentTime instead of restarting', async () => {
+    const harness = createFakeAudioHarness()
+    const manager = new NimhuntAudioManager({
+      createAudio: harness.createAudio,
+      ...createStore(),
+      subscribeToDom: false,
+    })
+    manager.playBgm('main')
+    await flushMicrotasks()
+    harness.instances[0]!.currentTime = 55
+    const playedBefore = harness.instances[0]?.played ?? 0
+    manager.setEnabled(false)
+    expect(harness.instances[0]?.pauseCount).toBeGreaterThanOrEqual(1)
+    manager.setEnabled(true)
+    await flushMicrotasks()
+    expect(harness.instances).toHaveLength(1)
+    expect(harness.instances[0]?.played).toBe(playedBefore + 1)
+    expect(harness.instances[0]?.currentTime).toBe(55)
+    manager.dispose()
+  })
+
+  it('switching to a different track starts the new track exactly once', async () => {
+    const harness = createFakeAudioHarness()
+    const manager = new NimhuntAudioManager({
+      createAudio: harness.createAudio,
+      ...createStore(),
+      subscribeToDom: false,
+    })
+    manager.playBgm('main')
+    await flushMicrotasks()
+    manager.playBgm('angkor')
+    await flushMicrotasks()
+    expect(harness.instances).toHaveLength(2)
+    expect(harness.instances[0]?.pauseCount).toBeGreaterThanOrEqual(1)
+    expect(harness.instances[1]?.played).toBe(1)
+    expect(manager.currentTrack()).toBe('angkor')
+    manager.playBgm('angkor')
+    await flushMicrotasks()
+    expect(harness.instances).toHaveLength(2)
+    expect(harness.instances[1]?.played).toBe(1)
+    manager.dispose()
+  })
+
+  it('SFX still work after unlock and never disturb BGM state', async () => {
+    const harness = createGatedAudioHarness()
+    const manager = new NimhuntAudioManager({
+      createAudio: harness.createAudio,
+      ...createStore(),
+      subscribeToDom: false,
+    })
+    manager.playBgm('main')
+    await flushMicrotasks()
+    harness.gate.reject = false
+    manager.unlock()
+    await flushMicrotasks()
+    expect(manager.isUnlocked()).toBe(true)
+    const bgmPlays = harness.instances[0]?.played ?? 0
+    manager.playSfx('treasure')
+    const sfxPlayed = harness.instances
+      .filter(instance => instance.src.includes('Treasure'))
+      .some(instance => instance.played > 0)
+    expect(sfxPlayed).toBe(true)
+    expect(harness.instances[0]?.played).toBe(bgmPlays)
+    expect(manager.isUnlocked()).toBe(true)
+    manager.dispose()
+  })
+
+  it('autoplay rejection stays graceful, locked, and armed for a later gesture', async () => {
+    const harness = createFakeAudioHarness({ rejectPlay: true })
+    const manager = new NimhuntAudioManager({
+      createAudio: harness.createAudio,
+      ...createStore(),
+      subscribeToDom: false,
+    })
+    manager.playBgm('main')
+    await flushMicrotasks()
+    expect(manager.isUnlocked()).toBe(false)
+    manager.unlock()
+    await flushMicrotasks()
+    // Still blocked: no latch, no throw, still retryable.
+    expect(manager.isUnlocked()).toBe(false)
+    expect(harness.instances).toHaveLength(1)
+    expect(harness.instances[0]?.played).toBeGreaterThanOrEqual(2)
+    manager.dispose()
+  })
+
+  it('unlock with no desired track is a silent no-op', () => {
+    const harness = createFakeAudioHarness()
+    const manager = new NimhuntAudioManager({
+      createAudio: harness.createAudio,
+      ...createStore(),
+      subscribeToDom: false,
+    })
+    expect(() => manager.unlock()).not.toThrow()
+    expect(manager.isUnlocked()).toBe(false)
+    expect(harness.instances).toHaveLength(0)
     manager.dispose()
   })
 })
