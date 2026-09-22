@@ -72,6 +72,7 @@ describe('monthly heroes production routing', () => {
       '/api/wallet/treasure-bank': '/api/product?__nimhunt_route=/api/wallet/treasure-bank',
       '/api/wallet/monthly-stats': '/api/product?__nimhunt_route=/api/wallet/monthly-stats',
       '/api/monthly-heroes': '/api/product?__nimhunt_route=/api/monthly-heroes',
+      '/api/public-stats': '/api/product?__nimhunt_route=/api/public-stats',
     }
     for (const entry of rewrites()) {
       if (!entry.source.startsWith('/api/')) continue

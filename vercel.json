@@ -106,6 +106,10 @@
     {
       "source": "/api/monthly-heroes",
       "destination": "/api/product?__nimhunt_route=/api/monthly-heroes"
+    },
+    {
+      "source": "/api/public-stats",
+      "destination": "/api/product?__nimhunt_route=/api/public-stats"
     }
   ]
 }

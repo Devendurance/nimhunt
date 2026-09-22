@@ -23,6 +23,8 @@
     "@nimiq/mini-app-sdk": "^0.1.0",
     "@supabase/supabase-js": "^2.115.0",
     "@tailwindcss/vite": "^4.3.3",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "lucide-react": "^1.42.0",
     "phaser": "^4.2.1",
     "react": "^19.2.8",

@@ -82,6 +82,7 @@ const REQUIRED_PRODUCT_PATHS = [
   '/api/wallet/treasure-bank',
   '/api/wallet/monthly-stats',
   '/api/monthly-heroes',
+  '/api/public-stats',
 ] as const
 
 // Section 7 minimum multi-segment set (plus query variants below).

@@ -3,6 +3,7 @@ import { loadEnv, type Plugin } from 'vite'
 import { CHECKPOINT_PATH, GET_REWARD_PAYOUT_PATH } from '../../src/domain/expeditionProof.js'
 import { TREASURE_BANK_PATH } from '../../src/domain/treasureBank.js'
 import { MONTHLY_HEROES_PATH, WALLET_MONTHLY_STATS_PATH } from '../../src/domain/monthlyHeroes.js'
+import { PUBLIC_STATS_PATH } from '../../src/domain/publicStats.js'
 import { RECOVER_SESSION_CHALLENGE_PATH, RECOVER_SESSION_PATH } from '../../src/domain/walletRecovery.js'
 import { createLazyValue } from './lazyValue.js'
 import { describeSessionCookie, WALLET_RECOVERY_SESSION_COOKIE } from './session.js'
@@ -103,11 +104,13 @@ function createHandler(
   let dispatchTreasure: typeof import('../treasureBank/http.js').dispatchTreasureBankHttp | undefined
   let dispatchHeroes: typeof import('../monthlyHeroes/http.js').dispatchMonthlyHeroesHttp | undefined
   let dispatchWalletStats: typeof import('../monthlyHeroes/http.js').dispatchWalletMonthlyStatsHttp | undefined
+  let dispatchPublicStats: typeof import('../publicStats/http.js').dispatchPublicStatsHttp | undefined
   return async (req: IncomingMessage, res: ServerResponse, next: () => void): Promise<void> => {
     const path = req.url?.split('?')[0] ?? ''
     const isTreasurePath = path === TREASURE_BANK_PATH
     const isHeroesPath = path === MONTHLY_HEROES_PATH || path === WALLET_MONTHLY_STATS_PATH
-    if (!isOwnedExpeditionPath(path) && !isOwnedPayoutSchedulerPath(path) && !isTreasurePath && !isHeroesPath) {
+    const isPublicStatsPath = path === PUBLIC_STATS_PATH
+    if (!isOwnedExpeditionPath(path) && !isOwnedPayoutSchedulerPath(path) && !isTreasurePath && !isHeroesPath && !isPublicStatsPath) {
       next()
       return
     }
@@ -163,6 +166,21 @@ function createHandler(
         const { createDefaultMonthlyHeroesSource } = await import('../monthlyHeroes/store.js')
         const source = await createDefaultMonthlyHeroesSource(runtime, getEnv())
         const response = await dispatchWalletStats(service, source, {
+          method: req.method ?? 'GET',
+          path: req.url ?? path,
+          headers: readHeaders(req),
+          host: req.headers.host,
+          protocol: isTlsRequest(req) ? 'https' : 'http',
+          rawBody,
+        }, runtime)
+        writeJson(res, response.status, response.body, response.headers)
+        return
+      }
+      if (path === PUBLIC_STATS_PATH) {
+        if (!dispatchPublicStats) ({ dispatchPublicStatsHttp: dispatchPublicStats } = await import('../publicStats/http.js'))
+        const { createDefaultPublicStatsSource } = await import('../publicStats/store.js')
+        const source = await createDefaultPublicStatsSource(runtime, getEnv())
+        const response = await dispatchPublicStats(source, {
           method: req.method ?? 'GET',
           path: req.url ?? path,
           headers: readHeaders(req),

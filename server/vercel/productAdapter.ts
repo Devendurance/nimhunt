@@ -26,6 +26,7 @@ import {
 } from '../../src/domain/walletRecovery.js'
 import { TREASURE_BANK_PATH } from '../../src/domain/treasureBank.js'
 import { MONTHLY_HEROES_PATH, WALLET_MONTHLY_STATS_PATH } from '../../src/domain/monthlyHeroes.js'
+import { PUBLIC_STATS_PATH } from '../../src/domain/publicStats.js'
 import { WALLET_DAILY_STATUS_PATH } from '../../src/domain/dailyLedger.js'
 import { dispatchLedgerHttp } from '../ledger/http.js'
 import { dispatchExpeditionHttp, type ExpeditionHttpSecurity } from '../expeditions/http.js'
@@ -62,6 +63,7 @@ export const PRODUCT_OWNED_PATHS: readonly string[] = [
   TREASURE_BANK_PATH,
   MONTHLY_HEROES_PATH,
   WALLET_MONTHLY_STATS_PATH,
+  PUBLIC_STATS_PATH,
 ]
 
 const PRODUCT_OWNED_SET = new Set(PRODUCT_OWNED_PATHS)
@@ -204,6 +206,20 @@ export async function dispatchProductHttp(
     const service = await createDefaultProofService(runtime, env)
     const source = await createDefaultMonthlyHeroesSource(runtime, env)
     return dispatchWalletMonthlyStatsHttp(service, source, {
+      method: request.method,
+      path: request.path,
+      headers: request.headers,
+      host: request.host,
+      protocol: request.protocol,
+      rawBody: request.rawBody,
+    }, toSecurity(runtime))
+  }
+
+  if (pathname === PUBLIC_STATS_PATH) {
+    const { dispatchPublicStatsHttp } = await import('../publicStats/http.js')
+    const { createDefaultPublicStatsSource } = await import('../publicStats/store.js')
+    const source = await createDefaultPublicStatsSource(runtime, env)
+    return dispatchPublicStatsHttp(source, {
       method: request.method,
       path: request.path,
       headers: request.headers,
