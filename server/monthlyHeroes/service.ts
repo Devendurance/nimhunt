@@ -144,7 +144,7 @@ function dedupeRuns(runs: readonly MonthlyRunFacts[]): MonthlyRunFacts[] {
   return out
 }
 
-function isVaultCompletion(run: MonthlyRunFacts): boolean {
+export function isQualifyingCompletion(run: MonthlyRunFacts): boolean {
   const verified = run.verified
   if (!verified) return false
   if (verified.outcome === 'VERIFIED_ELIGIBLE' && verified.missionSatisfied && verified.finalHp > 0) return true
@@ -265,7 +265,7 @@ export function computeWalletMonthBoard(input: {
       stats.gemsCollected += Math.max(0, Math.floor(run.verified.gemsCollected))
       stats.chestsOpened += Math.max(0, Math.floor(run.verified.chestsOpened))
     }
-    const completed = isVaultCompletion(run)
+    const completed = isQualifyingCompletion(run)
     if (completed) {
       stats.expeditionsCompleted += 1
       slot.days.add(run.dayKey)

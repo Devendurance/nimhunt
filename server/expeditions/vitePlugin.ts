@@ -4,6 +4,8 @@ import { CHECKPOINT_PATH, GET_REWARD_PAYOUT_PATH } from '../../src/domain/expedi
 import { TREASURE_BANK_PATH } from '../../src/domain/treasureBank.js'
 import { MONTHLY_HEROES_PATH, WALLET_MONTHLY_STATS_PATH } from '../../src/domain/monthlyHeroes.js'
 import { PUBLIC_STATS_PATH } from '../../src/domain/publicStats.js'
+import { dispatchAdventurerHttp, isOwnedAdventurerPath } from '../adventurer/http.js'
+import { createDefaultAdventurerService } from '../adventurer/runtime.js'
 import { RECOVER_SESSION_CHALLENGE_PATH, RECOVER_SESSION_PATH } from '../../src/domain/walletRecovery.js'
 import { createLazyValue } from './lazyValue.js'
 import { describeSessionCookie, WALLET_RECOVERY_SESSION_COOKIE } from './session.js'
@@ -57,6 +59,7 @@ export function expeditionProofPlugin(): Plugin {
     return createDefaultTreasureBankSource(runtime, env())
   })
   const payoutRuntime = createLazyValue(() => createDefaultPayoutRuntime(env()))
+  const adventurer = createLazyValue(() => createDefaultAdventurerService(runtime, env()))
 
   return {
     name: 'nimhunt-expedition-proof',
@@ -76,6 +79,7 @@ export function expeditionProofPlugin(): Plugin {
         () => runtime,
         env,
         () => treasureSource.ensure(),
+        () => adventurer.ensure(),
       ))
     },
     configurePreviewServer(server) {
@@ -86,6 +90,7 @@ export function expeditionProofPlugin(): Plugin {
         () => runtime,
         env,
         () => treasureSource.ensure(),
+        () => adventurer.ensure(),
       ))
     },
   }
@@ -97,7 +102,8 @@ function createHandler(
   getPayoutRuntime: () => Promise<PayoutRuntime | null>,
   getRuntime: () => ExpeditionRuntime,
   getEnv: () => Record<string, string | undefined>,
-  getTreasureSource?: () => Promise<Awaited<ReturnType<typeof import('../treasureBank/store.js').createDefaultTreasureBankSource>>>,
+  getTreasureSource: () => Promise<Awaited<ReturnType<typeof import('../treasureBank/store.js').createDefaultTreasureBankSource>>>,
+  getAdventurerService: () => Promise<Awaited<ReturnType<typeof createDefaultAdventurerService>>>,
 ) {
   let dispatch: typeof import('./http.js').dispatchExpeditionHttp | undefined
   let dispatchPayout: typeof import('../payouts/http.js').dispatchPayoutHttp | undefined
@@ -110,7 +116,8 @@ function createHandler(
     const isTreasurePath = path === TREASURE_BANK_PATH
     const isHeroesPath = path === MONTHLY_HEROES_PATH || path === WALLET_MONTHLY_STATS_PATH
     const isPublicStatsPath = path === PUBLIC_STATS_PATH
-    if (!isOwnedExpeditionPath(path) && !isOwnedPayoutSchedulerPath(path) && !isTreasurePath && !isHeroesPath && !isPublicStatsPath) {
+    const isAdventurerPath = isOwnedAdventurerPath(path)
+    if (!isOwnedExpeditionPath(path) && !isOwnedPayoutSchedulerPath(path) && !isTreasurePath && !isHeroesPath && !isPublicStatsPath && !isAdventurerPath) {
       next()
       return
     }
@@ -141,6 +148,20 @@ function createHandler(
           headers: readHeaders(req),
           rawBody,
         })
+        writeJson(res, response.status, response.body, response.headers)
+        return
+      }
+
+      if (isAdventurerPath) {
+        const adventurerService = await getAdventurerService()
+        const response = await dispatchAdventurerHttp(adventurerService, {
+          method: req.method ?? 'GET',
+          path: req.url ?? path,
+          headers: readHeaders(req),
+          host: req.headers.host,
+          protocol: isTlsRequest(req) ? 'https' : 'http',
+          rawBody,
+        }, runtime)
         writeJson(res, response.status, response.body, response.headers)
         return
       }

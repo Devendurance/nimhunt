@@ -110,6 +110,34 @@
     {
       "source": "/api/public-stats",
       "destination": "/api/product?__nimhunt_route=/api/public-stats"
+    },
+    {
+      "source": "/api/adventurer/profile/challenge",
+      "destination": "/api/product?__nimhunt_route=/api/adventurer/profile/challenge"
+    },
+    {
+      "source": "/api/adventurer/profile",
+      "destination": "/api/product?__nimhunt_route=/api/adventurer/profile"
+    },
+    {
+      "source": "/api/adventurer/session/challenge",
+      "destination": "/api/product?__nimhunt_route=/api/adventurer/session/challenge"
+    },
+    {
+      "source": "/api/adventurer/session",
+      "destination": "/api/product?__nimhunt_route=/api/adventurer/session"
+    },
+    {
+      "source": "/api/adventurer/me",
+      "destination": "/api/product?__nimhunt_route=/api/adventurer/me"
+    },
+    {
+      "source": "/api/adventurer/public",
+      "destination": "/api/product?__nimhunt_route=/api/adventurer/public"
+    },
+    {
+      "source": "/api/adventurer/name-availability",
+      "destination": "/api/product?__nimhunt_route=/api/adventurer/name-availability"
     }
   ]
 }

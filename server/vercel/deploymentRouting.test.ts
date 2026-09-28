@@ -83,6 +83,13 @@ const REQUIRED_PRODUCT_PATHS = [
   '/api/wallet/monthly-stats',
   '/api/monthly-heroes',
   '/api/public-stats',
+  '/api/adventurer/profile/challenge',
+  '/api/adventurer/profile',
+  '/api/adventurer/session/challenge',
+  '/api/adventurer/session',
+  '/api/adventurer/me',
+  '/api/adventurer/public',
+  '/api/adventurer/name-availability',
 ] as const
 
 // Section 7 minimum multi-segment set (plus query variants below).

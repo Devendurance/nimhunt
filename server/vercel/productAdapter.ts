@@ -27,6 +27,16 @@ import {
 import { TREASURE_BANK_PATH } from '../../src/domain/treasureBank.js'
 import { MONTHLY_HEROES_PATH, WALLET_MONTHLY_STATS_PATH } from '../../src/domain/monthlyHeroes.js'
 import { PUBLIC_STATS_PATH } from '../../src/domain/publicStats.js'
+import {
+  ADVENTURER_CREATE_CHALLENGE_PATH,
+  ADVENTURER_CREATE_PATH,
+  ADVENTURER_ME_PATH,
+  ADVENTURER_NAME_AVAILABILITY_PATH,
+  ADVENTURER_PUBLIC_PATH,
+  ADVENTURER_SESSION_CHALLENGE_PATH,
+  ADVENTURER_SESSION_PATH,
+} from '../../src/domain/adventurer.js'
+import { isOwnedAdventurerPath, dispatchAdventurerHttp } from '../adventurer/http.js'
 import { WALLET_DAILY_STATUS_PATH } from '../../src/domain/dailyLedger.js'
 import { dispatchLedgerHttp } from '../ledger/http.js'
 import { dispatchExpeditionHttp, type ExpeditionHttpSecurity } from '../expeditions/http.js'
@@ -64,6 +74,13 @@ export const PRODUCT_OWNED_PATHS: readonly string[] = [
   MONTHLY_HEROES_PATH,
   WALLET_MONTHLY_STATS_PATH,
   PUBLIC_STATS_PATH,
+  ADVENTURER_CREATE_CHALLENGE_PATH,
+  ADVENTURER_CREATE_PATH,
+  ADVENTURER_SESSION_CHALLENGE_PATH,
+  ADVENTURER_SESSION_PATH,
+  ADVENTURER_ME_PATH,
+  ADVENTURER_PUBLIC_PATH,
+  ADVENTURER_NAME_AVAILABILITY_PATH,
 ]
 
 const PRODUCT_OWNED_SET = new Set(PRODUCT_OWNED_PATHS)
@@ -157,6 +174,19 @@ export async function dispatchProductHttp(
   }
 
   const runtime: ExpeditionRuntime = resolveProductionExpeditionRuntime(env)
+
+  if (isOwnedAdventurerPath(pathname)) {
+    const { createDefaultAdventurerService } = await import('../adventurer/runtime.js')
+    const service = await createDefaultAdventurerService(runtime, env)
+    return dispatchAdventurerHttp(service, {
+      method: request.method,
+      path: request.path,
+      headers: request.headers,
+      host: request.host,
+      protocol: request.protocol,
+      rawBody: request.rawBody,
+    }, toSecurity(runtime))
+  }
 
   if (pathname === GET_REWARD_PAYOUT_PATH) {
     const service = await createDefaultProofService(runtime, env)

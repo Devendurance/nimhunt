@@ -28,6 +28,13 @@ const REQUIRED_PRODUCT_PATHS = [
   '/api/rewards/claim/payout',
   '/api/wallet/recover-challenge',
   '/api/wallet/recover-session',
+  '/api/adventurer/profile/challenge',
+  '/api/adventurer/profile',
+  '/api/adventurer/session/challenge',
+  '/api/adventurer/session',
+  '/api/adventurer/me',
+  '/api/adventurer/public',
+  '/api/adventurer/name-availability',
 ] as const
 
 describe('production product API adapter', () => {

@@ -73,6 +73,13 @@ describe('monthly heroes production routing', () => {
       '/api/wallet/monthly-stats': '/api/product?__nimhunt_route=/api/wallet/monthly-stats',
       '/api/monthly-heroes': '/api/product?__nimhunt_route=/api/monthly-heroes',
       '/api/public-stats': '/api/product?__nimhunt_route=/api/public-stats',
+      '/api/adventurer/profile/challenge': '/api/product?__nimhunt_route=/api/adventurer/profile/challenge',
+      '/api/adventurer/profile': '/api/product?__nimhunt_route=/api/adventurer/profile',
+      '/api/adventurer/session/challenge': '/api/product?__nimhunt_route=/api/adventurer/session/challenge',
+      '/api/adventurer/session': '/api/product?__nimhunt_route=/api/adventurer/session',
+      '/api/adventurer/me': '/api/product?__nimhunt_route=/api/adventurer/me',
+      '/api/adventurer/public': '/api/product?__nimhunt_route=/api/adventurer/public',
+      '/api/adventurer/name-availability': '/api/product?__nimhunt_route=/api/adventurer/name-availability',
     }
     for (const entry of rewrites()) {
       if (!entry.source.startsWith('/api/')) continue
