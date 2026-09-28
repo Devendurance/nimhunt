@@ -7,18 +7,20 @@ import { getAdventurerAvatarArt } from './adventurerAssets'
 import { PlayIcon } from './PlayIcon'
 import styles from './Adventurer.module.css'
 
-export function AdventurerAvatarToken({ avatarId, size = 'medium' }: { readonly avatarId: string; readonly size?: 'small' | 'medium' | 'large' }) {
-  const avatar = findAvatar(avatarId)
+export function AdventurerAvatarToken({ avatarId, size = 'medium' }: { readonly avatarId: string | null; readonly size?: 'small' | 'medium' | 'large' }) {
+  const avatar = avatarId ? findAvatar(avatarId) : null
   const order = avatar?.sortOrder ?? 0
-  const art = getAdventurerAvatarArt(avatarId)
-  return <span className={`${styles.avatarToken} ${styles[`avatarToken${capitalize(size)}`]}`} data-avatar-id={avatarId} aria-hidden="true">
+  const art = avatarId ? getAdventurerAvatarArt(avatarId) : null
+  return <span className={`${styles.avatarToken} ${styles[`avatarToken${capitalize(size)}`]}${avatarId ? '' : ` ${styles.avatarTokenNeutral}`}`} data-avatar-id={avatarId ?? undefined} aria-hidden="true">
     {art
       ? <img className={styles.avatarArt} src={art} alt="" decoding="async" />
-      : <>
-        <span className={styles.avatarGlow} />
-        <PlayIcon name="sparkles" size={size === 'large' ? 28 : size === 'medium' ? 22 : 16} />
-      </>}
-    <span className={styles.avatarNumber}>{String(order).padStart(2, '0')}</span>
+      : avatarId
+        ? <>
+          <span className={styles.avatarGlow} />
+          <PlayIcon name="sparkles" size={size === 'large' ? 28 : size === 'medium' ? 22 : 16} />
+        </>
+        : <PlayIcon name="user" size={size === 'large' ? 34 : size === 'medium' ? 22 : 16} />}
+    {avatarId && <span className={styles.avatarNumber}>{String(order).padStart(2, '0')}</span>}
   </span>
 }
 

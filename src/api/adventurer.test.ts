@@ -2,10 +2,11 @@ import { describe, expect, it } from 'vitest'
 import {
   createAdventurerProfile,
   fetchAdventurerNameAvailability,
+  fetchPublicAdventurerProfile,
   requestAdventurerCreationChallenge,
   updateAdventurerAvatar,
 } from './adventurer.ts'
-import { ADVENTURER_CREATE_CHALLENGE_PATH, ADVENTURER_ME_PATH } from '../domain/adventurer.ts'
+import { ADVENTURER_CREATE_CHALLENGE_PATH, ADVENTURER_ME_PATH, ADVENTURER_PUBLIC_PATH } from '../domain/adventurer.ts'
 
 function jsonResponse(body: unknown, status = 200): Response {
   return {
@@ -52,6 +53,34 @@ describe('Adventurer client boundary', () => {
       [ADVENTURER_CREATE_CHALLENGE_PATH.replace('/challenge', ''), 'POST'],
       [ADVENTURER_ME_PATH, 'PATCH'],
     ])
+  })
+
+  it('loads only the approved public Adventurer profile fields', async () => {
+    const publicProfile = await fetchPublicAdventurerProfile(profile.playerId, (async (input: string | URL | Request) => {
+      expect(String(input)).toBe(`${ADVENTURER_PUBLIC_PATH}?playerId=${profile.playerId}`)
+      return jsonResponse({ ok: true, profile: {
+        playerId: profile.playerId,
+        displayName: profile.displayName,
+        avatarId: profile.avatarId,
+        lifetimeGems: 42,
+        expeditionsCompleted: 7,
+        bestStreak: 3,
+      } })
+    }) as typeof fetch)
+    expect(publicProfile).toEqual({
+      playerId: profile.playerId,
+      displayName: 'Endy',
+      avatarId: 'common-01',
+      lifetimeGems: 42,
+      expeditionsCompleted: 7,
+      bestStreak: 3,
+    })
+    expect(JSON.stringify(publicProfile)).not.toMatch(/wallet|reward|claim|payout|session|challenge|nim/i)
+  })
+
+  it('fails safely for an unknown public player', async () => {
+    await expect(fetchPublicAdventurerProfile('00000000-0000-4000-8000-000000000099', (async () => jsonResponse({ ok: false, error: 'PROFILE_NOT_FOUND' }, 404)) as typeof fetch))
+      .rejects.toMatchObject({ code: 'PROFILE_NOT_FOUND' })
   })
 
   it('maps advisory name availability and preserves server errors', async () => {

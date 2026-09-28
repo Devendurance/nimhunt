@@ -1,7 +1,7 @@
 // Monthly Heroes HTTP boundary.
 //
 // PUBLIC  GET /api/monthly-heroes        (no auth, current UTC month only,
-//                                         masked wallets only, top 10/category)
+//                                         public Adventurer identity, top 10/category)
 // PRIVATE GET /api/wallet/monthly-stats  (wallet-session auth, own stats only)
 //
 // Both endpoints are read-only over existing durable proof/reward tables.
@@ -15,7 +15,7 @@ import { isAuthorizedLocalHttpAlias, type ExpeditionHttpRequest, type Expedition
 import { parseRunSessionCookie, parseWalletRecoverySessionCookie } from '../expeditions/session.js'
 import type { ExpeditionProofService } from '../expeditions/types.js'
 import { MonthlyHeroesError } from './http-shared.js'
-import { buildMonthlyHeroes, buildWalletMonthlyStats, computeWalletMonthBoard } from './service.js'
+import { buildMonthlyHeroes, buildWalletMonthlyStats, computeWalletMonthBoard, publicHeroWallets } from './service.js'
 import { monthDayRange, type MonthlyHeroesSource } from './store.js'
 
 const BASE_HEADERS = {
@@ -57,7 +57,8 @@ export async function dispatchMonthlyHeroesHttp(
     const todayDay = now.toISOString().slice(0, 10)
     const { facts } = await source.loadMonthFacts(monthKey)
     const board = computeWalletMonthBoard({ facts, monthKey, todayDay })
-    return response(200, buildMonthlyHeroes({ monthKey, generatedAt: now.toISOString(), board }))
+    const profiles = await source.resolvePublicProfilesByWallets(publicHeroWallets(board))
+    return response(200, buildMonthlyHeroes({ monthKey, generatedAt: now.toISOString(), board, profiles }))
   } catch (error) {
     if (error instanceof MonthlyHeroesError) {
       return response(error.code === 'HEROES_UNAVAILABLE' ? 503 : 400, { ok: false, error: error.code })

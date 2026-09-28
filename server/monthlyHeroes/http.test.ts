@@ -1,4 +1,4 @@
-// HTTP boundary tests: wallet privacy, masking, auth, empty boards,
+// HTTP boundary tests: public identity privacy, auth, empty boards,
 // query rejection, and scheduler/payout-stack independence.
 import { KeyPair } from '@nimiq/core'
 import { describe, expect, it } from 'vitest'
@@ -38,10 +38,18 @@ function completedRun(runId: string, wallet: string, dayKey = '2026-09-10'): Mon
 }
 
 describe('monthly heroes public endpoint', () => {
-  it('serves the current month with masked leaders and no internal data', async () => {
+  it('serves claimed Adventurer identity without internal data', async () => {
     const wallet = 'NQ32 AAAA BBBB CCCC DDDD EEEE FFFF GGGG HHHH'
     const source = createMemoryMonthlyHeroesSource()
     source.seedRun(completedRun('r1', wallet))
+    source.seedProfile(wallet, {
+      playerId: '00000000-0000-4000-8000-000000000001',
+      displayName: 'Endy',
+      avatarId: 'common-01',
+      lifetimeGems: 42,
+      expeditionsCompleted: 7,
+      bestStreak: 3,
+    })
 
     const response = await dispatchMonthlyHeroesHttp(source, {
       method: 'GET',
@@ -58,11 +66,32 @@ describe('monthly heroes public endpoint', () => {
     expect(parsed?.categories).toHaveLength(6)
     const relic = parsed?.categories.find(category => category.heroId === 'relic-keeper')
     expect(relic?.leaders).toHaveLength(1)
-    expect(relic?.leaders[0]).toMatchObject({ rank: 1, value: 185 })
-    expect(relic?.leaders[0]?.maskedWallet).not.toContain('AAAA')
+    expect(relic?.leaders[0]).toMatchObject({
+      rank: 1,
+      playerId: '00000000-0000-4000-8000-000000000001',
+      displayName: 'Endy',
+      avatarId: 'common-01',
+      value: 185,
+    })
     const text = JSON.stringify(response.body)
     expect(text).not.toContain(wallet)
-    expect(text).not.toMatch(/installId|runId|claimId|luna|treasury|risk|seal|snapshot|checkpoint/i)
+    expect(text).not.toMatch(/maskedWallet|wallet|nimDelivered|reward|claim|payout|treasury|session|challenge|security/i)
+  })
+
+  it('keeps an unclaimed wallet ranked with the neutral public identity', async () => {
+    const wallet = 'NQ32 UNCLAIMED WALLET'
+    const source = createMemoryMonthlyHeroesSource()
+    source.seedRun(completedRun('unclaimed', wallet))
+    const response = await dispatchMonthlyHeroesHttp(source, {
+      method: 'GET',
+      path: MONTHLY_HEROES_PATH,
+      headers: { origin: SECURITY.expectedOrigin, host: SECURITY.expectedHost, protocol: SECURITY.expectedProtocol },
+      host: SECURITY.expectedHost,
+      protocol: SECURITY.expectedProtocol,
+    }, SECURITY, NOW)
+    const relic = (parseMonthlyHeroesResponse(response.body)?.categories ?? []).find(category => category.heroId === 'relic-keeper')
+    expect(relic?.leaders[0]).toMatchObject({ rank: 1, playerId: null, displayName: 'Unnamed Adventurer', avatarId: null, value: 185 })
+    expect(JSON.stringify(response.body)).not.toContain(wallet)
   })
 
   it('returns empty leaders when nobody qualifies', async () => {

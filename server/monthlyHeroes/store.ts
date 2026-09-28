@@ -3,6 +3,7 @@
 // expedition_vault_seals, reward_claims, and reward_payouts.
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { MonthlyHeroesError } from './http-shared.js'
+import type { PublicAdventurerProfile } from '../../src/domain/adventurer.js'
 import type { MonthlyClaimFacts, MonthlyFacts, MonthlyPayoutFacts, MonthlyRunFacts } from './service.js'
 
 export const MONTH_RUN_CAP = 20000
@@ -10,10 +11,14 @@ export const MONTH_CLAIM_CAP = 5000
 export const MONTH_PAYOUT_CAP = 5000
 export const STREAK_LOOKBACK_DAYS = 62
 
+export type MonthlyHeroesProfileResolver = (wallets: readonly string[]) => Promise<ReadonlyMap<string, PublicAdventurerProfile>>
+
 export type MonthlyHeroesSource = {
   loadMonthFacts(monthKey: string): Promise<{ facts: MonthlyFacts; truncated: boolean }>
   /** Qualifying UTC days strictly before monthStartDay (streak look-back). */
   loadPriorQualifyingDays(wallet: string, monthStartDay: string): Promise<readonly string[]>
+  /** Batch profile resolution for displayed leader wallets only. */
+  resolvePublicProfilesByWallets(wallets: readonly string[]): Promise<ReadonlyMap<string, PublicAdventurerProfile>>
 }
 
 export function monthDayRange(monthKey: string): { start: string; end: string } {
@@ -31,6 +36,7 @@ export function lookbackStartDay(monthStartDay: string): string {
 }
 
 export function createMemoryMonthlyHeroesSource(seed: MonthlyFacts = { runs: [], claims: [], payouts: [] }): MonthlyHeroesSource & {
+  seedProfile(wallet: string, profile: PublicAdventurerProfile): void
   seedRun(run: MonthlyRunFacts): void
   seedClaim(claim: MonthlyClaimFacts): void
   seedPayout(payout: MonthlyPayoutFacts): void
@@ -38,7 +44,11 @@ export function createMemoryMonthlyHeroesSource(seed: MonthlyFacts = { runs: [],
   const runs: MonthlyRunFacts[] = [...seed.runs]
   const claims: MonthlyClaimFacts[] = [...seed.claims]
   const payouts: MonthlyPayoutFacts[] = [...seed.payouts]
+  const profiles = new Map<string, PublicAdventurerProfile>()
   return {
+    seedProfile(wallet, profile) {
+      profiles.set(wallet, profile)
+    },
     seedRun(run) {
       runs.push(run)
     },
@@ -53,6 +63,14 @@ export function createMemoryMonthlyHeroesSource(seed: MonthlyFacts = { runs: [],
     },
     async loadPriorQualifyingDays() {
       return []
+    },
+    async resolvePublicProfilesByWallets(wallets) {
+      const resolved = new Map<string, PublicAdventurerProfile>()
+      for (const wallet of wallets) {
+        const profile = profiles.get(wallet)
+        if (profile) resolved.set(wallet, profile)
+      }
+      return resolved
     },
   }
 }
@@ -123,7 +141,10 @@ export function mapSupabaseRun(row: SupabaseRow, sealedRunIds: ReadonlySet<strin
   }
 }
 
-export function createSupabaseMonthlyHeroesSource(client: SupabaseClient): MonthlyHeroesSource {
+export function createSupabaseMonthlyHeroesSource(
+  client: SupabaseClient,
+  resolvePublicProfilesByWallets: MonthlyHeroesProfileResolver = async () => new Map(),
+): MonthlyHeroesSource {
   return {
     async loadMonthFacts(monthKey: string): Promise<{ facts: MonthlyFacts; truncated: boolean }> {
       const { start, end } = monthDayRange(monthKey)
@@ -205,6 +226,8 @@ export function createSupabaseMonthlyHeroesSource(client: SupabaseClient): Month
       return { facts: { runs, claims, payouts }, truncated }
     },
 
+    resolvePublicProfilesByWallets,
+
     async loadPriorQualifyingDays(wallet: string, monthStartDay: string): Promise<readonly string[]> {
       if (!wallet || wallet.length > 80) throw new MonthlyHeroesError('HEROES_UNAVAILABLE')
       const from = lookbackStartDay(monthStartDay)
@@ -245,7 +268,9 @@ export async function createDefaultMonthlyHeroesSource(
   const { readServerSupabaseConfig, createSupabaseAdminClient } = await import('../ledger/config.js')
   const config = readServerSupabaseConfig(env)
   if (!config) return null
-  return createSupabaseMonthlyHeroesSource(createSupabaseAdminClient(config))
+  const client = createSupabaseAdminClient(config)
+  const { createSupabasePublicAdventurerProfileResolver } = await import('../adventurer/publicProfiles.js')
+  return createSupabaseMonthlyHeroesSource(client, createSupabasePublicAdventurerProfileResolver(client))
 }
 
 function chunkOf<T>(values: readonly T[], size: number): T[][] {

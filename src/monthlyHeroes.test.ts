@@ -4,7 +4,6 @@ import {
   MONTHLY_HERO_IDS,
   formatHeroValue,
   isMonthKey,
-  maskWalletAddress,
   monthKeyOfUtc,
   monthLabel,
   parseMonthlyHeroesResponse,
@@ -19,13 +18,10 @@ describe('monthly heroes contract', () => {
     ])
   })
 
-  it('masks wallets without ever echoing the full address', () => {
-    const wallet = 'NQ32 AAAA BBBB CCCC DDDD EEEE FFFF GGGG HHHH'
-    const masked = maskWalletAddress(wallet)
-    expect(masked).not.toContain('AAAA')
-    expect(masked.length).toBeLessThan(wallet.length)
-    expect(maskWalletAddress('NQ Sierpinski triangle')).not.toBe('NQ Sierpinski triangle')
-    expect(maskWalletAddress('ab')).toBe('•••')
+  it('uses claimed Adventurer identity or the neutral unclaimed contract', () => {
+    const validLeader = { rank: 1, playerId: null, displayName: 'Unnamed Adventurer', avatarId: null, value: 185 }
+    expect(validLeader.displayName).toBe('Unnamed Adventurer')
+    expect(JSON.stringify(validLeader)).not.toContain('wallet')
   })
 
   it('validates month keys on UTC calendar boundaries', () => {
@@ -47,17 +43,17 @@ describe('monthly heroes contract', () => {
         heroId: def.heroId,
         title: def.title,
         metricLabel: def.metricLabel,
-        leaders: def.heroId === 'relic-keeper' ? [{ rank: 1, maskedWallet: 'NQ32AA…HHHH', value: 185 }] : [],
+        leaders: def.heroId === 'relic-keeper' ? [{ rank: 1, playerId: '00000000-0000-4000-8000-000000000001', displayName: 'Endy', avatarId: 'common-01', value: 185 }] : [],
       })),
     }
     expect(parseMonthlyHeroesResponse(valid)?.monthKey).toBe('2026-09')
     // Wrong rank numbering rejected.
     const badRank = structuredClone(valid)
-    badRank.categories[1].leaders = [{ rank: 2, maskedWallet: 'NQ32AA…HHHH', value: 185 }]
+    badRank.categories[1].leaders = [{ rank: 2, playerId: '00000000-0000-4000-8000-000000000001', displayName: 'Endy', avatarId: 'common-01', value: 185 }]
     expect(parseMonthlyHeroesResponse(badRank)).toBeNull()
     // Zero/negative values rejected.
     const zero = structuredClone(valid)
-    zero.categories[1].leaders = [{ rank: 1, maskedWallet: 'NQ32AA…HHHH', value: 0 }]
+    zero.categories[1].leaders = [{ rank: 1, playerId: '00000000-0000-4000-8000-000000000001', displayName: 'Endy', avatarId: 'common-01', value: 0 }]
     expect(parseMonthlyHeroesResponse(zero)).toBeNull()
     // Extra keys (Luna leakage) rejected.
     const luna = structuredClone(valid) as unknown as Record<string, unknown>

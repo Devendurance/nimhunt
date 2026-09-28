@@ -3,13 +3,16 @@ import {
   ADVENTURER_CREATE_PATH,
   ADVENTURER_ME_PATH,
   ADVENTURER_NAME_AVAILABILITY_PATH,
+  ADVENTURER_PUBLIC_PATH,
   ADVENTURER_SESSION_CHALLENGE_PATH,
   ADVENTURER_SESSION_PATH,
   parseAdventurerChallenge,
   parseAdventurerProfile,
+  parsePublicAdventurerProfile,
   parseAdventurerSession,
   type AdventurerChallenge,
   type AdventurerProfile,
+  type PublicAdventurerProfile,
   type AdventurerSession,
 } from '../domain/adventurer.ts'
 
@@ -92,6 +95,17 @@ export async function fetchOwnAdventurerProfile(fetcher: typeof fetch = fetch): 
   const body = await request(fetcher, ADVENTURER_ME_PATH, { method: 'GET' })
   if (!isRecord(body) || !parseAdventurerProfile(body.profile)) throw new AdventurerApiError('MALFORMED_RESPONSE')
   return parseAdventurerProfile(body.profile)!
+}
+
+export async function fetchPublicAdventurerProfile(
+  playerId: string,
+  fetcher: typeof fetch = fetch,
+): Promise<PublicAdventurerProfile> {
+  const body = await request(fetcher, `${ADVENTURER_PUBLIC_PATH}?playerId=${encodeURIComponent(playerId)}`, { method: 'GET' })
+  if (!isRecord(body)) throw new AdventurerApiError('MALFORMED_RESPONSE')
+  const profile = parsePublicAdventurerProfile(body.profile)
+  if (!profile) throw new AdventurerApiError('MALFORMED_RESPONSE')
+  return profile
 }
 
 export async function updateAdventurerAvatar(

@@ -1,14 +1,16 @@
-import { HERO_CATEGORIES, formatHeroValue, maskWalletAddress, monthLabel, type MonthlyHeroesResponse, type WalletMonthlyStatsResponse } from '../../domain/monthlyHeroes.ts'
+import { HERO_CATEGORIES, formatHeroValue, monthLabel, type MonthlyHeroesResponse, type WalletMonthlyStatsResponse } from '../../domain/monthlyHeroes.ts'
 import { useMonthlyHeroes, useWalletMonthlyStats } from './useMonthlyHeroes.ts'
+import { AdventurerAvatarToken } from './AdventurerAvatar'
 import styles from './MonthlyHeroes.module.css'
 
 const LEADERS_SHOWN = 5
 
-export function MonthlyHeroesSection({ heroes, selfWallet }: {
+export function MonthlyHeroesSection({ heroes, selfPlayerId, onOpenPublicProfile }: {
   readonly heroes: MonthlyHeroesResponse
-  readonly selfWallet?: string | null
+  readonly selfPlayerId?: string | null
+  readonly onOpenPublicProfile?: (playerId: string, trigger: HTMLButtonElement) => void
 }) {
-  const selfMasked = selfWallet ? maskWalletAddress(selfWallet) : null
+  const selfId = selfPlayerId ?? null
   return <section className={styles.heroes} aria-labelledby="monthly-heroes-heading">
     <div className={styles.heroesEyebrow}><span>MONTHLY HEROES</span><span>{monthLabel(heroes.monthKey)}</span></div>
     <h2 id="monthly-heroes-heading" className={styles.heroesTitle}>Hall of Heroes</h2>
@@ -25,10 +27,21 @@ export function MonthlyHeroesSection({ heroes, selfWallet }: {
             ? <p className={styles.noLeaders}>No heroes crowned yet. The next name could be yours.</p>
             : <ol className={styles.leaderList}>
               {leaders.map(leader => {
-                const isYou = selfMasked !== null && leader.maskedWallet === selfMasked
+                const isYou = selfId !== null && leader.playerId === selfId
+                const identity = <>
+                  <AdventurerAvatarToken avatarId={leader.avatarId} size="small" />
+                  <span className={styles.leaderName}>{leader.displayName}</span>
+                </>
                 return <li key={leader.rank} className={styles.leaderRow} data-you={isYou ? 'true' : 'false'}>
                   <span className={styles.leaderRank}>#{leader.rank}</span>
-                  <span className={styles.leaderWallet}>{leader.maskedWallet}</span>
+                  {leader.playerId && onOpenPublicProfile
+                    ? <button
+                      type="button"
+                      className={styles.leaderIdentityButton}
+                      aria-label={`Open Adventurer profile for ${leader.displayName}`}
+                      onClick={event => onOpenPublicProfile(leader.playerId!, event.currentTarget)}
+                    >{identity}</button>
+                    : <span className={styles.leaderIdentity}>{identity}</span>}
                   {isYou && <span className={styles.youBadge}>YOU</span>}
                   <span className={styles.leaderValue}>{formatHeroValue(def.metricKey, leader.value)}</span>
                 </li>
@@ -66,7 +79,10 @@ export function YourMonthSection({ monthly }: { readonly monthly: WalletMonthlyS
   </section>
 }
 
-export function MonthlyHeroesBlock({ selfWallet }: { readonly selfWallet?: string | null }) {
+export function MonthlyHeroesBlock({ selfPlayerId, onOpenPublicProfile }: {
+  readonly selfPlayerId?: string | null
+  readonly onOpenPublicProfile?: (playerId: string, trigger: HTMLButtonElement) => void
+}) {
   const state = useMonthlyHeroes()
   if (state.status === 'loading') {
     return <section className={styles.heroes} aria-labelledby="monthly-heroes-heading">
@@ -83,7 +99,7 @@ export function MonthlyHeroesBlock({ selfWallet }: { readonly selfWallet?: strin
       <button className={styles.heroesRetry} type="button" onClick={state.retry}>Retry</button>
     </section>
   }
-  return <MonthlyHeroesSection heroes={state.heroes} selfWallet={selfWallet} />
+  return <MonthlyHeroesSection heroes={state.heroes} selfPlayerId={selfPlayerId} onOpenPublicProfile={onOpenPublicProfile} />
 }
 
 export function YourMonthBlock({ enabled, sessionKey, onUnauthorized }: {

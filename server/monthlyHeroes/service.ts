@@ -48,7 +48,7 @@ import { LUNA_PER_NIM } from '../payouts/types.js'
 import {
   HERO_CATEGORIES,
   MONTHLY_HERO_IDS,
-  maskWalletAddress,
+  UNNAMED_ADVENTURER,
   type HeroMetricKey,
   type MonthlyHeroCategory,
   type MonthlyHeroesResponse,
@@ -56,6 +56,7 @@ import {
   type WalletMonthlyStats,
   type WalletMonthlyStatsResponse,
 } from '../../src/domain/monthlyHeroes.js'
+import type { PublicAdventurerProfile } from '../../src/domain/adventurer.js'
 
 export const POINTS_PER_GEM = 10
 export const POINTS_PER_CHEST = 25
@@ -354,26 +355,42 @@ function compareBoardEntries(
   return left.wallet < right.wallet ? -1 : left.wallet > right.wallet ? 1 : 0
 }
 
+function rankedBoardEntries(board: ReadonlyMap<string, WalletBoardEntry>, key: HeroMetricKey): WalletBoardEntry[] {
+  return [...board.values()]
+    .filter(entry => metricValue(entry.stats, key) > 0)
+    .sort((left, right) => compareBoardEntries(left, right, key))
+}
+
+export function publicHeroWallets(board: ReadonlyMap<string, WalletBoardEntry>): readonly string[] {
+  const wallets = new Set<string>()
+  for (const category of HERO_CATEGORIES) {
+    for (const entry of rankedBoardEntries(board, category.metricKey).slice(0, 10)) wallets.add(entry.wallet)
+  }
+  return [...wallets]
+}
+
 export function buildMonthlyHeroes(input: {
   readonly monthKey: string
   readonly generatedAt: string
   readonly board: ReadonlyMap<string, WalletBoardEntry>
+  readonly profiles?: ReadonlyMap<string, PublicAdventurerProfile>
 }): MonthlyHeroesResponse {
-  const entries = [...input.board.values()]
   const categories: MonthlyHeroCategory[] = HERO_CATEGORIES.map(def => {
-    const ranked = entries
-      .filter(entry => metricValue(entry.stats, def.metricKey) > 0)
-      .sort((left, right) => compareBoardEntries(left, right, def.metricKey))
-      .slice(0, 10)
+    const ranked = rankedBoardEntries(input.board, def.metricKey).slice(0, 10)
     return {
       heroId: def.heroId,
       title: def.title,
       metricLabel: def.metricLabel,
-      leaders: ranked.map((entry, index) => ({
-        rank: index + 1,
-        maskedWallet: maskWalletAddress(entry.wallet),
-        value: metricValue(entry.stats, def.metricKey),
-      })),
+      leaders: ranked.map((entry, index) => {
+        const profile = input.profiles?.get(entry.wallet)
+        return {
+          rank: index + 1,
+          playerId: profile?.playerId ?? null,
+          displayName: profile?.displayName ?? UNNAMED_ADVENTURER,
+          avatarId: profile?.avatarId ?? null,
+          value: metricValue(entry.stats, def.metricKey),
+        }
+      }),
     }
   })
   return { ok: true, monthKey: input.monthKey, generatedAt: input.generatedAt, categories }
@@ -386,9 +403,7 @@ export function rankOfWallet(
 ): number | null {
   const def = HERO_CATEGORIES.find(category => category.heroId === heroId)
   if (!def) return null
-  const ranked = [...board.values()]
-    .filter(entry => metricValue(entry.stats, def.metricKey) > 0)
-    .sort((left, right) => compareBoardEntries(left, right, def.metricKey))
+  const ranked = rankedBoardEntries(board, def.metricKey)
   const index = ranked.findIndex(entry => entry.wallet === wallet)
   return index === -1 ? null : index + 1
 }

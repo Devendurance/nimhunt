@@ -167,8 +167,15 @@ svg { width: 24px; height: 24px; flex: 0 0 auto; }
 .leaderboard ol { margin: 24px 0; padding: 0; list-style: none; }
 .leaderboard li { display: flex; align-items: center; gap: 12px; padding: 20px 0; border-bottom: 1px solid var(--line); font-size: 11px; }
 .leaderboard li strong { margin-left: auto; font-size: 11px; font-weight: 500; white-space: nowrap; }
-.rank { color: var(--muted); font-family: var(--display); }
+.rank { flex: 0 0 auto; color: var(--muted); font-family: var(--display); }
+.leader-adventurer, .leader-adventurer-button { display: inline-flex; align-items: center; flex: 1 1 auto; gap: 8px; min-width: 0; color: inherit; text-align: left; }
+.leader-adventurer-button { min-height: 44px; padding: 3px 6px; border: 0; border-radius: 10px; background: transparent; }
+.leader-adventurer-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.leader-adventurer-button:hover .leader-adventurer-name { color: var(--gold); }
 .leaderboard p { font-size: 12px; }
+.public-adventurer-dialog { width: min(430px, calc(100% - 32px)); max-height: min(680px, calc(100% - 32px)); margin: auto; padding: 28px 24px 24px; border: 1px solid var(--line); border-radius: 22px; color: var(--chalk); background: var(--surface); }
+.public-adventurer-dialog .secondaryAction { color: var(--chalk); }
+.public-adventurer-dialog::backdrop { background: rgba(7, 23, 19, .82); }
 .honours ul { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 24px 0 0; padding: 0; list-style: none; }
 .honours h3 { margin-bottom: 5px; font-size: 18px; }
 .honours li span { color: var(--muted); font-size: 11px; }
@@ -297,6 +304,7 @@ dialog p { margin: 24px 0; }
   .leaderboard { padding: 24px 16px; }
   .leaderboard li { gap: 8px; font-size: 10px; }
   .leaderboard li strong { font-size: 10px; }
+  .leader-adventurer, .leader-adventurer-button { gap: 6px; }
   .honours ul { grid-template-columns: 1fr 1fr; gap: 24px 16px; }
   .honours h3 { font-size: 17px; }
   .final-cta { grid-template-columns: 1fr; gap: 32px; margin-bottom: 40px; padding: 32px 24px; }

@@ -13,6 +13,7 @@ import {
   Sparkles,
   Star,
   Trophy,
+  UserRound,
 } from 'lucide-react'
 
 const icons = {
@@ -29,6 +30,7 @@ const icons = {
   sparkles: Sparkles,
   star: Star,
   trophy: Trophy,
+  user: UserRound,
 } satisfies Record<string, LucideIcon>
 
 export type PlayIconName = keyof typeof icons

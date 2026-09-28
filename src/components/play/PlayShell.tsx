@@ -10,6 +10,7 @@ import { HuntHeader } from './HuntHeader'
 import { HuntStatus } from './HuntStatus'
 import { AdventurerOnboarding } from './AdventurerOnboarding'
 import { AdventurerProfilePanel } from './AdventurerProfilePanel'
+import { PublicAdventurerProfileSheet } from './PublicAdventurerProfileSheet'
 import { useAdventurer } from './useAdventurer'
 import { resolveRealExpeditionGate } from './adventurerState'
 import { REAL_EXPEDITION_PROFILE_GATE_ENABLED } from './adventurerAssets'
@@ -76,8 +77,11 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const profileDialogRef = useRef<HTMLDialogElement>(null)
   const profileTriggerRef = useRef<HTMLButtonElement | null>(null)
+  const publicProfileDialogRef = useRef<HTMLDialogElement>(null)
+  const publicProfileTriggerRef = useRef<HTMLButtonElement | null>(null)
   const startedRunRef = useRef<string | null>(null)
   const [profileDialogMode, setProfileDialogMode] = useState<'onboarding' | 'profile'>('onboarding')
+  const [publicProfilePlayerId, setPublicProfilePlayerId] = useState<string | null>(null)
   const selectedMission = playMissions.find(mission => mission.id === selectedMissionId) ?? null
 
   const openProfileDialog = useCallback((mode: 'onboarding' | 'profile', trigger?: HTMLButtonElement) => {
@@ -89,6 +93,15 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
   const closeProfileDialog = useCallback(() => {
     profileDialogRef.current?.close()
     requestAnimationFrame(() => profileTriggerRef.current?.focus())
+  }, [])
+
+  const openPublicProfileDialog = useCallback((playerId: string, trigger: HTMLButtonElement) => {
+    publicProfileTriggerRef.current = trigger
+    setPublicProfilePlayerId(playerId)
+  }, [setPublicProfilePlayerId])
+
+  const closePublicProfileDialog = useCallback(() => {
+    publicProfileDialogRef.current?.close()
   }, [])
 
   const handleProductStarted = useCallback((start: { runId: string; blueprint: { mission: MissionId } }, normalizedWallet: string) => {
@@ -116,6 +129,12 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
   useEffect(() => {
     if (selectedMission && dialogRef.current && !dialogRef.current.open) dialogRef.current.showModal()
   }, [selectedMission])
+
+  useEffect(() => {
+    if (publicProfilePlayerId && publicProfileDialogRef.current && !publicProfileDialogRef.current.open) {
+      publicProfileDialogRef.current.showModal()
+    }
+  }, [publicProfilePlayerId])
 
   useEffect(() => {
     if (adventurer.status === 'NEEDS_PROFILE' && !profileDialogRef.current?.open) {
@@ -195,7 +214,10 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
         {activeTab === 'heroes' && <>
           <section className={styles.pageIntro} aria-labelledby="heroes-page-heading"><span className={styles.kicker}>HALL OF HEROES</span><h1 id="heroes-page-heading">Hall of Heroes</h1><p>Live monthly standings from verified expeditions. Only proven runs count.</p></section>
           {treasureWalletConnected && <YourMonthBlock enabled sessionKey={recovery.epoch} onUnauthorized={() => setPayoutUnauthorized(true)} />}
-          <MonthlyHeroesBlock selfWallet={treasureWalletConnected ? bootstrap.wallet : null} />
+          <MonthlyHeroesBlock
+            selfPlayerId={adventurer.profile?.playerId ?? null}
+            onOpenPublicProfile={openPublicProfileDialog}
+          />
         </>}
       </main>
       <PlayBottomNav activeTab={activeTab} onChange={setActiveTab} />
@@ -209,6 +231,19 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
         onStartPractice={handleStartPractice}
         onFreshStart={productStart.reset}
       />}
+      {publicProfilePlayerId && <dialog
+        ref={publicProfileDialogRef}
+        className={styles.profileDialog}
+        aria-label="Public Adventurer profile"
+        onClose={() => {
+          setPublicProfilePlayerId(null)
+          requestAnimationFrame(() => publicProfileTriggerRef.current?.focus())
+        }}
+      >
+        <div className={styles.profileDialogSheet}>
+          <PublicAdventurerProfileSheet playerId={publicProfilePlayerId} onClose={closePublicProfileDialog} />
+        </div>
+      </dialog>}
       <dialog
         ref={profileDialogRef}
         className={styles.profileDialog}

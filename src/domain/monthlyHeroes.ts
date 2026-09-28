@@ -41,9 +41,13 @@ export const HERO_CATEGORIES: readonly HeroCategoryDef[] = [
   { heroId: 'fallen-legend', title: 'THE FALLEN LEGEND', metricLabel: 'Most Expeditions Failed', metricKey: 'expeditionsFailed', unit: 'failed' },
 ]
 
+export const UNNAMED_ADVENTURER = 'Unnamed Adventurer' as const
+
 export type MonthlyHeroLeader = {
   readonly rank: number
-  readonly maskedWallet: string
+  readonly playerId: string | null
+  readonly displayName: string
+  readonly avatarId: string | null
   readonly value: number
 }
 
@@ -102,20 +106,6 @@ export function monthLabel(monthKey: string): string {
   return `${month} ${monthKey.slice(0, 4)}`
 }
 
-/**
- * One-way wallet label for public leaderboards. Never returns the full
- * address. Mirrors the client shorten rule (first 6 … last 4) for real
- * Nimiq addresses; short/odd inputs are still truncated, never echoed.
- */
-export function maskWalletAddress(wallet: string): string {
-  const compact = wallet.replace(/\s+/g, '')
-  if (compact.length <= 12) {
-    if (compact.length <= 4) return '•••'
-    return `${compact.slice(0, 2)}…${compact.slice(-2)}`
-  }
-  return `${compact.slice(0, 6)}…${compact.slice(-4)}`
-}
-
 export function formatHeroValue(metricKey: HeroMetricKey, value: number): string {
   switch (metricKey) {
     case 'expeditionMinutes': {
@@ -165,11 +155,19 @@ function parseHeroCategory(value: unknown, def: HeroCategoryDef): MonthlyHeroCat
   const leaders: MonthlyHeroLeader[] = []
   for (let index = 0; index < value.leaders.length; index += 1) {
     const entry = value.leaders[index]
-    if (!isRecord(entry) || !hasExactKeys(entry, ['rank', 'maskedWallet', 'value'])) return null
+    if (!isRecord(entry) || !hasExactKeys(entry, ['rank', 'playerId', 'displayName', 'avatarId', 'value'])) return null
     if (entry.rank !== index + 1) return null
-    if (typeof entry.maskedWallet !== 'string' || entry.maskedWallet.length === 0 || entry.maskedWallet.length > 32) return null
+    if (entry.playerId !== null && (typeof entry.playerId !== 'string' || entry.playerId.length === 0 || entry.playerId.length > 64)) return null
+    if (typeof entry.displayName !== 'string' || entry.displayName.length === 0 || entry.displayName.length > 20) return null
+    if (entry.avatarId !== null && (typeof entry.avatarId !== 'string' || entry.avatarId.length === 0 || entry.avatarId.length > 64)) return null
     if (typeof entry.value !== 'number' || !Number.isFinite(entry.value) || entry.value <= 0) return null
-    leaders.push({ rank: entry.rank, maskedWallet: entry.maskedWallet, value: entry.value })
+    leaders.push({
+      rank: entry.rank,
+      playerId: entry.playerId,
+      displayName: entry.displayName,
+      avatarId: entry.avatarId,
+      value: entry.value,
+    })
   }
   return { heroId: def.heroId, title: def.title, metricLabel: def.metricLabel, leaders }
 }

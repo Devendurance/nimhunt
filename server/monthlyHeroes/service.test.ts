@@ -4,7 +4,6 @@
 import { describe, expect, it } from 'vitest'
 import {
   MONTHLY_HERO_IDS,
-  maskWalletAddress,
   type WalletMonthlyStats,
 } from '../../src/domain/monthlyHeroes.js'
 import {
@@ -318,8 +317,12 @@ describe('hero boards and deterministic ties', () => {
     const heroes = buildMonthlyHeroes({ monthKey: SEPTEMBER, generatedAt: new Date('2026-09-18T00:00:00.000Z').toISOString(), board })
     const relic = heroes.categories.find(category => category.heroId === 'relic-keeper')
     expect(relic?.leaders.map(leader => leader.rank)).toEqual([1, 2])
-    expect(relic?.leaders[0]?.maskedWallet).toBe(maskWalletAddress(WALLET_A))
-    expect(relic?.leaders[0]?.value).toBe(210)
+    expect(relic?.leaders[0]).toMatchObject({
+      playerId: null,
+      displayName: 'Unnamed Adventurer',
+      avatarId: null,
+      value: 210,
+    })
   })
 
   it('prefers more completions when the primary metric ties', () => {
@@ -368,6 +371,34 @@ describe('hero boards and deterministic ties', () => {
     expect(wallet.stats.expeditionsStarted).toBe(0)
     expect(wallet.ranks['golden-hand']).toBe(1)
     expect(wallet.ranks['relic-keeper']).toBeNull()
+  })
+
+  it('resolves one claimed identity consistently without changing rank or value', () => {
+    const board = boardOf(heroFacts())
+    const before = buildMonthlyHeroes({ monthKey: SEPTEMBER, generatedAt: new Date().toISOString(), board })
+    const profiles = new Map([
+      [WALLET_A, {
+        playerId: '00000000-0000-4000-8000-000000000001',
+        displayName: 'Endy',
+        avatarId: 'common-01',
+        lifetimeGems: 42,
+        expeditionsCompleted: 7,
+        bestStreak: 3,
+      }],
+    ])
+    const after = buildMonthlyHeroes({ monthKey: SEPTEMBER, generatedAt: new Date().toISOString(), board, profiles })
+    for (let index = 0; index < after.categories.length; index += 1) {
+      expect(after.categories[index]?.leaders.map(({ rank, value }) => ({ rank, value })))
+        .toEqual(before.categories[index]?.leaders.map(({ rank, value }) => ({ rank, value })))
+    }
+    const relic = after.categories.find(category => category.heroId === 'relic-keeper')
+    expect(relic?.leaders[0]).toMatchObject({
+      playerId: '00000000-0000-4000-8000-000000000001',
+      displayName: 'Endy',
+      avatarId: 'common-01',
+      value: 210,
+    })
+    expect(JSON.stringify(after)).not.toContain(WALLET_A)
   })
 
   it('covers all six hero identities', () => {

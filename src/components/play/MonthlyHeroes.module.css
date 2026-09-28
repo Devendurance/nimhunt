@@ -100,8 +100,30 @@
   font-variant-numeric: tabular-nums;
 }
 
-.leaderWallet {
+.leaderIdentity, .leaderIdentityButton {
+  display: inline-flex;
+  align-items: center;
   flex: 1 1 auto;
+  gap: 7px;
+  min-width: 0;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+}
+
+.leaderIdentityButton {
+  min-height: 38px;
+  padding: 2px 4px;
+  border: 0;
+  border-radius: 10px;
+}
+
+.leaderIdentityButton:focus-visible {
+  outline: 3px solid #3e88f7;
+  outline-offset: 2px;
+}
+
+.leaderName {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -124,7 +146,7 @@
   letter-spacing: .8px;
 }
 
-.leaderRow[data-you='true'] .leaderWallet {
+.leaderRow[data-you='true'] .leaderName {
   color: #ffd86a;
   font-weight: 700;
 }

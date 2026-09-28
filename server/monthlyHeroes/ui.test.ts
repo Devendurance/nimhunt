@@ -8,12 +8,15 @@ const read = (rel: string) => readFileSync(join(root, rel), 'utf8')
 const BACKEND_TERMS = /gameplayStartedAt|terminal|checkpointHash|transcriptHash|stateHash|installId|runId|claimId|payoutId|amountLuna|Luna\b|day_key|mission_type|reward_status/i
 
 describe('monthly heroes live UI (static)', () => {
-  it('shows six hero cards with top rankings and a masked-wallet You marker', () => {
+  it('shows six hero cards with Adventurer identity and a You marker', () => {
     const ui = read('src/components/play/MonthlyHeroes.tsx')
     expect(ui).toContain('MONTHLY HEROES')
     expect(ui).toContain('Hall of Heroes')
     expect(ui).toContain('YOU')
-    expect(ui).toContain('maskedWallet')
+    expect(ui).toContain('displayName')
+    expect(ui).toContain('AdventurerAvatarToken')
+    expect(ui).toContain('leaderIdentityButton')
+    expect(ui).not.toContain('maskedWallet')
     expect(ui).toContain('No heroes crowned yet')
     expect(ui).not.toMatch(BACKEND_TERMS)
     expect(ui).not.toMatch(/Demo Explorer|Sample Hero|SAMPLE/i)
@@ -54,12 +57,21 @@ describe('monthly heroes live UI (static)', () => {
     const live = read('src/components/marketing/HallOfHeroesLive.tsx')
     expect(live).toContain('Live standings')
     expect(live).toContain('Live rankings')
+    expect(live).toContain('AdventurerAvatarToken')
+    expect(live).toContain('displayName')
+    expect(live).not.toContain('maskedWallet')
     expect(live).toContain('No heroes crowned yet')
     expect(live).toContain('unavailable right now')
     expect(live).toContain('Retry')
     expect(live).not.toContain('leaderboardPreviewFixture')
     expect(live).not.toContain('Demo Explorer')
     expect(live).not.toMatch(BACKEND_TERMS)
+  })
+
+  it('uses the approved public Adventurer sheet without social or financial expansion', () => {
+    const sheet = read('src/components/play/PublicAdventurerProfileSheet.tsx')
+    for (const label of ['LIFETIME GEMS', 'EXPEDITIONS', 'BEST STREAK', 'Close profile']) expect(sheet).toContain(label)
+    expect(sheet).not.toMatch(/Add Adventurer|Ally|Achievements|\bXP\b|\bwallet\b|\breward\b|\bpayout\b|\bNIM\b/i)
   })
 
   it('stays mobile-first with no horizontal overflow', () => {

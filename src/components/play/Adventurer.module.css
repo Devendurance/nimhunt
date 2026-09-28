@@ -13,6 +13,7 @@
 .avatarTokenSmall { width: 34px; height: 34px; }
 .avatarTokenMedium { width: 56px; height: 56px; }
 .avatarTokenLarge { width: 104px; height: 104px; }
+.avatarTokenNeutral { color: #9bc8b2; background: radial-gradient(circle at 35% 25%, rgba(155, 200, 178, .24), rgba(19, 42, 38, .95) 68%); }
 .avatarArt { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .avatarGlow { position: absolute; z-index: 1; inset: 12%; border: 1px solid rgba(255, 216, 106, .55); border-radius: 43% 57% 52% 48%; transform: rotate(18deg); }
 .avatarNumber { z-index: 2; position: absolute; right: 7px; bottom: 5px; color: #ffd86a; font: 700 8px/1 Inter, sans-serif; letter-spacing: .5px; }
@@ -28,7 +29,7 @@
 .avatarChoice:not([data-locked]):hover { border-color: #3e88f7; }
 .avatarChoice:focus-visible { outline: 3px solid #3e88f7; outline-offset: 3px; }
 .assetNote { margin: 10px 0 0; color: #91a398; font: 11px/16px Inter, sans-serif; }
-.profileSheet { display: grid; gap: 18px; }
+.profileSheet, .publicProfileSheet { display: grid; gap: 18px; }
 .profileHero { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 14px; }
 .profileHero h2 { margin: 0; color: #f3ead7; font: 400 28px/30px 'Jungle Fever', Impact, sans-serif; text-transform: uppercase; overflow-wrap: anywhere; }
 .profileHero p { margin: 5px 0 0; color: #91a398; font-size: 11px; }
