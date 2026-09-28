@@ -103,6 +103,15 @@ describe('P1 Adventurer HTTP boundary', () => {
     }, SECURITY)
     expect(own.status).toBe(200)
     expect(own.body).toMatchObject({ ok: true, profile: { displayName: 'Endy', avatarId: 'adventurer-01' } })
+
+    const updated = await dispatchAdventurerHttp(fixture.service, {
+      method: 'PATCH',
+      path: ADVENTURER_ME_PATH,
+      headers: headers({ origin: SECURITY.expectedOrigin, cookie }),
+      body: { avatarId: 'adventurer-12' },
+    }, SECURITY)
+    expect(updated.status).toBe(200)
+    expect(updated.body).toMatchObject({ ok: true, profile: { displayName: 'Endy', avatarId: 'adventurer-12' } })
   })
 
   it('exposes only approved public identity/stat fields and never a wallet', async () => {

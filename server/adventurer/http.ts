@@ -52,16 +52,16 @@ export async function dispatchAdventurerHttp(
   const url = parseRequestUrl(request.path, security.expectedOrigin)
   if (!url || !isOwnedAdventurerPath(url.pathname)) return response(404, { ok: false, error: 'MALFORMED_REQUEST' })
   const path = url.pathname
+  const method = request.method.toUpperCase()
   if (!service) return response(503, { ok: false, error: 'ADVENTURER_UNAVAILABLE' })
-  if (!isAllowedRequest(request, path, security)) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
+  if (!isAllowedRequest(request, method, security)) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
   if (request.rawBody !== undefined && Buffer.byteLength(request.rawBody, 'utf8') > 16 * 1024) {
     return response(413, { ok: false, error: 'MALFORMED_REQUEST' })
   }
 
-  const method = request.method.toUpperCase()
   if (method === 'OPTIONS') return { status: 204, body: null, headers: BASE_HEADERS }
   if (!isExpectedMethod(path, method)) return response(405, { ok: false, error: 'MALFORMED_REQUEST' })
-  if (method === 'POST' && !isJsonRequest(request)) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
+  if ((method === 'POST' || method === 'PATCH') && !isJsonRequest(request)) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
 
   try {
     if (path === ADVENTURER_CREATE_CHALLENGE_PATH) {
@@ -100,6 +100,11 @@ export async function dispatchAdventurerHttp(
       if (url.searchParams.size > 0) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
       const raw = parseAdventurerSessionCookie(getHeader(request, 'cookie'))
       const session = await service.authenticateSession(raw ?? '')
+      if (method === 'PATCH') {
+        const body = readAvatarBody(readJsonBody(request))
+        const profile = await service.updateAvatar(session, body.avatarId)
+        return response(200, { ok: true, profile })
+      }
       const profile = await service.getOwnProfile(session)
       return response(200, { ok: true, profile })
     }
@@ -165,15 +170,16 @@ function parseRequestUrl(path: string, expectedOrigin: string): URL | null {
 }
 
 function isExpectedMethod(path: string, method: string): boolean {
-  if (path === ADVENTURER_ME_PATH || path === ADVENTURER_PUBLIC_PATH || path === ADVENTURER_NAME_AVAILABILITY_PATH) return method === 'GET'
+  if (path === ADVENTURER_ME_PATH) return method === 'GET' || method === 'PATCH'
+  if (path === ADVENTURER_PUBLIC_PATH || path === ADVENTURER_NAME_AVAILABILITY_PATH) return method === 'GET'
   return method === 'POST'
 }
 
-function isAllowedRequest(request: ExpeditionHttpRequest, path: string, security: ExpeditionHttpSecurity): boolean {
+function isAllowedRequest(request: ExpeditionHttpRequest, method: string, security: ExpeditionHttpSecurity): boolean {
   const host = request.host ?? getHeader(request, 'host')
   const protocol = request.protocol ?? getProtocolHeader(request)
   const origin = getHeader(request, 'origin')
-  const isRead = path === ADVENTURER_ME_PATH || path === ADVENTURER_PUBLIC_PATH || path === ADVENTURER_NAME_AVAILABILITY_PATH
+  const isRead = method === 'GET'
   if (!host || !protocol) return false
   if (host === security.expectedHost && protocol === security.expectedProtocol) {
     return isRead ? origin === undefined || origin === security.expectedOrigin : origin === security.expectedOrigin
@@ -196,6 +202,12 @@ function readWalletBody(body: Record<string, unknown>): { readonly wallet: strin
   requireExactKeys(body, ['wallet'])
   if (typeof body.wallet !== 'string' || body.wallet.length === 0 || body.wallet.length > 80) throw new SyntaxError('INVALID_WALLET')
   return { wallet: body.wallet }
+}
+
+function readAvatarBody(body: Record<string, unknown>): { readonly avatarId: string } {
+  requireExactKeys(body, ['avatarId'])
+  if (!isBoundedString(body.avatarId, 64)) throw new SyntaxError('INVALID_AVATAR')
+  return { avatarId: body.avatarId }
 }
 
 function readSignedBody(body: Record<string, unknown>): { readonly payload: string; readonly publicKey: string; readonly signature: string } {

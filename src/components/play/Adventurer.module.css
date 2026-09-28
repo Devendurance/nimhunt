@@ -1,0 +1,65 @@
+.avatarToken {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px solid rgba(243, 234, 215, .3);
+  border-radius: 50%;
+  color: #f3ead7;
+  background: radial-gradient(circle at 35% 25%, rgba(62, 136, 247, .65), rgba(19, 42, 38, .95) 64%);
+  box-shadow: inset 0 0 0 3px rgba(19, 42, 38, .48), 0 4px 14px rgba(0, 0, 0, .22);
+}
+.avatarTokenSmall { width: 34px; height: 34px; }
+.avatarTokenMedium { width: 56px; height: 56px; }
+.avatarTokenLarge { width: 104px; height: 104px; }
+.avatarGlow { position: absolute; inset: 12%; border: 1px solid rgba(255, 216, 106, .55); border-radius: 43% 57% 52% 48%; transform: rotate(18deg); }
+.avatarNumber { position: absolute; right: 7px; bottom: 5px; color: #ffd86a; font: 700 8px/1 Inter, sans-serif; letter-spacing: .5px; }
+.avatarTokenLarge .avatarNumber { right: 13px; bottom: 12px; font-size: 11px; }
+.avatarFieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+.fieldLabel { margin-bottom: 10px; color: #f3ead7; font: 400 18px/22px 'Jungle Fever', Impact, sans-serif; text-transform: uppercase; }
+.avatarGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.avatarChoice { display: grid; min-height: 84px; place-items: center; gap: 5px; padding: 7px 4px; border: 1px solid rgba(243, 234, 215, .16); border-radius: 14px; color: #aab8ac; background: #1b3833; font: 700 8px/10px Inter, sans-serif; letter-spacing: .65px; }
+.avatarChoice[data-selected] { border-color: #ffd86a; color: #ffd86a; background: rgba(242, 193, 78, .11); box-shadow: 0 0 0 2px rgba(255, 216, 106, .14); }
+.avatarChoice:hover { border-color: #3e88f7; }
+.avatarChoice:focus-visible { outline: 3px solid #3e88f7; outline-offset: 3px; }
+.assetNote { margin: 10px 0 0; color: #91a398; font: 11px/16px Inter, sans-serif; }
+.profileSheet { display: grid; gap: 18px; }
+.profileHero { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 14px; }
+.profileHero h2 { margin: 0; color: #f3ead7; font: 400 28px/30px 'Jungle Fever', Impact, sans-serif; text-transform: uppercase; overflow-wrap: anywhere; }
+.profileHero p { margin: 5px 0 0; color: #91a398; font-size: 11px; }
+.profileStats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.profileStat { display: grid; gap: 4px; min-height: 72px; align-content: center; padding: 9px 7px; border-radius: 12px; background: #1b3833; }
+.profileStat strong { color: #ffd86a; font: 400 22px/24px 'Jungle Fever', Impact, sans-serif; }
+.profileStat span { color: #aab8ac; font-size: 8px; line-height: 11px; }
+.profileSection { display: grid; gap: 10px; }
+.profileSection h3 { margin: 0; color: #d3dbd1; font: 700 10px/12px Inter, sans-serif; letter-spacing: 1px; text-transform: uppercase; }
+.profileStatus { min-height: 20px; margin: 0; color: #ffd86a; font-size: 12px; line-height: 18px; }
+.profileError { margin: 0; padding: 11px 12px; border-left: 2px solid #a56c43; color: #ffd3a7; background: rgba(165, 108, 67, .12); font-size: 12px; line-height: 17px; }
+.onboardingIntro { display: grid; gap: 8px; }
+.onboardingIntro h2 { margin: 0; color: #f3ead7; font: 400 30px/32px 'Jungle Fever', Impact, sans-serif; text-transform: uppercase; }
+.onboardingIntro p { margin: 0; color: #d3dbd1; font-size: 13px; line-height: 19px; }
+.nameField { display: grid; gap: 7px; }
+.nameField label { color: #f3ead7; font: 400 18px/22px 'Jungle Fever', Impact, sans-serif; text-transform: uppercase; }
+.nameInput { width: 100%; height: 48px; padding: 0 17px; border: 1px solid rgba(243, 234, 215, .22); border-radius: 9999px; outline: 0; color: #f3ead7; background: #1b3833; font: 400 15px/20px Inter, sans-serif; }
+.nameInput:focus { border-color: #f2c14e; box-shadow: 0 0 0 3px rgba(242, 193, 78, .16); }
+.nameInput[aria-invalid="true"] { border-color: #a56c43; }
+.nameHint { min-height: 18px; margin: 0; color: #91a398; font-size: 11px; line-height: 16px; }
+.nameAvailable { color: #9bc8b2; }
+.nameTaken, .nameInvalid, .nameReserved, .nameError { color: #ffd3a7; }
+.nameChecking { color: #9fd7c2; }
+.primaryAction { width: 100%; min-height: 48px; padding: 12px 16px; border: 0; border-radius: 9999px; color: #132a26; background: linear-gradient(110deg, #f2c14e, #ffd86a); font: 400 15px/20px 'Jungle Fever', Impact, sans-serif; letter-spacing: .5px; text-transform: uppercase; }
+.primaryAction:disabled { opacity: .45; cursor: not-allowed; }
+.secondaryAction { width: 100%; min-height: 44px; padding: 10px 14px; border: 1px solid rgba(243, 234, 215, .25); border-radius: 9999px; color: #f3ead7; background: transparent; font: 400 13px/18px 'Jungle Fever', Impact, sans-serif; letter-spacing: .35px; text-transform: uppercase; }
+.primaryAction:focus-visible, .secondaryAction:focus-visible { outline: 3px solid #3e88f7; outline-offset: 3px; }
+.onboardingActions { display: grid; gap: 8px; }
+@media (max-width: 350px) {
+  .avatarGrid { gap: 5px; }
+  .avatarChoice { min-height: 76px; font-size: 7px; }
+  .profileStats { gap: 5px; }
+  .profileStat { padding-right: 4px; padding-left: 4px; }
+  .profileStat strong { font-size: 19px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .avatarChoice, .nameInput { transition: none; }
+}

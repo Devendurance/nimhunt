@@ -8,6 +8,10 @@ import { formatExpeditionsLeftToday } from './huntStatusView'
 import { MonthlyHeroesBlock, YourMonthBlock } from './MonthlyHeroes'
 import { HuntHeader } from './HuntHeader'
 import { HuntStatus } from './HuntStatus'
+import { AdventurerOnboarding } from './AdventurerOnboarding'
+import { AdventurerProfilePanel } from './AdventurerProfilePanel'
+import { useAdventurer } from './useAdventurer'
+import { REAL_EXPEDITION_PROFILE_GATE_ENABLED } from './adventurerAssets'
 import { MissionBrief } from './MissionBrief'
 import { MissionList } from './MissionList'
 import { PlayBottomNav } from './PlayBottomNav'
@@ -37,6 +41,7 @@ import styles from './PlayShell.module.css'
 export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
   useNimhuntBgm('main', 'shell')
   const bootstrap = usePlayWalletBootstrap()
+  const adventurer = useAdventurer({ wallet: bootstrap.wallet, signMessage: bootstrap.signMessage })
   const hunt = useDailyHuntStatus(bootstrap.wallet ?? getRememberedProductWallet())
   const [payoutUnauthorized, setPayoutUnauthorized] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
@@ -68,8 +73,22 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
   const [selectedMissionId, setSelectedMissionId] = useState<MissionId | null>(null)
   const trigger = useRef<HTMLButtonElement | null>(null)
   const dialogRef = useRef<HTMLDialogElement>(null)
+  const profileDialogRef = useRef<HTMLDialogElement>(null)
+  const profileTriggerRef = useRef<HTMLButtonElement | null>(null)
   const startedRunRef = useRef<string | null>(null)
+  const [profileDialogMode, setProfileDialogMode] = useState<'onboarding' | 'profile'>('onboarding')
   const selectedMission = playMissions.find(mission => mission.id === selectedMissionId) ?? null
+
+  const openProfileDialog = useCallback((mode: 'onboarding' | 'profile', trigger?: HTMLButtonElement) => {
+    profileTriggerRef.current = trigger ?? null
+    setProfileDialogMode(mode)
+    if (profileDialogRef.current && !profileDialogRef.current.open) profileDialogRef.current.showModal()
+  }, [setProfileDialogMode])
+
+  const closeProfileDialog = useCallback(() => {
+    profileDialogRef.current?.close()
+    requestAnimationFrame(() => profileTriggerRef.current?.focus())
+  }, [])
 
   const handleProductStarted = useCallback((start: { runId: string; blueprint: { mission: MissionId } }, normalizedWallet: string) => {
     if (startedRunRef.current === start.runId) return
@@ -97,6 +116,13 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
     if (selectedMission && dialogRef.current && !dialogRef.current.open) dialogRef.current.showModal()
   }, [selectedMission])
 
+  useEffect(() => {
+    if (adventurer.status === 'NEEDS_PROFILE' && !profileDialogRef.current?.open) {
+      setProfileDialogMode('onboarding')
+      profileDialogRef.current?.showModal()
+    }
+  }, [adventurer.status])
+
   const openMission = (mission: Mission, button: HTMLButtonElement) => {
     trigger.current = button
     setSelectedMissionId(mission.id)
@@ -111,6 +137,10 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
 
   const handleStartExpedition = (mission: Mission) => {
     if (!isMissionLaunchable(mission.id)) return
+    if (REAL_EXPEDITION_PROFILE_GATE_ENABLED && adventurer.status !== 'READY') {
+      openProfileDialog('onboarding')
+      return
+    }
     void productStart.begin(mission.id)
   }
 
@@ -124,8 +154,13 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
   return <div className={styles.shell}>
     <div className={styles.viewport}>
       {showRecoveryDiag && recoveryDiag && <p className={styles.devRecovery}>{formatPlayRecoveryDevLine(recoveryDiag)}</p>}
-      <HuntHeader />
-      <PlayWalletStrip bootstrap={bootstrap} recovering={recovery.status === 'signing'} />
+      <HuntHeader profile={adventurer.profile} onProfileClick={trigger => openProfileDialog('profile', trigger)} />
+      <PlayWalletStrip
+        bootstrap={bootstrap}
+        adventurer={adventurer}
+        recovering={recovery.status === 'signing'}
+        onCreateProfile={() => openProfileDialog('onboarding')}
+      />
       <main className={styles.main}>
         {activeTab === 'hunt' && <>
           <section className={styles.hero} aria-labelledby="play-heading">
@@ -164,6 +199,45 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
         onStartPractice={handleStartPractice}
         onFreshStart={productStart.reset}
       />}
+      <dialog
+        ref={profileDialogRef}
+        className={styles.profileDialog}
+        onClose={() => setProfileDialogMode('profile')}
+        onCancel={event => {
+          if (REAL_EXPEDITION_PROFILE_GATE_ENABLED && profileDialogMode === 'onboarding') event.preventDefault()
+        }}
+      >
+        <div className={styles.profileDialogSheet}>
+          {profileDialogMode === 'onboarding' || !adventurer.profile
+            ? <>
+              <AdventurerOnboarding
+                key={bootstrap.wallet ?? 'no-wallet'}
+                nameState={adventurer.nameState}
+                creationStatus={adventurer.creationStatus}
+                creationError={adventurer.creationError}
+                checkName={adventurer.checkName}
+                createProfile={adventurer.createProfile}
+                onComplete={closeProfileDialog}
+                onTryPractice={() => {
+                  closeProfileDialog()
+                  setActiveTab('missions')
+                }}
+              />
+            </>
+            : <AdventurerProfilePanel
+              key={adventurer.profile.updatedAt}
+              profile={adventurer.profile}
+              updateAvatar={adventurer.updateAvatar}
+              updateError={adventurer.creationError}
+              onClose={closeProfileDialog}
+            />}
+          {adventurer.status === 'ERROR' && <div className={styles.profileDialogError} role="alert">
+            <strong>Adventurer identity needs attention.</strong>
+            <p>{adventurer.error === 'SIGNATURE_CANCELLED' ? 'Signature cancelled. Retry when ready.' : 'Reconnect or retry to restore your profile session.'}</p>
+            <button type="button" className={styles.sheetSecondary} onClick={adventurer.retryRestore}>Retry identity session</button>
+          </div>}
+        </div>
+      </dialog>
       <div className={styles.footerMark}>Built for Nimiq Pay</div>
     </div>
   </div>
@@ -171,10 +245,14 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
 
 function PlayWalletStrip({
   bootstrap,
+  adventurer,
   recovering,
+  onCreateProfile,
 }: {
   readonly bootstrap: ReturnType<typeof usePlayWalletBootstrap>
+  readonly adventurer: ReturnType<typeof useAdventurer>
   readonly recovering: boolean
+  readonly onCreateProfile: () => void
 }) {
   if (bootstrap.status === 'CONNECTING') {
     return <div className={styles.walletStrip} role="status">{PLAY_WALLET_BOOTSTRAP_COPY.CONNECTING}</div>
@@ -206,8 +284,18 @@ function PlayWalletStrip({
   }
   if (bootstrap.status === 'CONNECTED' && bootstrap.wallet) {
     return <div className={styles.walletStrip}>
-      <span className={styles.walletIdentity}>{shortenNqWallet(bootstrap.wallet)}</span>
+      <span className={styles.walletIdentity}>WALLET CONNECTED</span>
+      <span className={styles.visuallyHidden}>{shortenNqWallet(bootstrap.wallet)}</span>
       {recovering && <span role="status">{PLAY_WALLET_BOOTSTRAP_COPY.RECOVERING}</span>}
+      {adventurer.status === 'RESTORING' && <span role="status">Restoring Adventurer identity…</span>}
+      {adventurer.status === 'NEEDS_PROFILE' && <>
+        <span className={styles.walletCopy}>Create an Adventurer profile to put your name on the trail.</span>
+        <button className={styles.sheetPrimary} type="button" onClick={onCreateProfile}>Create Adventurer profile</button>
+      </>}
+      {adventurer.status === 'ERROR' && <>
+        <span className={styles.walletCopy}>Adventurer identity could not be restored.</span>
+        <button className={styles.sheetPrimary} type="button" onClick={onCreateProfile}>Retry Adventurer identity</button>
+      </>}
     </div>
   }
   return null

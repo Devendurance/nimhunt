@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react'
 import type { NimiqProvider } from '@nimiq/mini-app-sdk'
-import { detectNimiqPayHost, initializeNimiqProvider, listNimiqAccounts } from '../../integrations/nimiq/nimiqClient'
+import { detectNimiqPayHost, initializeNimiqProvider, listNimiqAccounts, signNimiqMessage } from '../../integrations/nimiq/nimiqClient'
 import { NimiqIntegrationError } from '../../integrations/nimiq/nimiqErrors'
 import {
   INITIAL_PLAY_WALLET_BOOTSTRAP,
@@ -60,6 +60,13 @@ export function usePlayWalletBootstrap() {
     dispatch({ type: 'ACCOUNT_SELECTED', account })
   }, [state])
 
+  const signMessage = useCallback(async (message: string) => {
+    let provider = providerRef.current
+    if (!provider) provider = await initializeNimiqProvider()
+    providerRef.current = provider
+    return signNimiqMessage(provider, message)
+  }, [])
+
   useEffect(() => {
     if (startedRef.current) return
     startedRef.current = true
@@ -86,6 +93,7 @@ export function usePlayWalletBootstrap() {
     ...state,
     connect,
     selectAccount,
+    signMessage,
   }
 }
 

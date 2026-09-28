@@ -77,6 +77,11 @@ export type AdventurerIdentityStore = {
   getProfileByWallet(wallet: string): Promise<StoredAdventurerProfile | null>
   getProfileByPlayerId(playerId: string): Promise<StoredAdventurerProfile | null>
   checkNameAvailability(normalizedName: string): Promise<boolean>
+  updateAvatar(input: {
+    readonly playerId: string
+    readonly wallet: string
+    readonly avatarId: string
+  }): Promise<StoredAdventurerProfile>
 }
 
 export type AdventurerStatsSource = {
@@ -98,6 +103,7 @@ export type AdventurerService = {
   }): Promise<{ readonly profile: AdventurerProfile; readonly session: AdventurerSession; readonly sessionCapability: string }>
   authenticateSession(raw: string): Promise<StoredAdventurerSession>
   getOwnProfile(session: StoredAdventurerSession): Promise<AdventurerProfile>
+  updateAvatar(session: StoredAdventurerSession, avatarId: string): Promise<AdventurerProfile>
   getPublicProfile(playerId: string): Promise<PublicAdventurerProfile>
   checkNameAvailability(name: string): Promise<NameAvailability>
   /** P1 capability for a future real-expedition gate; intentionally unused. */

@@ -110,6 +110,12 @@ export function createAdventurerService(options: {
       return withStats(profile, stats)
     },
 
+    async updateAvatar(session, avatarId) {
+      if (!isSupportedAvatar(avatarId)) throw new AdventurerError('AVATAR_UNAVAILABLE')
+      const profile = await store.updateAvatar({ playerId: session.playerId, wallet: session.wallet, avatarId })
+      return withStats(profile, stats)
+    },
+
     async getPublicProfile(playerId) {
       if (!isUuid(playerId)) throw new AdventurerError('PROFILE_NOT_FOUND')
       const profile = await store.getProfileByPlayerId(playerId)

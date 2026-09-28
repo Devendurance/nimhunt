@@ -143,6 +143,19 @@ export function createMemoryAdventurerIdentityStore(options: {
     async checkNameAvailability(normalizedName) {
       return !findByName(normalizedName)
     },
+
+    async updateAvatar(input) {
+      const profile = profilesById.get(input.playerId)
+      if (!profile || profile.wallet !== input.wallet) throw new AdventurerError('PROFILE_NOT_FOUND')
+      if (!isStarterAvatar(input.avatarId)) throw new AdventurerError('AVATAR_UNAVAILABLE')
+      const updated: StoredAdventurerProfile = {
+        ...profile,
+        avatarId: input.avatarId,
+        updatedAt: now().toISOString(),
+      }
+      profilesById.set(updated.playerId, updated)
+      return updated
+    },
   }
   return store
 }

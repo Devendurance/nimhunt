@@ -170,6 +170,19 @@ export function normalizeAdventurerDisplayName(value: string): string {
   return value.trim().toLocaleLowerCase('en-US')
 }
 
+export function parseAdventurerChallenge(value: unknown): AdventurerChallenge | null {
+  if (!isRecord(value) || !hasExactKeys(value, ['purpose', 'challenge', 'issuedAt', 'expiresAt'])) return null
+  if (value.purpose !== 'CREATE' && value.purpose !== 'SESSION') return null
+  if (!isNonEmptyString(value.challenge) || !isIsoString(value.issuedAt) || !isIsoString(value.expiresAt)) return null
+  if (new Date(value.expiresAt).getTime() <= new Date(value.issuedAt).getTime()) return null
+  return {
+    purpose: value.purpose,
+    challenge: value.challenge,
+    issuedAt: value.issuedAt,
+    expiresAt: value.expiresAt,
+  }
+}
+
 export function parseAdventurerStats(value: unknown): AdventurerStats | null {
   if (!isRecord(value) || !hasExactKeys(value, ['lifetimeGems', 'expeditionsCompleted', 'bestStreak'])) return null
   if (!isNonNegativeInteger(value.lifetimeGems) || !isNonNegativeInteger(value.expeditionsCompleted) || !isNonNegativeInteger(value.bestStreak)) return null

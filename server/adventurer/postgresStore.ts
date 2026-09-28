@@ -98,6 +98,19 @@ export function createSupabaseAdventurerIdentityStore(client: SupabaseClient): A
       const result = readRpc(await call(client, 'check_adventurer_name_availability', { p_normalized_name: normalizedName }))
       return result.available === true
     },
+
+    async updateAvatar(input) {
+      const { data, error } = await client
+        .from('adventurer_profiles')
+        .update({ avatar_id: input.avatarId })
+        .eq('player_id', input.playerId)
+        .eq('wallet', input.wallet)
+        .select('player_id,wallet,display_name,avatar_id,display_name_changed_at,created_at,updated_at')
+        .maybeSingle()
+      if (error) throw new AdventurerUnavailableError()
+      if (!data) throw new AdventurerError('PROFILE_NOT_FOUND')
+      return mapProfile(data)
+    },
   }
 }
 
