@@ -34,23 +34,60 @@ export const ADVENTURER_ERROR_CODES = [
 ] as const
 export type AdventurerErrorCode = (typeof ADVENTURER_ERROR_CODES)[number]
 
+export type AdventurerAvatarRarity = 'COMMON' | 'UNCOMMON' | 'RARE' | 'LEGENDARY' | 'MYTHIC' | 'LEGACY'
+
 export type AdventurerAvatar = {
   readonly avatarId: string
+  readonly rarity: AdventurerAvatarRarity
   readonly starter: boolean
   readonly active: boolean
   readonly sortOrder: number
 }
 
-// Catalogue IDs are durable backend contracts. Artwork is intentionally not
-// fabricated here; P2 can bind curated image assets to these IDs.
+// The final catalogue is a stable product contract. Only Common avatars are
+// starter-selectable; higher rarities are visible future content for now.
 export const ADVENTURER_AVATAR_CATALOGUE: readonly AdventurerAvatar[] = [
-  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
-].map(sortOrder => ({
-  avatarId: `adventurer-${String(sortOrder).padStart(2, '0')}`,
-  starter: true,
+  ...createAvatarRange('common', 'COMMON', 5, true, 1),
+  ...createAvatarRange('uncommon', 'UNCOMMON', 5, false, 6),
+  ...createAvatarRange('rare', 'RARE', 3, false, 11),
+  ...createAvatarRange('legendary', 'LEGENDARY', 3, false, 14),
+  ...createAvatarRange('mythic', 'MYTHIC', 4, false, 17),
+]
+
+// P1 used temporary IDs before the final art pack existed. They remain a
+// read/display compatibility surface only; normal creation and edits accept
+// starter IDs from ADVENTURER_AVATAR_CATALOGUE.
+export const ADVENTURER_LEGACY_AVATAR_COMPATIBILITY: readonly AdventurerAvatar[] = Array.from({ length: 12 }, (_, index) => ({
+  avatarId: `adventurer-${String(index + 1).padStart(2, '0')}`,
+  rarity: 'LEGACY' as const,
+  starter: false,
   active: true,
-  sortOrder,
+  sortOrder: 100 + index + 1,
 }))
+
+export function isStarterAdventurerAvatar(avatarId: string): boolean {
+  return ADVENTURER_AVATAR_CATALOGUE.some(avatar => avatar.avatarId === avatarId && avatar.active && avatar.starter)
+}
+
+export function isLegacyAdventurerAvatar(avatarId: string): boolean {
+  return ADVENTURER_LEGACY_AVATAR_COMPATIBILITY.some(avatar => avatar.avatarId === avatarId)
+}
+
+function createAvatarRange(
+  prefix: string,
+  rarity: Exclude<AdventurerAvatarRarity, 'LEGACY'>,
+  count: number,
+  starter: boolean,
+  sortStart: number,
+): AdventurerAvatar[] {
+  return Array.from({ length: count }, (_, index) => ({
+    avatarId: `${prefix}-${String(index + 1).padStart(2, '0')}`,
+    rarity,
+    starter,
+    active: true,
+    sortOrder: sortStart + index,
+  }))
+}
 
 export type AdventurerStats = {
   readonly lifetimeGems: number

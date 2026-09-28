@@ -64,7 +64,7 @@ async function createViaHttp(fixture: ReturnType<typeof createService>) {
     type: 'CREATE_ADVENTURER',
     wallet: fixture.wallet,
     displayName: 'Endy',
-    avatarId: 'adventurer-01',
+    avatarId: 'common-01',
     challenge: challenge.challenge,
     issuedAt: challenge.issuedAt,
     expiresAt: challenge.expiresAt,
@@ -102,16 +102,25 @@ describe('P1 Adventurer HTTP boundary', () => {
       headers: headers({ origin: undefined, cookie }),
     }, SECURITY)
     expect(own.status).toBe(200)
-    expect(own.body).toMatchObject({ ok: true, profile: { displayName: 'Endy', avatarId: 'adventurer-01' } })
+    expect(own.body).toMatchObject({ ok: true, profile: { displayName: 'Endy', avatarId: 'common-01' } })
 
     const updated = await dispatchAdventurerHttp(fixture.service, {
       method: 'PATCH',
       path: ADVENTURER_ME_PATH,
       headers: headers({ origin: SECURITY.expectedOrigin, cookie }),
-      body: { avatarId: 'adventurer-12' },
+      body: { avatarId: 'common-05' },
     }, SECURITY)
     expect(updated.status).toBe(200)
-    expect(updated.body).toMatchObject({ ok: true, profile: { displayName: 'Endy', avatarId: 'adventurer-12' } })
+    expect(updated.body).toMatchObject({ ok: true, profile: { displayName: 'Endy', avatarId: 'common-05' } })
+
+    const locked = await dispatchAdventurerHttp(fixture.service, {
+      method: 'PATCH',
+      path: ADVENTURER_ME_PATH,
+      headers: headers({ origin: SECURITY.expectedOrigin, cookie }),
+      body: { avatarId: 'uncommon-01' },
+    }, SECURITY)
+    expect(locked.status).toBe(400)
+    expect(locked.body).toEqual({ ok: false, error: 'AVATAR_UNAVAILABLE' })
   })
 
   it('exposes only approved public identity/stat fields and never a wallet', async () => {

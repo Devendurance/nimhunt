@@ -14,7 +14,7 @@ import { createMemoryAdventurerIdentityStore } from './store.ts'
 import { createMemoryAdventurerStatsSource } from './stats.ts'
 import type { AdventurerService } from './types.ts'
 
-const AVATAR = 'adventurer-01'
+const AVATAR = 'common-01'
 const NOW = new Date('2026-09-24T12:00:00.000Z')
 
 type Fixture = {
@@ -144,6 +144,23 @@ describe('P1 Adventurer identity auth', () => {
     const fixture = createFixture()
     const invalidAvatar = await signedCreate(fixture, 'Endy', 'unknown-avatar')
     await expectCode(() => fixture.service.createProfile(invalidAvatar), 'AVATAR_UNAVAILABLE')
+
+    const lockedFixture = createFixture()
+    const lockedAvatar = await signedCreate(lockedFixture, 'Endy', 'uncommon-01')
+    await expectCode(() => lockedFixture.service.createProfile(lockedAvatar), 'AVATAR_UNAVAILABLE')
+  })
+
+  it('rejects locked avatars during authenticated avatar edits', async () => {
+    const fixture = createFixture()
+    const created = await createProfile(fixture)
+    await expectCode(() => fixture.service.updateAvatar({
+      playerId: created.profile.playerId,
+      wallet: fixture.wallet,
+      createdAt: created.session.createdAt,
+      expiresAt: created.session.expiresAt,
+      revokedAt: null,
+      sessionHash: 'session-hash',
+    }, 'uncommon-01'), 'AVATAR_UNAVAILABLE')
   })
 
   it('makes Endy, endy, and ENDY one database-equivalent name and has one winner under concurrency', async () => {
@@ -174,6 +191,15 @@ describe('P1 Adventurer identity auth', () => {
     const fixture = createFixture()
     await createProfile(fixture)
     await expectCode(() => fixture.service.issueCreationChallenge(fixture.wallet), 'PROFILE_ALREADY_EXISTS')
+  })
+
+  it('keeps a P1 temporary avatar profile readable while current edits require starter art', async () => {
+    const keyPair = KeyPair.generate()
+    const wallet = keyPair.toAddress().toUserFriendlyAddress()
+    const store = createMemoryAdventurerIdentityStore({ now: () => NOW })
+    store.seedProfile({ wallet, displayName: 'Legacy', avatarId: 'adventurer-01' })
+    const service = createAdventurerService({ store, stats: createMemoryAdventurerStatsSource(), now: () => NOW })
+    await expect(service.getProfileForWallet(wallet)).resolves.toMatchObject({ displayName: 'Legacy', avatarId: 'adventurer-01' })
   })
 
   it('restores a returning Adventurer session without repurposing another session type', async () => {

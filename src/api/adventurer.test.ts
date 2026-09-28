@@ -18,7 +18,7 @@ function jsonResponse(body: unknown, status = 200): Response {
 const profile = {
   playerId: '00000000-0000-4000-8000-000000000001',
   displayName: 'Endy',
-  avatarId: 'adventurer-01',
+  avatarId: 'common-01',
   displayNameChangedAt: '2026-09-24T12:00:00.000Z',
   createdAt: '2026-09-24T12:00:00.000Z',
   updatedAt: '2026-09-24T12:00:00.000Z',
@@ -40,14 +40,14 @@ describe('Adventurer client boundary', () => {
     const requests: Array<{ path: string; method: string; body: string | undefined }> = []
     const fetcher = (async (input: string | URL | Request, init?: RequestInit) => {
       requests.push({ path: String(input), method: init?.method ?? 'GET', body: init?.body as string | undefined })
-      if (init?.method === 'PATCH') return jsonResponse({ ok: true, profile: { ...profile, avatarId: 'adventurer-12' } })
+      if (init?.method === 'PATCH') return jsonResponse({ ok: true, profile: { ...profile, avatarId: 'common-05' } })
       return jsonResponse({ ok: true, profile, session: { playerId: profile.playerId, createdAt: profile.createdAt, expiresAt: '2026-10-24T12:00:00.000Z' } })
     }) as typeof fetch
 
     const created = await createAdventurerProfile({ payload: '{"type":"CREATE_ADVENTURER"}', publicKey: 'key', signature: 'sig' }, fetcher)
-    const updated = await updateAdventurerAvatar('adventurer-12', fetcher)
+    const updated = await updateAdventurerAvatar('common-05', fetcher)
     expect(created.profile.displayName).toBe('Endy')
-    expect(updated.avatarId).toBe('adventurer-12')
+    expect(updated.avatarId).toBe('common-05')
     expect(requests.map(request => [request.path, request.method])).toEqual([
       [ADVENTURER_CREATE_CHALLENGE_PATH.replace('/challenge', ''), 'POST'],
       [ADVENTURER_ME_PATH, 'PATCH'],

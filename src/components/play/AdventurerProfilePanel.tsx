@@ -25,7 +25,7 @@ export function AdventurerProfilePanel({
     setSaving(false)
   }
 
-  return <div className={styles.profileSheet} role="dialog" aria-modal="true" aria-labelledby={titleId}>
+  return <div className={styles.profileSheet}>
     <div className={styles.profileHero}>
       <AdventurerAvatarToken avatarId={profile.avatarId} size="large" />
       <div>
@@ -42,11 +42,11 @@ export function AdventurerProfilePanel({
     </div>
 
     <div className={styles.profileSection}>
-      <h3>Change crest</h3>
-      <AvatarPicker value={avatarId} onChange={setAvatarId} disabled={saving} />
+      <h3>Change avatar</h3>
+      <AvatarPicker value={avatarId} onChange={setAvatarId} disabled={saving} title="Change avatar" />
       {updateError && <p className={styles.profileError} role="status" aria-live="polite">{avatarError(updateError)}</p>}
       <button type="button" className={styles.primaryAction} disabled={saving || avatarId === profile.avatarId} onClick={() => void saveAvatar()}>
-        {saving ? 'Saving crest…' : 'Save crest'}
+        {saving ? 'Saving avatar…' : 'Save avatar'}
       </button>
     </div>
 

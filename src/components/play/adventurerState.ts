@@ -47,3 +47,15 @@ export function mapAdventurerClientError(code: AdventurerApiErrorCode): Adventur
 export function isProfileReady(status: AdventurerClientStatus): boolean {
   return status === 'READY'
 }
+
+export type RealExpeditionGateDecision = 'ALLOW' | 'CONNECT_WALLET' | 'ONBOARD'
+
+export function resolveRealExpeditionGate(input: {
+  readonly enabled: boolean
+  readonly wallet: string | null
+  readonly adventurerStatus: AdventurerClientStatus
+}): RealExpeditionGateDecision {
+  if (!input.enabled) return 'ALLOW'
+  if (!input.wallet) return 'CONNECT_WALLET'
+  return input.adventurerStatus === 'READY' ? 'ALLOW' : 'ONBOARD'
+}

@@ -11,6 +11,7 @@ import { HuntStatus } from './HuntStatus'
 import { AdventurerOnboarding } from './AdventurerOnboarding'
 import { AdventurerProfilePanel } from './AdventurerProfilePanel'
 import { useAdventurer } from './useAdventurer'
+import { resolveRealExpeditionGate } from './adventurerState'
 import { REAL_EXPEDITION_PROFILE_GATE_ENABLED } from './adventurerAssets'
 import { MissionBrief } from './MissionBrief'
 import { MissionList } from './MissionList'
@@ -137,7 +138,16 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
 
   const handleStartExpedition = (mission: Mission) => {
     if (!isMissionLaunchable(mission.id)) return
-    if (REAL_EXPEDITION_PROFILE_GATE_ENABLED && adventurer.status !== 'READY') {
+    const gateDecision = resolveRealExpeditionGate({
+      enabled: REAL_EXPEDITION_PROFILE_GATE_ENABLED,
+      wallet: bootstrap.wallet,
+      adventurerStatus: adventurer.status,
+    })
+    if (gateDecision === 'CONNECT_WALLET') {
+      void bootstrap.connect()
+      return
+    }
+    if (gateDecision === 'ONBOARD') {
       openProfileDialog('onboarding')
       return
     }
@@ -202,6 +212,7 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
       <dialog
         ref={profileDialogRef}
         className={styles.profileDialog}
+        aria-labelledby={profileDialogMode === 'profile' && adventurer.profile ? 'adventurer-profile-title' : 'adventurer-display-name-title'}
         onClose={() => setProfileDialogMode('profile')}
         onCancel={event => {
           if (REAL_EXPEDITION_PROFILE_GATE_ENABLED && profileDialogMode === 'onboarding') event.preventDefault()
@@ -218,6 +229,7 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
                 checkName={adventurer.checkName}
                 createProfile={adventurer.createProfile}
                 onComplete={closeProfileDialog}
+                identityStatus={adventurer.status}
                 onTryPractice={() => {
                   closeProfileDialog()
                   setActiveTab('missions')

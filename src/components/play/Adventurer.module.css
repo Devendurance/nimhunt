@@ -13,15 +13,19 @@
 .avatarTokenSmall { width: 34px; height: 34px; }
 .avatarTokenMedium { width: 56px; height: 56px; }
 .avatarTokenLarge { width: 104px; height: 104px; }
-.avatarGlow { position: absolute; inset: 12%; border: 1px solid rgba(255, 216, 106, .55); border-radius: 43% 57% 52% 48%; transform: rotate(18deg); }
-.avatarNumber { position: absolute; right: 7px; bottom: 5px; color: #ffd86a; font: 700 8px/1 Inter, sans-serif; letter-spacing: .5px; }
+.avatarArt { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.avatarGlow { position: absolute; z-index: 1; inset: 12%; border: 1px solid rgba(255, 216, 106, .55); border-radius: 43% 57% 52% 48%; transform: rotate(18deg); }
+.avatarNumber { z-index: 2; position: absolute; right: 7px; bottom: 5px; color: #ffd86a; font: 700 8px/1 Inter, sans-serif; letter-spacing: .5px; }
 .avatarTokenLarge .avatarNumber { right: 13px; bottom: 12px; font-size: 11px; }
 .avatarFieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
 .fieldLabel { margin-bottom: 10px; color: #f3ead7; font: 400 18px/22px 'Jungle Fever', Impact, sans-serif; text-transform: uppercase; }
 .avatarGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-.avatarChoice { display: grid; min-height: 84px; place-items: center; gap: 5px; padding: 7px 4px; border: 1px solid rgba(243, 234, 215, .16); border-radius: 14px; color: #aab8ac; background: #1b3833; font: 700 8px/10px Inter, sans-serif; letter-spacing: .65px; }
+.avatarChoice { display: grid; min-height: 96px; place-items: center; gap: 4px; padding: 7px 3px; border: 1px solid rgba(243, 234, 215, .16); border-radius: 14px; color: #aab8ac; background: #1b3833; font: 700 8px/10px Inter, sans-serif; letter-spacing: .65px; }
+.avatarChoice small { color: #91a398; font: 700 7px/9px Inter, sans-serif; letter-spacing: .6px; }
 .avatarChoice[data-selected] { border-color: #ffd86a; color: #ffd86a; background: rgba(242, 193, 78, .11); box-shadow: 0 0 0 2px rgba(255, 216, 106, .14); }
-.avatarChoice:hover { border-color: #3e88f7; }
+.avatarChoice[data-selected] small { color: #ffd86a; }
+.avatarChoice[data-locked] { opacity: .62; cursor: not-allowed; filter: saturate(.45); }
+.avatarChoice:not([data-locked]):hover { border-color: #3e88f7; }
 .avatarChoice:focus-visible { outline: 3px solid #3e88f7; outline-offset: 3px; }
 .assetNote { margin: 10px 0 0; color: #91a398; font: 11px/16px Inter, sans-serif; }
 .profileSheet { display: grid; gap: 18px; }
@@ -55,7 +59,8 @@
 .onboardingActions { display: grid; gap: 8px; }
 @media (max-width: 350px) {
   .avatarGrid { gap: 5px; }
-  .avatarChoice { min-height: 76px; font-size: 7px; }
+  .avatarChoice { min-height: 88px; font-size: 7px; }
+  .avatarChoice small { font-size: 6px; }
   .profileStats { gap: 5px; }
   .profileStat { padding-right: 4px; padding-left: 4px; }
   .profileStat strong { font-size: 19px; }

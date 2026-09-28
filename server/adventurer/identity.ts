@@ -30,8 +30,8 @@ import type {
   PublicAdventurerProfile,
 } from '../../src/domain/adventurer.js'
 import {
-  ADVENTURER_AVATAR_CATALOGUE,
   ADVENTURER_SESSION_MAX_AGE_SECONDS,
+  isStarterAdventurerAvatar,
 } from '../../src/domain/adventurer.js'
 
 export function createAdventurerService(options: {
@@ -205,7 +205,7 @@ function normalizeWallet(wallet: unknown): string {
 }
 
 function isSupportedAvatar(avatarId: string): boolean {
-  return ADVENTURER_AVATAR_CATALOGUE.some(avatar => avatar.avatarId === avatarId && avatar.active && avatar.starter)
+  return isStarterAdventurerAvatar(avatarId)
 }
 
 function sessionExpiry(now: Date): string {

@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto'
 import {
-  ADVENTURER_AVATAR_CATALOGUE,
   ADVENTURER_SESSION_MAX_AGE_SECONDS,
+  isLegacyAdventurerAvatar,
+  isStarterAdventurerAvatar,
   type AdventurerChallengePurpose,
 } from '../../src/domain/adventurer.js'
 import { AdventurerError } from './errors.js'
@@ -50,7 +51,7 @@ export function createMemoryAdventurerIdentityStore(options: {
         updatedAt: input.updatedAt ?? now().toISOString(),
         stats: input.stats ?? { lifetimeGems: 0, expeditionsCompleted: 0, bestStreak: 0 },
       }
-      if (!isStarterAvatar(profile.avatarId)) throw new AdventurerError('AVATAR_UNAVAILABLE')
+      if (!isStarterAdventurerAvatar(profile.avatarId) && !isLegacyAdventurerAvatar(profile.avatarId)) throw new AdventurerError('AVATAR_UNAVAILABLE')
       if (findByWallet(profile.wallet)) throw new AdventurerError('PROFILE_ALREADY_EXISTS')
       if (findByName(validation.value.normalizedName)) throw new AdventurerError('DISPLAY_NAME_TAKEN')
       profilesById.set(profile.playerId, profile)
@@ -82,7 +83,7 @@ export function createMemoryAdventurerIdentityStore(options: {
       const validation = validateDisplayName(input.displayName)
       if (!validation.ok) throw new AdventurerError(validation.error)
       if (validation.value.normalizedName !== input.normalizedName) throw new AdventurerError('DISPLAY_NAME_INVALID')
-      if (!isStarterAvatar(input.avatarId)) throw new AdventurerError('AVATAR_UNAVAILABLE')
+      if (!isStarterAdventurerAvatar(input.avatarId)) throw new AdventurerError('AVATAR_UNAVAILABLE')
       if (findByWallet(input.wallet)) throw new AdventurerError('PROFILE_ALREADY_EXISTS')
       if (findByName(input.normalizedName)) throw new AdventurerError(isReservedDisplayName(input.displayName) ? 'DISPLAY_NAME_RESERVED' : 'DISPLAY_NAME_TAKEN')
       const createdAt = now().toISOString()
@@ -147,7 +148,7 @@ export function createMemoryAdventurerIdentityStore(options: {
     async updateAvatar(input) {
       const profile = profilesById.get(input.playerId)
       if (!profile || profile.wallet !== input.wallet) throw new AdventurerError('PROFILE_NOT_FOUND')
-      if (!isStarterAvatar(input.avatarId)) throw new AdventurerError('AVATAR_UNAVAILABLE')
+      if (!isStarterAdventurerAvatar(input.avatarId)) throw new AdventurerError('AVATAR_UNAVAILABLE')
       const updated: StoredAdventurerProfile = {
         ...profile,
         avatarId: input.avatarId,
@@ -175,10 +176,6 @@ function requireChallenge(
   }
   if (now.getTime() >= new Date(challenge.expiresAt).getTime()) throw new AdventurerError('CHALLENGE_EXPIRED')
   return challenge
-}
-
-function isStarterAvatar(avatarId: string): boolean {
-  return ADVENTURER_AVATAR_CATALOGUE.some(avatar => avatar.avatarId === avatarId && avatar.active && avatar.starter)
 }
 
 function capSessionExpiry(value: string, createdAt: string): string {

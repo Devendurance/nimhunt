@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { DISPLAY_NAME_MAX_LENGTH } from '../../domain/adventurer.ts'
 import { AvatarPicker } from './AdventurerAvatar'
-import type { AdventurerCreationStatus, ClientNameState } from './adventurerState.ts'
+import type { AdventurerClientStatus, AdventurerCreationStatus, ClientNameState } from './adventurerState.ts'
 import styles from './Adventurer.module.css'
 
 export function AdventurerOnboarding({
@@ -12,6 +12,7 @@ export function AdventurerOnboarding({
   createProfile,
   onComplete,
   onTryPractice,
+  identityStatus,
 }: {
   readonly nameState: ClientNameState
   readonly creationStatus: AdventurerCreationStatus
@@ -20,10 +21,11 @@ export function AdventurerOnboarding({
   readonly createProfile: (displayName: string, avatarId: string) => Promise<boolean>
   readonly onComplete: () => void
   readonly onTryPractice: () => void
+  readonly identityStatus: AdventurerClientStatus
 }) {
   const nameId = 'adventurer-display-name'
   const [displayName, setDisplayName] = useState('')
-  const [avatarId, setAvatarId] = useState('adventurer-01')
+  const [avatarId, setAvatarId] = useState('common-01')
 
   useEffect(() => {
     const timer = window.setTimeout(() => void checkName(displayName), 240)
@@ -40,8 +42,12 @@ export function AdventurerOnboarding({
     && displayName.trim().toLocaleLowerCase('en-US') === nameState.normalizedName
     && Boolean(avatarId)
     && !busy
+    && identityStatus !== 'RESTORING'
+    && identityStatus !== 'DISCONNECTED'
   const statusMessage = nameStatusMessage(nameState)
-  const actionMessage = creationStatus === 'SIGNING'
+  const actionMessage = identityStatus === 'RESTORING'
+    ? 'Restoring your Adventurer identity…'
+    : creationStatus === 'SIGNING'
     ? 'Approve the identity signature in Nimiq Pay.'
     : creationStatus === 'CREATING'
       ? 'Saving your Adventurer profile…'
@@ -51,7 +57,7 @@ export function AdventurerOnboarding({
           ? creationErrorMessage(creationError)
           : null
 
-  return <div className={styles.profileSheet} role="dialog" aria-modal="true" aria-labelledby={`${nameId}-title`}>
+  return <div className={styles.profileSheet}>
     <div className={styles.onboardingIntro}>
       <p className="eyebrow">ADVENTURER IDENTITY</p>
       <h2 id={`${nameId}-title`}>Name your expedition self.</h2>
@@ -78,7 +84,7 @@ export function AdventurerOnboarding({
       </p>
     </div>
 
-    <AvatarPicker value={avatarId} onChange={setAvatarId} disabled={busy} />
+    <AvatarPicker value={avatarId} onChange={setAvatarId} disabled={busy} title="Choose a starter avatar" />
 
     {actionMessage && <p className={styles.profileError} role="status" aria-live="polite">{actionMessage}</p>}
 
