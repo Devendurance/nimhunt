@@ -23,8 +23,8 @@ create index if not exists adventurer_ally_requests_sender_pending_idx
 -- reports the direction-specific state to the current player.
 create unique index if not exists adventurer_ally_requests_pending_pair_uidx
   on public.adventurer_ally_requests (
-    pg_catalog.least(sender_id, receiver_id),
-    pg_catalog.greatest(sender_id, receiver_id)
+    least(sender_id, receiver_id),
+    greatest(sender_id, receiver_id)
   ) where status = 'PENDING';
 
 create table if not exists public.adventurer_allies (

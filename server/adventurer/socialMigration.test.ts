@@ -16,8 +16,20 @@ describe('016 Adventurer social migration contract', () => {
     expect(sql).toContain('check (adventurer_a_id < adventurer_b_id)')
     expect(sql).toContain('check (blocker_id <> blocked_id)')
     expect(sql).toContain('adventurer_ally_requests_pending_pair_uidx')
-    expect(sql).toContain('pg_catalog.least(sender_id, receiver_id)')
-    expect(sql).toContain('pg_catalog.greatest(sender_id, receiver_id)')
+    expect(sql).toContain('least(sender_id, receiver_id)')
+    expect(sql).toContain('greatest(sender_id, receiver_id)')
+    expect(sql).not.toMatch(/\bpg_catalog\.(least|greatest|substring|coalesce|nullif)\s*\(/i)
+    expect(sql).not.toMatch(/\bpg_catalog\.(case|when)\b/i)
+  })
+
+  it('does not schema-qualify PostgreSQL special SQL expressions', () => {
+    expect(sql).not.toMatch(/\bpg_catalog\.least\s*\(/i)
+    expect(sql).not.toMatch(/\bpg_catalog\.greatest\s*\(/i)
+    expect(sql).not.toMatch(/\bpg_catalog\.substring\s*\(/i)
+    expect(sql).not.toMatch(/\bpg_catalog\.(coalesce|nullif)\s*\(/i)
+    expect(sql).toContain('pg_catalog.timezone')
+    expect(sql).toContain('pg_catalog.jsonb_build_object')
+    expect(sql).toContain('pg_catalog.jsonb_agg')
   })
 
   it('has pending/cap lookup indexes and forces service-only RLS', () => {
@@ -35,6 +47,23 @@ describe('016 Adventurer social migration contract', () => {
     }
     expect(sql).toMatch(/grant execute on function public\.adventurer_social_accept\(uuid, uuid\) to service_role/i)
     expect(sql).toMatch(/grant execute on function public\.adventurer_social_block\(uuid, uuid\) to service_role/i)
+  })
+
+  it('keeps DDL rerunnable and has no one-shot enum or trigger creation', () => {
+    for (const table of ['adventurer_ally_requests', 'adventurer_allies', 'adventurer_blocks']) {
+      expect(sql).toContain(`create table if not exists public.${table}`)
+    }
+    for (const index of [
+      'adventurer_ally_requests_receiver_pending_idx',
+      'adventurer_ally_requests_sender_pending_idx',
+      'adventurer_ally_requests_pending_pair_uidx',
+      'adventurer_allies_a_lookup_idx',
+      'adventurer_allies_b_lookup_idx',
+      'adventurer_blocks_blocked_lookup_idx',
+    ]) expect(sql).toMatch(new RegExp(`create (?:unique )?index if not exists ${index}`, 'i'))
+    expect(sql).not.toMatch(/create\s+type\b/i)
+    expect(sql).not.toMatch(/create\s+trigger\b/i)
+    expect(sql.match(/create or replace function public\./gi)).toHaveLength(11)
   })
 
   it('freezes atomic operations and never exposes wallet/profile-private fields in social JSON', () => {
