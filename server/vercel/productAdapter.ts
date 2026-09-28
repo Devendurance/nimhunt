@@ -36,6 +36,7 @@ import {
   ADVENTURER_SESSION_CHALLENGE_PATH,
   ADVENTURER_SESSION_PATH,
 } from '../../src/domain/adventurer.js'
+import { ADVENTURER_SOCIAL_PATHS } from '../../src/domain/adventurerSocial.js'
 import { isOwnedAdventurerPath, dispatchAdventurerHttp } from '../adventurer/http.js'
 import { WALLET_DAILY_STATUS_PATH } from '../../src/domain/dailyLedger.js'
 import { dispatchLedgerHttp } from '../ledger/http.js'
@@ -81,6 +82,7 @@ export const PRODUCT_OWNED_PATHS: readonly string[] = [
   ADVENTURER_ME_PATH,
   ADVENTURER_PUBLIC_PATH,
   ADVENTURER_NAME_AVAILABILITY_PATH,
+  ...ADVENTURER_SOCIAL_PATHS,
 ]
 
 const PRODUCT_OWNED_SET = new Set(PRODUCT_OWNED_PATHS)
@@ -176,16 +178,16 @@ export async function dispatchProductHttp(
   const runtime: ExpeditionRuntime = resolveProductionExpeditionRuntime(env)
 
   if (isOwnedAdventurerPath(pathname)) {
-    const { createDefaultAdventurerService } = await import('../adventurer/runtime.js')
-    const service = await createDefaultAdventurerService(runtime, env)
-    return dispatchAdventurerHttp(service, {
+    const { createDefaultAdventurerServices } = await import('../adventurer/runtime.js')
+    const services = await createDefaultAdventurerServices(runtime, env)
+    return dispatchAdventurerHttp(services?.identity ?? null, {
       method: request.method,
       path: request.path,
       headers: request.headers,
       host: request.host,
       protocol: request.protocol,
       rawBody: request.rawBody,
-    }, toSecurity(runtime))
+    }, toSecurity(runtime), services?.social ?? null)
   }
 
   if (pathname === GET_REWARD_PAYOUT_PATH) {

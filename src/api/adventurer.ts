@@ -15,6 +15,20 @@ import {
   type PublicAdventurerProfile,
   type AdventurerSession,
 } from '../domain/adventurer.ts'
+import {
+  ADVENTURER_SOCIAL_ACCEPT_PATH,
+  ADVENTURER_SOCIAL_BLOCK_PATH,
+  ADVENTURER_SOCIAL_CANCEL_PATH,
+  ADVENTURER_SOCIAL_DECLINE_PATH,
+  ADVENTURER_SOCIAL_PATH,
+  ADVENTURER_SOCIAL_REMOVE_PATH,
+  ADVENTURER_SOCIAL_REQUEST_PATH,
+  ADVENTURER_SOCIAL_UNBLOCK_PATH,
+  parseAdventurerRelationship,
+  parseAdventurerSocialOverview,
+  type AdventurerRelationship,
+  type AdventurerSocialOverview,
+} from '../domain/adventurerSocial.ts'
 
 export type AdventurerApiErrorCode =
   | 'PROFILE_NOT_FOUND'
@@ -32,6 +46,21 @@ export type AdventurerApiErrorCode =
   | 'MALFORMED_REQUEST'
   | 'MALFORMED_RESPONSE'
   | 'NETWORK_ERROR'
+  | 'SOCIAL_OUTGOING_CAP_REACHED'
+  | 'SOCIAL_INCOMING_CAP_REACHED'
+  | 'SOCIAL_ALLY_CAP_REACHED'
+  | 'SOCIAL_ALREADY_ALLY'
+  | 'SOCIAL_REQUEST_PENDING'
+  | 'SOCIAL_INCOMING_REQUEST_EXISTS'
+  | 'SOCIAL_TARGET_UNAVAILABLE'
+  | 'SOCIAL_REQUEST_STALE'
+  | 'SOCIAL_REQUEST_NOT_FOUND'
+  | 'SOCIAL_UNAUTHORIZED_ACTION'
+  | 'SOCIAL_SELF_ACTION'
+  | 'SOCIAL_NOT_ALLY'
+  | 'SOCIAL_NOT_BLOCKER'
+  | 'SOCIAL_INVALID_PLAYER'
+  | 'SOCIAL_UNAVAILABLE'
 
 export class AdventurerApiError extends Error {
   readonly code: AdventurerApiErrorCode
@@ -47,6 +76,11 @@ export type SignedAdventurerRequest = {
   readonly payload: string
   readonly publicKey: string
   readonly signature: string
+}
+
+export type PublicAdventurerProfileView = {
+  readonly profile: PublicAdventurerProfile
+  readonly relationship: AdventurerRelationship | null
 }
 
 export async function requestAdventurerCreationChallenge(
@@ -101,11 +135,58 @@ export async function fetchPublicAdventurerProfile(
   playerId: string,
   fetcher: typeof fetch = fetch,
 ): Promise<PublicAdventurerProfile> {
+  return (await fetchPublicAdventurerProfileView(playerId, fetcher)).profile
+}
+
+export async function fetchPublicAdventurerProfileView(
+  playerId: string,
+  fetcher: typeof fetch = fetch,
+): Promise<PublicAdventurerProfileView> {
   const body = await request(fetcher, `${ADVENTURER_PUBLIC_PATH}?playerId=${encodeURIComponent(playerId)}`, { method: 'GET' })
   if (!isRecord(body)) throw new AdventurerApiError('MALFORMED_RESPONSE')
   const profile = parsePublicAdventurerProfile(body.profile)
   if (!profile) throw new AdventurerApiError('MALFORMED_RESPONSE')
-  return profile
+  const relationship = body.relationship === undefined ? null : parseAdventurerRelationship(body.relationship)
+  if (body.relationship !== undefined && !relationship) throw new AdventurerApiError('MALFORMED_RESPONSE')
+  return { profile, relationship }
+}
+
+export async function fetchAdventurerSocialOverview(fetcher: typeof fetch = fetch): Promise<AdventurerSocialOverview> {
+  const body = await request(fetcher, ADVENTURER_SOCIAL_PATH, { method: 'GET' })
+  if (!isRecord(body)) throw new AdventurerApiError('MALFORMED_RESPONSE')
+  const overview = parseAdventurerSocialOverview(body.overview)
+  if (!overview) throw new AdventurerApiError('MALFORMED_RESPONSE')
+  return overview
+}
+
+export async function requestAdventurer(targetPlayerId: string, fetcher: typeof fetch = fetch): Promise<string> {
+  const body = await socialMutation(fetcher, ADVENTURER_SOCIAL_REQUEST_PATH, { targetPlayerId })
+  if (!isRecord(body) || typeof body.requestId !== 'string') throw new AdventurerApiError('MALFORMED_RESPONSE')
+  return body.requestId
+}
+
+export async function acceptAdventurerRequest(requestId: string, fetcher: typeof fetch = fetch): Promise<void> {
+  await socialMutation(fetcher, ADVENTURER_SOCIAL_ACCEPT_PATH, { requestId })
+}
+
+export async function declineAdventurerRequest(requestId: string, fetcher: typeof fetch = fetch): Promise<void> {
+  await socialMutation(fetcher, ADVENTURER_SOCIAL_DECLINE_PATH, { requestId })
+}
+
+export async function cancelAdventurerRequest(requestId: string, fetcher: typeof fetch = fetch): Promise<void> {
+  await socialMutation(fetcher, ADVENTURER_SOCIAL_CANCEL_PATH, { requestId })
+}
+
+export async function removeAdventurerAlly(otherPlayerId: string, fetcher: typeof fetch = fetch): Promise<void> {
+  await socialMutation(fetcher, ADVENTURER_SOCIAL_REMOVE_PATH, { otherPlayerId })
+}
+
+export async function blockAdventurer(otherPlayerId: string, fetcher: typeof fetch = fetch): Promise<void> {
+  await socialMutation(fetcher, ADVENTURER_SOCIAL_BLOCK_PATH, { otherPlayerId })
+}
+
+export async function unblockAdventurer(otherPlayerId: string, fetcher: typeof fetch = fetch): Promise<void> {
+  await socialMutation(fetcher, ADVENTURER_SOCIAL_UNBLOCK_PATH, { otherPlayerId })
 }
 
 export async function updateAdventurerAvatar(
@@ -126,6 +207,10 @@ export async function fetchAdventurerNameAvailability(
     throw new AdventurerApiError('MALFORMED_RESPONSE')
   }
   return { available: body.available, normalizedName: body.normalizedName as string | null }
+}
+
+async function socialMutation(fetcher: typeof fetch, path: string, body: Record<string, string>): Promise<unknown> {
+  return request(fetcher, path, { method: 'POST', body })
 }
 
 async function request(
@@ -192,6 +277,21 @@ function isAdventurerApiErrorCode(value: string): value is AdventurerApiErrorCod
     || value === 'SIGNATURE_INVALID'
     || value === 'ADVENTURER_UNAVAILABLE'
     || value === 'MALFORMED_REQUEST'
+    || value === 'SOCIAL_OUTGOING_CAP_REACHED'
+    || value === 'SOCIAL_INCOMING_CAP_REACHED'
+    || value === 'SOCIAL_ALLY_CAP_REACHED'
+    || value === 'SOCIAL_ALREADY_ALLY'
+    || value === 'SOCIAL_REQUEST_PENDING'
+    || value === 'SOCIAL_INCOMING_REQUEST_EXISTS'
+    || value === 'SOCIAL_TARGET_UNAVAILABLE'
+    || value === 'SOCIAL_REQUEST_STALE'
+    || value === 'SOCIAL_REQUEST_NOT_FOUND'
+    || value === 'SOCIAL_UNAUTHORIZED_ACTION'
+    || value === 'SOCIAL_SELF_ACTION'
+    || value === 'SOCIAL_NOT_ALLY'
+    || value === 'SOCIAL_NOT_BLOCKER'
+    || value === 'SOCIAL_INVALID_PLAYER'
+    || value === 'SOCIAL_UNAVAILABLE'
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

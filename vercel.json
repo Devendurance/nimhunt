@@ -138,6 +138,38 @@
     {
       "source": "/api/adventurer/name-availability",
       "destination": "/api/product?__nimhunt_route=/api/adventurer/name-availability"
+    },
+    {
+      "source": "/api/adventurer/social",
+      "destination": "/api/product?__nimhunt_route=/api/adventurer/social"
+    },
+    {
+      "source": "/api/adventurer/social/request",
+      "destination": "/api/product?__nimhunt_route=/api/adventurer/social/request"
+    },
+    {
+      "source": "/api/adventurer/social/request/accept",
+      "destination": "/api/product?__nimhunt_route=/api/adventurer/social/request/accept"
+    },
+    {
+      "source": "/api/adventurer/social/request/decline",
+      "destination": "/api/product?__nimhunt_route=/api/adventurer/social/request/decline"
+    },
+    {
+      "source": "/api/adventurer/social/request/cancel",
+      "destination": "/api/product?__nimhunt_route=/api/adventurer/social/request/cancel"
+    },
+    {
+      "source": "/api/adventurer/social/ally/remove",
+      "destination": "/api/product?__nimhunt_route=/api/adventurer/social/ally/remove"
+    },
+    {
+      "source": "/api/adventurer/social/block",
+      "destination": "/api/product?__nimhunt_route=/api/adventurer/social/block"
+    },
+    {
+      "source": "/api/adventurer/social/unblock",
+      "destination": "/api/product?__nimhunt_route=/api/adventurer/social/unblock"
     }
   ]
 }

@@ -112,6 +112,8 @@ export type PublicAdventurerProfile = {
   readonly lifetimeGems: number
   readonly expeditionsCompleted: number
   readonly bestStreak: number
+  /** P4 public social count; absent only for legacy internal leaderboard fixtures. */
+  readonly allyCount?: number
 }
 
 export type AdventurerSession = {
@@ -248,9 +250,14 @@ export function parseAdventurerProfile(value: unknown): AdventurerProfile | null
 }
 
 export function parsePublicAdventurerProfile(value: unknown): PublicAdventurerProfile | null {
-  if (!isRecord(value) || !hasExactKeys(value, ['playerId', 'displayName', 'avatarId', 'lifetimeGems', 'expeditionsCompleted', 'bestStreak'])) return null
+  if (!isRecord(value)) return null
+  const expected = ['playerId', 'displayName', 'avatarId', 'lifetimeGems', 'expeditionsCompleted', 'bestStreak']
+  const keys = Object.keys(value)
+  const hasAllyCount = keys.includes('allyCount')
+  if (keys.length !== expected.length + (hasAllyCount ? 1 : 0) || expected.some(key => !keys.includes(key))) return null
   if (!isNonEmptyString(value.playerId) || !isNonEmptyString(value.displayName) || !isNonEmptyString(value.avatarId)) return null
   if (!isNonNegativeInteger(value.lifetimeGems) || !isNonNegativeInteger(value.expeditionsCompleted) || !isNonNegativeInteger(value.bestStreak)) return null
+  if (hasAllyCount && !isNonNegativeInteger(value.allyCount)) return null
   return {
     playerId: value.playerId,
     displayName: value.displayName,
@@ -258,6 +265,7 @@ export function parsePublicAdventurerProfile(value: unknown): PublicAdventurerPr
     lifetimeGems: value.lifetimeGems,
     expeditionsCompleted: value.expeditionsCompleted,
     bestStreak: value.bestStreak,
+    ...(hasAllyCount ? { allyCount: value.allyCount as number } : {}),
   }
 }
 

@@ -193,6 +193,7 @@ function toPublicProfile(profile: AdventurerProfile): PublicAdventurerProfile {
     lifetimeGems: profile.stats.lifetimeGems,
     expeditionsCompleted: profile.stats.expeditionsCompleted,
     bestStreak: profile.stats.bestStreak,
+    allyCount: 0,
   }
 }
 

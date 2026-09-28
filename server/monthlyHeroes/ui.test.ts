@@ -68,10 +68,10 @@ describe('monthly heroes live UI (static)', () => {
     expect(live).not.toMatch(BACKEND_TERMS)
   })
 
-  it('uses the approved public Adventurer sheet without social or financial expansion', () => {
+  it('uses the approved public Adventurer sheet with only P4 social actions and no financial expansion', () => {
     const sheet = read('src/components/play/PublicAdventurerProfileSheet.tsx')
-    for (const label of ['LIFETIME GEMS', 'EXPEDITIONS', 'BEST STREAK', 'Close profile']) expect(sheet).toContain(label)
-    expect(sheet).not.toMatch(/Add Adventurer|Ally|Achievements|\bXP\b|\bwallet\b|\breward\b|\bpayout\b|\bNIM\b/i)
+    for (const label of ['LIFETIME GEMS', 'EXPEDITIONS', 'BEST STREAK', 'ALLIES', 'Add Adventurer', 'Close profile']) expect(sheet).toContain(label)
+    expect(sheet).not.toMatch(/Achievements|\bXP\b|\bwallet\b|\breward\b|\bpayout\b|\bNIM\b/i)
   })
 
   it('stays mobile-first with no horizontal overflow', () => {

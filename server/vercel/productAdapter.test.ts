@@ -35,6 +35,14 @@ const REQUIRED_PRODUCT_PATHS = [
   '/api/adventurer/me',
   '/api/adventurer/public',
   '/api/adventurer/name-availability',
+  '/api/adventurer/social',
+  '/api/adventurer/social/request',
+  '/api/adventurer/social/request/accept',
+  '/api/adventurer/social/request/decline',
+  '/api/adventurer/social/request/cancel',
+  '/api/adventurer/social/ally/remove',
+  '/api/adventurer/social/block',
+  '/api/adventurer/social/unblock',
 ] as const
 
 describe('production product API adapter', () => {

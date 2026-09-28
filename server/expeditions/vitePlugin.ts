@@ -5,7 +5,7 @@ import { TREASURE_BANK_PATH } from '../../src/domain/treasureBank.js'
 import { MONTHLY_HEROES_PATH, WALLET_MONTHLY_STATS_PATH } from '../../src/domain/monthlyHeroes.js'
 import { PUBLIC_STATS_PATH } from '../../src/domain/publicStats.js'
 import { dispatchAdventurerHttp, isOwnedAdventurerPath } from '../adventurer/http.js'
-import { createDefaultAdventurerService } from '../adventurer/runtime.js'
+import { createDefaultAdventurerServices } from '../adventurer/runtime.js'
 import { RECOVER_SESSION_CHALLENGE_PATH, RECOVER_SESSION_PATH } from '../../src/domain/walletRecovery.js'
 import { createLazyValue } from './lazyValue.js'
 import { describeSessionCookie, WALLET_RECOVERY_SESSION_COOKIE } from './session.js'
@@ -59,7 +59,7 @@ export function expeditionProofPlugin(): Plugin {
     return createDefaultTreasureBankSource(runtime, env())
   })
   const payoutRuntime = createLazyValue(() => createDefaultPayoutRuntime(env()))
-  const adventurer = createLazyValue(() => createDefaultAdventurerService(runtime, env()))
+  const adventurer = createLazyValue(() => createDefaultAdventurerServices(runtime, env()))
 
   return {
     name: 'nimhunt-expedition-proof',
@@ -103,7 +103,7 @@ function createHandler(
   getRuntime: () => ExpeditionRuntime,
   getEnv: () => Record<string, string | undefined>,
   getTreasureSource: () => Promise<Awaited<ReturnType<typeof import('../treasureBank/store.js').createDefaultTreasureBankSource>>>,
-  getAdventurerService: () => Promise<Awaited<ReturnType<typeof createDefaultAdventurerService>>>,
+  getAdventurerServices: () => Promise<Awaited<ReturnType<typeof createDefaultAdventurerServices>>>,
 ) {
   let dispatch: typeof import('./http.js').dispatchExpeditionHttp | undefined
   let dispatchPayout: typeof import('../payouts/http.js').dispatchPayoutHttp | undefined
@@ -153,15 +153,15 @@ function createHandler(
       }
 
       if (isAdventurerPath) {
-        const adventurerService = await getAdventurerService()
-        const response = await dispatchAdventurerHttp(adventurerService, {
+        const adventurerServices = await getAdventurerServices()
+        const response = await dispatchAdventurerHttp(adventurerServices?.identity ?? null, {
           method: req.method ?? 'GET',
           path: req.url ?? path,
           headers: readHeaders(req),
           host: req.headers.host,
           protocol: isTlsRequest(req) ? 'https' : 'http',
           rawBody,
-        }, runtime)
+        }, runtime, adventurerServices?.social ?? null)
         writeJson(res, response.status, response.body, response.headers)
         return
       }

@@ -134,7 +134,7 @@ describe('P1 Adventurer HTTP boundary', () => {
     }, SECURITY)
     expect(publicResponse.status).toBe(200)
     const publicBody = publicResponse.body as { profile: Record<string, unknown> }
-    expect(Object.keys(publicBody.profile).sort()).toEqual(['avatarId', 'bestStreak', 'displayName', 'expeditionsCompleted', 'lifetimeGems', 'playerId'])
+    expect(Object.keys(publicBody.profile).sort()).toEqual(['allyCount', 'avatarId', 'bestStreak', 'displayName', 'expeditionsCompleted', 'lifetimeGems', 'playerId'])
     expect(JSON.stringify(publicResponse.body)).not.toContain(fixture.wallet)
     expect(JSON.stringify(publicResponse.body)).not.toMatch(/wallet|session|challenge|reward|payout|treasury|nimEarned/i)
   })

@@ -80,6 +80,14 @@ describe('monthly heroes production routing', () => {
       '/api/adventurer/me': '/api/product?__nimhunt_route=/api/adventurer/me',
       '/api/adventurer/public': '/api/product?__nimhunt_route=/api/adventurer/public',
       '/api/adventurer/name-availability': '/api/product?__nimhunt_route=/api/adventurer/name-availability',
+      '/api/adventurer/social': '/api/product?__nimhunt_route=/api/adventurer/social',
+      '/api/adventurer/social/request': '/api/product?__nimhunt_route=/api/adventurer/social/request',
+      '/api/adventurer/social/request/accept': '/api/product?__nimhunt_route=/api/adventurer/social/request/accept',
+      '/api/adventurer/social/request/decline': '/api/product?__nimhunt_route=/api/adventurer/social/request/decline',
+      '/api/adventurer/social/request/cancel': '/api/product?__nimhunt_route=/api/adventurer/social/request/cancel',
+      '/api/adventurer/social/ally/remove': '/api/product?__nimhunt_route=/api/adventurer/social/ally/remove',
+      '/api/adventurer/social/block': '/api/product?__nimhunt_route=/api/adventurer/social/block',
+      '/api/adventurer/social/unblock': '/api/product?__nimhunt_route=/api/adventurer/social/unblock',
     }
     for (const entry of rewrites()) {
       if (!entry.source.startsWith('/api/')) continue

@@ -1,4 +1,15 @@
 import type { AdventurerErrorCode } from '../../src/domain/adventurer.js'
+import type { AdventurerSocialErrorCode } from '../../src/domain/adventurerSocial.js'
+
+export class AdventurerSocialError extends Error {
+  readonly code: AdventurerSocialErrorCode
+
+  constructor(code: AdventurerSocialErrorCode) {
+    super(code)
+    this.name = 'AdventurerSocialError'
+    this.code = code
+  }
+}
 
 export class AdventurerError extends Error {
   readonly code: AdventurerErrorCode
@@ -15,6 +26,10 @@ export class AdventurerUnavailableError extends Error {
     super('ADVENTURER_UNAVAILABLE')
     this.name = 'AdventurerUnavailableError'
   }
+}
+
+export function isAdventurerSocialError(error: unknown): error is AdventurerSocialError {
+  return error instanceof AdventurerSocialError
 }
 
 export function isAdventurerError(error: unknown): error is AdventurerError {

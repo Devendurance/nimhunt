@@ -34,10 +34,39 @@
 .profileHero h2 { margin: 0; color: #f3ead7; font: 400 28px/30px 'Jungle Fever', Impact, sans-serif; text-transform: uppercase; overflow-wrap: anywhere; }
 .profileHero p { margin: 5px 0 0; color: #91a398; font-size: 11px; }
 .profileStats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.socialStats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .profileStat { display: grid; gap: 4px; min-height: 72px; align-content: center; padding: 9px 7px; border-radius: 12px; background: #1b3833; }
 .profileStat strong { color: #ffd86a; font: 400 22px/24px 'Jungle Fever', Impact, sans-serif; }
 .profileStat span { color: #aab8ac; font-size: 8px; line-height: 11px; }
 .profileSection { display: grid; gap: 10px; }
+.socialActions { display: grid; gap: 10px; }
+.socialSummaryButton { display: grid; grid-template-columns: 1fr 1.4fr auto; align-items: center; gap: 8px; min-height: 56px; padding: 10px 12px; border: 1px solid rgba(243, 234, 215, .16); border-radius: 14px; color: #d3dbd1; background: #1b3833; text-align: left; }
+.socialSummaryButton span { min-width: 0; overflow: hidden; font-size: 10px; line-height: 14px; text-overflow: ellipsis; white-space: nowrap; }
+.socialSummaryButton strong { display: block; color: #ffd86a; font: 400 19px/20px 'Jungle Fever', Impact, sans-serif; }
+.socialSummaryButton span:nth-child(2) strong { color: #9bc8b2; }
+.socialSummaryButton:hover, .socialSummaryButton:focus-visible { border-color: rgba(62, 136, 247, .7); }
+.socialSummaryButton > span:last-child { color: #ffd86a; font-size: 24px; }
+.socialButtonRow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.socialState { min-height: 44px; display: grid; place-items: center; margin: 0; border: 1px solid rgba(155, 200, 178, .25); border-radius: 9999px; color: #9bc8b2; font: 400 14px/18px 'Jungle Fever', Impact, sans-serif; letter-spacing: .35px; text-transform: uppercase; }
+.dangerAction { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid rgba(231, 149, 109, .48); border-radius: 9999px; color: #ffd3a7; background: rgba(165, 108, 67, .12); font: 400 12px/16px 'Jungle Fever', Impact, sans-serif; text-transform: uppercase; }
+.dangerAction:disabled, .socialMiniPrimary:disabled, .socialMiniSecondary:disabled { opacity: .52; cursor: not-allowed; }
+.socialListSection { display: grid; gap: 10px; }
+.socialSectionHeading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.socialSectionHeading h3 { margin: 0; color: #d3dbd1; font: 700 10px/12px Inter, sans-serif; letter-spacing: 1px; text-transform: uppercase; }
+.socialSectionHeading > span { min-width: 24px; padding: 3px 7px; border-radius: 9999px; color: #132a26; background: #ffd86a; font-size: 10px; font-weight: 800; text-align: center; }
+.socialEmpty { margin: 0; padding: 13px; border: 1px dashed rgba(243, 234, 215, .2); border-radius: 12px; color: #aab8ac; font-size: 12px; line-height: 17px; }
+.socialList { display: grid; gap: 8px; }
+.socialRequestRow, .socialAllyRow { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 9px; min-width: 0; padding: 9px; border: 1px solid rgba(243, 234, 215, .14); border-radius: 14px; background: #1b3833; }
+.socialAllyRow { width: 100%; color: inherit; text-align: left; }
+.socialAllyRow:hover, .socialAllyRow:focus-visible { border-color: rgba(62, 136, 247, .7); }
+.socialRowIdentity { display: grid; min-width: 0; gap: 3px; }
+.socialRowIdentity strong { overflow: hidden; color: #f3ead7; font-size: 12px; line-height: 16px; text-overflow: ellipsis; white-space: nowrap; }
+.socialRowIdentity span { overflow: hidden; color: #91a398; font-size: 9px; line-height: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.socialButtonStack { display: grid; gap: 4px; }
+.socialMiniPrimary, .socialMiniSecondary { min-width: 66px; min-height: 44px; padding: 6px 8px; border-radius: 9999px; font: 700 9px/12px Inter, sans-serif; }
+.socialMiniPrimary { border: 0; color: #132a26; background: #ffd86a; }
+.socialMiniSecondary { border: 1px solid rgba(243, 234, 215, .26); color: #f3ead7; background: transparent; }
+.socialChevron { color: #ffd86a; font-size: 24px; line-height: 1; }
 .profileSection h3 { margin: 0; color: #d3dbd1; font: 700 10px/12px Inter, sans-serif; letter-spacing: 1px; text-transform: uppercase; }
 .profileStatus { min-height: 20px; margin: 0; color: #ffd86a; font-size: 12px; line-height: 18px; }
 .profileError { margin: 0; padding: 11px 12px; border-left: 2px solid #a56c43; color: #ffd3a7; background: rgba(165, 108, 67, .12); font-size: 12px; line-height: 17px; }
@@ -63,8 +92,12 @@
   .avatarChoice { min-height: 88px; font-size: 7px; }
   .avatarChoice small { font-size: 6px; }
   .profileStats { gap: 5px; }
+  .socialStats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .profileStat { padding-right: 4px; padding-left: 4px; }
   .profileStat strong { font-size: 19px; }
+  .socialRequestRow { grid-template-columns: auto minmax(0, 1fr); }
+  .socialButtonStack { grid-column: 1 / -1; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .socialMiniPrimary, .socialMiniSecondary { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
   .avatarChoice, .nameInput { transition: none; }

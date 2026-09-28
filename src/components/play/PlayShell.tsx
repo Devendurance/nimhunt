@@ -10,6 +10,7 @@ import { HuntHeader } from './HuntHeader'
 import { HuntStatus } from './HuntStatus'
 import { AdventurerOnboarding } from './AdventurerOnboarding'
 import { AdventurerProfilePanel } from './AdventurerProfilePanel'
+import { AlliesPanel } from './AlliesPanel'
 import { PublicAdventurerProfileSheet } from './PublicAdventurerProfileSheet'
 import { useAdventurer } from './useAdventurer'
 import { resolveRealExpeditionGate } from './adventurerState'
@@ -80,11 +81,12 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
   const publicProfileDialogRef = useRef<HTMLDialogElement>(null)
   const publicProfileTriggerRef = useRef<HTMLButtonElement | null>(null)
   const startedRunRef = useRef<string | null>(null)
-  const [profileDialogMode, setProfileDialogMode] = useState<'onboarding' | 'profile'>('onboarding')
+  const [profileDialogMode, setProfileDialogMode] = useState<'onboarding' | 'profile' | 'allies'>('onboarding')
   const [publicProfilePlayerId, setPublicProfilePlayerId] = useState<string | null>(null)
+  const [socialRevision, setSocialRevision] = useState(0)
   const selectedMission = playMissions.find(mission => mission.id === selectedMissionId) ?? null
 
-  const openProfileDialog = useCallback((mode: 'onboarding' | 'profile', trigger?: HTMLButtonElement) => {
+  const openProfileDialog = useCallback((mode: 'onboarding' | 'profile' | 'allies', trigger?: HTMLButtonElement) => {
     profileTriggerRef.current = trigger ?? null
     setProfileDialogMode(mode)
     if (profileDialogRef.current && !profileDialogRef.current.open) profileDialogRef.current.showModal()
@@ -94,6 +96,11 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
     profileDialogRef.current?.close()
     requestAnimationFrame(() => profileTriggerRef.current?.focus())
   }, [])
+
+  const openAllies = useCallback(() => {
+    setProfileDialogMode('allies')
+    if (profileDialogRef.current && !profileDialogRef.current.open) profileDialogRef.current.showModal()
+  }, [setProfileDialogMode])
 
   const openPublicProfileDialog = useCallback((playerId: string, trigger: HTMLButtonElement) => {
     publicProfileTriggerRef.current = trigger
@@ -241,20 +248,27 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
         }}
       >
         <div className={styles.profileDialogSheet}>
-          <PublicAdventurerProfileSheet playerId={publicProfilePlayerId} onClose={closePublicProfileDialog} />
+          <PublicAdventurerProfileSheet playerId={publicProfilePlayerId} onClose={closePublicProfileDialog} onSocialChanged={() => setSocialRevision(version => version + 1)} />
         </div>
       </dialog>}
       <dialog
         ref={profileDialogRef}
         className={styles.profileDialog}
-        aria-labelledby={profileDialogMode === 'profile' && adventurer.profile ? 'adventurer-profile-title' : 'adventurer-display-name-title'}
+        aria-labelledby={profileDialogMode === 'allies' ? 'adventurer-allies-title' : profileDialogMode === 'profile' && adventurer.profile ? 'adventurer-profile-title' : 'adventurer-display-name-title'}
         onClose={() => setProfileDialogMode('profile')}
         onCancel={event => {
           if (REAL_EXPEDITION_PROFILE_GATE_ENABLED && profileDialogMode === 'onboarding') event.preventDefault()
         }}
       >
         <div className={styles.profileDialogSheet}>
-          {profileDialogMode === 'onboarding' || !adventurer.profile
+          {profileDialogMode === 'allies' && adventurer.profile
+            ? <AlliesPanel
+              key={`allies-${socialRevision}`}
+              onClose={closeProfileDialog}
+              onOpenPublicProfile={openPublicProfileDialog}
+              onSocialChanged={() => setSocialRevision(version => version + 1)}
+            />
+            : profileDialogMode === 'onboarding' || !adventurer.profile
             ? <>
               <AdventurerOnboarding
                 key={bootstrap.wallet ?? 'no-wallet'}
@@ -272,10 +286,11 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
               />
             </>
             : <AdventurerProfilePanel
-              key={adventurer.profile.updatedAt}
+              key={`${adventurer.profile.updatedAt}-${socialRevision}`}
               profile={adventurer.profile}
               updateAvatar={adventurer.updateAvatar}
               updateError={adventurer.creationError}
+              onOpenAllies={openAllies}
               onClose={closeProfileDialog}
             />}
           {adventurer.status === 'ERROR' && <div className={styles.profileDialogError} role="alert">

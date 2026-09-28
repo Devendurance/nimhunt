@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { fetchAdventurerSocialOverview } from '../../api/adventurer.ts'
+import type { AdventurerSocialOverview } from '../../domain/adventurerSocial.ts'
 import type { AdventurerProfile } from '../../domain/adventurer.ts'
 import { AvatarPicker, AdventurerAvatarToken } from './AdventurerAvatar'
 import styles from './Adventurer.module.css'
@@ -7,16 +9,27 @@ export function AdventurerProfilePanel({
   profile,
   updateAvatar,
   updateError,
+  onOpenAllies,
   onClose,
 }: {
   readonly profile: AdventurerProfile
   readonly updateAvatar: (avatarId: string) => Promise<boolean>
   readonly updateError: string | null
+  readonly onOpenAllies: () => void
   readonly onClose: () => void
 }) {
   const titleId = 'adventurer-profile-title'
   const [avatarId, setAvatarId] = useState(profile.avatarId)
   const [saving, setSaving] = useState(false)
+  const [social, setSocial] = useState<{ readonly status: 'loading' } | { readonly status: 'ready'; readonly overview: AdventurerSocialOverview } | { readonly status: 'unavailable' }>({ status: 'loading' })
+
+  useEffect(() => {
+    let cancelled = false
+    void fetchAdventurerSocialOverview()
+      .then(overview => { if (!cancelled) setSocial({ status: 'ready', overview }) })
+      .catch(() => { if (!cancelled) setSocial({ status: 'unavailable' }) })
+    return () => { cancelled = true }
+  }, [profile.updatedAt])
 
   const saveAvatar = async () => {
     if (avatarId === profile.avatarId) return
@@ -39,6 +52,17 @@ export function AdventurerProfilePanel({
       <div className={styles.profileStat}><strong>{profile.stats.lifetimeGems}</strong><span>GEMS FOUND</span></div>
       <div className={styles.profileStat}><strong>{profile.stats.expeditionsCompleted}</strong><span>EXPEDITIONS</span></div>
       <div className={styles.profileStat}><strong>{profile.stats.bestStreak}</strong><span>BEST STREAK</span></div>
+    </div>
+
+    <div className={styles.profileSection}>
+      <h3>Allies</h3>
+      {social.status === 'loading' && <p className={styles.profileStatus} role="status">Loading social status…</p>}
+      {social.status === 'unavailable' && <p className={styles.profileError} role="status">Allies are temporarily unavailable.</p>}
+      {social.status === 'ready' && <button type="button" className={styles.socialSummaryButton} onClick={onOpenAllies}>
+        <span><strong>{social.overview.allyCount}</strong> Allies</span>
+        <span><strong>{social.overview.incomingPendingCount}</strong> pending requests</span>
+        <span aria-hidden="true">›</span>
+      </button>}
     </div>
 
     <div className={styles.profileSection}>

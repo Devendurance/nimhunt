@@ -8,13 +8,25 @@ import {
   ADVENTURER_SESSION_PATH,
 } from '../../src/domain/adventurer.js'
 import {
+  ADVENTURER_SOCIAL_ACCEPT_PATH,
+  ADVENTURER_SOCIAL_BLOCK_PATH,
+  ADVENTURER_SOCIAL_CANCEL_PATH,
+  ADVENTURER_SOCIAL_DECLINE_PATH,
+  ADVENTURER_SOCIAL_PATH,
+  ADVENTURER_SOCIAL_PATHS,
+  ADVENTURER_SOCIAL_REMOVE_PATH,
+  ADVENTURER_SOCIAL_REQUEST_PATH,
+  ADVENTURER_SOCIAL_UNBLOCK_PATH,
+} from '../../src/domain/adventurerSocial.js'
+import {
   isAuthorizedLocalHttpAlias,
   type ExpeditionHttpRequest,
   type ExpeditionHttpResponse,
   type ExpeditionHttpSecurity,
 } from '../expeditions/http.js'
-import { isAdventurerError, isAdventurerUnavailableError } from './errors.js'
+import { isAdventurerError, isAdventurerSocialError, isAdventurerUnavailableError } from './errors.js'
 import { parseAdventurerSessionCookie, serializeAdventurerSessionCookie } from './session.js'
+import type { AdventurerSocialService } from './socialTypes.js'
 import type { AdventurerService } from './types.js'
 
 const BASE_HEADERS = {
@@ -31,6 +43,7 @@ export const ADVENTURER_PATHS = [
   ADVENTURER_ME_PATH,
   ADVENTURER_PUBLIC_PATH,
   ADVENTURER_NAME_AVAILABILITY_PATH,
+  ...ADVENTURER_SOCIAL_PATHS,
 ] as const
 
 export function isOwnedAdventurerPath(path: string): boolean {
@@ -41,6 +54,7 @@ export async function dispatchAdventurerHttp(
   service: AdventurerService | null,
   request: ExpeditionHttpRequest,
   security: ExpeditionHttpSecurity,
+  social: AdventurerSocialService | null = null,
 ): Promise<ExpeditionHttpResponse> {
   const pathHint = request.path.split('?')[0] ?? ''
   if (!security.expectedOrigin || !security.expectedHost) {
@@ -53,7 +67,7 @@ export async function dispatchAdventurerHttp(
   if (!url || !isOwnedAdventurerPath(url.pathname)) return response(404, { ok: false, error: 'MALFORMED_REQUEST' })
   const path = url.pathname
   const method = request.method.toUpperCase()
-  if (!service) return response(503, { ok: false, error: 'ADVENTURER_UNAVAILABLE' })
+  if (!service || (isSocialPath(url.pathname) && !social)) return response(503, { ok: false, error: 'ADVENTURER_UNAVAILABLE' })
   if (!isAllowedRequest(request, method, security)) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
   if (request.rawBody !== undefined && Buffer.byteLength(request.rawBody, 'utf8') > 16 * 1024) {
     return response(413, { ok: false, error: 'MALFORMED_REQUEST' })
@@ -112,7 +126,61 @@ export async function dispatchAdventurerHttp(
     if (path === ADVENTURER_PUBLIC_PATH) {
       const playerId = readSingleQuery(url, 'playerId', 64)
       const profile = await service.getPublicProfile(playerId)
-      return response(200, { ok: true, profile })
+      if (!social) return response(200, { ok: true, profile: { ...profile, allyCount: 0 } })
+      const allyCount = await social.getAllyCount(playerId)
+      const raw = parseAdventurerSessionCookie(getHeader(request, 'cookie'))
+      let relationship: Awaited<ReturnType<AdventurerSocialService['getRelationship']>> | null = null
+      if (raw) {
+        try {
+          const viewer = await service.authenticateSession(raw)
+          relationship = viewer.playerId === playerId
+            ? { state: 'SELF', requestId: null }
+            : await social.getRelationship(viewer, playerId)
+        } catch {
+          // A public profile remains readable when an expired cookie is present.
+        }
+      }
+      return response(200, {
+        ok: true,
+        profile: { ...profile, allyCount },
+        ...(relationship ? { relationship } : {}),
+      })
+    }
+
+    if (isSocialPath(path)) {
+      const raw = parseAdventurerSessionCookie(getHeader(request, 'cookie'))
+      const session = await service.authenticateSession(raw ?? '')
+      const socialService = social!
+      if (path === ADVENTURER_SOCIAL_PATH) {
+        if (method !== 'GET' || url.searchParams.size > 0) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
+        return response(200, { ok: true, overview: await socialService.getOverview(session) })
+      }
+      const body = readJsonBody(request)
+      if (path === ADVENTURER_SOCIAL_REQUEST_PATH) {
+        const targetPlayerId = readSocialPlayerBody(body, 'targetPlayerId')
+        return response(200, { ok: true, ...(await socialService.request(session, targetPlayerId)) })
+      }
+      if (path === ADVENTURER_SOCIAL_ACCEPT_PATH) {
+        const requestId = readSocialPlayerBody(body, 'requestId')
+        await socialService.accept(session, requestId)
+        return response(200, { ok: true })
+      }
+      if (path === ADVENTURER_SOCIAL_DECLINE_PATH) {
+        const requestId = readSocialPlayerBody(body, 'requestId')
+        await socialService.decline(session, requestId)
+        return response(200, { ok: true })
+      }
+      if (path === ADVENTURER_SOCIAL_CANCEL_PATH) {
+        const requestId = readSocialPlayerBody(body, 'requestId')
+        await socialService.cancel(session, requestId)
+        return response(200, { ok: true })
+      }
+      const otherPlayerId = readSocialPlayerBody(body, 'otherPlayerId')
+      if (path === ADVENTURER_SOCIAL_REMOVE_PATH) await socialService.remove(session, otherPlayerId)
+      else if (path === ADVENTURER_SOCIAL_BLOCK_PATH) await socialService.block(session, otherPlayerId)
+      else if (path === ADVENTURER_SOCIAL_UNBLOCK_PATH) await socialService.unblock(session, otherPlayerId)
+      else return response(404, { ok: false, error: 'MALFORMED_REQUEST' })
+      return response(200, { ok: true })
     }
 
     if (path === ADVENTURER_NAME_AVAILABILITY_PATH) {
@@ -126,6 +194,7 @@ export async function dispatchAdventurerHttp(
 
     return response(404, { ok: false, error: 'MALFORMED_REQUEST' })
   } catch (error) {
+    if (isAdventurerSocialError(error)) return response(statusForSocial(error.code), { ok: false, error: error.code })
     if (isAdventurerError(error)) return response(statusFor(error.code), { ok: false, error: error.code })
     if (isAdventurerUnavailableError(error)) return response(503, { ok: false, error: 'ADVENTURER_UNAVAILABLE' })
     if (error instanceof SyntaxError) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
@@ -160,6 +229,12 @@ function statusFor(code: import('../../src/domain/adventurer.js').AdventurerErro
   return 400
 }
 
+function statusForSocial(code: import('../../src/domain/adventurerSocial.js').AdventurerSocialErrorCode): number {
+  if (code === 'SOCIAL_UNAUTHORIZED_ACTION' || code === 'SOCIAL_NOT_BLOCKER') return 403
+  if (code === 'SOCIAL_INVALID_PLAYER' || code === 'SOCIAL_SELF_ACTION') return 400
+  return 409
+}
+
 function parseRequestUrl(path: string, expectedOrigin: string): URL | null {
   if (!path.startsWith('/')) return null
   try {
@@ -169,9 +244,13 @@ function parseRequestUrl(path: string, expectedOrigin: string): URL | null {
   }
 }
 
+function isSocialPath(path: string): boolean {
+  return (ADVENTURER_SOCIAL_PATHS as readonly string[]).includes(path)
+}
+
 function isExpectedMethod(path: string, method: string): boolean {
   if (path === ADVENTURER_ME_PATH) return method === 'GET' || method === 'PATCH'
-  if (path === ADVENTURER_PUBLIC_PATH || path === ADVENTURER_NAME_AVAILABILITY_PATH) return method === 'GET'
+  if (path === ADVENTURER_PUBLIC_PATH || path === ADVENTURER_NAME_AVAILABILITY_PATH || path === ADVENTURER_SOCIAL_PATH) return method === 'GET'
   return method === 'POST'
 }
 
@@ -208,6 +287,12 @@ function readAvatarBody(body: Record<string, unknown>): { readonly avatarId: str
   requireExactKeys(body, ['avatarId'])
   if (!isBoundedString(body.avatarId, 64)) throw new SyntaxError('INVALID_AVATAR')
   return { avatarId: body.avatarId }
+}
+
+function readSocialPlayerBody(body: Record<string, unknown>, key: 'targetPlayerId' | 'requestId' | 'otherPlayerId'): string {
+  requireExactKeys(body, [key])
+  if (!isBoundedString(body[key], 64)) throw new SyntaxError('INVALID_SOCIAL_TARGET')
+  return body[key] as string
 }
 
 function readSignedBody(body: Record<string, unknown>): { readonly payload: string; readonly publicKey: string; readonly signature: string } {
