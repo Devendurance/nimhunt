@@ -16,8 +16,18 @@ describe('015 final Adventurer avatar catalogue migration', () => {
     ]) expect(sql).toContain(`'${id}'`)
     expect(sql).toContain("rarity = 'LEGACY'")
     expect(sql).toContain("starter = false")
+    expect(sql).toContain("pg_catalog.substring(avatar_id, '[0-9]+')")
+    expect(sql).not.toContain("pg_catalog.substring(avatar_id from '[0-9]+')")
     expect(sql).toContain('new.avatar_id is distinct from old.avatar_id')
     expect(sql).not.toMatch(/alter table public\.(expedition_runs|reward_claims|reward_payouts)[\s\S]*player_id/i)
+  })
+
+  it('is safe to rerun after any statement boundary has already committed', () => {
+    expect(sql).toContain('add column if not exists rarity')
+    expect(sql).toContain("conname = 'adventurer_avatars_rarity_check'")
+    expect(sql).toContain('on conflict (avatar_id) do update')
+    expect(sql).toContain('create or replace function public.reject_adventurer_profile_mutation()')
+    expect(sql).toContain('revoke all on function public.reject_adventurer_profile_mutation()')
   })
 
   it('marks only Common final avatars as starter and keeps higher tiers active but locked', () => {

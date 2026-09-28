@@ -26,7 +26,7 @@ update public.adventurer_avatars
 set rarity = 'LEGACY',
     starter = false,
     active = true,
-    sort_order = 100 + pg_catalog.substring(avatar_id from '[0-9]+')::integer
+    sort_order = 100 + pg_catalog.substring(avatar_id, '[0-9]+')::integer
 where avatar_id ~ '^adventurer-[0-9]{2}$';
 
 insert into public.adventurer_avatars (avatar_id, rarity, starter, active, sort_order)
