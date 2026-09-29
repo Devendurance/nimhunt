@@ -115,7 +115,7 @@ function mapRequest(value: unknown): AdventurerAllyRequest | null {
   const playerId = typeof value.player_id === 'string' ? value.player_id : null
   const displayName = typeof value.display_name === 'string' ? value.display_name : null
   const avatarId = typeof value.avatar_id === 'string' ? value.avatar_id : null
-  const createdAt = typeof value.created_at === 'string' ? value.created_at : null
+  const createdAt = asIso(value.created_at)
   if (!requestId || !playerId || !displayName || !avatarId || !createdAt) return null
   return { requestId, playerId, displayName, avatarId, createdAt }
 }
@@ -140,4 +140,11 @@ function asString(value: unknown): string {
 
 function asCount(value: unknown): number | null {
   return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : null
+}
+
+function asIso(value: unknown): string | null {
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value.toISOString()
+  if (typeof value !== 'string') return null
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? null : date.toISOString()
 }

@@ -15,11 +15,22 @@ describe('P4 Allies mobile UI contract', () => {
   it('puts incoming requests before Allies and renders only compact curated identity rows', () => {
     const panel = read('src/components/play/AlliesPanel.tsx')
     expect(panel.indexOf('Incoming requests')).toBeLessThan(panel.indexOf('Your Allies'))
+    expect(panel).toContain('state.overview.incomingRequests.map')
     expect(panel).toContain('AdventurerAvatarToken')
     expect(panel).toContain('onOpenPublicProfile')
+    expect(panel).toContain('acceptAdventurerRequest(request.requestId)')
+    expect(panel).toContain('declineAdventurerRequest(request.requestId)')
     expect(panel).toContain('Accept')
     expect(panel).toContain('Decline')
     expect(panel).not.toMatch(/wallet|search|achievement|notification/i)
+  })
+
+  it('keeps a parsed incoming request on the My Adventurer ready path', () => {
+    const profile = read('src/components/play/AdventurerProfilePanel.tsx')
+    expect(profile).toContain("social.status === 'ready'")
+    expect(profile).toContain('social.overview.incomingPendingCount')
+    expect(profile).toContain('onOpenAllies')
+    expect(profile).toContain('Allies are temporarily unavailable.')
   })
 
   it('keeps tap targets, narrow names, safe-area sheet scrolling, and double-submit guards', () => {
