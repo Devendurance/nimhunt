@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { playAssets } from '../../data/assets'
 import { playMissions } from '../../data/play'
 import type { Mission, MissionId, PlayTab } from '../../types/play'
+import { normalizePlayTabParams, resolvePlayTab, withPlayTab } from './playTab'
 import { isMissionLaunchable } from './expeditionFlow'
 import { formatExpeditionsLeftToday } from './huntStatusView'
 import { MonthlyHeroesBlock, YourMonthBlock } from './MonthlyHeroes'
@@ -10,6 +11,9 @@ import { HuntHeader } from './HuntHeader'
 import { HuntStatus } from './HuntStatus'
 import { AdventurerOnboarding } from './AdventurerOnboarding'
 import { AdventurerProfilePanel } from './AdventurerProfilePanel'
+import { AdventurerEditProfilePanel } from './AdventurerEditProfilePanel'
+import { AdventurerSettingsPanel } from './AdventurerSettingsPanel'
+import { BlockedAdventurersPanel } from './BlockedAdventurersPanel'
 import { AlliesPanel } from './AlliesPanel'
 import { PublicAdventurerProfileSheet } from './PublicAdventurerProfileSheet'
 import { useAdventurer } from './useAdventurer'
@@ -21,7 +25,7 @@ import { PlayBottomNav } from './PlayBottomNav'
 import { PLAY_WALLET_BOOTSTRAP_COPY } from './playWalletBootstrap'
 import { ProgressStrip } from './ProgressStrip'
 import { ProductPayoutStatusCard } from './ProductRewardClaimOutcome'
-import { TreasureBankSection } from './TreasureBank'
+import { TreasureBankCta, TreasureBankSection } from './TreasureBank'
 import { useNimhuntBgm } from '../../audio/useNimhuntAudio'
 import { useTreasureBank } from './useTreasureBank'
 import { getRememberedProductWallet, rememberProductWallet } from './productWallet'
@@ -72,7 +76,8 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
     onUnauthorized: () => setPayoutUnauthorized(true),
   })
   const expeditionsLeftToday = formatExpeditionsLeftToday(hunt.walletStatus)
-  const [activeTab, setActiveTab] = useState<PlayTab>(initialTab)
+  const requestedTab = searchParams.get('tab')
+  const activeTab: PlayTab = resolvePlayTab(requestedTab, initialTab)
   const [selectedMissionId, setSelectedMissionId] = useState<MissionId | null>(null)
   const trigger = useRef<HTMLButtonElement | null>(null)
   const dialogRef = useRef<HTMLDialogElement>(null)
@@ -81,12 +86,12 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
   const publicProfileDialogRef = useRef<HTMLDialogElement>(null)
   const publicProfileTriggerRef = useRef<HTMLButtonElement | null>(null)
   const startedRunRef = useRef<string | null>(null)
-  const [profileDialogMode, setProfileDialogMode] = useState<'onboarding' | 'profile' | 'allies'>('onboarding')
+  const [profileDialogMode, setProfileDialogMode] = useState<'onboarding' | 'profile' | 'edit-profile' | 'allies' | 'settings' | 'blocked'>('onboarding')
   const [publicProfilePlayerId, setPublicProfilePlayerId] = useState<string | null>(null)
   const [socialRevision, setSocialRevision] = useState(0)
   const selectedMission = playMissions.find(mission => mission.id === selectedMissionId) ?? null
 
-  const openProfileDialog = useCallback((mode: 'onboarding' | 'profile' | 'allies', trigger?: HTMLButtonElement) => {
+  const openProfileDialog = useCallback((mode: 'onboarding' | 'profile' | 'edit-profile' | 'allies' | 'settings' | 'blocked', trigger?: HTMLButtonElement) => {
     profileTriggerRef.current = trigger ?? null
     setProfileDialogMode(mode)
     if (profileDialogRef.current && !profileDialogRef.current.open) profileDialogRef.current.showModal()
@@ -101,6 +106,12 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
     setProfileDialogMode('allies')
     if (profileDialogRef.current && !profileDialogRef.current.open) profileDialogRef.current.showModal()
   }, [setProfileDialogMode])
+
+  const changeTab = useCallback((tab: PlayTab) => {
+    setSearchParams(current => {
+      return withPlayTab(current, tab)
+    })
+  }, [setSearchParams])
 
   const openPublicProfileDialog = useCallback((playerId: string, trigger: HTMLButtonElement) => {
     publicProfileTriggerRef.current = trigger
@@ -120,6 +131,11 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
     setSearchParams({ run: start.blueprint.mission, runId: start.runId })
   }, [setSearchParams])
   const productStart = useProductStart({ onStarted: handleProductStarted })
+
+  useEffect(() => {
+    const next = normalizePlayTabParams(searchParams, initialTab)
+    if (next.toString() !== searchParams.toString()) setSearchParams(next, { replace: true })
+  }, [initialTab, searchParams, setSearchParams])
 
   useEffect(() => {
     if (!showRecoveryDiag) return
@@ -205,7 +221,7 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
           </section>
           <HuntStatus hunt={hunt} />
           {payout && <ProductPayoutStatusCard payout={payout} />}
-          {treasureWalletConnected && <TreasureBankSection state={treasure} onRetry={treasure.retry} />}
+          {treasureWalletConnected && <TreasureBankCta state={treasure} onOpenBank={() => changeTab('bank')} />}
           <MissionList missions={playMissions} onEnter={openMission} compact expeditionsLeftToday={expeditionsLeftToday} />
           <ProgressStrip />
           <WorldStatus />
@@ -214,7 +230,6 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
           <section className={styles.pageIntro} aria-labelledby="missions-page-heading"><span className={styles.kicker}>THE DAILY BOARD</span><h1 id="missions-page-heading">Today's missions</h1><p>Choose your route. The task is clear before the ruins open.</p></section>
           <HuntStatus hunt={hunt} />
           {payout && <ProductPayoutStatusCard payout={payout} />}
-          {treasureWalletConnected && <TreasureBankSection state={treasure} onRetry={treasure.retry} />}
           <MissionList missions={playMissions} onEnter={openMission} expeditionsLeftToday={expeditionsLeftToday} />
           <WorldStatus />
         </>}
@@ -226,8 +241,12 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
             onOpenPublicProfile={openPublicProfileDialog}
           />
         </>}
+        {activeTab === 'bank' && <>
+          <section className={styles.pageIntro} aria-labelledby="bank-page-heading"><span className={styles.kicker}>WALLET TREASURE</span><h1 id="bank-page-heading">Treasure Bank</h1><p>Your secured and delivered NIM, recovered from the wallet-authoritative reward ledger.</p></section>
+          <TreasureBankSection state={treasure} onRetry={treasure.retry} />
+        </>}
       </main>
-      <PlayBottomNav activeTab={activeTab} onChange={setActiveTab} />
+      <PlayBottomNav activeTab={activeTab} onChange={changeTab} />
       {selectedMission && <MissionBrief
         mission={selectedMission}
         dialogRef={dialogRef}
@@ -254,7 +273,7 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
       <dialog
         ref={profileDialogRef}
         className={styles.profileDialog}
-        aria-labelledby={profileDialogMode === 'allies' ? 'adventurer-allies-title' : profileDialogMode === 'profile' && adventurer.profile ? 'adventurer-profile-title' : 'adventurer-display-name-title'}
+        aria-labelledby={profileDialogMode === 'allies' ? 'adventurer-allies-title' : profileDialogMode === 'settings' ? 'adventurer-settings-title' : profileDialogMode === 'blocked' ? 'adventurer-blocked-title' : profileDialogMode === 'edit-profile' ? 'adventurer-edit-profile-title' : profileDialogMode === 'profile' && adventurer.profile ? 'adventurer-profile-title' : 'adventurer-display-name-title'}
         onClose={() => setProfileDialogMode('profile')}
         onCancel={event => {
           if (REAL_EXPEDITION_PROFILE_GATE_ENABLED && profileDialogMode === 'onboarding') event.preventDefault()
@@ -264,7 +283,7 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
           {profileDialogMode === 'allies' && adventurer.profile
             ? <AlliesPanel
               key={`allies-${socialRevision}`}
-              onClose={closeProfileDialog}
+              onClose={() => setProfileDialogMode('profile')}
               onOpenPublicProfile={openPublicProfileDialog}
               onSocialChanged={() => setSocialRevision(version => version + 1)}
             />
@@ -281,16 +300,39 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
                 identityStatus={adventurer.status}
                 onTryPractice={() => {
                   closeProfileDialog()
-                  setActiveTab('missions')
+                  changeTab('missions')
                 }}
               />
             </>
-            : <AdventurerProfilePanel
-              key={`${adventurer.profile.updatedAt}-${socialRevision}`}
+            : profileDialogMode === 'edit-profile'
+            ? <AdventurerEditProfilePanel
+              key={`${adventurer.profile.updatedAt}-edit`}
               profile={adventurer.profile}
               updateAvatar={adventurer.updateAvatar}
               updateError={adventurer.creationError}
+              renameProfile={adventurer.renameProfile}
+              renameStatus={adventurer.renameStatus}
+              renameError={adventurer.renameError}
+              resetRename={adventurer.resetRename}
+              checkName={adventurer.checkName}
+              nameState={adventurer.nameState}
+              onBack={() => setProfileDialogMode('profile')}
+            />
+            : profileDialogMode === 'settings'
+            ? <AdventurerSettingsPanel
+              profile={adventurer.profile}
+              wallet={bootstrap.wallet}
+              onBack={() => setProfileDialogMode('profile')}
+              onOpenBlocked={() => setProfileDialogMode('blocked')}
+            />
+            : profileDialogMode === 'blocked'
+            ? <BlockedAdventurersPanel onBack={() => setProfileDialogMode('settings')} />
+            : <AdventurerProfilePanel
+              key={`${adventurer.profile.updatedAt}-${socialRevision}`}
+              profile={adventurer.profile}
               onOpenAllies={openAllies}
+              onOpenEditProfile={() => setProfileDialogMode('edit-profile')}
+              onOpenSettings={() => setProfileDialogMode('settings')}
               onClose={closeProfileDialog}
             />}
           {adventurer.status === 'ERROR' && <div className={styles.profileDialogError} role="alert">

@@ -9,6 +9,25 @@ const STATUS_LABEL: Record<TreasureBankDisplayStatus, string> = {
   REVIEW: 'Review',
 }
 
+export function TreasureBankCta({
+  state,
+  onOpenBank,
+}: {
+  readonly state: TreasureBankState
+  readonly onOpenBank: () => void
+}) {
+  if (state.status !== 'ready' && state.status !== 'empty') return null
+  const copy = state.bank.pendingNim > 0
+    ? `${state.bank.pendingNim} NIM secured · View Bank`
+    : state.bank.deliveredNim > 0
+      ? 'View Treasure Bank'
+      : null
+  if (!copy) return null
+  return <button type="button" className={styles.bankCta} onClick={onOpenBank} aria-label="View Treasure Bank">
+    <span>{copy}</span><span aria-hidden="true">→</span>
+  </button>
+}
+
 export function TreasureBankSection({
   state,
   onRetry,
@@ -35,10 +54,10 @@ export function TreasureBankSection({
       <button className={styles.bankRetry} type="button" onClick={onRetry}>Retry</button>
     </section>
   }
-  return <TreasureBankReady bank={state.bank} empty={state.status === 'empty'} onRetry={onRetry} />
+  return <TreasureBankReady bank={state.bank} empty={state.status === 'empty'} />
 }
 
-function TreasureBankReady({ bank, empty, onRetry }: { readonly bank: TreasureBankResponse; readonly empty: boolean; readonly onRetry: () => void }) {
+function TreasureBankReady({ bank, empty }: { readonly bank: TreasureBankResponse; readonly empty: boolean }) {
   const hasPending = bank.pendingCount > 0
   const hasDelivered = bank.deliveredCount > 0
   return <section className={styles.bank} aria-labelledby="treasure-bank-heading">
@@ -69,6 +88,6 @@ function TreasureBankReady({ bank, empty, onRetry }: { readonly bank: TreasureBa
         </li>)}
       </ul>
     </>}
-    {empty && <button className={styles.bankRetry} type="button" onClick={onRetry} hidden>Retry</button>}
+
   </section>
 }

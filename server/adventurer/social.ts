@@ -28,6 +28,10 @@ export function createAdventurerSocialService(store: AdventurerSocialStore): Adv
       return store.getOverview(session.playerId)
     },
 
+    getBlocked(session) {
+      return store.getBlocked(session.playerId)
+    },
+
     request(session, targetId) {
       return runExclusive(async () => {
         requireOtherPlayer(session.playerId, targetId)

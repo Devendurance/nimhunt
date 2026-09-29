@@ -16,16 +16,16 @@ const IDENTITY_RPCS = new Set([
   'get_adventurer_profile_by_wallet',
   'get_adventurer_profile_by_player_id',
   'check_adventurer_name_availability',
+  'create_adventurer_rename_challenge',
+  'consume_adventurer_rename_challenge',
 ])
 
 export function createSupabaseAdventurerIdentityStore(client: SupabaseClient): AdventurerIdentityStore {
   return {
     async issueChallenge(input) {
-      const result = readRpc(await call(client, 'create_adventurer_challenge', {
-        p_wallet: input.wallet,
-        p_purpose: input.purpose,
-        p_challenge_hash: input.challengeHash,
-      }))
+      const result = readRpc(await call(client, input.purpose === 'RENAME' ? 'create_adventurer_rename_challenge' : 'create_adventurer_challenge', input.purpose === 'RENAME'
+        ? { p_player_id: input.playerId, p_wallet: input.wallet, p_challenge_hash: input.challengeHash }
+        : { p_wallet: input.wallet, p_purpose: input.purpose, p_challenge_hash: input.challengeHash }))
       return {
         challengeHash: input.challengeHash,
         purpose: input.purpose,
@@ -55,6 +55,21 @@ export function createSupabaseAdventurerIdentityStore(client: SupabaseClient): A
         profile: mapProfile(result.profile),
         session: mapSession(result.session),
       } satisfies CreateStoredAdventurerResult
+    },
+
+    async renameProfile(input) {
+      const result = readRpc(await call(client, 'consume_adventurer_rename_challenge', {
+        p_challenge_hash: input.challengeHash,
+        p_authorization_fingerprint: input.authorizationFingerprint,
+        p_player_id: input.playerId,
+        p_wallet: input.wallet,
+        p_issued_at: input.issuedAt,
+        p_expires_at: input.expiresAt,
+        p_current_name: input.currentName,
+        p_new_name: input.newName,
+        p_normalized_name: input.normalizedName,
+      }))
+      return mapProfile(result.profile)
     },
 
     async createSession(input) {

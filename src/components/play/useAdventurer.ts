@@ -4,6 +4,8 @@ import {
   createAdventurerProfile,
   createAdventurerSession,
   fetchAdventurerNameAvailability,
+  renameAdventurer,
+  requestAdventurerRenameChallenge,
   fetchOwnAdventurerProfile,
   requestAdventurerCreationChallenge,
   requestAdventurerSessionChallenge,
@@ -14,7 +16,9 @@ import {
 import {
   NIMHUNT_ADVENTURER_SESSION_V1,
   NIMHUNT_CREATE_ADVENTURER_V1,
+  NIMHUNT_RENAME_ADVENTURER_V1,
   serializeAdventurerSessionPayload,
+  serializeRenameAdventurerPayload,
   serializeCreateAdventurerPayload,
   type AdventurerProfile,
 } from '../../domain/adventurer.ts'
@@ -45,6 +49,8 @@ export function useAdventurer({ wallet, signMessage }: UseAdventurerOptions) {
   const [error, setError] = useState<AdventurerClientError | null>(null)
   const [creationStatus, setCreationStatus] = useState<AdventurerCreationStatus>('IDLE')
   const [creationError, setCreationError] = useState<AdventurerClientError | AdventurerApiErrorCode | null>(null)
+  const [renameStatus, setRenameStatus] = useState<'IDLE' | 'SIGNING' | 'RENAMING' | 'SUCCESS' | 'CANCELLED' | 'ERROR'>('IDLE')
+  const [renameError, setRenameError] = useState<AdventurerClientError | AdventurerApiErrorCode | null>(null)
   const [nameState, setNameState] = useState<ClientNameState>({ status: 'IDLE', normalizedName: null })
   const restoreWalletRef = useRef<string | null>(null)
   const operationRef = useRef(0)
@@ -192,6 +198,50 @@ export function useAdventurer({ wallet, signMessage }: UseAdventurerOptions) {
     }
   }, [creationStatus, signMessage, wallet])
 
+  const renameProfile = useCallback(async (newName: string): Promise<boolean> => {
+    if (!wallet || status !== 'READY' || profileWallet !== wallet || !profile || renameStatus === 'SIGNING' || renameStatus === 'RENAMING') return false
+    const operation = ++operationRef.current
+    setRenameError(null)
+    setRenameStatus('SIGNING')
+    try {
+      const challenge = await requestAdventurerRenameChallenge()
+      if (!isCurrent(mountedRef, operationRef, operation)) return false
+      const payload = serializeRenameAdventurerPayload({
+        version: NIMHUNT_RENAME_ADVENTURER_V1,
+        type: 'RENAME_ADVENTURER',
+        playerId: profile.playerId,
+        currentName: profile.displayName,
+        newName,
+        challenge: challenge.challenge,
+        issuedAt: challenge.issuedAt,
+        expiresAt: challenge.expiresAt,
+      })
+      const signed = await signMessage(payload)
+      if (!isCurrent(mountedRef, operationRef, operation)) return false
+      setRenameStatus('RENAMING')
+      const updated = await renameAdventurer({ payload, ...signed })
+      if (!isCurrent(mountedRef, operationRef, operation)) return false
+      setProfile(updated)
+      setRenameStatus('SUCCESS')
+      return true
+    } catch (renameFailure) {
+      if (!isCurrent(mountedRef, operationRef, operation)) return false
+      if (isSignatureCancelled(renameFailure)) {
+        setRenameStatus('CANCELLED')
+        setRenameError('SIGNATURE_CANCELLED')
+        return false
+      }
+      setRenameStatus('ERROR')
+      setRenameError(renameFailure instanceof AdventurerApiError ? renameFailure.code : mapAdventurerError(renameFailure))
+      return false
+    }
+  }, [profile, profileWallet, renameStatus, signMessage, status, wallet])
+
+  const resetRename = useCallback(() => {
+    setRenameStatus('IDLE')
+    setRenameError(null)
+  }, [])
+
   const updateAvatar = useCallback(async (avatarId: string): Promise<boolean> => {
     if (!wallet || status !== 'READY' || profileWallet !== wallet || !profile) return false
     try {
@@ -223,11 +273,15 @@ export function useAdventurer({ wallet, signMessage }: UseAdventurerOptions) {
     error: wallet ? error : null,
     creationStatus,
     creationError,
+    renameStatus,
+    renameError,
     nameState,
     checkName,
     createProfile,
     resetCreation,
+    resetRename,
     retryRestore,
+    renameProfile,
     updateAvatar,
     hasProfile: effectiveProfile !== null,
   }

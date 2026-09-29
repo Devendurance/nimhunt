@@ -27,9 +27,15 @@ describe('treasure bank mobile UI (static)', () => {
     expect(ui).toContain('Retry')
   })
 
-  it('is mounted inside /play for connected wallets only', () => {
+  it('is a standalone Bank destination, with only a contextual Hunt CTA', () => {
     const shell = read('src/components/play/PlayShell.tsx')
-    expect(shell).toContain('TreasureBankSection')
+    expect(shell).toContain("activeTab === 'bank'")
+    expect(shell).toContain('TreasureBankSection state={treasure}')
+    expect(shell).toContain('TreasureBankCta')
+    const huntSource = shell.slice(shell.indexOf("activeTab === 'hunt'"), shell.indexOf("activeTab === 'missions'"))
+    const missionsSource = shell.slice(shell.indexOf("activeTab === 'missions'"), shell.indexOf("activeTab === 'heroes'"))
+    expect(huntSource).not.toContain('TreasureBankSection')
+    expect(missionsSource).not.toContain('TreasureBankSection')
     expect(shell).toContain('useTreasureBank')
     expect(shell).toContain('treasureWalletConnected')
   })

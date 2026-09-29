@@ -30,6 +30,28 @@
 .avatarChoice:focus-visible { outline: 3px solid #3e88f7; outline-offset: 3px; }
 .assetNote { margin: 10px 0 0; color: #91a398; font: 11px/16px Inter, sans-serif; }
 .profileSheet, .publicProfileSheet { display: grid; gap: 18px; }
+.subviewHeader { display: grid; gap: 6px; }
+.subviewHeader h2 { margin: 0; color: #f3ead7; font: 400 28px/30px 'Jungle Fever', Impact, sans-serif; text-transform: uppercase; overflow-wrap: anywhere; }
+.subviewHeader p:last-child { margin: 0; color: #91a398; font-size: 12px; line-height: 17px; }
+.backAction { justify-self: start; min-height: 44px; padding: 8px 0; border: 0; color: #9bc8b2; background: transparent; font: 700 11px/16px Inter, sans-serif; letter-spacing: .5px; }
+.profileActions { display: grid; gap: 8px; }
+.editAvatarPreview { display: flex; align-items: center; gap: 12px; color: #aab8ac; font-size: 12px; line-height: 17px; }
+.visuallyHiddenLabel { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.settingsGroup { display: grid; gap: 8px; }
+.settingsGroup h3 { margin: 0; color: #d3dbd1; font: 700 10px/12px Inter, sans-serif; letter-spacing: 1px; text-transform: uppercase; }
+.settingsRow, .settingsInfoRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; padding: 10px 12px; border: 1px solid rgba(243, 234, 215, .14); border-radius: 14px; color: #f3ead7; background: #1b3833; text-align: left; }
+.settingsRow > span:first-child, .settingsInfoRow > span:first-child { display: grid; min-width: 0; gap: 3px; }
+.settingsRow strong, .settingsInfoRow strong { font-size: 12px; line-height: 16px; }
+.settingsRow small, .settingsInfoRow small { color: #91a398; font-size: 10px; line-height: 14px; }
+.settingsValue { flex: 0 0 auto; color: #ffd86a; font: 400 14px/18px 'Jungle Fever', Impact, sans-serif; }
+.settingsChevron { flex: 0 0 auto; color: #ffd86a; font-size: 24px; line-height: 1; }
+.aboutCopy { padding: 12px; border: 1px solid rgba(243, 234, 215, .14); border-radius: 14px; background: rgba(27, 56, 51, .72); }
+.aboutCopy strong { color: #f3ead7; font-size: 12px; }
+.aboutCopy p { margin: 7px 0 10px; color: #b5c2b5; font-size: 12px; line-height: 17px; }
+.aboutCopy small { color: #91a398; font-size: 10px; }
+.blockedList { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.blockedRow { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 9px; min-width: 0; min-height: 58px; padding: 8px 9px; border: 1px solid rgba(243, 234, 215, .14); border-radius: 14px; background: #1b3833; }
+.blockedRow .socialMiniSecondary { min-width: 72px; }
 .profileHero { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 14px; }
 .profileHero h2 { margin: 0; color: #f3ead7; font: 400 28px/30px 'Jungle Fever', Impact, sans-serif; text-transform: uppercase; overflow-wrap: anywhere; }
 .profileHero p { margin: 5px 0 0; color: #91a398; font-size: 11px; }

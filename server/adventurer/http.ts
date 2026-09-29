@@ -4,12 +4,15 @@ import {
   ADVENTURER_ME_PATH,
   ADVENTURER_NAME_AVAILABILITY_PATH,
   ADVENTURER_PUBLIC_PATH,
+  ADVENTURER_RENAME_CHALLENGE_PATH,
+  ADVENTURER_RENAME_PATH,
   ADVENTURER_SESSION_CHALLENGE_PATH,
   ADVENTURER_SESSION_PATH,
 } from '../../src/domain/adventurer.js'
 import {
   ADVENTURER_SOCIAL_ACCEPT_PATH,
   ADVENTURER_SOCIAL_BLOCK_PATH,
+  ADVENTURER_SOCIAL_BLOCKED_PATH,
   ADVENTURER_SOCIAL_CANCEL_PATH,
   ADVENTURER_SOCIAL_DECLINE_PATH,
   ADVENTURER_SOCIAL_PATH,
@@ -40,6 +43,8 @@ export const ADVENTURER_PATHS = [
   ADVENTURER_CREATE_PATH,
   ADVENTURER_SESSION_CHALLENGE_PATH,
   ADVENTURER_SESSION_PATH,
+  ADVENTURER_RENAME_CHALLENGE_PATH,
+  ADVENTURER_RENAME_PATH,
   ADVENTURER_ME_PATH,
   ADVENTURER_PUBLIC_PATH,
   ADVENTURER_NAME_AVAILABILITY_PATH,
@@ -100,6 +105,15 @@ export async function dispatchAdventurerHttp(
       return response(200, { ok: true, ...challenge })
     }
 
+    if (path === ADVENTURER_RENAME_CHALLENGE_PATH) {
+      if (url.searchParams.size > 0) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
+      requireExactKeys(readJsonBody(request), [])
+      const raw = parseAdventurerSessionCookie(getHeader(request, 'cookie'))
+      const session = await service.authenticateSession(raw ?? '')
+      const challenge = await service.issueRenameChallenge(session)
+      return response(200, { ok: true, ...challenge })
+    }
+
     if (path === ADVENTURER_SESSION_PATH) {
       const signed = readSignedBody(readJsonBody(request))
       const created = await service.createSession(signed)
@@ -108,6 +122,15 @@ export async function dispatchAdventurerHttp(
         profile: created.profile,
         session: created.session,
       })
+    }
+
+    if (path === ADVENTURER_RENAME_PATH) {
+      if (url.searchParams.size > 0) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
+      const raw = parseAdventurerSessionCookie(getHeader(request, 'cookie'))
+      const session = await service.authenticateSession(raw ?? '')
+      const signed = readSignedBody(readJsonBody(request))
+      const profile = await service.renameProfile(session, signed)
+      return response(200, { ok: true, profile })
     }
 
     if (path === ADVENTURER_ME_PATH) {
@@ -154,6 +177,10 @@ export async function dispatchAdventurerHttp(
       if (path === ADVENTURER_SOCIAL_PATH) {
         if (method !== 'GET' || url.searchParams.size > 0) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
         return response(200, { ok: true, overview: await socialService.getOverview(session) })
+      }
+      if (path === ADVENTURER_SOCIAL_BLOCKED_PATH) {
+        if (method !== 'GET' || url.searchParams.size > 0) return response(400, { ok: false, error: 'MALFORMED_REQUEST' })
+        return response(200, { ok: true, blocked: await socialService.getBlocked(session) })
       }
       const body = readJsonBody(request)
       if (path === ADVENTURER_SOCIAL_REQUEST_PATH) {
@@ -250,7 +277,7 @@ function isSocialPath(path: string): boolean {
 
 function isExpectedMethod(path: string, method: string): boolean {
   if (path === ADVENTURER_ME_PATH) return method === 'GET' || method === 'PATCH'
-  if (path === ADVENTURER_PUBLIC_PATH || path === ADVENTURER_NAME_AVAILABILITY_PATH || path === ADVENTURER_SOCIAL_PATH) return method === 'GET'
+  if (path === ADVENTURER_PUBLIC_PATH || path === ADVENTURER_NAME_AVAILABILITY_PATH || path === ADVENTURER_SOCIAL_PATH || path === ADVENTURER_SOCIAL_BLOCKED_PATH) return method === 'GET'
   return method === 'POST'
 }
 

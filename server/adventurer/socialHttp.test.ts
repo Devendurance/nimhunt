@@ -6,7 +6,7 @@ import type { AdventurerSocialService } from './socialTypes.ts'
 import type { ExpeditionHttpSecurity } from '../expeditions/http.ts'
 import type { AdventurerProfile } from '../../src/domain/adventurer.ts'
 import { ADVENTURER_PUBLIC_PATH } from '../../src/domain/adventurer.ts'
-import { ADVENTURER_SOCIAL_PATH, ADVENTURER_SOCIAL_REQUEST_PATH } from '../../src/domain/adventurerSocial.ts'
+import { ADVENTURER_SOCIAL_BLOCKED_PATH, ADVENTURER_SOCIAL_PATH, ADVENTURER_SOCIAL_REQUEST_PATH } from '../../src/domain/adventurerSocial.ts'
 
 const SECURITY: ExpeditionHttpSecurity = {
   expectedOrigin: 'https://hunt.example',
@@ -49,6 +49,7 @@ function social(): AdventurerSocialService {
     getAllyCount: async () => 3,
     getRelationship: async () => ({ state: 'NONE', requestId: null }),
     getOverview: async () => ({ allyCount: 3, incomingPendingCount: 1, outgoingPendingCount: 0, incomingRequests: [], allies: [] }),
+    getBlocked: async () => [{ playerId: targetId, displayName: 'Target', avatarId: 'common-01', blockedAt: '2026-09-29T12:00:00.000Z' }],
     request: async () => ({ requestId: '00000000-0000-4000-8000-000000000003' }),
     accept: async () => {}, decline: async () => {}, cancel: async () => {}, remove: async () => {}, block: async () => {}, unblock: async () => {},
   }
@@ -67,6 +68,9 @@ describe('P4 social HTTP boundary', () => {
   it('requires the existing Adventurer session for social reads and mutations', async () => {
     const overview = await dispatchAdventurerHttp(identity(), { method: 'GET', path: ADVENTURER_SOCIAL_PATH, headers: headers() }, SECURITY, social())
     expect(overview.status).toBe(401)
+    const blocked = await dispatchAdventurerHttp(identity(), { method: 'GET', path: ADVENTURER_SOCIAL_BLOCKED_PATH, headers: headers('nimhunt_adventurer_session=valid-session') }, SECURITY, social())
+    expect(blocked.status).toBe(200)
+    expect(blocked.body).toMatchObject({ blocked: [{ playerId: targetId, displayName: 'Target', avatarId: 'common-01' }] })
     const request = await dispatchAdventurerHttp(identity(), { method: 'POST', path: ADVENTURER_SOCIAL_REQUEST_PATH, headers: { ...headers(), 'content-type': 'application/json' }, body: { targetPlayerId: targetId } }, SECURITY, social())
     expect(request.status).toBe(401)
   })

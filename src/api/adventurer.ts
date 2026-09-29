@@ -4,6 +4,8 @@ import {
   ADVENTURER_ME_PATH,
   ADVENTURER_NAME_AVAILABILITY_PATH,
   ADVENTURER_PUBLIC_PATH,
+  ADVENTURER_RENAME_CHALLENGE_PATH,
+  ADVENTURER_RENAME_PATH,
   ADVENTURER_SESSION_CHALLENGE_PATH,
   ADVENTURER_SESSION_PATH,
   parseAdventurerChallenge,
@@ -18,14 +20,17 @@ import {
 import {
   ADVENTURER_SOCIAL_ACCEPT_PATH,
   ADVENTURER_SOCIAL_BLOCK_PATH,
+  ADVENTURER_SOCIAL_BLOCKED_PATH,
   ADVENTURER_SOCIAL_CANCEL_PATH,
   ADVENTURER_SOCIAL_DECLINE_PATH,
   ADVENTURER_SOCIAL_PATH,
   ADVENTURER_SOCIAL_REMOVE_PATH,
   ADVENTURER_SOCIAL_REQUEST_PATH,
   ADVENTURER_SOCIAL_UNBLOCK_PATH,
+  parseAdventurerBlockedProfile,
   parseAdventurerRelationship,
   parseAdventurerSocialOverview,
+  type AdventurerBlockedProfile,
   type AdventurerRelationship,
   type AdventurerSocialOverview,
 } from '../domain/adventurerSocial.ts'
@@ -104,6 +109,22 @@ export async function createAdventurerProfile(
   return parseProfileSessionResponse(body)
 }
 
+export async function requestAdventurerRenameChallenge(fetcher: typeof fetch = fetch): Promise<AdventurerChallenge> {
+  const body = await request(fetcher, ADVENTURER_RENAME_CHALLENGE_PATH, { method: 'POST', body: {} })
+  const challenge = parseChallengeResponse(body)
+  if (!challenge || challenge.purpose !== 'RENAME') throw new AdventurerApiError('MALFORMED_RESPONSE')
+  return challenge
+}
+
+export async function renameAdventurer(
+  signed: SignedAdventurerRequest,
+  fetcher: typeof fetch = fetch,
+): Promise<AdventurerProfile> {
+  const body = await request(fetcher, ADVENTURER_RENAME_PATH, { method: 'POST', body: signed })
+  if (!isRecord(body) || !parseAdventurerProfile(body.profile)) throw new AdventurerApiError('MALFORMED_RESPONSE')
+  return parseAdventurerProfile(body.profile)!
+}
+
 export async function requestAdventurerSessionChallenge(
   wallet: string,
   fetcher: typeof fetch = fetch,
@@ -149,6 +170,14 @@ export async function fetchPublicAdventurerProfileView(
   const relationship = body.relationship === undefined ? null : parseAdventurerRelationship(body.relationship)
   if (body.relationship !== undefined && !relationship) throw new AdventurerApiError('MALFORMED_RESPONSE')
   return { profile, relationship }
+}
+
+export async function fetchAdventurerBlockedProfiles(fetcher: typeof fetch = fetch): Promise<readonly AdventurerBlockedProfile[]> {
+  const body = await request(fetcher, ADVENTURER_SOCIAL_BLOCKED_PATH, { method: 'GET' })
+  if (!isRecord(body) || !Array.isArray(body.blocked)) throw new AdventurerApiError('MALFORMED_RESPONSE')
+  const blocked = body.blocked.map(parseAdventurerBlockedProfile)
+  if (blocked.some(profile => profile === null)) throw new AdventurerApiError('MALFORMED_RESPONSE')
+  return blocked as AdventurerBlockedProfile[]
 }
 
 export async function fetchAdventurerSocialOverview(fetcher: typeof fetch = fetch): Promise<AdventurerSocialOverview> {

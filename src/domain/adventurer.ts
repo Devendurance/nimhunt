@@ -5,6 +5,8 @@ export const ADVENTURER_CREATE_CHALLENGE_PATH = '/api/adventurer/profile/challen
 export const ADVENTURER_CREATE_PATH = '/api/adventurer/profile' as const
 export const ADVENTURER_SESSION_CHALLENGE_PATH = '/api/adventurer/session/challenge' as const
 export const ADVENTURER_SESSION_PATH = '/api/adventurer/session' as const
+export const ADVENTURER_RENAME_CHALLENGE_PATH = '/api/adventurer/rename/challenge' as const
+export const ADVENTURER_RENAME_PATH = '/api/adventurer/rename' as const
 export const ADVENTURER_ME_PATH = '/api/adventurer/me' as const
 export const ADVENTURER_PUBLIC_PATH = '/api/adventurer/public' as const
 export const ADVENTURER_NAME_AVAILABILITY_PATH = '/api/adventurer/name-availability' as const
@@ -102,6 +104,8 @@ export type AdventurerProfile = {
   readonly displayNameChangedAt: string
   readonly createdAt: string
   readonly updatedAt: string
+  /** Server-derived eligibility; absent only for legacy internal fixtures. */
+  readonly nextRenameAt?: string
   readonly stats: AdventurerStats
 }
 
@@ -122,7 +126,7 @@ export type AdventurerSession = {
   readonly expiresAt: string
 }
 
-export type AdventurerChallengePurpose = 'CREATE' | 'SESSION'
+export type AdventurerChallengePurpose = 'CREATE' | 'SESSION' | 'RENAME'
 
 export type AdventurerChallenge = {
   readonly purpose: AdventurerChallengePurpose
@@ -211,7 +215,7 @@ export function normalizeAdventurerDisplayName(value: string): string {
 
 export function parseAdventurerChallenge(value: unknown): AdventurerChallenge | null {
   if (!isRecord(value) || !hasExactKeys(value, ['purpose', 'challenge', 'issuedAt', 'expiresAt'])) return null
-  if (value.purpose !== 'CREATE' && value.purpose !== 'SESSION') return null
+  if (value.purpose !== 'CREATE' && value.purpose !== 'SESSION' && value.purpose !== 'RENAME') return null
   if (!isNonEmptyString(value.challenge) || !isIsoString(value.issuedAt) || !isIsoString(value.expiresAt)) return null
   if (new Date(value.expiresAt).getTime() <= new Date(value.issuedAt).getTime()) return null
   return {
@@ -233,9 +237,13 @@ export function parseAdventurerStats(value: unknown): AdventurerStats | null {
 }
 
 export function parseAdventurerProfile(value: unknown): AdventurerProfile | null {
-  if (!isRecord(value) || !hasExactKeys(value, ['playerId', 'displayName', 'avatarId', 'displayNameChangedAt', 'createdAt', 'updatedAt', 'stats'])) return null
+  if (!isRecord(value)) return null
+  const required = ['playerId', 'displayName', 'avatarId', 'displayNameChangedAt', 'createdAt', 'updatedAt', 'stats']
+  const hasNextRenameAt = Object.prototype.hasOwnProperty.call(value, 'nextRenameAt')
+  if (!hasExactKeys(value, hasNextRenameAt ? [...required, 'nextRenameAt'] : required)) return null
   if (!isNonEmptyString(value.playerId) || !isNonEmptyString(value.displayName) || !isNonEmptyString(value.avatarId)) return null
   if (!isIsoString(value.displayNameChangedAt) || !isIsoString(value.createdAt) || !isIsoString(value.updatedAt)) return null
+  if (hasNextRenameAt && !isIsoString(value.nextRenameAt)) return null
   const stats = parseAdventurerStats(value.stats)
   if (!stats) return null
   return {
@@ -245,6 +253,7 @@ export function parseAdventurerProfile(value: unknown): AdventurerProfile | null
     displayNameChangedAt: value.displayNameChangedAt,
     createdAt: value.createdAt,
     updatedAt: value.updatedAt,
+    ...(hasNextRenameAt ? { nextRenameAt: value.nextRenameAt as string } : {}),
     stats,
   }
 }

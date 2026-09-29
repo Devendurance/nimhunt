@@ -6,6 +6,7 @@ import {
   hashAdventurerChallenge,
   parseAdventurerSessionPayload,
   parseCreateAdventurerPayload,
+  parseRenameAdventurerPayload,
   type SignedAdventurerRequest,
 } from './canonical.js'
 import { AdventurerError } from './errors.js'
@@ -30,6 +31,7 @@ import type {
   PublicAdventurerProfile,
 } from '../../src/domain/adventurer.js'
 import {
+  ADVENTURER_RENAME_COOLDOWN_SECONDS,
   ADVENTURER_SESSION_MAX_AGE_SECONDS,
   isStarterAdventurerAvatar,
 } from '../../src/domain/adventurer.js'
@@ -72,6 +74,33 @@ export function createAdventurerService(options: {
       })
       const profile = await withStats(stored.profile, stats)
       return { profile, session: toAdventurerSession(stored.session), sessionCapability: capability }
+    },
+
+    async issueRenameChallenge(session) {
+      const profile = await store.getProfileByPlayerId(session.playerId)
+      if (!profile || profile.wallet !== session.wallet) throw new AdventurerError('ADVENTURER_SESSION_INVALID')
+      const challenge = await issueChallenge(store, session.wallet, 'RENAME', session.playerId)
+      return { ...challenge, purpose: 'RENAME' }
+    },
+
+    async renameProfile(session, input) {
+      const parsed = parseRenameAdventurerPayload(input.payload)
+      if (!parsed || parsed.playerId !== session.playerId) throw new AdventurerError('CHALLENGE_INVALID')
+      const display = validateDisplayName(parsed.newName)
+      if (!display.ok) throw new AdventurerError(display.error)
+      verifyWalletSignature(input, session.wallet, session.wallet)
+      const stored = await store.renameProfile({
+        challengeHash: hashAdventurerChallenge(parsed.challenge),
+        authorizationFingerprint: fingerprintAdventurerAuthorization(input),
+        wallet: session.wallet,
+        playerId: session.playerId,
+        issuedAt: parsed.issuedAt,
+        expiresAt: parsed.expiresAt,
+        currentName: parsed.currentName,
+        newName: display.value.displayName,
+        normalizedName: display.value.normalizedName,
+      })
+      return withStats(stored, stats)
     },
 
     async issueSessionChallenge(wallet) {
@@ -149,10 +178,11 @@ export function createAdventurerService(options: {
 async function issueChallenge(
   store: AdventurerIdentityStore,
   wallet: string,
-  purpose: 'CREATE' | 'SESSION',
-): Promise<Omit<AdventurerChallenge, 'purpose'> & { readonly purpose: 'CREATE' | 'SESSION' }> {
+  purpose: 'CREATE' | 'SESSION' | 'RENAME',
+  playerId?: string,
+): Promise<Omit<AdventurerChallenge, 'purpose'> & { readonly purpose: 'CREATE' | 'SESSION' | 'RENAME' }> {
   const challenge = randomBytes(32).toString('base64url')
-  const stored = await store.issueChallenge({ wallet, purpose, challengeHash: hashAdventurerChallenge(challenge) })
+  const stored = await store.issueChallenge({ wallet, purpose, challengeHash: hashAdventurerChallenge(challenge), playerId })
   return {
     purpose: stored.purpose,
     challenge,
@@ -181,6 +211,7 @@ async function withStats(profile: StoredAdventurerProfile, source: AdventurerSta
     displayNameChangedAt: profile.displayNameChangedAt,
     createdAt: profile.createdAt,
     updatedAt: profile.updatedAt,
+    nextRenameAt: new Date(new Date(profile.displayNameChangedAt).getTime() + ADVENTURER_RENAME_COOLDOWN_SECONDS * 1_000).toISOString(),
     stats: deriveAdventurerStats(runs),
   }
 }

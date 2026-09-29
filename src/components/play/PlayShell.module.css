@@ -141,8 +141,8 @@
 .pageIntro p { margin-top: 8px; }
 .heroesSection { margin-top: 4px; }
 
-.bottomNav { position: fixed; z-index: 10; right: 0; bottom: 0; left: 50%; display: grid; grid-template-columns: repeat(3, 1fr); width: min(100%, 430px); padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); transform: translateX(-50%); border-top: 1px solid rgba(243, 234, 215, .14); background: rgba(19, 42, 38, .97); backdrop-filter: blur(14px); }
-.navItem, .navItemActive { display: grid; min-height: 44px; place-items: center; gap: 3px; border: 0; color: #8fa59a; background: transparent; font-size: 10px; font-weight: 700; }
+.bottomNav { position: fixed; z-index: 10; right: 0; bottom: 0; left: 50%; display: grid; grid-template-columns: repeat(4, 1fr); width: min(100%, 430px); padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); transform: translateX(-50%); border-top: 1px solid rgba(243, 234, 215, .14); background: rgba(19, 42, 38, .97); backdrop-filter: blur(14px); }
+.navItem, .navItemActive { display: grid; min-height: 44px; place-items: center; gap: 3px; border: 0; color: #8fa59a; background: transparent; font-size: 10px; font-weight: 700; touch-action: manipulation; }
 .navItem svg, .navItemActive svg { width: 17px; height: 17px; }
 .navItemActive { color: #ffd86a; }
 

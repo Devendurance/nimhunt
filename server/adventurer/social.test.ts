@@ -114,6 +114,8 @@ describe('P4 Adventurer social safety', () => {
     expect((await fixture.social.getRelationship(fixture.session(a), b))).toMatchObject({ state: 'BLOCKED_BY_ME' })
     expect((await fixture.social.getOverview(fixture.session(a))).allyCount).toBe(0)
     await expect(fixture.social.request(fixture.session(b), a)).rejects.toMatchObject({ code: 'SOCIAL_TARGET_UNAVAILABLE' })
+    await expect(fixture.social.getBlocked(fixture.session(a))).resolves.toMatchObject([{ playerId: b, displayName: 'Player02', avatarId: 'common-01' }])
+    await expect(fixture.social.getBlocked(fixture.session(b))).resolves.toEqual([])
     await fixture.social.unblock(fixture.session(a), b)
     expect((await fixture.social.getRelationship(fixture.session(a), b))).toMatchObject({ state: 'NONE' })
     await becomeAllies(fixture, b, a)

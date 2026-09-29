@@ -6,6 +6,8 @@ import {
   ADVENTURER_ME_PATH,
   ADVENTURER_NAME_AVAILABILITY_PATH,
   ADVENTURER_PUBLIC_PATH,
+  ADVENTURER_RENAME_CHALLENGE_PATH,
+  ADVENTURER_RENAME_PATH,
   NIMHUNT_CREATE_ADVENTURER_V1,
   serializeCreateAdventurerPayload,
 } from '../../src/domain/adventurer.ts'
@@ -164,6 +166,27 @@ describe('P1 Adventurer HTTP boundary', () => {
     }, SECURITY)
     expect(noCookie.status).toBe(401)
     expect(noCookie.body).toEqual({ ok: false, error: 'ADVENTURER_SESSION_INVALID' })
+  })
+
+  it('requires the private Adventurer session for rename challenge and consume routes', async () => {
+    const fixture = createService()
+    const challenge = await dispatchAdventurerHttp(fixture.service, {
+      method: 'POST',
+      path: ADVENTURER_RENAME_CHALLENGE_PATH,
+      headers: headers(),
+      body: {},
+    }, SECURITY)
+    expect(challenge.status).toBe(401)
+    expect(challenge.body).toEqual({ ok: false, error: 'ADVENTURER_SESSION_INVALID' })
+
+    const consume = await dispatchAdventurerHttp(fixture.service, {
+      method: 'POST',
+      path: ADVENTURER_RENAME_PATH,
+      headers: headers(),
+      body: {},
+    }, SECURITY)
+    expect(consume.status).toBe(401)
+    expect(consume.body).toEqual({ ok: false, error: 'ADVENTURER_SESSION_INVALID' })
   })
 
   it('fails closed for wrong origin on every mutating identity route', async () => {

@@ -6,6 +6,7 @@ const tabs: readonly { id: PlayTab; label: string; icon: PlayIconName }[] = [
   { id: 'hunt', label: 'Hunt', icon: 'compass' },
   { id: 'missions', label: 'Missions', icon: 'listChecks' },
   { id: 'heroes', label: 'Heroes', icon: 'trophy' },
+  { id: 'bank', label: 'Bank', icon: 'package' },
 ]
 
 export function PlayBottomNav({ activeTab, onChange }: { activeTab: PlayTab; onChange: (tab: PlayTab) => void }) {

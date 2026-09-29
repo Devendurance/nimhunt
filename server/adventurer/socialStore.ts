@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import type {
   AdventurerAllyRequest,
+  AdventurerBlockedProfile,
   AdventurerRelationship,
   AdventurerSocialOverview,
   AdventurerSocialProfile,
@@ -27,7 +28,7 @@ export function createMemoryAdventurerSocialStore(
 } {
   const requests = new Map<string, MemorySocialRequest>()
   const allies = new Set<string>()
-  const blocks = new Set<string>()
+  const blocks = new Map<string, string>()
 
   const store: AdventurerSocialStore & {
     readonly requests: readonly MemorySocialRequest[]
@@ -36,7 +37,7 @@ export function createMemoryAdventurerSocialStore(
   } = {
     get requests() { return [...requests.values()] },
     get allies() { return [...allies].map(pair => pair.split(':') as [string, string]) },
-    get blocks() { return [...blocks].map(pair => pair.split(':') as [string, string]) },
+    get blocks() { return [...blocks.keys()].map(pair => pair.split(':') as [string, string]) },
 
     async getAllyCount(playerId) {
       return [...allies].filter(pair => pair.startsWith(`${playerId}:`) || pair.endsWith(`:${playerId}`)).length
@@ -78,6 +79,17 @@ export function createMemoryAdventurerSocialStore(
         incomingRequests,
         allies: allyProfiles,
       }
+    },
+
+    async getBlocked(playerId): Promise<readonly AdventurerBlockedProfile[]> {
+      const blocked: AdventurerBlockedProfile[] = []
+      for (const [key, blockedAt] of blocks) {
+        const [blockerId, blockedId] = key.split(':')
+        if (blockerId !== playerId || !blockedId) continue
+        const profile = await getProfile(blockedId)
+        if (profile) blocked.push({ ...profile, blockedAt })
+      }
+      return blocked.sort((left, right) => right.blockedAt.localeCompare(left.blockedAt))
     },
 
     async request(senderId, receiverId) {
@@ -138,7 +150,7 @@ export function createMemoryAdventurerSocialStore(
           requests.set(id, { ...request, status: 'CANCELLED' })
         }
       }
-      blocks.add(blockKey(blockerId, blockedId))
+      blocks.set(blockKey(blockerId, blockedId), new Date().toISOString())
     },
 
     async unblock(blockerId, blockedId) {

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type {
   AdventurerAllyRequest,
+  AdventurerBlockedProfile,
   AdventurerRelationship,
   AdventurerSocialOverview,
   AdventurerSocialProfile,
@@ -13,6 +14,7 @@ const SOCIAL_RPCS = new Set([
   'get_adventurer_ally_count',
   'get_adventurer_relationship',
   'get_adventurer_social_overview',
+  'get_adventurer_blocked_profiles',
   'adventurer_social_request',
   'adventurer_social_accept',
   'adventurer_social_decline',
@@ -43,6 +45,14 @@ export function createSupabaseAdventurerSocialStore(client: SupabaseClient): Adv
     async getOverview(playerId) {
       const result = readRpc(await call(client, 'get_adventurer_social_overview', { p_player_id: playerId }))
       return mapOverview(result)
+    },
+
+    async getBlocked(playerId) {
+      const result = readRpc(await call(client, 'get_adventurer_blocked_profiles', { p_blocker_id: playerId }))
+      if (!Array.isArray(result.blocked)) throw new AdventurerUnavailableError()
+      const blocked = result.blocked.map(mapBlockedProfile)
+      if (blocked.some(profile => profile === null)) throw new AdventurerUnavailableError()
+      return blocked as AdventurerBlockedProfile[]
     },
 
     async request(senderId, receiverId) {
@@ -118,6 +128,13 @@ function mapRequest(value: unknown): AdventurerAllyRequest | null {
   const createdAt = asIso(value.created_at)
   if (!requestId || !playerId || !displayName || !avatarId || !createdAt) return null
   return { requestId, playerId, displayName, avatarId, createdAt }
+}
+
+function mapBlockedProfile(value: unknown): AdventurerBlockedProfile | null {
+  if (!isRecord(value)) return null
+  const profile = mapProfile(value)
+  const blockedAt = asIso(value.blocked_at)
+  return profile && blockedAt ? { ...profile, blockedAt } : null
 }
 
 function mapProfile(value: unknown): AdventurerSocialProfile | null {

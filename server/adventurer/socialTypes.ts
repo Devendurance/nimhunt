@@ -1,4 +1,5 @@
 import type {
+  AdventurerBlockedProfile,
   AdventurerRelationship,
   AdventurerSocialOverview,
 } from '../../src/domain/adventurerSocial.js'
@@ -8,6 +9,7 @@ export type AdventurerSocialStore = {
   getAllyCount(playerId: string): Promise<number>
   getRelationship(viewerId: string, targetId: string): Promise<AdventurerRelationship>
   getOverview(playerId: string): Promise<AdventurerSocialOverview>
+  getBlocked(playerId: string): Promise<readonly AdventurerBlockedProfile[]>
   request(senderId: string, receiverId: string): Promise<{ readonly requestId: string }>
   accept(receiverId: string, requestId: string): Promise<void>
   decline(receiverId: string, requestId: string): Promise<void>
@@ -21,6 +23,7 @@ export type AdventurerSocialService = {
   getAllyCount(playerId: string): Promise<number>
   getRelationship(viewer: StoredAdventurerSession, targetId: string): Promise<AdventurerRelationship>
   getOverview(session: StoredAdventurerSession): Promise<AdventurerSocialOverview>
+  getBlocked(session: StoredAdventurerSession): Promise<readonly AdventurerBlockedProfile[]>
   request(session: StoredAdventurerSession, targetId: string): Promise<{ readonly requestId: string }>
   accept(session: StoredAdventurerSession, requestId: string): Promise<void>
   decline(session: StoredAdventurerSession, requestId: string): Promise<void>

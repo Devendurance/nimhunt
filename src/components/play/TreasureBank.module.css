@@ -1,3 +1,19 @@
+.bankCta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 18px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 216, 106, .35);
+  border-radius: 14px;
+  color: #ffd86a;
+  background: rgba(242, 193, 78, .08);
+  font: 700 11px/16px Inter, sans-serif;
+  text-align: left;
+}
+
 .bank {
   margin-top: 18px;
   padding: 16px;

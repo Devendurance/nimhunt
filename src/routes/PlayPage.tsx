@@ -1,6 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { useSearchParams, useLocation, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { NimiqDevPanel } from '../components/play/NimiqDevPanel'
 import { PlayShell } from '../components/play/PlayShell'
 import { ProductExpeditionGate } from '../components/play/ProductExpeditionGate'
@@ -21,7 +20,7 @@ export function PlayPage() {
   const navigate = useNavigate()
   const leaveTo = (tab: 'missions' | 'hunt') => {
     clearRememberedProductTerminal()
-    navigate('/play', { state: { initialTab: tab } })
+    navigate(tab === 'hunt' ? '/play' : '/play?tab=missions')
   }
 
   if (route.view === 'nimiq') return <NimiqDevPanel />
@@ -57,11 +56,5 @@ export function PlayPage() {
 }
 
 function NormalPlay() {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const [initialTab] = useState<'hunt' | 'missions'>(() => location.state?.initialTab === 'missions' ? 'missions' : 'hunt')
-  useEffect(() => {
-    if (location.state?.initialTab === 'missions' || location.state?.initialTab === 'hunt') navigate(location.pathname + location.search, { replace: true, state: null })
-  }, [location, navigate])
-  return <PlayShell initialTab={initialTab} />
+  return <PlayShell />
 }

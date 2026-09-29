@@ -65,13 +65,27 @@ export type CreateStoredSessionResult = {
   readonly session: StoredAdventurerSession
 }
 
+export type RenameStoredAdventurerInput = {
+  readonly challengeHash: string
+  readonly authorizationFingerprint: string
+  readonly wallet: string
+  readonly playerId: string
+  readonly issuedAt: string
+  readonly expiresAt: string
+  readonly currentName: string
+  readonly newName: string
+  readonly normalizedName: string
+}
+
 export type AdventurerIdentityStore = {
   issueChallenge(input: {
     readonly wallet: string
     readonly purpose: AdventurerChallengePurpose
     readonly challengeHash: string
+    readonly playerId?: string
   }): Promise<AdventurerChallengeRecord>
   createProfile(input: CreateStoredAdventurerInput): Promise<CreateStoredAdventurerResult>
+  renameProfile(input: RenameStoredAdventurerInput): Promise<StoredAdventurerProfile>
   createSession(input: CreateStoredSessionInput): Promise<CreateStoredSessionResult>
   getSession(sessionHash: string): Promise<StoredAdventurerSession | null>
   getProfileByWallet(wallet: string): Promise<StoredAdventurerProfile | null>
@@ -95,6 +109,12 @@ export type AdventurerService = {
     readonly publicKey: string
     readonly signature: string
   }): Promise<{ readonly profile: AdventurerProfile; readonly session: AdventurerSession; readonly sessionCapability: string }>
+  issueRenameChallenge(session: StoredAdventurerSession): Promise<AdventurerChallenge>
+  renameProfile(session: StoredAdventurerSession, input: {
+    readonly payload: string
+    readonly publicKey: string
+    readonly signature: string
+  }): Promise<AdventurerProfile>
   issueSessionChallenge(wallet: string): Promise<AdventurerChallenge>
   createSession(input: {
     readonly payload: string

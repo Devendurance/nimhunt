@@ -96,7 +96,7 @@ export function AlliesPanel({
           </button>)}</div>}
       </section>
     </>}
-    <button type="button" className={styles.secondaryAction} onClick={onClose} autoFocus>Close Allies</button>
+    <button type="button" className={styles.secondaryAction} onClick={onClose} autoFocus>Back to My Adventurer</button>
   </div>
 }
 

@@ -1,4 +1,4 @@
-export type PlayTab = 'hunt' | 'missions' | 'heroes'
+export type PlayTab = 'hunt' | 'missions' | 'heroes' | 'bank'
 
 export type MissionId = 'gem-runner' | 'chest-hunter' | 'vault-breaker'
 

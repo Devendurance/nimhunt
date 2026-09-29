@@ -8,6 +8,7 @@ export const ADVENTURER_SOCIAL_CANCEL_PATH = '/api/adventurer/social/request/can
 export const ADVENTURER_SOCIAL_REMOVE_PATH = '/api/adventurer/social/ally/remove' as const
 export const ADVENTURER_SOCIAL_BLOCK_PATH = '/api/adventurer/social/block' as const
 export const ADVENTURER_SOCIAL_UNBLOCK_PATH = '/api/adventurer/social/unblock' as const
+export const ADVENTURER_SOCIAL_BLOCKED_PATH = '/api/adventurer/social/blocked' as const
 
 export const ADVENTURER_SOCIAL_PATHS = [
   ADVENTURER_SOCIAL_PATH,
@@ -18,6 +19,7 @@ export const ADVENTURER_SOCIAL_PATHS = [
   ADVENTURER_SOCIAL_REMOVE_PATH,
   ADVENTURER_SOCIAL_BLOCK_PATH,
   ADVENTURER_SOCIAL_UNBLOCK_PATH,
+  ADVENTURER_SOCIAL_BLOCKED_PATH,
 ] as const
 
 export const ADVENTURER_SOCIAL_ERROR_CODES = [
@@ -70,6 +72,10 @@ export type AdventurerSocialOverview = {
   readonly allies: readonly AdventurerSocialProfile[]
 }
 
+export type AdventurerBlockedProfile = AdventurerSocialProfile & {
+  readonly blockedAt: string
+}
+
 export type AdventurerRelationship = {
   readonly state: AdventurerRelationshipState
   readonly requestId: string | null
@@ -107,6 +113,12 @@ export function parseAdventurerSocialOverview(value: unknown): AdventurerSocialO
     incomingRequests: incomingRequests as AdventurerAllyRequest[],
     allies: allies as AdventurerSocialProfile[],
   }
+}
+
+export function parseAdventurerBlockedProfile(value: unknown): AdventurerBlockedProfile | null {
+  if (!isRecord(value) || !hasExactKeys(value, ['playerId', 'displayName', 'avatarId', 'blockedAt'])) return null
+  if (!isNonEmptyString(value.playerId) || !isNonEmptyString(value.displayName) || !isNonEmptyString(value.avatarId) || !isIsoString(value.blockedAt)) return null
+  return { playerId: value.playerId, displayName: value.displayName, avatarId: value.avatarId, blockedAt: value.blockedAt }
 }
 
 export function parseAdventurerRelationship(value: unknown): AdventurerRelationship | null {

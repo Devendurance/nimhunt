@@ -3,6 +3,7 @@ import {
   ADVENTURER_SESSION_MAX_AGE_SECONDS,
   isLegacyAdventurerAvatar,
   isStarterAdventurerAvatar,
+  normalizeAdventurerDisplayName,
   type AdventurerChallengePurpose,
 } from '../../src/domain/adventurer.js'
 import { AdventurerError } from './errors.js'
@@ -61,7 +62,9 @@ export function createMemoryAdventurerIdentityStore(options: {
     async issueChallenge(input) {
       const existing = findByWallet(input.wallet)
       if (input.purpose === 'CREATE' && existing) throw new AdventurerError('PROFILE_ALREADY_EXISTS')
-      if (input.purpose === 'SESSION' && !existing) throw new AdventurerError('PROFILE_NOT_FOUND')
+      if ((input.purpose === 'SESSION' || input.purpose === 'RENAME') && (!existing || (input.playerId && existing.playerId !== input.playerId))) {
+        throw new AdventurerError(input.purpose === 'SESSION' ? 'PROFILE_NOT_FOUND' : 'ADVENTURER_SESSION_INVALID')
+      }
       const issuedAt = now().toISOString()
       const expiresAt = new Date(now().getTime() + 5 * 60 * 1_000).toISOString()
       const record: AdventurerChallengeRecord = {
@@ -72,7 +75,7 @@ export function createMemoryAdventurerIdentityStore(options: {
         expiresAt,
         consumedAt: null,
         authorizationFingerprint: null,
-        playerId: existing?.playerId ?? null,
+        playerId: input.playerId ?? existing?.playerId ?? null,
       }
       challenges.set(input.challengeHash, record)
       return record
@@ -109,6 +112,31 @@ export function createMemoryAdventurerIdentityStore(options: {
       sessions.set(session.sessionHash, session)
       challenges.set(input.challengeHash, { ...challenge, consumedAt: createdAt, authorizationFingerprint: input.authorizationFingerprint, playerId: profile.playerId })
       return { profile, session } satisfies CreateStoredAdventurerResult
+    },
+
+    async renameProfile(input) {
+      const challenge = requireChallenge(challenges, input.challengeHash, 'RENAME', input.wallet, input.issuedAt, input.expiresAt, now())
+      if (challenge.playerId !== input.playerId) throw new AdventurerError('CHALLENGE_INVALID')
+      const profile = profilesById.get(input.playerId)
+      if (!profile || profile.wallet !== input.wallet) throw new AdventurerError('ADVENTURER_SESSION_INVALID')
+      if (profile.displayName !== input.currentName || normalizeAdventurerDisplayName(input.newName) !== input.normalizedName) {
+        throw new AdventurerError('DISPLAY_NAME_INVALID')
+      }
+      if (normalizeAdventurerDisplayName(profile.displayName) === input.normalizedName) throw new AdventurerError('DISPLAY_NAME_INVALID')
+      if (now().getTime() < new Date(profile.displayNameChangedAt).getTime() + 30 * 24 * 60 * 60 * 1_000) {
+        throw new AdventurerError('DISPLAY_NAME_COOLDOWN')
+      }
+      if (findByName(input.normalizedName)) throw new AdventurerError('DISPLAY_NAME_TAKEN')
+      const changedAt = now().toISOString()
+      const updated: StoredAdventurerProfile = {
+        ...profile,
+        displayName: input.newName,
+        displayNameChangedAt: changedAt,
+        updatedAt: changedAt,
+      }
+      profilesById.set(updated.playerId, updated)
+      challenges.set(input.challengeHash, { ...challenge, consumedAt: changedAt, authorizationFingerprint: input.authorizationFingerprint })
+      return updated
     },
 
     async createSession(input) {

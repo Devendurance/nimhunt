@@ -124,6 +124,14 @@
       "destination": "/api/product?__nimhunt_route=/api/adventurer/session/challenge"
     },
     {
+      "source": "/api/adventurer/rename/challenge",
+      "destination": "/api/product?__nimhunt_route=/api/adventurer/rename/challenge"
+    },
+    {
+      "source": "/api/adventurer/rename",
+      "destination": "/api/product?__nimhunt_route=/api/adventurer/rename"
+    },
+    {
       "source": "/api/adventurer/session",
       "destination": "/api/product?__nimhunt_route=/api/adventurer/session"
     },
@@ -142,6 +150,10 @@
     {
       "source": "/api/adventurer/social",
       "destination": "/api/product?__nimhunt_route=/api/adventurer/social"
+    },
+    {
+      "source": "/api/adventurer/social/blocked",
+      "destination": "/api/product?__nimhunt_route=/api/adventurer/social/blocked"
     },
     {
       "source": "/api/adventurer/social/request",
