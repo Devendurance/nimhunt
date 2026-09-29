@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Droplets, Gem, Heart, KeyRound, Package, Sword, Triangle } from 'lucide-react'
+import { Droplets, Gem, Heart, KeyRound, Package, Sword, Triangle } from 'lucide-react'
 import { getMissionObjective, getMissionTitle } from '../../game/domain/mission'
-import type { Direction } from '../../game/world/grid'
 import type { ProductActiveExpedition } from '../../domain/expeditionProof.ts'
 import type { CreateGameOptions } from '../../game/createNimHuntGame'
 import { getExpeditionResult, type PlayableMission } from './expeditionFlow'
@@ -21,19 +20,15 @@ import {
 import { ProductRewardClaimOutcome } from './ProductRewardClaimOutcome'
 import { ProductVaultOutcome } from './ProductVaultOutcome'
 import { useGameplaySfx, useMissionBgm } from '../../audio/useNimhuntAudio'
+import { useGameplayHaptics } from '../../input/useNimhuntHaptics'
+import { DirectionalDpad } from './DirectionalDpad'
+import { getDirectionForKey, isGameplayTextTarget } from './gameplayInput'
 import { SoundToggle } from './SoundToggle'
 import { useAngkorRun } from './useAngkorRun'
 import { useProductPayoutStatus } from './useProductPayoutStatus'
 import { useProductRewardClaim } from './useProductRewardClaim'
 import { useProductVaultSeal } from './useProductVaultSeal'
 import styles from './ExpeditionView.module.css'
-
-const directions = [
-  { direction: 'UP', label: 'Up', Icon: ArrowUp },
-  { direction: 'LEFT', label: 'Left', Icon: ArrowLeft },
-  { direction: 'RIGHT', label: 'Right', Icon: ArrowRight },
-  { direction: 'DOWN', label: 'Down', Icon: ArrowDown },
-] as const
 
 type ExpeditionViewProps = {
   mission: PlayableMission
@@ -69,8 +64,10 @@ export function ExpeditionView(props: ExpeditionViewProps) {
   const { containerRef, hud, move } = useAngkorRun(gameOptions)
   // Presentation-only audio: world BGM follows the mission; SFX follows
   // actual HUD transitions. Never touches replay/checkpoint/server state.
+  const runKey = props.mode === 'product' ? props.active.runId : `practice:${mission}`
   useMissionBgm(mission)
-  useGameplaySfx(hud, props.mode === 'product' ? props.active.runId : `practice:${mission}`)
+  useGameplaySfx(hud, runKey)
+  useGameplayHaptics(hud, runKey)
   const terminal = hud.runStatus !== 'PLAYING'
   const result = getExpeditionResult(hud)
   const isChestHunter = mission === 'chest-hunter'
@@ -116,10 +113,9 @@ export function ExpeditionView(props: ExpeditionViewProps) {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLElement && (event.target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName))) return
+      if (isGameplayTextTarget(event.target)) return
       if (confirmingLeave) return
-      const mapping: Record<string, Direction> = { ArrowUp: 'UP', w: 'UP', ArrowDown: 'DOWN', s: 'DOWN', ArrowLeft: 'LEFT', a: 'LEFT', ArrowRight: 'RIGHT', d: 'RIGHT' }
-      const direction = mapping[event.key] ?? mapping[event.key.toLowerCase()]
+      const direction = getDirectionForKey(event.key)
       if (direction) {
         event.preventDefault()
         if (!inputLocked) move(direction)
@@ -161,7 +157,8 @@ export function ExpeditionView(props: ExpeditionViewProps) {
     {checkpoint.view.missionIncomplete && !checkpoint.view.verifying && !checkpoint.view.proofLost && <p className={styles.syncNotice} role="status">{MISSION_INCOMPLETE_COPY}</p>}
     <section className={styles.hudCard} aria-label={`${missionTitle} mission progress`}>
       <p className={styles.objective}>{missionObjective}</p>
-      <div className={styles.metrics}>
+      <p className={styles.hudSectionLabel}>RUN PROGRESS</p>
+      <div className={styles.metrics} data-testid="run-progress" role="group" aria-label="Run-local progress">
         <div><span><Heart size={16} aria-hidden="true" /> HP <strong data-testid="hp">{hud.hp} / 100</strong></span><progress max={100} value={hud.hp} aria-label="Health" /></div>
         {isChestHunter
           ? <span><Package size={18} aria-hidden="true" /> CHESTS <strong data-testid="chests">{hud.chestsOpened} / {hud.chestTarget}</strong></span>
@@ -213,10 +210,7 @@ export function ExpeditionView(props: ExpeditionViewProps) {
         <h2 id="run-outcome" ref={headingRef} tabIndex={-1}>EXPEDITION FAILED</h2>
         <p>{result.title}</p><p>{result.detail}</p>
         <div className={styles.actions}><button type="button" onClick={onBackToMissions}>Back to missions</button><button type="button" onClick={onReturnToHunt}>Return to Hunt</button></div>
-      </section> : <div className={styles.dpad} role="group" aria-label="Directional Controls" onContextMenu={event => event.preventDefault()}>
-        {directions.map(({ direction, label, Icon }) => <button key={direction} ref={direction === 'UP' ? upRef : undefined} type="button" className={styles.dpadBtn + ' ' + styles[direction.toLowerCase()]} aria-label={'Move ' + label} onPointerDown={event => { if (event.button !== 0 || inputLocked) return; event.preventDefault(); move(direction) }} onClick={event => { if (event.detail === 0 && !inputLocked) move(direction) }}><Icon size={24} aria-hidden="true" /></button>)}
-        <span className={styles.dpadCenter} aria-hidden="true" />
-      </div>}
+      </section> : <DirectionalDpad onMove={move} inputLocked={inputLocked} upRef={upRef} />}
     </div>
     {confirmingLeave && <div className={styles.confirmBackdrop} onClick={event => { if (event.target === event.currentTarget) closeConfirm() }}>
       <section className={styles.confirm} role="alertdialog" aria-modal="true" aria-labelledby="leave-heading" aria-describedby="leave-description">

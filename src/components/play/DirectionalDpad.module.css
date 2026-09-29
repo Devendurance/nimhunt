@@ -1,0 +1,10 @@
+.dpad { display:grid; grid-template-columns:repeat(3,60px); grid-template-rows:repeat(3,60px); gap:8px; touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
+.dpadBtn { width:60px; height:60px; display:grid; place-items:center; border:1.5px solid #6a887c; border-radius:14px; color:#f3ead7; background:#1b3833; padding:0; touch-action:none; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform 100ms ease-out, background-color 100ms ease-out, border-color 100ms ease-out, opacity 100ms ease-out; }
+.up { grid-area:1/2; } .left { grid-area:2/1; } .right { grid-area:2/3; } .down { grid-area:3/2; }
+.dpadCenter { grid-area:2/2; }
+.dpadCenterButton { align-content:center; gap:2px; border-style:dashed; font:500 9px/12px Inter,sans-serif; }
+.dpadBtn:active:not(:disabled) { transform:translateY(1px) scale(.96); background:#2d6454; border-color:#9bc8b2; }
+.dpadBtn:disabled { border-color:#486258; color:#71877b; background:#152a27; cursor:not-allowed; opacity:.55; }
+.dpadBtn:focus-visible { outline:3px solid #81b4ff; outline-offset:3px; }
+@media (max-width:350px) { .dpad { grid-template-columns:repeat(3,56px); grid-template-rows:repeat(3,56px); gap:7px; } .dpadBtn { width:56px; height:56px; } }
+@media (prefers-reduced-motion:reduce) { .dpadBtn { transition:none; } .dpadBtn:active:not(:disabled) { transform:none; } }

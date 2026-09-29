@@ -1,18 +1,13 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Gem, Heart, LogOut, RotateCcw, Triangle, Droplets, KeyRound, Sword, Package } from 'lucide-react'
+import { Gem, Heart, LogOut, Triangle, Droplets, KeyRound, Sword, Package } from 'lucide-react'
 import { getMissionObjective, getMissionTitle, parseMissionParam } from '../../game/domain/mission'
 import { createDailyAngkorBlueprint } from '../../game/world/dailyAngkorLayouts'
-import type { Direction } from '../../game/world/grid'
+import { useGameplayHaptics } from '../../input/useNimhuntHaptics'
+import { DirectionalDpad } from './DirectionalDpad'
+import { getDirectionForKey, isGameplayTextTarget } from './gameplayInput'
 import { useAngkorRun } from './useAngkorRun'
 import styles from './GameDevView.module.css'
-
-const directions = [
-  { direction: 'UP', label: 'Up', Icon: ArrowUp },
-  { direction: 'LEFT', label: 'Left', Icon: ArrowLeft },
-  { direction: 'RIGHT', label: 'Right', Icon: ArrowRight },
-  { direction: 'DOWN', label: 'Down', Icon: ArrowDown },
-] as const
 
 export function GameDevView() {
   const navigate = useNavigate()
@@ -26,6 +21,7 @@ export function GameDevView() {
   const blueprint = useMemo(() => createDailyAngkorBlueprint(today, mission, variantIndex), [today, mission, variantIndex])
   const gameOptions = useMemo(() => ({ mode: 'dev' as const, mission, blueprint }), [mission, blueprint])
   const { containerRef: canvasContainerRef, hud, move, reset } = useAngkorRun(gameOptions)
+  useGameplayHaptics(hud, `practice:${mission}`)
   const headingRef = useRef<HTMLHeadingElement>(null)
   const upRef = useRef<HTMLButtonElement>(null)
   const previousStatus = useRef('PLAYING')
@@ -39,9 +35,8 @@ export function GameDevView() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLElement && (event.target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName))) return
-      const mapping: Record<string, Direction> = { ArrowUp: 'UP', w: 'UP', ArrowDown: 'DOWN', s: 'DOWN', ArrowLeft: 'LEFT', a: 'LEFT', ArrowRight: 'RIGHT', d: 'RIGHT' }
-      const direction = mapping[event.key] ?? mapping[event.key.toLowerCase()]
+      if (isGameplayTextTarget(event.target)) return
+      const direction = getDirectionForKey(event.key)
       if (direction) { event.preventDefault(); if (!terminal) move(direction) }
       if (!terminal && event.key.toLowerCase() === 'r') { event.preventDefault(); reset() }
     }
@@ -60,7 +55,8 @@ export function GameDevView() {
     </header>
     <section className={styles.hudCard} aria-label={`${missionTitle} mission progress`}>
       <div className={styles.missionLabel}>{missionTitle}<span>{missionObjective}</span></div>
-      <div className={styles.metrics}>
+      <p className={styles.hudSectionLabel}>RUN PROGRESS</p>
+      <div className={styles.metrics} data-testid="run-progress" role="group" aria-label="Run-local progress">
         <div><span><Heart size={16} aria-hidden="true" /> HP <strong data-testid="hp">{hud.hp} / 100</strong></span><progress max={100} value={hud.hp} aria-label="Health" /></div>
         {isChestHunter
           ? <span><Package size={18} aria-hidden="true" /> CHESTS <strong data-testid="chests">{hud.chestsOpened} / {hud.chestTarget}</strong></span>
@@ -111,10 +107,7 @@ export function GameDevView() {
             : <><strong>Gem Runner</strong><p>6 / 6 gems collected</p><p>You survived the expedition.</p><p>Development milestone only. No NIM claim is available yet.</p></>
           : <><p>Mission failed.</p><p>No NIM claim was created.</p></>}
         <div className={styles.actions}><button type="button" onClick={reset}>Reset run</button><button type="button" onClick={returnToMissions}>Return to missions</button></div>
-      </section> : <div className={styles.dpad} role="group" aria-label="Directional Controls" onContextMenu={event => event.preventDefault()}>
-        {directions.map(({ direction, label, Icon }) => <button key={direction} ref={direction === 'UP' ? upRef : undefined} type="button" className={styles.dpadBtn + ' ' + styles[direction.toLowerCase()]} aria-label={'Move ' + label} onPointerDown={event => { if (event.button !== 0) return; event.preventDefault(); move(direction) }} onClick={event => { if (event.detail === 0) move(direction) }}><Icon size={24} aria-hidden="true" /></button>)}
-        <button type="button" className={styles.dpadBtn + ' ' + styles.dpadCenter} aria-label="Reset run" onClick={reset}><RotateCcw size={16} aria-hidden="true" /><span>Reset run</span></button>
-      </div>}
+      </section> : <DirectionalDpad onMove={move} inputLocked={terminal} upRef={upRef} onReset={reset} />}
     </div>
     <details className={styles.debug}><summary>Debug details</summary><p data-testid="coordinates">X {hud.gridX} · Y {hud.gridY} · {hud.facing} · Steps {hud.stepCount} · {hud.isMoving ? 'MOVING' : 'IDLE'}</p><p>{hud.missionStatus} · {hud.runStatus}</p><p>Blueprint: {blueprint.blueprintId} ({blueprint.blueprintVersion}) · Goblins: {blueprint.goblins.length} · Gems: {blueprint.gems.length} · Hazards: {blueprint.hazards.length}</p><p>Arrow keys / WASD to move · R to reset</p></details>
   </main></div>

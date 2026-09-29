@@ -11,7 +11,7 @@ export function SoundToggle() {
       type="button"
       onClick={toggle}
       aria-label={enabled ? 'Mute sound' : 'Unmute sound'}
-      aria-pressed={!enabled}
+      aria-pressed={enabled}
       title={enabled ? 'Mute sound' : 'Unmute sound'}
       className="nimhunt-sound-toggle"
       style={{

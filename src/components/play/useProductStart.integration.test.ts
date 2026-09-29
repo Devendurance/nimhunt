@@ -808,6 +808,19 @@ function findButtonWithText(value: unknown, text: string): { readonly onClick?: 
   return findButtonWithText(value.props.children, text)
 }
 
+function findPropsWithTestId(value: unknown, testId: string): Record<string, unknown> | null {
+  if (Array.isArray(value)) {
+    for (const child of value) {
+      const props = findPropsWithTestId(child, testId)
+      if (props) return props
+    }
+    return null
+  }
+  if (!isRecord(value) || !isRecord(value.props)) return null
+  if (value.props['data-testid'] === testId) return value.props
+  return findPropsWithTestId(value.props.children, testId)
+}
+
 function findPropsWith(value: unknown, property: string): Record<string, unknown> | null {
   if (Array.isArray(value)) {
     for (const child of value) {
@@ -976,6 +989,10 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
     expect(checkpoint).not.toHaveBeenCalled()
     expect(verify).not.toHaveBeenCalled()
     expect(abandon).not.toHaveBeenCalled()
+    const activeGameplayText = collectText(harness.current).join(' ')
+    expect(activeGameplayText).toContain('RUN PROGRESS')
+    expect(findPropsWithTestId(harness.current, 'gems')?.children).toEqual([0, ' / ', 6])
+    expect(activeGameplayText).not.toMatch(/lifetime gems/i)
     harness.rerender()
     await settle()
     expect(createGame).toHaveBeenCalledTimes(1)
@@ -1581,6 +1598,9 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
     expect(verify).not.toHaveBeenCalled()
     expect(abandon).not.toHaveBeenCalled()
     expect(collectText(harness.current).join(' ')).toContain('PRACTICE RUN')
+    expect(collectText(harness.current).join(' ')).toContain('RUN PROGRESS')
+    expect(findPropsWithTestId(harness.current, 'gems')?.children).toEqual([0, ' / ', 6])
+    expect(collectText(harness.current).join(' ')).not.toMatch(/lifetime gems/i)
     expect(collectText(harness.current).join(' ')).toContain('No daily expedition used.')
     expect(collectText(harness.current).join(' ')).toContain('No NIM reward can be reserved.')
     harness.unmount()

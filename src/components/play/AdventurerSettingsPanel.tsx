@@ -1,5 +1,6 @@
 import type { AdventurerProfile } from '../../domain/adventurer.ts'
 import { useSoundEnabled } from '../../audio/useNimhuntAudio'
+import { useHapticsEnabled } from '../../input/useNimhuntHaptics'
 import { shortenNqWallet } from './productVaultSeal'
 import styles from './Adventurer.module.css'
 
@@ -15,6 +16,7 @@ export function AdventurerSettingsPanel({
   readonly onOpenBlocked: () => void
 }) {
   const sound = useSoundEnabled()
+  const haptics = useHapticsEnabled()
 
   return <div className={styles.profileSheet}>
     <div className={styles.subviewHeader}>
@@ -30,6 +32,10 @@ export function AdventurerSettingsPanel({
         <span><strong>Sound</strong><small>Music and sound effects</small></span>
         <span className={styles.settingsValue}>{sound.enabled ? 'On' : 'Off'}</span>
       </button>
+      {haptics.supported && <button type="button" className={styles.settingsRow} onClick={haptics.toggle} aria-pressed={haptics.enabled}>
+        <span><strong>Haptics</strong><small>Subtle touch feedback</small></span>
+        <span className={styles.settingsValue}>{haptics.enabled ? 'On' : 'Off'}</span>
+      </button>}
     </section>
 
     <section className={styles.settingsGroup} aria-labelledby="settings-account-heading">
