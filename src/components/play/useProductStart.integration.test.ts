@@ -72,6 +72,10 @@ const hookRuntime = vi.hoisted(() => ({
   nullRefValue: null as unknown,
 }))
 
+const routerRuntime = vi.hoisted(() => ({
+  setSearchParams: vi.fn(),
+}))
+
 vi.mock('react', () => {
   function requestRender(): void {
     if (hookRuntime.rendering || hookRuntime.runningEffects) {
@@ -156,7 +160,7 @@ vi.mock('react', () => {
 })
 
 vi.mock('react-router-dom', () => ({
-  useSearchParams: vi.fn(() => [new URLSearchParams(), vi.fn()]),
+  useSearchParams: vi.fn(() => [new URLSearchParams(), routerRuntime.setSearchParams]),
 }))
 
 vi.mock('../../api/expeditionProof.ts', async () => {
@@ -915,6 +919,29 @@ describe('actual authenticated gate, game lifecycle, and Practice route', () => 
     expect(requestStartChallenge).not.toHaveBeenCalled()
     expect(authorizeStart).not.toHaveBeenCalled()
     expect(fetchWalletStatus).not.toHaveBeenCalled()
+    harness.unmount()
+  })
+
+  it('routes a wallet- and profile-free mission brief to Practice without starting a reward run', async () => {
+    const harness = createHookHarness(() => PlayShell({ initialTab: 'missions' }))
+    const missionListProps = findPropsWith(harness.current, 'onEnter')
+    if (typeof missionListProps?.onEnter !== 'function') throw new Error('MISSION_LIST_START_HANDLER_MISSING')
+
+    missionListProps.onEnter(playMissions[0]!, {} as HTMLButtonElement)
+    await settle()
+
+    const briefProps = findPropsWith(harness.current, 'onStartPractice')
+    if (typeof briefProps?.onStartPractice !== 'function') throw new Error('PRACTICE_HANDLER_MISSING')
+    briefProps.onStartPractice(playMissions[0]!)
+    await settle()
+
+    expect(routerRuntime.setSearchParams).toHaveBeenCalledWith({ practice: 'gem-runner' })
+    expect(initializeNimiqProvider).not.toHaveBeenCalled()
+    expect(requestStartChallenge).not.toHaveBeenCalled()
+    expect(authorizeStart).not.toHaveBeenCalled()
+    expect(fetchWalletStatus).not.toHaveBeenCalled()
+    expect(fetchActive).not.toHaveBeenCalled()
+    expect(gameplayStart).not.toHaveBeenCalled()
     harness.unmount()
   })
 

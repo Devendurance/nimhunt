@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { DISPLAY_NAME_MAX_LENGTH } from '../../domain/adventurer.ts'
 import { AvatarPicker } from './AdventurerAvatar'
-import type { AdventurerClientStatus, AdventurerCreationStatus, ClientNameState } from './adventurerState.ts'
+import type { AdventurerClientError, AdventurerClientStatus, AdventurerCreationStatus, ClientNameState } from './adventurerState.ts'
+import { AdventurerIdentityStatus } from './AdventurerIdentityStatus'
 import styles from './Adventurer.module.css'
 
 export function AdventurerOnboarding({
@@ -13,6 +14,8 @@ export function AdventurerOnboarding({
   onComplete,
   onTryPractice,
   identityStatus,
+  identityError,
+  retryRestore,
 }: {
   readonly nameState: ClientNameState
   readonly creationStatus: AdventurerCreationStatus
@@ -22,6 +25,8 @@ export function AdventurerOnboarding({
   readonly onComplete: () => void
   readonly onTryPractice: () => void
   readonly identityStatus: AdventurerClientStatus
+  readonly identityError: AdventurerClientError | null
+  readonly retryRestore: () => void
 }) {
   const nameId = 'adventurer-display-name'
   const [displayName, setDisplayName] = useState('')
@@ -56,6 +61,10 @@ export function AdventurerOnboarding({
         : creationStatus === 'ERROR'
           ? creationErrorMessage(creationError)
           : null
+
+  if (identityStatus !== 'NEEDS_PROFILE') {
+    return <AdventurerIdentityStatus status={identityStatus} error={identityError} retryRestore={retryRestore} />
+  }
 
   return <div className={styles.profileSheet}>
     <div className={styles.onboardingIntro}>
@@ -98,7 +107,7 @@ export function AdventurerOnboarding({
         {busy ? 'Creating profile…' : 'Create Adventurer profile'}
       </button>
       <p className={styles.assetNote}>One signature creates your identity session. No NIM transaction is sent.</p>
-      <button type="button" className={styles.secondaryAction} onClick={onTryPractice} disabled={busy}>Try Practice instead</button>
+      <button type="button" className={styles.secondaryAction} onClick={onTryPractice} disabled={busy}>Browse Practice Missions</button>
     </div>
   </div>
 }

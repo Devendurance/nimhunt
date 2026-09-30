@@ -106,7 +106,7 @@ export function ProductStartPanel({
       </div>
       <div className={styles.productActions}>
         <button className={styles.sheetPrimary} type="button" onClick={onFreshStart}>Start again</button>
-        {canPractice && <button className={styles.sheetSecondary} type="button" onClick={onPractice}>Start Practice Run</button>}
+        {canPractice && <button className={styles.sheetSecondary} type="button" onClick={onPractice}>Practice Run</button>}
       </div>
     </>}
 

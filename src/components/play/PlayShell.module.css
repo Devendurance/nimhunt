@@ -172,7 +172,7 @@
 .eligibility p, .devNote p { margin: 7px 0 0; color: #b5c2b5; font-size: 11px; line-height: 1.5; }
 .devNote { display: flex; gap: 10px; border-left-color: #ffd86a; }
 .devNoteIcon { display: grid; place-items: center; flex: 0 0 auto; color: #ffd86a; }
-.sheetActions { display: grid; grid-template-columns: .7fr 1.3fr; gap: 8px; flex: 0 0 auto; padding: 12px 20px calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid rgba(243, 234, 215, .13); background: #132a26; }
+.sheetActions { display: grid; grid-template-columns: .7fr 1fr 1.3fr; gap: 8px; flex: 0 0 auto; padding: 12px 20px calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid rgba(243, 234, 215, .13); background: #132a26; }
 .sheetPrimary, .sheetSecondary { padding: 11px 12px; }
 .sheetPrimary { border: 0; color: #132a26; background: linear-gradient(110deg, #f2c14e, #ffd86a); }
 .sheetSecondary { border: 1px solid rgba(243, 234, 215, .28); color: #f3ead7; background: transparent; }
@@ -212,7 +212,8 @@
   .treasureMetric strong { font-size: 36px; }
   .hero h1, .pageIntro h1 { font-size: 34px; line-height: 37px; }
   .sheetBody { padding-right: 16px; padding-left: 16px; }
-  .sheetActions { padding-right: 16px; padding-left: 16px; }
+  .sheetActions { grid-template-columns: 1fr 1fr; padding-right: 16px; padding-left: 16px; }
+  .sheetActions > :first-child { grid-column: 1 / -1; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -27,6 +27,20 @@ describe('P5 Bank, profile, and settings UI contract', () => {
     expect(blocked).toContain('private to your Adventurer')
   })
 
+  it('keeps identity creation fail-closed to NEEDS_PROFILE and gives ERROR a retry-only surface', () => {
+    const onboarding = read('src/components/play/AdventurerOnboarding.tsx')
+    const shell = read('src/components/play/PlayShell.tsx')
+    const recovery = read('src/components/play/AdventurerIdentityStatus.tsx')
+    expect(onboarding).toContain("if (identityStatus !== 'NEEDS_PROFILE')")
+    expect(onboarding).toContain('Create Adventurer profile')
+    expect(onboarding).toContain('Browse Practice Missions')
+    expect(shell).toContain("changeTab('missions')")
+    expect(shell).toContain("identityPanel === 'CREATE_PROFILE'")
+    expect(shell).toContain('onRetryIdentity={adventurer.retryRestore}')
+    expect(recovery).toContain('Retry identity session')
+    expect(recovery).not.toContain('Create Adventurer profile')
+  })
+
   it('uses four tabs and only mounts the full Bank in the Bank destination', () => {
     const nav = read('src/components/play/PlayBottomNav.tsx')
     const shell = read('src/components/play/PlayShell.tsx')

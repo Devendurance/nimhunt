@@ -10,6 +10,7 @@ import { MonthlyHeroesBlock, YourMonthBlock } from './MonthlyHeroes'
 import { HuntHeader } from './HuntHeader'
 import { HuntStatus } from './HuntStatus'
 import { AdventurerOnboarding } from './AdventurerOnboarding'
+import { AdventurerIdentityStatus } from './AdventurerIdentityStatus'
 import { AdventurerProfilePanel } from './AdventurerProfilePanel'
 import { AdventurerEditProfilePanel } from './AdventurerEditProfilePanel'
 import { AdventurerSettingsPanel } from './AdventurerSettingsPanel'
@@ -17,7 +18,7 @@ import { BlockedAdventurersPanel } from './BlockedAdventurersPanel'
 import { AlliesPanel } from './AlliesPanel'
 import { PublicAdventurerProfileSheet } from './PublicAdventurerProfileSheet'
 import { useAdventurer } from './useAdventurer'
-import { resolveRealExpeditionGate } from './adventurerState'
+import { resolveAdventurerIdentityPanel, resolveRealExpeditionGate } from './adventurerState'
 import { REAL_EXPEDITION_PROFILE_GATE_ENABLED } from './adventurerAssets'
 import { MissionBrief } from './MissionBrief'
 import { MissionList } from './MissionList'
@@ -90,6 +91,7 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
   const [publicProfilePlayerId, setPublicProfilePlayerId] = useState<string | null>(null)
   const [socialRevision, setSocialRevision] = useState(0)
   const selectedMission = playMissions.find(mission => mission.id === selectedMissionId) ?? null
+  const identityPanel = resolveAdventurerIdentityPanel(adventurer.status, Boolean(adventurer.profile))
 
   const openProfileDialog = useCallback((mode: 'onboarding' | 'profile' | 'edit-profile' | 'allies' | 'settings' | 'blocked', trigger?: HTMLButtonElement) => {
     profileTriggerRef.current = trigger ?? null
@@ -189,7 +191,7 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
       void bootstrap.connect()
       return
     }
-    if (gateDecision === 'ONBOARD') {
+    if (gateDecision === 'ONBOARD' || gateDecision === 'RECOVER_IDENTITY') {
       openProfileDialog('onboarding')
       return
     }
@@ -212,6 +214,7 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
         adventurer={adventurer}
         recovering={recovery.status === 'signing'}
         onCreateProfile={() => openProfileDialog('onboarding')}
+        onRetryIdentity={adventurer.retryRestore}
       />
       <main className={styles.main}>
         {activeTab === 'hunt' && <>
@@ -273,38 +276,38 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
       <dialog
         ref={profileDialogRef}
         className={styles.profileDialog}
-        aria-labelledby={profileDialogMode === 'allies' ? 'adventurer-allies-title' : profileDialogMode === 'settings' ? 'adventurer-settings-title' : profileDialogMode === 'blocked' ? 'adventurer-blocked-title' : profileDialogMode === 'edit-profile' ? 'adventurer-edit-profile-title' : profileDialogMode === 'profile' && adventurer.profile ? 'adventurer-profile-title' : 'adventurer-display-name-title'}
+        aria-labelledby={profileDialogMode === 'allies' && identityPanel === 'PROFILE' ? 'adventurer-allies-title' : profileDialogMode === 'settings' && identityPanel === 'PROFILE' ? 'adventurer-settings-title' : profileDialogMode === 'blocked' && identityPanel === 'PROFILE' ? 'adventurer-blocked-title' : profileDialogMode === 'edit-profile' && identityPanel === 'PROFILE' ? 'adventurer-edit-profile-title' : identityPanel === 'CREATE_PROFILE' ? 'adventurer-display-name-title' : adventurer.status === 'RESTORING' ? 'adventurer-identity-restoring-title' : adventurer.status === 'ERROR' ? 'adventurer-identity-recovery-title' : 'adventurer-identity-connect-title'}
         onClose={() => setProfileDialogMode('profile')}
         onCancel={event => {
           if (REAL_EXPEDITION_PROFILE_GATE_ENABLED && profileDialogMode === 'onboarding') event.preventDefault()
         }}
       >
         <div className={styles.profileDialogSheet}>
-          {profileDialogMode === 'allies' && adventurer.profile
+          {profileDialogMode === 'allies' && identityPanel === 'PROFILE' && adventurer.profile
             ? <AlliesPanel
               key={`allies-${socialRevision}`}
               onClose={() => setProfileDialogMode('profile')}
               onOpenPublicProfile={openPublicProfileDialog}
               onSocialChanged={() => setSocialRevision(version => version + 1)}
             />
-            : profileDialogMode === 'onboarding' || !adventurer.profile
-            ? <>
-              <AdventurerOnboarding
-                key={bootstrap.wallet ?? 'no-wallet'}
-                nameState={adventurer.nameState}
-                creationStatus={adventurer.creationStatus}
-                creationError={adventurer.creationError}
-                checkName={adventurer.checkName}
-                createProfile={adventurer.createProfile}
-                onComplete={closeProfileDialog}
-                identityStatus={adventurer.status}
-                onTryPractice={() => {
-                  closeProfileDialog()
-                  changeTab('missions')
-                }}
-              />
-            </>
-            : profileDialogMode === 'edit-profile'
+            : identityPanel === 'CREATE_PROFILE'
+            ? <AdventurerOnboarding
+              key={bootstrap.wallet ?? 'no-wallet'}
+              nameState={adventurer.nameState}
+              creationStatus={adventurer.creationStatus}
+              creationError={adventurer.creationError}
+              checkName={adventurer.checkName}
+              createProfile={adventurer.createProfile}
+              onComplete={closeProfileDialog}
+              identityStatus={adventurer.status}
+              identityError={adventurer.error}
+              retryRestore={adventurer.retryRestore}
+              onTryPractice={() => {
+                closeProfileDialog()
+                changeTab('missions')
+              }}
+            />
+            : profileDialogMode === 'edit-profile' && identityPanel === 'PROFILE' && adventurer.profile
             ? <AdventurerEditProfilePanel
               key={`${adventurer.profile.updatedAt}-edit`}
               profile={adventurer.profile}
@@ -318,28 +321,25 @@ export function PlayShell({ initialTab = 'hunt' }: { initialTab?: PlayTab }) {
               nameState={adventurer.nameState}
               onBack={() => setProfileDialogMode('profile')}
             />
-            : profileDialogMode === 'settings'
+            : profileDialogMode === 'settings' && identityPanel === 'PROFILE' && adventurer.profile
             ? <AdventurerSettingsPanel
               profile={adventurer.profile}
               wallet={bootstrap.wallet}
               onBack={() => setProfileDialogMode('profile')}
               onOpenBlocked={() => setProfileDialogMode('blocked')}
             />
-            : profileDialogMode === 'blocked'
+            : profileDialogMode === 'blocked' && identityPanel === 'PROFILE' && adventurer.profile
             ? <BlockedAdventurersPanel onBack={() => setProfileDialogMode('settings')} />
-            : <AdventurerProfilePanel
+            : identityPanel === 'PROFILE' && adventurer.profile
+            ? <AdventurerProfilePanel
               key={`${adventurer.profile.updatedAt}-${socialRevision}`}
               profile={adventurer.profile}
               onOpenAllies={openAllies}
               onOpenEditProfile={() => setProfileDialogMode('edit-profile')}
               onOpenSettings={() => setProfileDialogMode('settings')}
               onClose={closeProfileDialog}
-            />}
-          {adventurer.status === 'ERROR' && <div className={styles.profileDialogError} role="alert">
-            <strong>Adventurer identity needs attention.</strong>
-            <p>{adventurer.error === 'SIGNATURE_CANCELLED' ? 'Signature cancelled. Retry when ready.' : 'Reconnect or retry to restore your profile session.'}</p>
-            <button type="button" className={styles.sheetSecondary} onClick={adventurer.retryRestore}>Retry identity session</button>
-          </div>}
+            />
+            : <AdventurerIdentityStatus status={adventurer.status} error={adventurer.error} retryRestore={adventurer.retryRestore} />}
         </div>
       </dialog>
       <div className={styles.footerMark}>Built for Nimiq Pay</div>
@@ -352,11 +352,13 @@ function PlayWalletStrip({
   adventurer,
   recovering,
   onCreateProfile,
+  onRetryIdentity,
 }: {
   readonly bootstrap: ReturnType<typeof usePlayWalletBootstrap>
   readonly adventurer: ReturnType<typeof useAdventurer>
   readonly recovering: boolean
   readonly onCreateProfile: () => void
+  readonly onRetryIdentity: () => void
 }) {
   if (bootstrap.status === 'CONNECTING') {
     return <div className={styles.walletStrip} role="status">{PLAY_WALLET_BOOTSTRAP_COPY.CONNECTING}</div>
@@ -397,8 +399,8 @@ function PlayWalletStrip({
         <button className={styles.sheetPrimary} type="button" onClick={onCreateProfile}>Create Adventurer profile</button>
       </>}
       {adventurer.status === 'ERROR' && <>
-        <span className={styles.walletCopy}>Adventurer identity could not be restored.</span>
-        <button className={styles.sheetPrimary} type="button" onClick={onCreateProfile}>Retry Adventurer identity</button>
+        <span className={styles.walletCopy}>Adventurer identity could not be restored. Your profile was not changed.</span>
+        <button className={styles.sheetSecondary} type="button" onClick={onRetryIdentity}>Retry identity session</button>
       </>}
     </div>
   }

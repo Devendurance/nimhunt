@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { playMissions } from '../../data/play'
 import {
   clearRunFromSearch,
@@ -13,6 +13,7 @@ import {
 } from './expeditionFlow'
 import { createInitialHUDState } from '../../game/events/gameEvents'
 import { MissionList } from './MissionList'
+import { MissionBriefActions } from './MissionBrief'
 
 describe('Real /play expedition flow', () => {
   it('launches a real game for Gem Runner', () => {
@@ -154,13 +155,42 @@ describe('Real /play expedition flow', () => {
     })
   })
 
-  it('keeps Practice as an explicit local route', () => {
-    expect(resolvePlayRoute({ dev: null, run: null, runId: null, practice: 'gem-runner', mission: null })).toEqual({
+  it('exposes Practice Run from a mission brief without a profile gate', () => {
+    const mission = playMissions[0]!
+    const onStartPractice = vi.fn()
+    const view = MissionBriefActions({
+      mission,
+      onBack: vi.fn(),
+      onStartExpedition: vi.fn(),
+      onStartPractice,
+    })
+    const practiceButton = findButtonWithText(view, 'Practice Run')
+
+    expect(practiceButton).not.toBeNull()
+    practiceButton?.onClick?.()
+    expect(onStartPractice).toHaveBeenCalledWith(mission)
+  })
+
+  it.each(['gem-runner', 'chest-hunter', 'vault-breaker'] as const)('keeps %s Practice on the authoritative local route', mission => {
+    expect(resolvePlayRoute({ dev: null, run: null, runId: null, practice: mission, mission: null })).toEqual({
       view: 'practice',
-      mission: 'gem-runner',
+      mission,
     })
   })
 })
+
+function findButtonWithText(value: unknown, text: string): { readonly onClick?: () => void } | null {
+  if (Array.isArray(value)) {
+    for (const child of value) {
+      const button = findButtonWithText(child, text)
+      if (button) return button
+    }
+    return null
+  }
+  if (!isRecord(value) || !isRecord(value.props)) return null
+  if (value.type === 'button' && collectText(value).join(' ').includes(text)) return value.props as { readonly onClick?: () => void }
+  return findButtonWithText(value.props.children, text)
+}
 
 function collectText(value: unknown): string[] {
   if (typeof value === 'string' || typeof value === 'number') return [String(value)]

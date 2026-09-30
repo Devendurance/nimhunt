@@ -48,7 +48,17 @@ export function isProfileReady(status: AdventurerClientStatus): boolean {
   return status === 'READY'
 }
 
-export type RealExpeditionGateDecision = 'ALLOW' | 'CONNECT_WALLET' | 'ONBOARD'
+export type AdventurerIdentityPanel = 'CONNECT' | 'RESTORING' | 'CREATE_PROFILE' | 'PROFILE' | 'RECOVERY'
+
+export function resolveAdventurerIdentityPanel(status: AdventurerClientStatus, hasProfile: boolean): AdventurerIdentityPanel {
+  if (status === 'NEEDS_PROFILE') return 'CREATE_PROFILE'
+  if (status === 'RESTORING') return 'RESTORING'
+  if (status === 'READY' && hasProfile) return 'PROFILE'
+  if (status === 'ERROR') return 'RECOVERY'
+  return 'CONNECT'
+}
+
+export type RealExpeditionGateDecision = 'ALLOW' | 'CONNECT_WALLET' | 'ONBOARD' | 'RECOVER_IDENTITY'
 
 export function resolveRealExpeditionGate(input: {
   readonly enabled: boolean
@@ -57,5 +67,7 @@ export function resolveRealExpeditionGate(input: {
 }): RealExpeditionGateDecision {
   if (!input.enabled) return 'ALLOW'
   if (!input.wallet) return 'CONNECT_WALLET'
-  return input.adventurerStatus === 'READY' ? 'ALLOW' : 'ONBOARD'
+  if (input.adventurerStatus === 'READY') return 'ALLOW'
+  if (input.adventurerStatus === 'NEEDS_PROFILE') return 'ONBOARD'
+  return 'RECOVER_IDENTITY'
 }

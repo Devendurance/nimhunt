@@ -49,11 +49,26 @@ export function MissionBrief({ mission, dialogRef, onBack, onStartExpedition, on
             {mission.id === 'vault-breaker' && <p className={styles.sheetObjective}>Finish the route alive, then seal the Vault through Nimiq Pay.</p>}
             <div className={styles.eligibility}><strong>Before you enter</strong><p>Complete the task alive to become reward-eligible while NIM treasures remain.</p></div>
           </div>
-          <div className={styles.sheetActions}>
-            <button className={styles.sheetSecondary} type="button" onClick={onBack}><PlayIcon name="arrowLeft" size={16} />Back</button>
-            <button className={styles.sheetPrimary} type="button" onClick={() => onStartExpedition(mission)}>Start expedition<PlayIcon name="play" size={16} /></button>
-          </div>
+          <MissionBriefActions
+            mission={mission}
+            onBack={onBack}
+            onStartExpedition={onStartExpedition}
+            onStartPractice={onStartPractice}
+          />
         </>}
     </div>
   </dialog>
+}
+
+export function MissionBriefActions({ mission, onBack, onStartExpedition, onStartPractice }: {
+  readonly mission: Mission
+  readonly onBack: () => void
+  readonly onStartExpedition: (mission: Mission) => void
+  readonly onStartPractice: (mission: Mission) => void
+}) {
+  return <div className={styles.sheetActions}>
+    <button className={styles.sheetSecondary} type="button" onClick={onBack}><PlayIcon name="arrowLeft" size={16} />Back</button>
+    <button className={styles.sheetSecondary} type="button" onClick={() => onStartPractice(mission)}>Practice Run</button>
+    <button className={styles.sheetPrimary} type="button" onClick={() => onStartExpedition(mission)}>Start expedition<PlayIcon name="play" size={16} /></button>
+  </div>
 }
