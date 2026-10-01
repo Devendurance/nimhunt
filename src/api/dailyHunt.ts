@@ -50,12 +50,14 @@ export function parseDailyHuntStatus(value: unknown): DailyHuntStatus | null {
     return null
   }
   if (typeof record.dayKey !== 'string' || typeof record.nextResetAt !== 'string') return null
+  const rewardWeek = parseRewardWeekStatus(record.rewardWeek)
   return {
     totalSlots: record.totalSlots,
     reservedSlots: record.reservedSlots,
     remainingSlots: record.remainingSlots,
     dayKey: record.dayKey,
     nextResetAt: record.nextResetAt,
+    ...(rewardWeek ? { rewardWeek } : {}),
   }
 }
 
@@ -73,6 +75,15 @@ function parseWalletDailyStatus(value: unknown): WalletDailyStatus | null {
     rewardAlreadyReserved: record.rewardAlreadyReserved,
     nextResetAt: record.nextResetAt,
   }
+}
+
+function parseRewardWeekStatus(value: unknown): { active: true; endsAt: string } | null {
+  if (typeof value !== 'object' || value === null) return null
+  const record = value as Record<string, unknown>
+  if (record.active !== true || typeof record.endsAt !== 'string') return null
+  const parsed = new Date(record.endsAt)
+  if (Number.isNaN(parsed.getTime()) || parsed.toISOString() !== record.endsAt) return null
+  return { active: true, endsAt: record.endsAt }
 }
 
 function isFiniteNumber(value: unknown): value is number {

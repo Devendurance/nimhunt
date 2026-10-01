@@ -68,6 +68,7 @@ export type DurableRewardClaim = {
   readonly createdAt: string
   readonly expiresAt: string
   readonly finalizedAt: string | null
+  readonly rewardAmountLuna: bigint | null
   readonly reservationNumber: number | null
 }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatExpeditionsLeftToday, formatResetCountdown, resolveHuntStatusView } from './huntStatusView.ts'
+import { formatExpeditionsLeftToday, formatResetCountdown, formatRewardWeekCountdown, resolveHuntStatusView } from './huntStatusView.ts'
 
 describe('HuntStatus live treasure view', () => {
   it('does not present the fixture treasure count as live while loading or unavailable', () => {
@@ -79,6 +79,27 @@ describe('HuntStatus live treasure view', () => {
       rewardAlreadyReserved: false,
       nextResetAt: '2026-09-10T00:00:00.000Z',
     })).toBe('1 EXPEDITION LEFT TODAY')
+  })
+
+  it('shows Reward Week only when the server marks the policy active', () => {
+    const active = resolveHuntStatusView({
+      kind: 'live',
+      remainingSlots: 69,
+      totalSlots: 69,
+      nextResetAt: '2026-10-06T00:00:00.000Z',
+      rewardWeek: { active: true, endsAt: '2026-10-12T00:00:00.000Z' },
+      walletStatus: null,
+    }, Date.parse('2026-10-05T12:00:00.000Z'))
+    const baseline = resolveHuntStatusView({
+      kind: 'live',
+      remainingSlots: 69,
+      totalSlots: 69,
+      nextResetAt: '2026-10-06T00:00:00.000Z',
+      walletStatus: null,
+    })
+    expect(active.rewardWeek).toEqual({ active: true, endsAt: '2026-10-12T00:00:00.000Z' })
+    expect(formatRewardWeekCountdown(active.rewardWeek!.endsAt, Date.parse('2026-10-05T12:00:00.000Z'))).toBe('6D 12:00:00')
+    expect(baseline.rewardWeek).toBeNull()
   })
 
   it('formats the UTC reset countdown from the server timestamp', () => {

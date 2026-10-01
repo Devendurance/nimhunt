@@ -51,7 +51,7 @@ export function createSupabaseTreasureBankSource(client: SupabaseClient): Treasu
       if (!wallet || wallet.length > 80) throw new TreasureBankError('TREASURE_UNAVAILABLE')
       const { data: claimRows, error: claimError } = await client
         .from('reward_claims')
-        .select('claim_id,run_id,wallet,mission,day_key,status,finalized_at,created_at')
+        .select('claim_id,run_id,wallet,mission,day_key,status,finalized_at,created_at,reward_amount_luna')
         .eq('wallet', wallet)
         .eq('status', 'RESERVED')
         .order('day_key', { ascending: false })
@@ -68,6 +68,9 @@ export function createSupabaseTreasureBankSource(client: SupabaseClient): Treasu
           ? null
           : new Date(String((row as Record<string, unknown>).finalized_at)).toISOString(),
         createdAt: new Date(String((row as Record<string, unknown>).created_at ?? new Date().toISOString())).toISOString(),
+        amountLuna: (row as Record<string, unknown>).reward_amount_luna == null
+          ? null
+          : String((row as Record<string, unknown>).reward_amount_luna),
       })).filter(claim => claim.claimId && claim.runId && claim.wallet === wallet)
 
       const { data: payoutRows, error: payoutError } = await client

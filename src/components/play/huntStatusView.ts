@@ -1,9 +1,11 @@
 import type { WalletDailyStatus } from '../../domain/dailyLedger'
 
+export type HuntRewardWeek = { readonly active: true; readonly endsAt: string }
+
 export type HuntTreasureSource =
   | { kind: 'loading'; walletStatus: WalletDailyStatus | null }
   | { kind: 'unavailable'; walletStatus: WalletDailyStatus | null }
-  | { kind: 'live'; remainingSlots: number; totalSlots: number; nextResetAt: string; walletStatus: WalletDailyStatus | null }
+  | { kind: 'live'; remainingSlots: number; totalSlots: number; nextResetAt: string; rewardWeek?: HuntRewardWeek; walletStatus: WalletDailyStatus | null }
 
 export type HuntStatusView = {
   treasuresRemaining: string
@@ -14,6 +16,7 @@ export type HuntStatusView = {
   badge: string
   live: boolean
   busy: boolean
+  rewardWeek: HuntRewardWeek | null
 }
 
 export function resolveHuntStatusView(source: HuntTreasureSource, nowMs = Date.now()): HuntStatusView {
@@ -26,6 +29,7 @@ export function resolveHuntStatusView(source: HuntTreasureSource, nowMs = Date.n
       badge: 'CHECKING',
       live: false,
       busy: true,
+      rewardWeek: null,
     }
   }
   if (source.kind === 'unavailable') {
@@ -37,6 +41,7 @@ export function resolveHuntStatusView(source: HuntTreasureSource, nowMs = Date.n
       badge: 'UNAVAILABLE',
       live: false,
       busy: false,
+      rewardWeek: null,
     }
   }
   return {
@@ -47,6 +52,7 @@ export function resolveHuntStatusView(source: HuntTreasureSource, nowMs = Date.n
     badge: 'LIVE',
     live: true,
     busy: false,
+    rewardWeek: source.rewardWeek ?? null,
   }
 }
 
@@ -62,6 +68,15 @@ export function formatExpeditionsLeftToday(status: WalletDailyStatus | null): st
   if (!status) return null
   const remaining = status.expeditionsRemaining
   return `${remaining} ${remaining === 1 ? 'EXPEDITION' : 'EXPEDITIONS'} LEFT TODAY`
+}
+
+export function formatRewardWeekCountdown(endsAt: string, nowMs: number): string {
+  const seconds = Math.max(0, Math.floor((Date.parse(endsAt) - nowMs) / 1000))
+  const days = Math.floor(seconds / 86_400)
+  const hours = Math.floor(seconds / 3600) % 24
+  const minutes = Math.floor(seconds / 60) % 60
+  const rest = seconds % 60
+  return `${days}D ${[hours, minutes, rest].map(value => String(value).padStart(2, '0')).join(':')}`
 }
 
 export function formatResetCountdown(nextResetAt: string, nowMs: number): string {

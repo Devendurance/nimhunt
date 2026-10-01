@@ -17,6 +17,7 @@ import {
   VERIFY_EXPEDITION_PATH,
 } from '../../src/domain/expeditionProof.js'
 import { createLazyValue, type LazyValue } from './lazyValue.js'
+import { createRewardPolicy } from '../rewards/policy.js'
 import type { ExpeditionProofService, MemoryProofService } from './types.js'
 
 const OWNED_EXPEDITION_PATHS = new Set([
@@ -119,7 +120,7 @@ export async function createDefaultProofService(
   runtime: ExpeditionRuntime,
   env: Record<string, string | undefined> = process.env,
 ): Promise<ExpeditionProofService | null> {
-  if (runtime.backend === 'memory') return createDevelopmentMemoryProofService()
+  if (runtime.backend === 'memory') return createDevelopmentMemoryProofService(env)
   if (runtime.backend !== 'postgres') return null
   const { readServerSupabaseConfig, createSupabaseAdminClient } = await import('../ledger/config.js')
   const config = readServerSupabaseConfig(env)
@@ -130,15 +131,19 @@ export async function createDefaultProofService(
   return createSupabaseProofService({
     client: createSupabaseAdminClient(config),
     blueprints: createDailyPublishedBlueprints(utcDayKey(new Date())),
+    rewardPolicy: createRewardPolicy(env),
   })
 }
 
-export async function createDevelopmentMemoryProofService(): Promise<MemoryProofService> {
+export async function createDevelopmentMemoryProofService(
+  env: Record<string, string | undefined> = process.env,
+): Promise<MemoryProofService> {
   const { utcDayKey } = await import('../ledger/utcDay.js')
   const { createDailyPublishedBlueprints } = await import('./blueprintBootstrap.js')
   const { createMemoryProofService } = await import('./memoryProofStore.js')
   return createMemoryProofService({
     blueprints: createDailyPublishedBlueprints(utcDayKey(new Date())),
+    rewardPolicy: createRewardPolicy(env),
   })
 }
 

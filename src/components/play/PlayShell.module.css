@@ -77,6 +77,10 @@
 .missionMeta { flex-wrap: wrap; row-gap: 4px; }
 .statusEyebrow { color: #f3ead7; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; }
 .statusDot { width: 7px; height: 7px; margin-right: -6px; border-radius: 50%; background: #3e88f7; box-shadow: 0 0 10px rgba(62, 136, 247, .7); }
+.rewardWeek { display: grid; gap: 3px; margin-top: 14px; padding: 10px 12px; border-left: 2px solid #f2c14e; background: rgba(242, 193, 78, .08); }
+.rewardWeek strong { color: #ffd86a; font-size: 10px; letter-spacing: 1.1px; }
+.rewardWeek span { color: #f3ead7; font-size: 13px; font-weight: 700; letter-spacing: .3px; }
+.rewardWeek small { color: #b5c2b5; font-size: 9px; letter-spacing: .8px; }
 .fixtureBadge, .sampleLabel { color: #8fb5a3; font-size: 8px; font-weight: 700; letter-spacing: 1px; }
 .fixtureBadge { white-space: nowrap; }
 .statusEyebrow .fixtureBadge { white-space: normal; text-align: right; max-width: 54%; }

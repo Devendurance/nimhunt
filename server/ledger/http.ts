@@ -9,6 +9,7 @@ import {
   type LedgerErrorCode,
 } from '../../src/domain/dailyLedger.js'
 import { isLedgerError, LedgerError } from './errors.js'
+import { createRewardPolicy } from '../rewards/policy.js'
 import type { DailyLedger } from './types.js'
 
 export const MAX_LEDGER_BODY_BYTES = 12_288
@@ -37,6 +38,7 @@ const WRITE_PATHS = new Set([
 export async function dispatchLedgerHttp(
   ledger: DailyLedger | null,
   request: LedgerHttpRequest,
+  env: Record<string, string | undefined> = process.env,
 ): Promise<LedgerHttpResponse> {
   const method = request.method.toUpperCase()
   const path = request.path.split('?')[0] ?? request.path
@@ -50,7 +52,8 @@ export async function dispatchLedgerHttp(
     if (method !== 'GET') return methodNotAllowed()
     return withLedger(ledger, async active => {
       const status = await active.getDailyHuntStatus()
-      return { status: 200, body: { ok: true, ...status } }
+      const rewardWeek = createRewardPolicy(env).publicStatus(new Date())
+      return { status: 200, body: { ok: true, ...status, ...(rewardWeek ? { rewardWeek } : {}) } }
     })
   }
 

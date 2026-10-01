@@ -48,6 +48,16 @@ describe('treasure bank read model', () => {
     expect(bank.rewards[0]).toMatchObject({ status: 'SECURED', amountNim: 100, txHash: null })
   })
 
+  it('reports the immutable claim amount before a payout row exists', () => {
+    const bank = buildTreasureBank({
+      claims: [claim({ claimId: 'event', runId: 'r-event', amountLuna: 1_449_275n })],
+      payouts: [],
+      fallbackAmountLuna: BETA_REWARD_AMOUNT_LUNA,
+    })
+    expect(bank.rewards[0]).toMatchObject({ status: 'SECURED', amountNim: 14.49275 })
+    expect(bank.pendingNim).toBe(14.49275)
+  })
+
   it('maps SUBMITTED to PROCESSING with tx hash, CONFIRMED to DELIVERED', () => {
     const tx = 'ab'.repeat(32)
     const bank = buildTreasureBank({

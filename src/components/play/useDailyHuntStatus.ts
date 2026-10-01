@@ -7,7 +7,7 @@ import type { HuntTreasureSource } from './huntStatusView'
 type PublicHuntSource =
   | { kind: 'loading' }
   | { kind: 'unavailable' }
-  | { kind: 'live'; remainingSlots: number; totalSlots: number; nextResetAt: string }
+  | { kind: 'live'; remainingSlots: number; totalSlots: number; nextResetAt: string; rewardWeek?: { active: true; endsAt: string } }
 
 export function useDailyHuntStatus(wallet = getRememberedProductWallet()): HuntTreasureSource {
   const [publicSource, setPublicSource] = useState<PublicHuntSource>({ kind: 'loading' })
@@ -23,6 +23,7 @@ export function useDailyHuntStatus(wallet = getRememberedProductWallet()): HuntT
           remainingSlots: result.status.remainingSlots,
           totalSlots: result.status.totalSlots,
           nextResetAt: result.status.nextResetAt,
+          ...(result.status.rewardWeek ? { rewardWeek: result.status.rewardWeek } : {}),
         })
         return
       }

@@ -41,12 +41,18 @@ export type LedgerErrorCode =
   | 'LEDGER_UNAVAILABLE'
   | 'MALFORMED_REQUEST'
 
+export type RewardWeekStatus = {
+  active: true
+  endsAt: string
+}
+
 export type DailyHuntStatus = {
   totalSlots: number
   reservedSlots: number
   remainingSlots: number
   dayKey: string
   nextResetAt: string
+  rewardWeek?: RewardWeekStatus | null
 }
 
 export type WalletDailyStatus = {

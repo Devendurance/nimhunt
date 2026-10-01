@@ -28,6 +28,7 @@ export type TreasureBankClaimRow = {
   readonly status: string
   readonly finalizedAt: string | null
   readonly createdAt: string
+  readonly amountLuna?: bigint | number | string | null
 }
 
 export type TreasureBankPayoutRow = {
@@ -73,8 +74,8 @@ export function lunaToNim(amountLuna: bigint | number | string): number {
   const whole = luna / LUNA_PER_NIM
   const remainder = luna % LUNA_PER_NIM
   if (remainder === 0n) return Number(whole)
-  // Keep up to 5 decimals without float drift for non-round amounts.
-  return Number(whole) + Number(remainder) / Number(LUNA_PER_NIM)
+  // Parse the exact five-decimal NIM text rather than adding binary floats.
+  return Number(`${whole}.${remainder.toString().padStart(5, '0')}`)
 }
 
 function asMission(mission: string): TreasureBankMission | null {
@@ -135,6 +136,12 @@ export function buildTreasureBank(input: {
     if (payout) {
       try {
         amountNim = lunaToNim(payout.amountLuna)
+      } catch {
+        amountNim = fallbackNim
+      }
+    } else if (claim.amountLuna != null) {
+      try {
+        amountNim = lunaToNim(claim.amountLuna)
       } catch {
         amountNim = fallbackNim
       }

@@ -1,5 +1,5 @@
 import { createHash, randomUUID, timingSafeEqual } from 'node:crypto'
-import { automaticPayoutsAllowed, type PayoutExecutionConfig, type TreasurySecret } from './config.js'
+import { automaticPayoutsAllowed, resolvePayoutEconomics, type PayoutExecutionConfig, type TreasurySecret } from './config.js'
 import { isPayoutError, PayoutError } from './errors.js'
 import { runPayoutWorker, type PayoutWorkerLog, type PayoutWorkerReport } from './worker.js'
 import {
@@ -222,7 +222,8 @@ export async function readPayoutOperationsStatus(options: {
   const snapshot = await readSnapshotWithFallback(options.store, options.now ?? new Date())
   const treasuryPublicAddress = readTreasuryAddress(options.treasury)
   const treasuryBalanceLuna = await readTreasuryBalance(options.treasury)
-  const cap = options.config.maxDailyRewardLuna
+  const effective = resolvePayoutEconomics(options.config, options.now ?? new Date())
+  const cap = effective.maxDailyRewardLuna
   const remaining = cap == null
     ? null
     : cap > snapshot.executionDayCommittedLuna

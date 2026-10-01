@@ -57,6 +57,8 @@ export type UnpaidReservedClaim = {
   readonly runId: string
   readonly wallet: string
   readonly dayKey: string
+  readonly rewardAmountLuna: string | null
+  readonly finalizedAt: string | null
 }
 
 export type UnpaidRiskSkipCounts = {

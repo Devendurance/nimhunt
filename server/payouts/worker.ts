@@ -4,11 +4,13 @@ import {
   requireAutomaticPayoutConfig,
   requirePayoutAmountLuna,
   requirePayoutNetwork,
+  resolvePayoutEconomics,
   type PayoutExecutionConfig,
   type TreasurySecret,
 } from './config.js'
 import { utcDayKey } from '../ledger/utcDay.js'
 import { isPayoutError, PayoutError } from './errors.js'
+import type { UnpaidReservedClaim } from './types.js'
 import { createPayoutService } from './service.js'
 import {
   AUTOMATED_PAYOUT_FEE_LUNA,
@@ -50,16 +52,18 @@ export async function preparePayoutsWithoutBroadcast(options: {
   readonly claimId?: string
 }): Promise<RewardPayout[]> {
   const network = requirePayoutNetwork(options.config)
-  const amountLuna = requirePayoutAmountLuna(options.config)
-  const claimIds = options.claimId
-    ? [options.claimId]
-    : (await options.store.listUnpaidReservedClaims(options.createLimit ?? 69)).map(claim => claim.claimId)
+  const currentEconomics = resolvePayoutEconomics(options.config, new Date())
+  const amountLuna = currentEconomics.amountLuna ?? requirePayoutAmountLuna(options.config)
+  const claims = options.claimId
+    ? [{ claimId: options.claimId, runId: '', wallet: '', dayKey: '', finalizedAt: null, rewardAmountLuna: null }]
+    : await options.store.listUnpaidReservedClaims(options.createLimit ?? 69)
   const created: RewardPayout[] = []
-  for (const claimId of claimIds) {
+  for (const claim of claims) {
+    const claimAmount = resolveClaimAmount(claim, options.config)
     const result = await options.store.create({
-      claimId,
+      claimId: claim.claimId,
       payoutId: randomUUID(),
-      amountLuna,
+      amountLuna: claimAmount ?? amountLuna,
       network,
     })
     created.push(result.payout)
@@ -76,6 +80,7 @@ export async function runPayoutWorker(options: {
   readonly log?: PayoutWorkerLog
   readonly dryRun?: boolean
   readonly mockAvailableLuna?: bigint
+  readonly now?: () => Date
   readonly onSigned?: () => void
   readonly onBroadcast?: () => void
 }): Promise<PayoutWorkerReport> {
@@ -94,11 +99,18 @@ export async function runPayoutWorker(options: {
   let reviewSkipped = 0
   let blockSkipped = 0
 
-  const executionDay = utcDayKey(new Date())
+  const now = options.now ?? (() => new Date())
+  const executionDay = utcDayKey(now())
+  const currentEconomics = resolvePayoutEconomics(options.config, now())
+  const effectiveConfig: PayoutExecutionConfig = {
+    ...options.config,
+    amountLuna: currentEconomics.amountLuna,
+    maxDailyRewardLuna: currentEconomics.maxDailyRewardLuna,
+  }
   async function finish(
     value: Omit<PayoutWorkerReport, 'wouldCreate' | 'wouldProcess' | 'dryRun' | 'executionDay' | 'executionDayCommittedLuna' | 'executionDayRemainingLuna' | 'signed' | 'broadcast'> & Partial<PayoutWorkerReport>,
   ): Promise<PayoutWorkerReport> {
-    const accounting = await readExecutionDayAccounting(options.store, options.config, executionDay, errors)
+    const accounting = await readExecutionDayAccounting(options.store, effectiveConfig, executionDay, errors)
     return report({ ...value, ...accounting, signed, broadcast })
   }
 
@@ -129,9 +141,9 @@ export async function runPayoutWorker(options: {
     const retryable = await countStatus(options.store, 'FAILED_RETRYABLE')
     const wouldCreate = eligibleClaims
     const wouldProcess = Math.min(max, pending + retryable)
-    const nextAmount = (wouldCreate > 0 || wouldProcess > 0) ? (options.config.amountLuna ?? 0n) : 0n
-    treasuryLow = mockedTreasuryLow(options.config, options.mockAvailableLuna) && nextAmount > 0n
-    dailyCapReached = await estimateDailyCapReached(options.store, options.config, nextAmount, executionDay)
+    const nextAmount = (wouldCreate > 0 || wouldProcess > 0) ? (effectiveConfig.amountLuna ?? 0n) : 0n
+    treasuryLow = mockedTreasuryLow(effectiveConfig, options.mockAvailableLuna) && nextAmount > 0n
+    dailyCapReached = await estimateDailyCapReached(options.store, effectiveConfig, nextAmount, executionDay)
     log({
       cycleId,
       event: 'dry_run',
@@ -164,7 +176,7 @@ export async function runPayoutWorker(options: {
     service = createPayoutService({
       store: options.store,
       treasury: options.treasury,
-      config: options.config,
+      config: effectiveConfig,
       hooks: {
         onSigned: () => {
           signed += 1
@@ -221,11 +233,11 @@ export async function runPayoutWorker(options: {
   let maxDailyRewardLuna: bigint
   let treasuryMinReserveLuna: bigint
   try {
-    const required = requireAutomaticPayoutConfig(options.config, options.secret)
+    const required = requireAutomaticPayoutConfig(effectiveConfig, options.secret)
     amountLuna = required.amountLuna
     maxDailyRewardLuna = required.maxDailyRewardLuna
     treasuryMinReserveLuna = required.treasuryMinReserveLuna
-    requirePayoutNetwork(options.config, 'mainnet')
+    requirePayoutNetwork(effectiveConfig, 'mainnet')
     if (options.treasury.network !== 'mainnet') throw new PayoutError('PAYOUT_NETWORK_INVALID')
   } catch (error) {
     errors.push(codeOf(error))
@@ -265,7 +277,9 @@ export async function runPayoutWorker(options: {
   for (const claim of unpaid) {
     try {
       const before = await options.store.getByClaim(claim.claimId)
-      const created = await activeService.ensureForReservedClaim(claim.claimId)
+      const claimAmount = resolveClaimAmount(claim, options.config)
+      if (claimAmount === null) throw new PayoutError('PAYOUT_AMOUNT_UNCONFIGURED')
+      const created = await activeService.ensureForReservedClaim(claim.claimId, claimAmount)
       if (!before) {
         payoutsCreated += 1
         logPayout(log, created, 'none', 'PENDING')
@@ -464,6 +478,21 @@ async function readExecutionDayAccounting(
     executionDayCommittedLuna: committed.toString(),
     executionDayRemainingLuna: remaining.toString(),
   }
+}
+
+function resolveClaimAmount(claim: UnpaidReservedClaim, config: PayoutExecutionConfig): bigint | null {
+  if (claim.rewardAmountLuna !== null) {
+    try {
+      const amount = BigInt(claim.rewardAmountLuna)
+      if (amount > 0n) return amount
+    } catch {
+      return null
+    }
+  }
+  if (config.rewardPolicy && /^\d{4}-\d{2}-\d{2}$/.test(claim.dayKey)) {
+    return config.rewardPolicy.resolveForDay(claim.dayKey).amountLuna
+  }
+  return config.amountLuna ?? null
 }
 
 function mockedTreasuryLow(config: PayoutExecutionConfig, mockAvailableLuna: bigint | undefined): boolean {

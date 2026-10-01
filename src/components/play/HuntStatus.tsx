@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { formatExpeditionsLeftToday, resolveHuntStatusView, type HuntTreasureSource } from './huntStatusView'
+import { formatExpeditionsLeftToday, formatRewardWeekCountdown, resolveHuntStatusView, type HuntTreasureSource } from './huntStatusView'
 import styles from './PlayShell.module.css'
 
 export function HuntStatus({ hunt }: { hunt: HuntTreasureSource }) {
@@ -20,6 +20,11 @@ export function HuntStatus({ hunt }: { hunt: HuntTreasureSource }) {
       <span id="hunt-status-heading">TODAY'S HUNT</span>
       <span className={styles.fixtureBadge}>{view.badge}</span>
     </div>
+    {view.rewardWeek && <div className={styles.rewardWeek} role="status">
+      <strong>REWARD WEEK</strong>
+      <span>1,000 NIM DAILY · 7 DAYS</span>
+      <small>ENDS IN {formatRewardWeekCountdown(view.rewardWeek.endsAt, now)}</small>
+    </div>}
     <div className={styles.statusGrid}>
       <div className={styles.treasureMetric}>
         <strong>{view.treasuresRemaining}<span> / {view.treasuresTotal}</span></strong>

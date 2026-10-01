@@ -1,4 +1,5 @@
 import { PayoutError } from './errors.js'
+import { createRewardPolicy, type RewardPolicy } from '../rewards/policy.js'
 import {
   DAILY_REWARD_SLOTS,
   LUNA_PER_NIM,
@@ -13,6 +14,7 @@ export type PayoutExecutionConfig = {
   readonly automaticPayoutsEnabled?: boolean
   readonly maxDailyRewardLuna?: bigint | null
   readonly treasuryMinReserveLuna?: bigint | null
+  readonly rewardPolicy?: RewardPolicy
 }
 
 export type TreasurySecret =
@@ -39,6 +41,7 @@ export function readPayoutExecutionConfig(
     amountLuna: parsePositiveLuna(env.NIMHUNT_REWARD_AMOUNT_LUNA),
     maxDailyRewardLuna: parsePositiveLuna(env.NIMHUNT_MAX_DAILY_REWARD_LUNA),
     treasuryMinReserveLuna: parseNonNegativeLuna(env.NIMHUNT_TREASURY_MIN_RESERVE_LUNA),
+    rewardPolicy: createRewardPolicy(env),
   }
 }
 
@@ -51,21 +54,24 @@ export function automaticPayoutsAllowed(config: PayoutExecutionConfig): boolean 
 export function requireAutomaticPayoutConfig(
   config: PayoutExecutionConfig,
   secret?: TreasurySecret | null,
+  at = new Date(),
 ): {
   readonly amountLuna: bigint
   readonly maxDailyRewardLuna: bigint
   readonly treasuryMinReserveLuna: bigint
 } {
-  const amountLuna = requirePayoutAmountLuna(config)
+  const effective = resolvePayoutEconomics(config, at)
+  const amountLuna = effective.amountLuna
+  if (amountLuna === null || amountLuna === undefined) throw new PayoutError('PAYOUT_AMOUNT_UNCONFIGURED')
   requirePayoutNetwork(config, 'mainnet')
   if (config.network !== 'mainnet') throw new PayoutError('PAYOUT_NETWORK_INVALID')
   if (!config.mainnetEnabled) throw new PayoutError('PAYOUT_MAINNET_DISABLED')
   if (!config.automaticPayoutsEnabled) throw new PayoutError('PAYOUT_AUTOMATION_DISABLED')
-  if (config.maxDailyRewardLuna === null || config.maxDailyRewardLuna === undefined) {
+  if (effective.maxDailyRewardLuna === null || effective.maxDailyRewardLuna === undefined) {
     throw new PayoutError('PAYOUT_DAILY_CAP_INVALID')
   }
-  if (config.maxDailyRewardLuna <= 0n) throw new PayoutError('PAYOUT_DAILY_CAP_INVALID')
-  if (amountLuna * BigInt(DAILY_REWARD_SLOTS) > config.maxDailyRewardLuna) {
+  if (effective.maxDailyRewardLuna <= 0n) throw new PayoutError('PAYOUT_DAILY_CAP_INVALID')
+  if (amountLuna * BigInt(DAILY_REWARD_SLOTS) > effective.maxDailyRewardLuna) {
     throw new PayoutError('PAYOUT_DAILY_CAP_INVALID')
   }
   if (config.treasuryMinReserveLuna === null || config.treasuryMinReserveLuna === undefined) {
@@ -75,8 +81,32 @@ export function requireAutomaticPayoutConfig(
   if (secret === null) throw new PayoutError('PAYOUT_TREASURY_UNAVAILABLE')
   return {
     amountLuna,
-    maxDailyRewardLuna: config.maxDailyRewardLuna,
+    maxDailyRewardLuna: effective.maxDailyRewardLuna,
     treasuryMinReserveLuna: config.treasuryMinReserveLuna,
+  }
+}
+
+export function resolvePayoutEconomics(
+  config: PayoutExecutionConfig,
+  at: Date,
+): { readonly amountLuna: bigint | null; readonly maxDailyRewardLuna: bigint | null } {
+  const rewardPolicy = config.rewardPolicy
+  if (!rewardPolicy) {
+    return {
+      amountLuna: config.amountLuna ?? null,
+      maxDailyRewardLuna: config.maxDailyRewardLuna ?? null,
+    }
+  }
+  const economics = rewardPolicy.resolveAt(at)
+  if (!economics.rewardWeekActive) {
+    return {
+      amountLuna: config.amountLuna ?? null,
+      maxDailyRewardLuna: config.maxDailyRewardLuna ?? null,
+    }
+  }
+  return {
+    amountLuna: economics.amountLuna,
+    maxDailyRewardLuna: economics.maxDailyRewardLuna,
   }
 }
 

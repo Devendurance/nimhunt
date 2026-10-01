@@ -52,7 +52,7 @@ import {
   runPatternHash,
   toRiskPrepareResult,
 } from './riskGate.js'
-import { assertRewardTreasuryCap } from './treasuryCap.js'
+import { createRewardPolicy, type RewardPolicy } from '../rewards/policy.js'
 import type {
   Clock,
   DurableExpeditionRun,
@@ -101,8 +101,10 @@ class AsyncMutex {
 export function createMemoryProofService(options: {
   readonly clock?: Clock
   readonly blueprints?: readonly ExpeditionBlueprint[]
+  readonly rewardPolicy?: RewardPolicy
 } = {}): MemoryProofService {
   const clock = options.clock ?? { now: () => new Date() }
+  const rewardPolicy = options.rewardPolicy ?? createRewardPolicy()
   const mutex = new AsyncMutex()
   const blueprints = new Map<string, ExpeditionBlueprint>()
   const challenges = new Map<string, DurableStartChallenge>()
@@ -147,7 +149,11 @@ export function createMemoryProofService(options: {
   }
 
   function evaluateClaimRisk(run: DurableExpeditionRun, risk?: RiskContext) {
-    assertRewardTreasuryCap()
+    const economics = rewardPolicy.resolveForDay(run.dayKey)
+    if (economics.maxDailyRewardLuna !== null
+      && (economics.amountLuna === null || economics.amountLuna * BigInt(DAILY_REWARD_SLOTS) > economics.maxDailyRewardLuna)) {
+      throw new ProofError('REWARD_UNAVAILABLE')
+    }
     const installIdHash = installHash(risk)
     const patternHash = runPatternHash(run)
     recordRiskSignal('CLAIM', run.wallet, run.dayKey, risk, run.runId, patternHash)
@@ -602,6 +608,8 @@ export function createMemoryProofService(options: {
           claims.set(claim.claimId, claim)
           return toFinalizeResult(claim, { remainingSlots: 0, reservationNumber: null })
         }
+        const economics = rewardPolicy.resolveForDay(run.dayKey)
+        if (economics.amountLuna === null) throw new ProofError('REWARD_UNAVAILABLE')
         const reservationNumber = current + 1
         reservedSlots.set(run.dayKey, reservationNumber)
         walletRewards.set(walletKeyName, 1)
@@ -611,6 +619,7 @@ export function createMemoryProofService(options: {
           publicKey: input.publicKey,
           signature: input.signature,
           finalizedAt: now.toISOString(),
+          rewardAmountLuna: economics.amountLuna,
           reservationNumber,
         }
         claims.set(claim.claimId, claim)

@@ -86,6 +86,7 @@ export function createPreparedRewardClaim(run: DurableExpeditionRun, now: Date):
     createdAt: now.toISOString(),
     expiresAt: nextUtcResetAt(run.dayKey),
     finalizedAt: null,
+    rewardAmountLuna: null,
     reservationNumber: null,
   }
 }

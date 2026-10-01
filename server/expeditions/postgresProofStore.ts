@@ -70,7 +70,7 @@ import {
   runPatternHash,
   toRiskPrepareResult,
 } from './riskGate.js'
-import { assertRewardTreasuryCap } from './treasuryCap.js'
+import { createRewardPolicy, type RewardPolicy } from '../rewards/policy.js'
 import { prepareProductVaultSeal, verifyProductVaultSeal } from './vaultSeal.js'
 import { abandonExpeditionRun, verifyExpeditionRun } from './verify.js'
 import { nextUtcResetAt, utcDayKey } from '../ledger/utcDay.js'
@@ -79,8 +79,10 @@ import { normalizeNimiqWallet } from '../ledger/wallet.js'
 export async function createPostgresProofService(options: {
   readonly rpc: ProofRpcClient
   readonly blueprints?: readonly ExpeditionBlueprint[]
+  readonly rewardPolicy?: RewardPolicy
 }): Promise<ProofService> {
   const rpc = options.rpc
+  const rewardPolicy = options.rewardPolicy ?? createRewardPolicy()
   const recoveryChallengeTimes = new Map<string, { issuedAt: string; expiresAt: string }>()
   const service: ProofService = {
     async registerBlueprint(blueprint) {
@@ -401,7 +403,7 @@ export async function createPostgresProofService(options: {
 
     async prepareRewardClaim(runId, session, risk) {
       const { run, now } = await requireAuthenticatedRun(rpc, runId, session)
-      const gated = await evaluateClaimRisk(rpc, run, session, risk)
+      const gated = await evaluateClaimRisk(rpc, run, session, risk, rewardPolicy)
       if (gated.blocked) return gated.blocked
       const prepared = createPreparedRewardClaim(run, now)
       const persisted = readProofRpc(await rpc.rpc('prepare_reward_claim', {
@@ -433,8 +435,10 @@ export async function createPostgresProofService(options: {
           reservationNumber: stored.reservationNumber,
         })
       }
-      const gated = await evaluateClaimRisk(rpc, run, input.session, input.risk)
+      const gated = await evaluateClaimRisk(rpc, run, input.session, input.risk, rewardPolicy)
       if (gated.blocked) throw new ProofError('CLAIM_NOT_ELIGIBLE')
+      const rewardAmountLuna = rewardPolicy.resolveForDay(run.dayKey).amountLuna
+      if (rewardAmountLuna === null) throw new ProofError('REWARD_UNAVAILABLE')
       verifySignedRewardClaim(run, stored, {
         claimId: input.claimId,
         payload: input.payload,
@@ -451,6 +455,7 @@ export async function createPostgresProofService(options: {
         p_claim_payload_hash: stored.claimPayloadHash,
         p_public_key: input.publicKey,
         p_signature: input.signature,
+        p_reward_amount_luna: rewardAmountLuna.toString(),
       }))
       const claim = asRewardClaim(asRecord(persisted.claim))
       return toFinalizeResult(claim, {
@@ -716,10 +721,12 @@ export async function createPostgresProofService(options: {
 export async function createSupabaseProofService(options: {
   readonly client: SupabaseClient
   readonly blueprints?: readonly ExpeditionBlueprint[]
+  readonly rewardPolicy?: RewardPolicy
 }): Promise<ProofService> {
   return createPostgresProofService({
     rpc: createSupabaseProofRpcClient(options.client),
     blueprints: options.blueprints,
+    rewardPolicy: options.rewardPolicy,
   })
 }
 
@@ -931,9 +938,14 @@ async function evaluateClaimRisk(
   rpc: ProofRpcClient,
   run: DurableExpeditionRun,
   session: RunSessionRecord,
-  risk?: RiskContext,
+  risk: RiskContext | undefined,
+  rewardPolicy: RewardPolicy,
 ) {
-  assertRewardTreasuryCap()
+  const economics = rewardPolicy.resolveForDay(run.dayKey)
+  if (economics.maxDailyRewardLuna !== null
+    && (economics.amountLuna === null || economics.amountLuna * 69n > economics.maxDailyRewardLuna)) {
+    throw new ProofError('REWARD_UNAVAILABLE')
+  }
   const installIdHash = risk?.installId ? hashInstallId(risk.installId) : null
   const patternHash = runPatternHash(run)
   await recordRiskSignal(rpc, 'CLAIM', run.wallet, run.dayKey, risk, run.runId, patternHash)
@@ -990,6 +1002,7 @@ function asRewardClaim(value: unknown): DurableRewardClaim {
     createdAt: asIso(row.created_at),
     expiresAt: asIso(row.expires_at),
     finalizedAt: row.finalized_at == null ? null : asIso(row.finalized_at),
+    rewardAmountLuna: row.reward_amount_luna == null ? null : asPositiveBigInt(row.reward_amount_luna),
     reservationNumber: row.reservation_number == null ? null : asNumber(row.reservation_number),
   }
 }
@@ -1116,6 +1129,13 @@ function asString(value: unknown): string {
 function asNumber(value: unknown): number {
   if (typeof value === 'number' && Number.isFinite(value)) return value
   if (typeof value === 'string' && value.trim() !== '' && Number.isFinite(Number(value))) return Number(value)
+  throw new ProofError('PROOF_LOST')
+}
+
+function asPositiveBigInt(value: unknown): bigint {
+  if (typeof value === 'bigint' && value > 0n) return value
+  if (typeof value === 'number' && Number.isSafeInteger(value) && value > 0) return BigInt(value)
+  if (typeof value === 'string' && /^[0-9]+$/.test(value) && BigInt(value) > 0n) return BigInt(value)
   throw new ProofError('PROOF_LOST')
 }
 

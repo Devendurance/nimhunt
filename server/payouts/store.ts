@@ -341,6 +341,8 @@ export function createMemoryPayoutStore(options: {
           runId: claim.runId,
           wallet: claim.wallet,
           dayKey: claim.dayKey,
+          rewardAmountLuna: claim.rewardAmountLuna == null ? null : String(claim.rewardAmountLuna),
+          finalizedAt: claim.finalizedAt,
         }))
     },
     async countUnpaidRiskSkips() {
@@ -460,6 +462,7 @@ export type MemoryClaimRecord = {
   readonly publicKey: string | null
   readonly signature: string | null
   readonly finalizedAt: string | null
+  readonly rewardAmountLuna?: bigint | number | string | null
 }
 
 function nextAcquirable(payouts: Map<string, RewardPayout>): RewardPayout | undefined {
@@ -606,6 +609,8 @@ function asUnpaidClaim(value: Record<string, unknown>): UnpaidReservedClaim {
     runId: asString(value.run_id),
     wallet: asString(value.wallet),
     dayKey: asString(value.day_key).slice(0, 10),
+    rewardAmountLuna: value.reward_amount_luna == null ? null : asPositiveLuna(value.reward_amount_luna),
+    finalizedAt: value.finalized_at == null ? null : asIso(value.finalized_at),
   }
 }
 
@@ -659,6 +664,10 @@ function asBigInt(value: unknown): bigint {
   if (typeof value === 'number' && Number.isInteger(value) && value > 0) return BigInt(value)
   if (typeof value === 'string' && /^[0-9]+$/.test(value)) return BigInt(value)
   throw new PayoutError('PAYOUT_AMOUNT_INVALID')
+}
+
+function asPositiveLuna(value: unknown): string {
+  return asBigInt(value).toString()
 }
 
 function asNonNegativeBigInt(value: unknown): bigint {

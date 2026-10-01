@@ -22,6 +22,7 @@ const LEDGER_PATHS = new Set([
 
 export function dailyLedgerPlugin(): Plugin {
   let ledger: DailyLedger | null = null
+  let fileEnv: Record<string, string> = {}
 
   return {
     name: 'nimhunt-daily-ledger',
@@ -31,18 +32,22 @@ export function dailyLedgerPlugin(): Plugin {
         SUPABASE_URL: env.SUPABASE_URL ?? process.env.SUPABASE_URL,
         SUPABASE_SERVICE_ROLE_KEY: env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY,
       })
+      fileEnv = env
       ledger = supabase ? createPostgresDailyLedger(createSupabaseAdminClient(supabase)) : null
     },
     configureServer(server) {
-      server.middlewares.use(createHandler(() => ledger))
+      server.middlewares.use(createHandler(() => ledger, () => ({ ...process.env, ...fileEnv })))
     },
     configurePreviewServer(server) {
-      server.middlewares.use(createHandler(() => ledger))
+      server.middlewares.use(createHandler(() => ledger, () => ({ ...process.env, ...fileEnv })))
     },
   }
 }
 
-function createHandler(getLedger: () => DailyLedger | null) {
+function createHandler(
+  getLedger: () => DailyLedger | null,
+  getEnv: () => Record<string, string | undefined>,
+) {
   return async (req: IncomingMessage, res: ServerResponse, next: () => void): Promise<void> => {
     const path = req.url?.split('?')[0] ?? ''
     if (!LEDGER_PATHS.has(path)) {
@@ -56,7 +61,7 @@ function createHandler(getLedger: () => DailyLedger | null) {
         method: req.method ?? 'GET',
         path,
         rawBody,
-      })
+      }, getEnv())
       writeJson(res, response.status, response.body)
     } catch (error) {
       const tooLarge = error instanceof Error && error.message === 'REQUEST_TOO_LARGE'

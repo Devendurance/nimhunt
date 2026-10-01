@@ -282,7 +282,7 @@ export async function dispatchProductHttp(
     method: request.method,
     path: request.path,
     rawBody: request.rawBody,
-  })
+  }, env)
 }
 
 function toSecurity(runtime: ExpeditionRuntime): ExpeditionHttpSecurity {

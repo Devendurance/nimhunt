@@ -11,7 +11,7 @@ import type {
 } from './types.js'
 
 export type PayoutService = {
-  ensureForReservedClaim(claimId: string): Promise<RewardPayout>
+  ensureForReservedClaim(claimId: string, amountLuna?: bigint): Promise<RewardPayout>
   executeNext(): Promise<RewardPayout | null>
   executeAcquired(payout: RewardPayout): Promise<RewardPayout>
   reconcile(payout?: RewardPayout): Promise<RewardPayout | null>
@@ -35,8 +35,9 @@ export function createPayoutService(options: {
   if (options.treasury.network !== network) throw new PayoutError('PAYOUT_NETWORK_INVALID')
 
   return {
-    async ensureForReservedClaim(claimId) {
-      const amountLuna = requirePayoutAmountLuna(options.config)
+    async ensureForReservedClaim(claimId, requestedAmountLuna) {
+      const amountLuna = requestedAmountLuna ?? requirePayoutAmountLuna(options.config)
+      if (amountLuna <= 0n) throw new PayoutError('PAYOUT_AMOUNT_INVALID')
       const created = await options.store.create({
         claimId,
         payoutId: randomUUID(),
