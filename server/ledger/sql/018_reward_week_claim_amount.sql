@@ -131,9 +131,15 @@ exception
   when undefined_object then null;
 end $$;
 
--- Force all new server callers through the amount-freezing signature. The
--- service-role-only old overload must not remain an alternate path.
-drop function if exists public.finalize_reward_claim(uuid, uuid, text, text, text, text, text, text);
+-- Keep the legacy service-role-only overload during the compatibility window.
+-- Migration 019 removes it only after the amount-aware application is live.
+do $$
+begin
+  revoke all on function public.finalize_reward_claim(uuid, uuid, text, text, text, text, text, text) from public, anon, authenticated;
+  grant execute on function public.finalize_reward_claim(uuid, uuid, text, text, text, text, text, text) to service_role;
+exception
+  when undefined_object then null;
+end $$;
 
 create or replace function public.finalize_reward_claim(
   p_claim_id uuid,
