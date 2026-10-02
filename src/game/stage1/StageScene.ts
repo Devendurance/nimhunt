@@ -9,8 +9,12 @@ import { tileToPixel, type GridCoord } from '../world/grid'
 import type { AngkorV2AssetKey } from '../assets/angkorV2Manifest'
 import { EXIT, GEMS, MONKEY, SNAKES, SPIKES, STAGE_DECOR, stageMap } from './level'
 import { SIMULATION_TICK_MS, initialStageState, planStageMove, reduceStage, type StageAction, type StageEvent, type StageState } from './model'
+import type { StageCarry } from '../gemRunner/contracts'
 
 export interface StageSceneOptions {
+  carry?: StageCarry
+  /** Optional local expedition authority; standalone Stage I keeps its reducer. */
+  reduceAction?: (action: StageAction) => StageState
   viewport: { width: number; height: number }
   onReady: (scene: StageScene) => void
   onState: (state: StageState) => void
@@ -47,7 +51,7 @@ export class StageScene extends Phaser.Scene {
   private reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
   private failures: string[] = []
   private effects = new Set<Phaser.GameObjects.Image>()
-  constructor(options: StageSceneOptions) { super('OuterRuins'); this.options = options }
+  constructor(options: StageSceneOptions) { super('OuterRuins'); this.options = options; this.state = initialStageState(options.carry) }
   preload() {
     this.load.on('loaderror', (file: Phaser.Loader.File) => this.failures.push(file.key))
     preloadAngkorV2Environment(this, [...additional, ...STAGE_DECOR.map(p => p.key)])
@@ -93,7 +97,7 @@ export class StageScene extends Phaser.Scene {
   }
   start() { this.reset(); this.running = true; this.game.canvas.focus() }
   reset() {
-    this.running = false; this.accumulator = 0; this.state = initialStageState(); this.transcript.length = 0
+    this.running = false; this.accumulator = 0; this.state = initialStageState(this.options.carry); this.transcript.length = 0
     this.tweens.killAll(); this.traversal?.reset()
     for (const effect of this.effects) effect.destroy()
     this.effects.clear()
@@ -111,7 +115,7 @@ export class StageScene extends Phaser.Scene {
     const url = URL.createObjectURL(blob), link = document.createElement('a'); link.href = url; link.download = 'outer-ruins-local-replay.json'; link.click(); URL.revokeObjectURL(url)
   }
   private dispatch(action: StageAction) {
-    const previous = this.state, next = reduceStage(previous, action)
+    const previous = this.state, next = this.options.reduceAction ? this.options.reduceAction(action) : reduceStage(previous, action)
     this.transcript.push(action); this.state = next
     this.game.canvas.dataset.state = JSON.stringify(next)
     for (const event of next.events.slice(previous.events.length)) this.present(event)

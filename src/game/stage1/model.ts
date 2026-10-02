@@ -1,6 +1,7 @@
 import { calculateMove } from '../systems/movement'
 import { DIRECTION_VECTORS, type Direction, type GridCoord } from '../world/grid'
 import { BOULDERS, EXIT, GEMS, GEM_REQUIREMENT, MONKEY, SNAKES, SPIKES, inZone, stageMap } from './level'
+import { assertVitals, type StageCarry } from '../gemRunner/contracts'
 
 export const SIMULATION_TICK_MS = 150
 export const DAMAGE = { spikes: 18, snake: 12, monkey: 20 } as const
@@ -26,9 +27,11 @@ export interface StageState {
   exitUnlocked: boolean; result: { gems: number; expeditionGems: number; hp: number } | null; events: StageEvent[]
 }
 export const sameCell = (a: GridCoord, b: GridCoord) => a.x === b.x && a.y === b.y
-export function initialStageState(): StageState {
-  return { version: 1, tick: 0, player: { ...stageMap.collision.playerStart }, hp: 100, invulnerableUntil: 0,
-    status: 'playing', stageGems: 0, expeditionGems: 0, collected: [], boulders: BOULDERS.map(b => ({ ...b })),
+export function initialStageState(carry: Pick<StageCarry, 'hp' | 'expeditionGems'> = { hp: 100, expeditionGems: 0 }): StageState {
+  assertVitals(carry.hp, carry.expeditionGems)
+  if (carry.hp === 0) throw new Error('Cannot start Outer Ruins with zero HP')
+  return { version: 1, tick: 0, player: { ...stageMap.collision.playerStart }, hp: carry.hp, invulnerableUntil: 0,
+    status: 'playing', stageGems: 0, expeditionGems: carry.expeditionGems, collected: [], boulders: BOULDERS.map(b => ({ ...b })),
     snakes: SNAKES.map(s => ({ id: s.id, mode: 'dormant', index: 0, nextTick: 0 })),
     monkey: { mode: 'dormant', perch: 0, nextTick: 0, target: null }, exitUnlocked: false, result: null, events: [] }
 }
@@ -105,4 +108,4 @@ export function reduceStage(state: StageState, action: StageAction): StageState 
 }
 /** Explicit ticks belong to the local transcript. No wall clock, RNG, Phaser or
  * production proof/replay contract enters this model. */
-export function replayStage(actions: readonly StageAction[]): StageState { return actions.reduce(reduceStage, initialStageState()) }
+export function replayStage(actions: readonly StageAction[], carry?: Pick<StageCarry, 'hp' | 'expeditionGems'>): StageState { return actions.reduce(reduceStage, initialStageState(carry)) }
