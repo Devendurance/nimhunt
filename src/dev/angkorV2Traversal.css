@@ -1,0 +1,17 @@
+* { box-sizing: border-box; }
+body { margin: 0; background: #132a26; color: #f3ead7; font: 15px/1.5 Inter, system-ui, sans-serif; }
+main { width: min(100%, 440px); margin: auto; padding: 12px max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); }
+header { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; }
+h1 { margin: 0; font-size: 20px; line-height: 1.2; text-wrap: balance; }
+label { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; }
+input { accent-color: #3e88f7; }
+.instructions { margin: 4px 0 12px; font-size: 13px; text-wrap: pretty; }
+.viewport { width: min(100%, 386px); margin: auto; border: 1px solid #5e7c52; background: #1b3833; touch-action: none; }
+.viewport canvas { display: block; width: 100% !important; height: auto !important; touch-action: none; }
+.controls { display: flex; justify-content: center; margin: 12px 0; }
+.debug { font-size: 12px; font-variant-numeric: tabular-nums; }
+footer { font-size: 12px; color: #a0c2ad; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid #3e88f7; outline-offset: 3px; }
+@media (max-width: 400px) { .viewport { width: calc(100% + 24px); max-width: none; margin-left: -12px; border-left: 0; border-right: 0; } }
+@media (max-height: 650px) { .instructions, footer { display: none; } header { min-height: 40px; } .controls { margin: 6px 0; } }

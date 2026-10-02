@@ -1,0 +1,42 @@
+# Traversal slice changed files
+
+Only these bounded files are committed. Unrelated .agent-state changes and videos are excluded.
+
+- `dev/angkor-v2-traversal.html`
+- `docs/angkor-v2/README.md`
+- `docs/angkor-v2/environment-system/README.md`
+- `docs/angkor-v2/traversal/README.md`
+- `docs/angkor-v2/traversal/animation.json`
+- `docs/angkor-v2/traversal/files-changed.md`
+- `docs/angkor-v2/traversal/qa-results.json`
+- `docs/angkor-v2/traversal/qa/traversal-closed-temple.png`
+- `docs/angkor-v2/traversal/qa/traversal-desktop-chamber.png`
+- `docs/angkor-v2/traversal/qa/traversal-desktop-start.png`
+- `docs/angkor-v2/traversal/qa/traversal-mobile-320.png`
+- `docs/angkor-v2/traversal/qa/traversal-mobile-debug.png`
+- `docs/angkor-v2/traversal/qa/traversal-mobile-edge.png`
+- `docs/angkor-v2/traversal/qa/traversal-mobile-reduced-motion.png`
+- `docs/angkor-v2/traversal/qa/traversal-mobile-touch.png`
+- `docs/angkor-v2/traversal/qa/traversal-mobile-world.png`
+- `docs/angkor-v2/traversal/qa/traversal-northwest-edge.png`
+- `docs/angkor-v2/traversal/qa/traversal-southeast-edge.png`
+- `docs/angkor-v2/traversal/qa/traversal-southwest-edge.png`
+- `docs/angkor-v2/traversal/qa/traversal-tall-wall.png`
+- `docs/angkor-v2/traversal/qa/traversal-world-chamber.png`
+- `docs/angkor-v2/traversal/qa/traversal-world-start.png`
+- `public/assets/game/angkor-v2/player/explorer/explorer-traversal-walk-v2.png`
+- `src/components/play/DirectionalDpad.tsx`
+- `src/dev/angkorV2Traversal.css`
+- `src/dev/angkorV2Traversal.tsx`
+- `src/dev/angkorV2TraversalFixture.ts`
+- `src/game/assets/angkorV2Manifest.test.ts`
+- `src/game/assets/angkorV2Manifest.ts`
+- `src/game/traversal/angkorV2/camera.test.ts`
+- `src/game/traversal/angkorV2/camera.ts`
+- `src/game/traversal/angkorV2/input.test.ts`
+- `src/game/traversal/angkorV2/input.ts`
+- `src/game/traversal/angkorV2/map.test.ts`
+- `src/game/traversal/angkorV2/map.ts`
+- `src/game/traversal/angkorV2/movement.test.ts`
+- `src/game/traversal/angkorV2/movement.ts`
+- `src/game/traversal/angkorV2/player.ts`

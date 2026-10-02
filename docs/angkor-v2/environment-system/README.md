@@ -1,6 +1,6 @@
 # Angkor V2 reusable environment foundation
 
-**Engineering status: READY_FOR_STAGE_1. Human visual approval of this updated QA room is required before Stage 1 work.** This slice implements the owner-approved square-grid projection alongside V1. It contains no Stage 1 map, wildlife AI, movement engine, mission changes, expedition architecture or reward/proof/payout changes.
+**Environment system: HUMAN APPROVED (owner, 2026-10-02).** This page records the original environment slice; the [traversal foundation](../traversal/README.md) builds on it and extends its player manifest. This slice implements the approved square-grid projection alongside V1. It contains no Stage 1 map, wildlife AI, movement engine, mission changes, expedition architecture or reward/proof/payout changes.
 
 Run `npm run dev` and open **[/dev/angkor-v2-environment.html](http://127.0.0.1:5174/dev/angkor-v2-environment.html)**. The [approved prototype](../projection-test/README.md) and original provisional gallery remain available. No production route, entry or Vite configuration imports the new renderer.
 
@@ -103,4 +103,4 @@ Browser checks cover eight poses, five doorway-slider positions (one lintel fade
 
 The renderer is production code available for opt-in use, while its QA entry remains development-only. P1–P6, Reward Week, Angkor V1, movement/replay/proof/reward/payout, unrelated local changes, .agent-state and videos are preserved.
 
-**Approval gate:** review the full room and phone cutaway before authorizing Gem Runner Stage 1. No Stage 1 implementation follows this slice.
+**Environment approval gate is closed.** The owner approved this environment and requested the separate traversal foundation. No Stage 1 implementation follows this environment slice.

@@ -1,6 +1,6 @@
 # Angkor Ruins V2 · Stage 1 asset kit
 
-> **Historical provisional kit.** The owner rejected this pass's wall rendering, courtyard composition, perspective consistency and standalone architecture. All 62 originals and historical QA below are retained. The owner subsequently approved the [projection prototype](projection-test/README.md); the [production environment foundation](environment-system/README.md) now implements that projection alongside this kit. No Stage 1 implementation is authorized until review of the new environment QA.
+> **Historical provisional kit.** The owner rejected this pass's wall rendering, courtyard composition, perspective consistency and standalone architecture. All 62 originals and historical QA below are retained. The owner approved the [projection prototype](projection-test/README.md) and [production environment foundation](environment-system/README.md). The separate [traversal foundation](traversal/README.md) builds on that environment. Gem Runner Stage 1 gameplay remains unimplemented.
 
 62 original GPT Image PNGs, **10,013,571 bytes / 9.55 MiB** total. This slice adds art beside V1, authoring metadata and an isolated visual review. It adds no gameplay, stage architecture, proof, reward or payout behavior. The approved master board supplied the visual language; no board crops are shipped.
 

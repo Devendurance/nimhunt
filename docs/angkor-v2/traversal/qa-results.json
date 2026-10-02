@@ -1,0 +1,79 @@
+{
+  "journey": {
+    "faded": 1,
+    "restored": 0,
+    "samples": 478,
+    "movingSamples": 396,
+    "movingCutawaySamples": 30,
+    "cameraBoundsViolations": 0,
+    "legalSequentialMoves": true,
+    "commandsToSoutheast": 44,
+    "chamber": {
+      "logical": "16,12",
+      "scroll": "335.9999999999997,215.99908403587884",
+      "foot": "528,400"
+    },
+    "edge": {
+      "logical": "27,21",
+      "scroll": "575.9999995695292,447.99999999999994"
+    },
+    "final": "2,2",
+    "errors": []
+  },
+  "touch": {
+    "bufferedBeforeCompletion": "true",
+    "turn": [
+      "UP",
+      "RIGHT"
+    ],
+    "held": {
+      "seq": 3,
+      "directions": [
+        "RIGHT",
+        "RIGHT",
+        "RIGHT"
+      ]
+    },
+    "mobile": {
+      "width": 390,
+      "documentWidth": 390,
+      "scrollY": 0,
+      "selection": "",
+      "controls": true
+    },
+    "narrow": {
+      "width": 320,
+      "height": 568,
+      "documentWidth": 320,
+      "documentHeight": 568,
+      "viewport": "352,288",
+      "controls": true,
+      "canvasWidth": 320
+    },
+    "reduced": {
+      "frames": [
+        "9"
+      ],
+      "samples": 27,
+      "cameraErrors": 0,
+      "seq": "3"
+    }
+  },
+  "closedTemple": {
+    "before": 17,
+    "after": 17,
+    "closedThreshold": "#",
+    "logical": "18,3",
+    "facing": "UP"
+  },
+  "verification": {
+    "targetedPassed": 40,
+    "fullPassed": 1116,
+    "fullSkipped": 69,
+    "build": "passed",
+    "lint": "passed",
+    "serverTypecheck": "passed",
+    "forcedRootTypecheck": "passed",
+    "note": "Full suite passed before final closed-threshold correction; all 40 affected checks plus lint/build passed on final source."
+  }
+}

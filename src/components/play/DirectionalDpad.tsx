@@ -9,6 +9,12 @@ type DirectionalDpadProps = {
   readonly inputLocked?: boolean
   readonly upRef?: Ref<HTMLButtonElement>
   readonly onReset?: () => void
+  /** Opt-in V2 holds; absent in existing production/practice callers. */
+  readonly heldInput?: {
+    press: (source: string, direction: Direction) => void
+    release: (source: string) => void
+    cancel: (source: string) => void
+  }
 }
 
 const directions = [
@@ -18,7 +24,7 @@ const directions = [
   { direction: 'DOWN', label: 'Down', Icon: ArrowDown },
 ] as const
 
-export function DirectionalDpad({ onMove, inputLocked = false, upRef, onReset }: DirectionalDpadProps) {
+export function DirectionalDpad({ onMove, inputLocked = false, upRef, onReset, heldInput }: DirectionalDpadProps) {
   const label = inputLocked ? 'Directional controls (temporarily locked)' : 'Directional controls'
 
   return <div
@@ -35,7 +41,16 @@ export function DirectionalDpad({ onMove, inputLocked = false, upRef, onReset }:
       className={`${styles.dpadBtn} ${styles[direction.toLowerCase()]}`}
       aria-label={`Move ${directionLabel}`}
       disabled={inputLocked}
-      onPointerDown={event => handleDirectionalPointerDown(event, direction, onMove, inputLocked)}
+      onPointerDown={event => {
+        if (!heldInput) { handleDirectionalPointerDown(event, direction, onMove, inputLocked); return }
+        if (inputLocked || event.button !== 0) return
+        event.preventDefault()
+        event.currentTarget.setPointerCapture(event.pointerId)
+        heldInput.press(`pointer:${event.pointerId}`, direction)
+      }}
+      onPointerUp={event => heldInput?.release(`pointer:${event.pointerId}`)}
+      onPointerCancel={event => heldInput?.cancel(`pointer:${event.pointerId}`)}
+      onLostPointerCapture={event => heldInput?.cancel(`pointer:${event.pointerId}`)}
       onClick={event => handleDirectionalClick(event, direction, onMove, inputLocked)}
     ><Icon size={26} aria-hidden="true" /></button>)}
     {onReset

@@ -1,0 +1,411 @@
+{
+  "tool": "Built-in GPT Image",
+  "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-2c77fd7f-3c51-4af2-b396-2890b77dd8b2.png",
+  "sourceDimensions": {
+    "width": 1245,
+    "height": 1263
+  },
+  "path": "/assets/game/angkor-v2/player/explorer/explorer-traversal-walk-v2.png",
+  "deliveryDimensions": {
+    "width": 1024,
+    "height": 1024
+  },
+  "bytes": 1283783,
+  "sha256": "b3e2ef4892f2c334b0cc331ebd4c60e3ca02a6f9f92406edf6b0b3a4632a1cae",
+  "frames": [
+    {
+      "left": 48,
+      "top": 14
+    },
+    {
+      "left": 309,
+      "top": 14
+    },
+    {
+      "left": 564,
+      "top": 14
+    },
+    {
+      "left": 819,
+      "top": 14
+    },
+    {
+      "left": 49,
+      "top": 270
+    },
+    {
+      "left": 305,
+      "top": 270
+    },
+    {
+      "left": 558,
+      "top": 270
+    },
+    {
+      "left": 817,
+      "top": 270
+    },
+    {
+      "left": 50,
+      "top": 526
+    },
+    {
+      "left": 304,
+      "top": 526
+    },
+    {
+      "left": 559,
+      "top": 526
+    },
+    {
+      "left": 816,
+      "top": 526
+    },
+    {
+      "left": 55,
+      "top": 782
+    },
+    {
+      "left": 310,
+      "top": 782
+    },
+    {
+      "left": 567,
+      "top": 782
+    },
+    {
+      "left": 823,
+      "top": 782
+    }
+  ],
+  "metrics": [
+    {
+      "row": 0,
+      "col": 0,
+      "originalBounds": {
+        "left": 81,
+        "top": 16,
+        "right": 287,
+        "bottom": 316
+      },
+      "deliveryBounds": {
+        "left": 48,
+        "top": 14,
+        "width": 160,
+        "height": 232
+      },
+      "footAnchor": {
+        "x": 128,
+        "y": 246
+      }
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "originalBounds": {
+        "left": 371,
+        "top": 17,
+        "right": 567,
+        "bottom": 318
+      },
+      "deliveryBounds": {
+        "left": 53,
+        "top": 14,
+        "width": 151,
+        "height": 232
+      },
+      "footAnchor": {
+        "x": 128,
+        "y": 246
+      }
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "originalBounds": {
+        "left": 663,
+        "top": 17,
+        "right": 859,
+        "bottom": 315
+      },
+      "deliveryBounds": {
+        "left": 52,
+        "top": 14,
+        "width": 153,
+        "height": 232
+      },
+      "footAnchor": {
+        "x": 128,
+        "y": 246
+      }
+    },
+    {
+      "row": 0,
+      "col": 3,
+      "originalBounds": {
+        "left": 959,
+        "top": 18,
+        "right": 1157,
+        "bottom": 317
+      },
+      "deliveryBounds": {
+        "left": 51,
+        "top": 14,
+        "width": 154,
+        "height": 232
+      },
+      "footAnchor": {
+        "x": 128,
+        "y": 246
+      }
+    },
+    {
+      "row": 1,
+      "col": 0,
+      "originalBounds": {
+        "left": 82,
+        "top": 323,
+        "right": 284,
+        "bottom": 620
+      },
+      "deliveryBounds": {
+        "left": 49,
+        "top": 14,
+        "width": 158,
+        "height": 232
+      },
+      "footAnchor": {
+        "x": 128,
+        "y": 246
+      }
+    },
+    {
+      "row": 1,
+      "col": 1,
+      "originalBounds": {
+        "left": 382,
+        "top": 323,
+        "right": 583,
+        "bottom": 619
+      },
+      "deliveryBounds": {
+        "left": 49,
+        "top": 14,
+        "width": 158,
+        "height": 232
+      },
+      "footAnchor": {
+        "x": 128,
+        "y": 246
+      }
+    },
+    {
+      "row": 1,
+      "col": 2,
+      "originalBounds": {
+        "left": 677,
+        "top": 324,
+        "right": 884,
+        "bottom": 618
+      },
+      "deliveryBounds": {
+        "left": 46,
+        "top": 14,
+        "width": 164,
+        "height": 232
+      },
+      "footAnchor": {
+        "x": 128,
+        "y": 246
+      }
+    },
+    {
+      "row": 1,
+      "col": 3,
+      "originalBounds": {
+        "left": 978,
+        "top": 324,
+        "right": 1180,
+        "bottom": 619
+      },
+      "deliveryBounds": {
+        "left": 49,
+        "top": 14,
+        "width": 159,
+        "height": 232
+      },
+      "footAnchor": {
+        "x": 128,
+        "y": 246
+      }
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "originalBounds": {
+        "left": 65,
+        "top": 625,
+        "right": 260,
+        "bottom": 916
+      },
+      "deliveryBounds": {
+        "left": 50,
+        "top": 14,
+        "width": 156,
+        "height": 232
+      },
+      "footAnchor": {
+        "x": 128,
+        "y": 246
+      }
+    },
+    {
+      "row": 2,
+      "col": 1,
+      "originalBounds": {
+        "left": 367,
+        "top": 622,
+        "right": 570,
+        "bottom": 917
+      },
+      "deliveryBounds": {
+        "left": 48,
+        "top": 14,
+        "width": 160,
+        "height": 232
+      },
+      "footAnchor": {
+        "x": 128,
+        "y": 246
+      }
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "originalBounds": {
+        "left": 662,
+        "top": 622,
+        "right": 866,
+        "bottom": 915
+      },
+      "deliveryBounds": {
+        "left": 47,
+        "top": 14,
+        "width": 162,
+        "height": 232
+      },
+      "footAnchor": {
+        "x": 128,
+        "y": 246
+      }
+    },
+    {
+      "row": 2,
+      "col": 3,
+      "originalBounds": {
+        "left": 967,
+        "top": 625,
+        "right": 1171,
+        "bottom": 919
+      },
+      "deliveryBounds": {
+        "left": 48,
+        "top": 14,
+        "width": 161,
+        "height": 232
+      },
+      "footAnchor": {
+        "x": 128,
+        "y": 246
+      }
+    },
+    {
+      "row": 3,
+      "col": 0,
+      "originalBounds": {
+        "left": 71,
+        "top": 924,
+        "right": 270,
+        "bottom": 1238
+      },
+      "deliveryBounds": {
+        "left": 55,
+        "top": 14,
+        "width": 147,
+        "height": 232
+      },
+      "footAnchor": {
+        "x": 128,
+        "y": 246
+      }
+    },
+    {
+      "row": 3,
+      "col": 1,
+      "originalBounds": {
+        "left": 367,
+        "top": 923,
+        "right": 569,
+        "bottom": 1240
+      },
+      "deliveryBounds": {
+        "left": 54,
+        "top": 14,
+        "width": 148,
+        "height": 232
+      },
+      "footAnchor": {
+        "x": 128,
+        "y": 246
+      }
+    },
+    {
+      "row": 3,
+      "col": 2,
+      "originalBounds": {
+        "left": 668,
+        "top": 922,
+        "right": 865,
+        "bottom": 1236
+      },
+      "deliveryBounds": {
+        "left": 55,
+        "top": 14,
+        "width": 146,
+        "height": 232
+      },
+      "footAnchor": {
+        "x": 128,
+        "y": 246
+      }
+    },
+    {
+      "row": 3,
+      "col": 3,
+      "originalBounds": {
+        "left": 963,
+        "top": 922,
+        "right": 1162,
+        "bottom": 1237
+      },
+      "deliveryBounds": {
+        "left": 55,
+        "top": 14,
+        "width": 147,
+        "height": 232
+      },
+      "footAnchor": {
+        "x": 128,
+        "y": 246
+      }
+    }
+  ],
+  "prompt": "Create ONE transparent gameplay WALK ATLAS for NimHunt Angkor V2. Reference image 1 is the approved Explorer identity and EXACT high overhead camera/proportions to preserve. Reference image 2 is ONLY the 4 by 4 atlas layout and walking gait guide; its more frontal camera must be corrected to reference 1. Output exactly 4 equal columns by 4 equal rows, SIXTEEN clean separated full-body poses, square cells with clear padding, no grid lines. Row 1 DOWN toward viewer; row 2 LEFT; row 3 RIGHT; row 4 UP away from viewer showing backpack and back of head. Each row four subtle alternating planted-step walk phases: left step, planted, right step, planted. All frames SAME scale, same broad hat, facial identity, cream shirt, brown gloves/trousers/boots, diagonal strap, green rolled backpack. Orthographic from high 60-65 degree angle above horizontal, looking straight along screen Y onto square grid. Large visible top of brown fedora, foreshortened body and feet exactly like approved Explorer image 1. Feet grounded on a consistent horizontal line in every equal cell, no float, no vertical body bounce, no camera turn between frames. Narrow understated leg swing appropriate to tile traversal, no running or lunges. Soft upper-left daylight, dark olive/brown ambient shadows, painterly premium mobile adventure, no pixel art. Every sprite fully inside its OWN cell, no overlap, no extra poses or extra objects. TRUE transparent alpha background, no colored background, no contact shadow ground plane, no labels/numbers/text/UI/frame borders. This is one bounded traversal atlas, not a new character design. Identity and approved camera correctness more important than dramatic animation.",
+  "normalization": "Generated atlas only: trim each separated pose, equal 232px visible source height, bottom anchor 246 in 256px frame; preserve true alpha. Original assets remain unchanged.",
+  "rejected": [
+    {
+      "key": "explorer-walk-v2",
+      "reason": "Retained provisional atlas: consistent technical anchors but camera more frontal than approved overhead Explorer. Not used by V2 traversal."
+    }
+  ]
+}

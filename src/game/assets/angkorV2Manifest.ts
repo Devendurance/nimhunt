@@ -108,6 +108,7 @@ const productionDefinitions = [
   ['root-wall-climb-height-v2', 'nature/roots', 256,256, 1,1, 36,48, .5,248/256, 'foreground', false],
   ['root-corner-wrap-height-v2', 'nature/roots', 256,256, 1,1, 40,44, .5,248/256, 'foreground', false],
   ['explorer-gameplay-down-v2', 'player/explorer', 256,256, 1,1, 25,28, .5,246/256, 'actor', false],
+  ['explorer-traversal-walk-v2', 'player/explorer', 1024,1024, 1,1, 25,29, .5,246/256, 'actor', false],
 ] as const
 const definitions = [...legacyDefinitions, ...productionDefinitions] as const
 export type AngkorV2AssetKey = typeof definitions[number][0]
@@ -130,6 +131,14 @@ export const ANGKOR_V2_EXPLORER_GAMEPLAY = {
   visibleSourceHeight: 236,
   visibleDisplayHeight: 28 * 236 / 256,
 }
+export const ANGKOR_V2_TRAVERSAL_ANIMATION = {
+  key: 'explorer-traversal-walk-v2' as const,
+  columns: 4, rows: 4, frameWidth: 256, frameHeight: 256,
+  directions: ['DOWN', 'LEFT', 'RIGHT', 'UP'] as const,
+  footAnchor: { x: 128, y: 246 }, visibleSourceHeight: 232,
+  // One four-phase gait spans two tile steps; no idle/moving camera switch.
+  stepCycleMs: 290, idleColumn: 1,
+} as const
 export const ANGKOR_V2_EXPLORER_WALK = {
   key: 'explorer-walk-v2', columns: 4, rows: 4,
   frameWidth: 128, frameHeight: 192,

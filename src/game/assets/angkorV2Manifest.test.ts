@@ -3,7 +3,7 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { inflateSync } from 'node:zlib'
 import { describe, expect, it } from 'vitest'
-import { ANGKOR_V2_MANIFEST, ANGKOR_V2_BY_KEY, ANGKOR_V2_EXPLORER_WALK, ANGKOR_V2_EXPLORER_GAMEPLAY, ANGKOR_V2_PRODUCTION_MANIFEST, ANGKOR_V2_TILE_SIZE } from './angkorV2Manifest'
+import { ANGKOR_V2_MANIFEST, ANGKOR_V2_BY_KEY, ANGKOR_V2_EXPLORER_WALK, ANGKOR_V2_EXPLORER_GAMEPLAY, ANGKOR_V2_PRODUCTION_MANIFEST, ANGKOR_V2_TRAVERSAL_ANIMATION, ANGKOR_V2_TILE_SIZE } from './angkorV2Manifest'
 
 const root = resolve(import.meta.dirname, '../../..')
 const assetRoot = resolve(root, 'public/assets/game/angkor-v2')
@@ -50,7 +50,7 @@ describe('Angkor V2 standalone delivery', () => {
     const files = readdirSync(assetRoot, { recursive: true, encoding: 'utf8' }).map(x => x.replaceAll('\\', '/')).filter(x => x.endsWith('.png') && !x.startsWith('projection-test/')).sort()
     const paths = ANGKOR_V2_MANIFEST.map(x => x.path.replace('/assets/game/angkor-v2/', '')).sort()
     expect(paths).toEqual(files)
-    expect(files).toHaveLength(81)
+    expect(files).toHaveLength(82)
     expect(new Set(ANGKOR_V2_MANIFEST.map(x => x.key)).size).toBe(files.length)
     for (const asset of ANGKOR_V2_MANIFEST) {
       const meta = png(resolve(root, 'public', asset.path.slice(1)))
@@ -106,7 +106,7 @@ describe('Angkor V2 standalone delivery', () => {
   })
 
   it('promotes the approved overhead pose with a measured gameplay silhouette and foot anchor', () => {
-    expect(ANGKOR_V2_PRODUCTION_MANIFEST).toHaveLength(19)
+    expect(ANGKOR_V2_PRODUCTION_MANIFEST).toHaveLength(20)
     expect(ANGKOR_V2_PRODUCTION_MANIFEST.every(asset => asset.status === 'production')).toBe(true)
     const asset = ANGKOR_V2_BY_KEY[ANGKOR_V2_EXPLORER_GAMEPLAY.key]
     const path = resolve(root, 'public', asset.path.slice(1))
@@ -141,6 +141,22 @@ describe('Angkor V2 standalone delivery', () => {
     expect(visited.has(resolve(root, 'src/dev/angkorV2ProjectionModel.ts'))).toBe(false)
     expect(visited.has(resolve(root, 'src/dev/angkorV2EnvironmentQA.ts'))).toBe(false)
     expect(visited.has(resolve(root, 'src/game/rendering/angkorV2/environment.ts'))).toBe(false)
+    expect(visited.has(resolve(root, 'src/game/traversal/angkorV2/movement.ts'))).toBe(false)
+    expect(visited.has(resolve(root, 'src/dev/angkorV2Traversal.tsx'))).toBe(false)
     expect(readFileSync(resolve(root, 'src/dev/angkorV2Showcase.ts'), 'utf8')).toContain('if (import.meta.env.DEV)')
+  })
+
+  it('grounds all corrected traversal frames on one foot line at equal visible height', () => {
+    const a = ANGKOR_V2_TRAVERSAL_ANIMATION
+    const { pixels, width, height } = rgba(resolve(assetRoot, 'player/explorer/explorer-traversal-walk-v2.png'))
+    expect([width, height]).toEqual([a.columns * a.frameWidth, a.rows * a.frameHeight])
+    for (let row = 0; row < a.rows; row++) for (let col = 0; col < a.columns; col++) {
+      let top: number = a.frameHeight, bottom = -1
+      for (let y = 0; y < a.frameHeight; y++) for (let x = 0; x < a.frameWidth; x++) if (pixels[((row * a.frameHeight + y) * width + col * a.frameWidth + x) * 4 + 3] > 32) {
+        top = Math.min(top, y); bottom = Math.max(bottom, y)
+      }
+      expect(bottom + 1).toBe(a.footAnchor.y)
+      expect(bottom - top + 1).toBe(a.visibleSourceHeight)
+    }
   })
 })
