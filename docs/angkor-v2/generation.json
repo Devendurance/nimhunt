@@ -1,0 +1,507 @@
+{
+  "reference": "NimHunt – Angkor Ruins V2 / Master Assets (Stage 1)",
+  "policy": "Original GPT Image standalone generations; no reference-board crops. High-resolution originals retained locally. Shipped lossless PNGs normalized to authoring canvases; Explorer frames assembled from generated sheet and dedicated UP row.",
+  "revisions": [
+    {
+      "key": "dust-small-v2",
+      "reason": "First effect contained architecture; rejected and replaced with isolated particle-only generation."
+    },
+    {
+      "key": "wall-corner-outer-v2",
+      "reason": "Initial V-shaped isometric corner conflicts with square grid camera.",
+      "rejectedSource": "exec-69e94e5d-1cf2-48dc-bed6-66b95572ff95.png"
+    },
+    {
+      "key": "wall-corner-inner-v2",
+      "reason": "Initial diagonal V corner conflicts with square grid camera.",
+      "rejectedSource": "exec-0b923e81-473c-4652-89c6-7cf347905e16.png"
+    },
+    {
+      "key": "snake-coiled-v2",
+      "reason": "Initial idle pose had a wide-open attack mouth.",
+      "rejectedSource": "exec-9d719c32-2b4b-40a9-91e2-797b92d69e65.png"
+    },
+    {
+      "key": "snake-slither-b-v2",
+      "reason": "Initial slither B remained coiled rather than moving.",
+      "rejectedSource": "exec-1e79125e-ef30-4efa-a471-170879f75552.png"
+    },
+    {
+      "key": "snake-alert-v2",
+      "reason": "Initial alert duplicated the attack pose.",
+      "rejectedSource": "exec-cf776ba2-8a49-44d3-a3d0-f9f62528a338.png"
+    },
+    {
+      "key": "snake-strike-v2",
+      "reason": "Initial strike stayed in a stationary coil.",
+      "rejectedSource": "exec-3905c079-56bd-458a-84d8-462623ed67e7.png"
+    },
+    {
+      "key": "wall-straight-damaged-v2",
+      "reason": "Rendered join strip showed inconsistent wall profile heights; regenerated from common straight module with fixed join geometry.",
+      "rejectedSource": "exec-58c1135a-150f-440a-bea5-b43791148ccf.png"
+    },
+    {
+      "key": "wall-straight-mossy-v2",
+      "reason": "Rendered join strip showed inconsistent wall profile heights; regenerated from common straight module with fixed join geometry.",
+      "rejectedSource": "exec-47350f4a-477a-49fd-aca9-1c5c607dc212.png"
+    },
+    {
+      "key": "explorer-walk-v2",
+      "reason": "Rendered sheet repeated one stride in several columns; regenerated with opposite strides and two passing poses per row.",
+      "rejectedSource": "exec-18b6e3b9-bcd7-42ed-abd6-c6acb425d254.png"
+    },
+    {
+      "key": "explorer-walk-v2 (UP row)",
+      "reason": "Full-sheet revision still repeated rear-view boot positions; generated a dedicated four-pose rear-view row and assembled into the normalized sheet."
+    },
+    {
+      "key": "wall-low-ruined-v2",
+      "reason": "Catalogue showed a full-height wall squeezed into low-wall display proportions.",
+      "rejectedSource": "exec-ce2afdc2-4b36-41e3-bc89-d7dc5114324b.png"
+    },
+    {
+      "key": "snake-slither-b-v2",
+      "reason": "Extended revision was too thin at 30px display size; compact S pose improves mobile readability.",
+      "rejectedSource": "exec-d15df16d-e053-4210-938c-f88d73055e6d.png"
+    }
+  ],
+  "assets": [
+    {
+      "key": "explorer-master-v2",
+      "path": "/assets/game/angkor-v2/player/explorer/explorer-master-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-a843a1fc-5f14-4759-bed3-e355f5537744.png",
+      "prompt": "Explorer master matching approved reference identity; true transparent standalone."
+    },
+    {
+      "key": "wall-straight-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-straight-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-6af52420-6deb-4373-b178-e7b8733a865e.png",
+      "prompt": "Repeatable sandstone wall module with matching cap and carved band."
+    },
+    {
+      "key": "floor-sandstone-clean-v2",
+      "path": "/assets/game/angkor-v2/environment/floors/floor-sandstone-clean-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-747244c1-fe19-4475-bc86-e0cd174aa2ea.png",
+      "prompt": "Seamless warm sandstone clean square floor base."
+    },
+    {
+      "key": "wall-straight-damaged-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-straight-damaged-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-f3804e53-f3c8-43e7-b5f4-403f1bf50205.png",
+      "prompt": "EDIT THIS SINGLE WALL MODULE. Preserve its exact silhouette, camera, width-to-height ratio, horizontal cap height, carved band height, bottom line, both joining edges, block layout and transparent canvas. Change ONLY small cracks and chipped surfaces in the CENTER of the sandstone face; both end edges remain intact. Do not rebuild or redesign the wall. No pillars, no tall end posts, no changed perspective, no extra cap rows. Same upper-left light. True transparent alpha background."
+    },
+    {
+      "key": "wall-straight-mossy-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-straight-mossy-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-688bdf49-e026-4d9d-b6e9-f7bb60a11219.png",
+      "prompt": "EDIT THIS SINGLE WALL MODULE. Preserve its exact silhouette, camera, width-to-height ratio, horizontal cap height, carved band height, bottom line, both joining edges, block layout and transparent canvas. Change ONLY the amount of small moss patches and hanging vines on the CENTRAL face; cap and joining edges unchanged. Do not rebuild or redesign the wall. No pillars, no tall end posts, no changed perspective, no extra cap rows. Same upper-left light. True transparent alpha background."
+    },
+    {
+      "key": "wall-broken-opening-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-broken-opening-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-bdbda60b-e980-4b9c-a01a-b761c6a7e1da.png",
+      "prompt": "TRUE TRANSPARENT standalone game sprite. All pixels outside the requested object including holes must have ALPHA ZERO. No background, vignette or surrounding scene.\nPremium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nONE asset: wall-broken-opening-v2. A broken opening in a wall of this SAME height and cap, two narrow battered jambs and broken lintel, walkable visibly transparent opening, small debris at bases. No opaque black fill in opening.\nUse attached standalone wall as material/profile reference. Match its horizontal cap and carved band, color, thickness and UPPER LEFT daylight. Square grid axes. Full object, transparent cutout. No dark background fill in openings."
+    },
+    {
+      "key": "wall-low-ruined-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-low-ruined-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-3ec52276-e9e8-4635-85ea-d00333974dd3.png",
+      "prompt": "Generate a LOW ruined sandstone wall module matching this material and carved motif. Physically only TWO courses of chunky blocks high, wide squat silhouette width about 3.5 times height. Jagged broken top, NO tall ends or piers, NO full-height cap or intact upper band. Horizontal front edge, 3/4 top-down square-grid orthographic camera, soft upper-left daylight, small moss patches. ONLY low ruined wall on true transparent alpha, no ground patch, text or background."
+    },
+    {
+      "key": "wall-corner-outer-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-corner-outer-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-9787da25-1ea6-422f-ac5b-88629a67d63f.png",
+      "prompt": "Rebuild as OUTER L corner of this sandstone wall. Camera looks square-on at FRONT wall: long front cap and carved horizontal band are EXACTLY HORIZONTAL screen lines. The short right return goes VERTICALLY UP in screen space at a right angle from the right end. Square-grid oblique top-down perspective; do not make a diagonal V or diamond. Convex outside faces. Same blocks/band/cap height as reference, green moss, isolated alpha. Original premium NimHunt mobile adventure art. No text, frames, UI, scenery, ground patch or labels. Transparent background."
+    },
+    {
+      "key": "wall-corner-inner-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-corner-inner-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-a40d4e5e-1bff-4675-a277-ba89db2a33c1.png",
+      "prompt": "Rebuild as INNER concave L corner of this sandstone wall. Camera looks square-on at FRONT wall: long front cap and carved horizontal band are EXACTLY HORIZONTAL screen lines. The short left return goes VERTICALLY UP in screen space at a right angle from the left end. Square-grid oblique top-down perspective; NO diagonal V or diamond. Show inside junction. Same blocks/band/cap height as reference, green moss, isolated alpha. Original premium NimHunt mobile adventure art. No text, frames, UI, scenery, ground patch or labels. Transparent background."
+    },
+    {
+      "key": "wall-end-left-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-end-left-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-fb9944f5-ead5-4d58-8f7f-1dfbc0eead58.png",
+      "prompt": "TRUE TRANSPARENT standalone game sprite. All pixels outside the requested object including holes must have ALPHA ZERO. No background, vignette or surrounding scene.\nPremium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nONE asset: wall-end-left-v2. Left termination of SAME wall profile, capped carved square sandstone pier on LEFT and short matching wall extending to RIGHT joining edge. Width of normal module.\nUse attached standalone wall as material/profile reference. Match its horizontal cap and carved band, color, thickness and UPPER LEFT daylight. Square grid axes. Full object, transparent cutout. No dark background fill in openings."
+    },
+    {
+      "key": "wall-end-right-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-end-right-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-c5f0b827-e44a-4266-b735-3ac64e931ab2.png",
+      "prompt": "TRUE TRANSPARENT standalone game sprite. All pixels outside the requested object including holes must have ALPHA ZERO. No background, vignette or surrounding scene.\nPremium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nONE asset: wall-end-right-v2. Right termination of SAME wall profile, capped carved square pier on RIGHT and short matching wall extending to LEFT joining edge. Width of normal module.\nUse attached standalone wall as material/profile reference. Match its horizontal cap and carved band, color, thickness and UPPER LEFT daylight. Square grid axes. Full object, transparent cutout. No dark background fill in openings."
+    },
+    {
+      "key": "wall-collapsed-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-collapsed-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-2a17d72a-7cb6-4847-a55a-10120b53e8a0.png",
+      "prompt": "TRUE TRANSPARENT standalone game sprite. All pixels outside the requested object including holes must have ALPHA ZERO. No background, vignette or surrounding scene.\nPremium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nONE asset: wall-collapsed-v2. One collapsed wall section, same warm sandstone blocks and carved fragments in a low cohesive pile, transparent gaps, moss in crevices. No intact wall.\nUse attached standalone wall as material/profile reference. Match its horizontal cap and carved band, color, thickness and UPPER LEFT daylight. Square grid axes. Full object, transparent cutout. No dark background fill in openings."
+    },
+    {
+      "key": "floor-sandstone-weathered-v2",
+      "path": "/assets/game/angkor-v2/environment/floors/floor-sandstone-weathered-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-ad75f6aa-2d15-4033-b609-271f7d8cd44e.png",
+      "prompt": "Generate ONE flat square opaque seamless sandstone floor texture for a square 32x32 logical-grid premium painterly adventure game. Referenced standalone clean texture defines exact sandstone COLOR and SCALE. Keep its entire outer 15% border visually matching in all variants: quiet warm sandstone grit, no prominent objects touching edges. Fill the complete canvas, no frame, shadow, labels, UI, diamond perspective or transparency. Style painterly like approved board, soft daylight upper-left, low contrast to allow characters above.\nRequested floor-sandstone-weathered-v2: More weathered stones and worn soil, low contrast."
+    },
+    {
+      "key": "floor-sandstone-cracked-v2",
+      "path": "/assets/game/angkor-v2/environment/floors/floor-sandstone-cracked-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-7a9647da-487c-47e5-8b86-fab93187cd24.png",
+      "prompt": "Generate ONE flat square opaque seamless sandstone floor texture for a square 32x32 logical-grid premium painterly adventure game. Referenced standalone clean texture defines exact sandstone COLOR and SCALE. Keep its entire outer 15% border visually matching in all variants: quiet warm sandstone grit, no prominent objects touching edges. Fill the complete canvas, no frame, shadow, labels, UI, diamond perspective or transparency. Style painterly like approved board, soft daylight upper-left, low contrast to allow characters above.\nRequested floor-sandstone-cracked-v2: A few broad central fractured sandstone slabs with dark cracks, cracks fade before outer edges."
+    },
+    {
+      "key": "floor-sandstone-mossy-v2",
+      "path": "/assets/game/angkor-v2/environment/floors/floor-sandstone-mossy-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-364e0721-5b81-43f2-bffb-20a63932515a.png",
+      "prompt": "Generate ONE flat square opaque seamless sandstone floor texture for a square 32x32 logical-grid premium painterly adventure game. Referenced standalone clean texture defines exact sandstone COLOR and SCALE. Keep its entire outer 15% border visually matching in all variants: quiet warm sandstone grit, no prominent objects touching edges. Fill the complete canvas, no frame, shadow, labels, UI, diamond perspective or transparency. Style painterly like approved board, soft daylight upper-left, low contrast to allow characters above.\nRequested floor-sandstone-mossy-v2: Soft olive moss creeping between center stones, a few tiny plants, no foliage reaching edges."
+    },
+    {
+      "key": "floor-root-damaged-v2",
+      "path": "/assets/game/angkor-v2/environment/floors/floor-root-damaged-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-48ba6ff5-2b45-47e8-9c88-e0dc524e7e70.png",
+      "prompt": "Generate ONE flat square opaque seamless sandstone floor texture for a square 32x32 logical-grid premium painterly adventure game. Referenced standalone clean texture defines exact sandstone COLOR and SCALE. Keep its entire outer 15% border visually matching in all variants: quiet warm sandstone grit, no prominent objects touching edges. Fill the complete canvas, no frame, shadow, labels, UI, diamond perspective or transparency. Style painterly like approved board, soft daylight upper-left, low contrast to allow characters above.\nRequested floor-root-damaged-v2: One winding warm brown tree root across center lifting two slabs, keep root away from all edges."
+    },
+    {
+      "key": "floor-debris-v2",
+      "path": "/assets/game/angkor-v2/environment/floors/floor-debris-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-ffc31200-654a-4f81-8f59-e1082d65d52d.png",
+      "prompt": "Generate ONE flat square opaque seamless sandstone floor texture for a square 32x32 logical-grid premium painterly adventure game. Referenced standalone clean texture defines exact sandstone COLOR and SCALE. Keep its entire outer 15% border visually matching in all variants: quiet warm sandstone grit, no prominent objects touching edges. Fill the complete canvas, no frame, shadow, labels, UI, diamond perspective or transparency. Style painterly like approved board, soft daylight upper-left, low contrast to allow characters above.\nRequested floor-debris-v2: Small broken sandstone fragments scattered centrally, keep edges as clean neutral base."
+    },
+    {
+      "key": "pillar-intact-v2",
+      "path": "/assets/game/angkor-v2/environment/architecture/pillar-intact-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-1a354410-46a2-4acb-ae5f-189c62dcaaef.png",
+      "prompt": "Generate ONE ORIGINAL standalone game object on TRUE transparent alpha. Reference board is visual guidance only; do not crop or reproduce board. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested asset pillar-intact-v2: ONE tall slender square Khmer-inspired fantasy sandstone pillar, carved floral band, stepped square capital and foot, sparse green vines. Board proportions, complete cap to base, visible top face, no separate variants.\nFull silhouette with bottom-center base anchor. Same warm sandstone and green jungle palette as standalone wall, top-down 3/4 elevated front view, horizontal front edge of bases. No surrounding scene, no text, no UI. All outer pixels transparent."
+    },
+    {
+      "key": "pillar-broken-v2",
+      "path": "/assets/game/angkor-v2/environment/architecture/pillar-broken-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-bed6e608-b7b5-45b1-8ef6-e7f79cce81f4.png",
+      "prompt": "Generate ONE ORIGINAL standalone game object on TRUE transparent alpha. Reference board is visual guidance only; do not crop or reproduce board. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested asset pillar-broken-v2: ONE broken sandstone pillar matching intact pillar, snapped jagged shaft at half-height, carved band and stepped square base, a little vine.\nFull silhouette with bottom-center base anchor. Same warm sandstone and green jungle palette as standalone wall, top-down 3/4 elevated front view, horizontal front edge of bases. No surrounding scene, no text, no UI. All outer pixels transparent."
+    },
+    {
+      "key": "guardian-statue-v2",
+      "path": "/assets/game/angkor-v2/environment/architecture/guardian-statue-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-ef18ae9e-c317-413e-93a2-12ed98fd8848.png",
+      "prompt": "Generate ONE ORIGINAL standalone game object on TRUE transparent alpha. Reference board is visual guidance only; do not crop or reproduce board. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested asset guardian-statue-v2: ONE seated fantasy Khmer guardian lion statue from approved board identity, broad expressive stone face, leafy mane carving and neck collar, rounded haunches, paws on stepped sandstone plinth. Weathered warm sandstone and olive vines, front-facing elevated view.\nFull silhouette with bottom-center base anchor. Same warm sandstone and green jungle palette as standalone wall, top-down 3/4 elevated front view, horizontal front edge of bases. No surrounding scene, no text, no UI. All outer pixels transparent."
+    },
+    {
+      "key": "statue-fragment-v2",
+      "path": "/assets/game/angkor-v2/environment/architecture/statue-fragment-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-3b13dba3-ccfa-46cd-a361-26ce0fee99d1.png",
+      "prompt": "Generate ONE ORIGINAL standalone game object on TRUE transparent alpha. Reference board is visual guidance only; do not crop or reproduce board. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested asset statue-fragment-v2: ONE broken guardian statue fragment: expressive carved lion head and a severed paw beside chipped plinth. Same statue material and style.\nFull silhouette with bottom-center base anchor. Same warm sandstone and green jungle palette as standalone wall, top-down 3/4 elevated front view, horizontal front edge of bases. No surrounding scene, no text, no UI. All outer pixels transparent."
+    },
+    {
+      "key": "temple-passage-closed-v2",
+      "path": "/assets/game/angkor-v2/props/stage-transitions/temple-passage-closed-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-800c4f75-9ef0-48b9-81f3-93d6f80e98ab.png",
+      "prompt": "Generate ONE ORIGINAL standalone game object on TRUE transparent alpha. Reference board is visual guidance only; do not crop or reproduce board. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested asset temple-passage-closed-v2: ONE closed Temple Passage matching approved board, frontal rectangular Khmer sandstone doorway, ornate arched floral pediment, two squat carved pillars, large curling tree roots embracing exterior, green vines, small bronze torch bowls either side with warm tiny flames. Closed dark sandstone double doors filling opening. No other doors or variants. Entire silhouette, bottom center anchor. Three tiles wide, two tiles deep visual.\nFull silhouette with bottom-center base anchor. Same warm sandstone and green jungle palette as standalone wall, top-down 3/4 elevated front view, horizontal front edge of bases. No surrounding scene, no text, no UI. All outer pixels transparent."
+    },
+    {
+      "key": "temple-passage-open-v2",
+      "path": "/assets/game/angkor-v2/props/stage-transitions/temple-passage-open-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-50663670-4a52-4e01-828d-e1bb9d4f03a5.png",
+      "prompt": "Generate ONE ORIGINAL standalone game object on TRUE transparent alpha. Reference board is visual guidance only; do not crop or reproduce board. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested asset temple-passage-open-v2: SAME closed Temple Passage architecture exactly, open the double doors to reveal deep dark passage and faint cool blue light inside. Keep pediment, roots, columns, foliage, torches, silhouette and angle identical. ONE passage only.\nFull silhouette with bottom-center base anchor. Same warm sandstone and green jungle palette as standalone wall, top-down 3/4 elevated front view, horizontal front edge of bases. No surrounding scene, no text, no UI. All outer pixels transparent."
+    },
+    {
+      "key": "root-floor-a-v2",
+      "path": "/assets/game/angkor-v2/nature/roots/root-floor-a-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-3b871961-f087-438c-82ac-81bf4c7b0c85.png",
+      "prompt": "ONE standalone modular sprite, TRUE transparent background, no backdrop or ground patch. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested root-floor-a-v2: ONE small winding Y-shaped brown jungle root lying flat on ground, knotted warm bark with small moss flecks, no earth patch or stones.\nMatch approved board with thick painterly handcrafted forms rather than microscopic noise. See top faces from elevated gameplay camera. Isolated complete silhouette, square grid, upper-left daylight. No surrounding earth/scene, no duplicate variants."
+    },
+    {
+      "key": "root-floor-b-v2",
+      "path": "/assets/game/angkor-v2/nature/roots/root-floor-b-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-854602ef-700a-4e76-a989-2511cdb34a7a.png",
+      "prompt": "ONE standalone modular sprite, TRUE transparent background, no backdrop or ground patch. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested root-floor-b-v2: ONE small serpentine S-shaped branching jungle root lying flat, different from Y root, warm brown bark and a tiny olive leaf.\nMatch approved board with thick painterly handcrafted forms rather than microscopic noise. See top faces from elevated gameplay camera. Isolated complete silhouette, square grid, upper-left daylight. No surrounding earth/scene, no duplicate variants."
+    },
+    {
+      "key": "root-wall-v2",
+      "path": "/assets/game/angkor-v2/nature/roots/root-wall-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-531eb988-fe00-4298-bd2b-0b6612914558.png",
+      "prompt": "ONE standalone modular sprite, TRUE transparent background, no backdrop or ground patch. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested root-wall-v2: ONE vertical climbing root wrapping a few small sandstone chips, flowing down and spreading at bottom, visible woody texture, sparse vines.\nMatch approved board with thick painterly handcrafted forms rather than microscopic noise. See top faces from elevated gameplay camera. Isolated complete silhouette, square grid, upper-left daylight. No surrounding earth/scene, no duplicate variants."
+    },
+    {
+      "key": "root-heavy-v2",
+      "path": "/assets/game/angkor-v2/nature/roots/root-heavy-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-07e18adb-a2c6-4b04-b932-00561e937660.png",
+      "prompt": "ONE standalone modular sprite, TRUE transparent background, no backdrop or ground patch. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested root-heavy-v2: ONE heavy tangled jungle buttress root cluster from approved giant root identity, thick twisting warm brown bark over a small ruined sandstone stump, vines and leaves caught in forks. No floor background.\nMatch approved board with thick painterly handcrafted forms rather than microscopic noise. See top faces from elevated gameplay camera. Isolated complete silhouette, square grid, upper-left daylight. No surrounding earth/scene, no duplicate variants."
+    },
+    {
+      "key": "vine-hanging-v2",
+      "path": "/assets/game/angkor-v2/nature/foliage/vine-hanging-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-a412a91f-33b8-42aa-8bd9-789bfbbd2627.png",
+      "prompt": "ONE standalone modular sprite, TRUE transparent background, no backdrop or ground patch. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested vine-hanging-v2: ONE hanging jungle vine curtain with three curved strands of olive heart-shaped leaves, open transparent gaps.\nMatch approved board with thick painterly handcrafted forms rather than microscopic noise. See top faces from elevated gameplay camera. Isolated complete silhouette, square grid, upper-left daylight. No surrounding earth/scene, no duplicate variants."
+    },
+    {
+      "key": "fern-a-v2",
+      "path": "/assets/game/angkor-v2/nature/foliage/fern-a-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-4b190914-798f-44c0-89dc-d449b65e13ab.png",
+      "prompt": "ONE standalone modular sprite, TRUE transparent background, no backdrop or ground patch. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested fern-a-v2: ONE compact broad spreading fern with arched pinnate green fronds, board fern A identity, readable mass.\nMatch approved board with thick painterly handcrafted forms rather than microscopic noise. See top faces from elevated gameplay camera. Isolated complete silhouette, square grid, upper-left daylight. No surrounding earth/scene, no duplicate variants."
+    },
+    {
+      "key": "fern-b-v2",
+      "path": "/assets/game/angkor-v2/nature/foliage/fern-b-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-a6a78fe4-530c-4b4a-8d49-6d23f32023cb.png",
+      "prompt": "ONE standalone modular sprite, TRUE transparent background, no backdrop or ground patch. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested fern-b-v2: ONE narrower upright fern clump with fine fronds, board fern B identity.\nMatch approved board with thick painterly handcrafted forms rather than microscopic noise. See top faces from elevated gameplay camera. Isolated complete silhouette, square grid, upper-left daylight. No surrounding earth/scene, no duplicate variants."
+    },
+    {
+      "key": "broadleaf-a-v2",
+      "path": "/assets/game/angkor-v2/nature/foliage/broadleaf-a-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-2991854b-f772-47af-85b2-426ae4b6cdfc.png",
+      "prompt": "ONE standalone modular sprite, TRUE transparent background, no backdrop or ground patch. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested broadleaf-a-v2: ONE compact jungle broadleaf rosette, six glossy dark olive leaves with readable large shapes.\nMatch approved board with thick painterly handcrafted forms rather than microscopic noise. See top faces from elevated gameplay camera. Isolated complete silhouette, square grid, upper-left daylight. No surrounding earth/scene, no duplicate variants."
+    },
+    {
+      "key": "grass-edge-v2",
+      "path": "/assets/game/angkor-v2/nature/foliage/grass-edge-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-293dde9f-0c0d-4cbc-acad-7223a3c0fc8a.png",
+      "prompt": "ONE standalone modular sprite, TRUE transparent background, no backdrop or ground patch. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested grass-edge-v2: ONE low horizontal tuft of tropical grass edging, olive green blades, no dirt patch.\nMatch approved board with thick painterly handcrafted forms rather than microscopic noise. See top faces from elevated gameplay camera. Isolated complete silhouette, square grid, upper-left daylight. No surrounding earth/scene, no duplicate variants."
+    },
+    {
+      "key": "moss-cluster-v2",
+      "path": "/assets/game/angkor-v2/nature/foliage/moss-cluster-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-0e4f5e0b-99fa-4d9a-ba81-8d645c4d74a3.png",
+      "prompt": "ONE standalone modular sprite, TRUE transparent background, no backdrop or ground patch. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested moss-cluster-v2: ONE irregular soft olive moss cushion with tiny leaves and small trailing shoots, low grounded mass.\nMatch approved board with thick painterly handcrafted forms rather than microscopic noise. See top faces from elevated gameplay camera. Isolated complete silhouette, square grid, upper-left daylight. No surrounding earth/scene, no duplicate variants."
+    },
+    {
+      "key": "rubble-small-a-v2",
+      "path": "/assets/game/angkor-v2/environment/rubble/rubble-small-a-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-b79c7525-3d51-499e-a8ad-f1f0e2f124fe.png",
+      "prompt": "ONE standalone production game asset with TRUE TRANSPARENT alpha. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested rubble-small-a-v2: ONE small loose cluster of three chipped warm sandstone fragments, moss flecks, no ground patch.\nMatch approved board material, proportion, mobile readability, soft daylight from upper-left. Isolated complete object on square-grid elevated gameplay view, no surrounding floor, no UI, no lettering, no other objects. Keep silhouette simple and readable at 24 to 32px."
+    },
+    {
+      "key": "rubble-small-b-v2",
+      "path": "/assets/game/angkor-v2/environment/rubble/rubble-small-b-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-ed061832-9b66-4346-943e-acb837b7aad2.png",
+      "prompt": "ONE standalone production game asset with TRUE TRANSPARENT alpha. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested rubble-small-b-v2: ONE small cluster of five flatter sandstone chips with a broken carved fragment, no ground patch.\nMatch approved board material, proportion, mobile readability, soft daylight from upper-left. Isolated complete object on square-grid elevated gameplay view, no surrounding floor, no UI, no lettering, no other objects. Keep silhouette simple and readable at 24 to 32px."
+    },
+    {
+      "key": "rubble-large-v2",
+      "path": "/assets/game/angkor-v2/environment/rubble/rubble-large-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-7bdc4dbd-2126-430b-ac07-5967dc41401d.png",
+      "prompt": "ONE standalone production game asset with TRUE TRANSPARENT alpha. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested rubble-large-v2: ONE larger low mound of broken sandstone blocks and carved band fragments, patchy green moss.\nMatch approved board material, proportion, mobile readability, soft daylight from upper-left. Isolated complete object on square-grid elevated gameplay view, no surrounding floor, no UI, no lettering, no other objects. Keep silhouette simple and readable at 24 to 32px."
+    },
+    {
+      "key": "broken-stone-block-v2",
+      "path": "/assets/game/angkor-v2/environment/rubble/broken-stone-block-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-03003991-5756-4185-bb0a-71967b86ce9a.png",
+      "prompt": "ONE standalone production game asset with TRUE TRANSPARENT alpha. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested broken-stone-block-v2: ONE chunky broken sandstone masonry block, carved line on side, cracked corner, weathered texture and moss.\nMatch approved board material, proportion, mobile readability, soft daylight from upper-left. Isolated complete object on square-grid elevated gameplay view, no surrounding floor, no UI, no lettering, no other objects. Keep silhouette simple and readable at 24 to 32px."
+    },
+    {
+      "key": "pushable-boulder-v2",
+      "path": "/assets/game/angkor-v2/props/boulders/pushable-boulder-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-cfc6a35c-555e-4fc7-a8f1-5e5a88b2bdaf.png",
+      "prompt": "ONE standalone production game asset with TRUE TRANSPARENT alpha. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested pushable-boulder-v2: ONE round chunky pushable boulder matching board, warm gray-brown sandstone, faceted softened planes, pale upper-left highlights, moss patches, strong circular silhouette, no plinth or ground.\nMatch approved board material, proportion, mobile readability, soft daylight from upper-left. Isolated complete object on square-grid elevated gameplay view, no surrounding floor, no UI, no lettering, no other objects. Keep silhouette simple and readable at 24 to 32px."
+    },
+    {
+      "key": "blue-gem-v2",
+      "path": "/assets/game/angkor-v2/props/gems/blue-gem-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-68673100-27bc-4781-bd92-35f0f7a24798.png",
+      "prompt": "ONE standalone production game asset with TRUE TRANSPARENT alpha. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested blue-gem-v2: ONE upright elongated brilliant cyan blue gem matching board, simple bold faceted diamond crystal, blue outline and pale upper-left facets, small translucent cyan glow with true alpha, no ground or decoration.\nMatch approved board material, proportion, mobile readability, soft daylight from upper-left. Isolated complete object on square-grid elevated gameplay view, no surrounding floor, no UI, no lettering, no other objects. Keep silhouette simple and readable at 24 to 32px."
+    },
+    {
+      "key": "potion-v2",
+      "path": "/assets/game/angkor-v2/props/gems/potion-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-f104d648-4bc4-4a1a-a4f4-75f5e3925982.png",
+      "prompt": "ONE standalone production game asset with TRUE TRANSPARENT alpha. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested potion-v2: ONE compact round clear glass potion bottle matching board, ruby-red liquid, short neck and brown cork, tiny warm brass neck band, strong readable silhouette, no label.\nMatch approved board material, proportion, mobile readability, soft daylight from upper-left. Isolated complete object on square-grid elevated gameplay view, no surrounding floor, no UI, no lettering, no other objects. Keep silhouette simple and readable at 24 to 32px."
+    },
+    {
+      "key": "spike-trap-idle-v2",
+      "path": "/assets/game/angkor-v2/hazards/spikes/spike-trap-idle-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-f70ce101-e9a7-4956-beee-6ee26719240e.png",
+      "prompt": "ONE standalone production game asset with TRUE TRANSPARENT alpha. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested spike-trap-idle-v2: ONE square sandstone spike trap base on square grid, front horizontal edge, five recessed dark metal spike holes, spikes fully retracted and safe, chipped mossy edge, top-down elevated view. No diamond.\nMatch approved board material, proportion, mobile readability, soft daylight from upper-left. Isolated complete object on square-grid elevated gameplay view, no surrounding floor, no UI, no lettering, no other objects. Keep silhouette simple and readable at 24 to 32px."
+    },
+    {
+      "key": "spike-trap-active-v2",
+      "path": "/assets/game/angkor-v2/hazards/spikes/spike-trap-active-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-c9147458-d5b4-4594-8839-7dff0990d39b.png",
+      "prompt": "ONE standalone production game asset with TRUE TRANSPARENT alpha. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested spike-trap-active-v2: EXACT SAME trap base, five tall slender sharpened iron spikes now extended, consistent base, holes and angle. Metallic warm highlights, olive ambient shading.\nMatch approved board material, proportion, mobile readability, soft daylight from upper-left. Isolated complete object on square-grid elevated gameplay view, no surrounding floor, no UI, no lettering, no other objects. Keep silhouette simple and readable at 24 to 32px."
+    },
+    {
+      "key": "explorer-idle-down",
+      "path": "/assets/game/angkor-v2/player/explorer/explorer-idle-down.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-a77c30de-1bdd-4fc8-962b-797475144cb1.png",
+      "prompt": "Derive ONE transparent full-body gameplay sprite from this exact Explorer master. Identity preservation is essential. Same fedora shape/band, hair, youthful face, large dark eyes, cream shirt, diagonal leather strap, rolled olive bedroll, backpack, fingerless gloves, olive-brown trousers and boots. Same head-to-body proportions and painterly NimHunt art. DERIVE FROM EXPLORER MASTER, keep exact identity/clothing/proportions. ONE neutral standing idle, facing DOWN (down means toward viewer, up means away, left/right profile). Full-body GAMEPLAY elevated camera, see top of hat, compact mobile character, feet bottom-center. Rolled bedroll/backpack consistent, same hat/face/gloves.\nElevated 3/4 orthographic gameplay camera, visible top of hat, upper-left soft daylight. Feet at bottom center, standing neutrally, no shadows outside character, no text, no props apart from clothing, no labels or scene, TRUE transparent alpha background. Do not create a new character or redesign the outfit."
+    },
+    {
+      "key": "explorer-idle-up",
+      "path": "/assets/game/angkor-v2/player/explorer/explorer-idle-up.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-e4badeba-b5e5-4904-9a5f-cefcf2117c93.png",
+      "prompt": "Derive ONE transparent full-body gameplay sprite from this exact Explorer master. Identity preservation is essential. Same fedora shape/band, hair, youthful face, large dark eyes, cream shirt, diagonal leather strap, rolled olive bedroll, backpack, fingerless gloves, olive-brown trousers and boots. Same head-to-body proportions and painterly NimHunt art. DERIVE FROM EXPLORER MASTER, keep exact identity/clothing/proportions. ONE neutral standing idle, facing UP (down means toward viewer, up means away, left/right profile). Full-body GAMEPLAY elevated camera, see top of hat, compact mobile character, feet bottom-center. Rolled bedroll/backpack consistent, same hat/face/gloves.\nElevated 3/4 orthographic gameplay camera, visible top of hat, upper-left soft daylight. Feet at bottom center, standing neutrally, no shadows outside character, no text, no props apart from clothing, no labels or scene, TRUE transparent alpha background. Do not create a new character or redesign the outfit."
+    },
+    {
+      "key": "explorer-idle-left",
+      "path": "/assets/game/angkor-v2/player/explorer/explorer-idle-left.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-6fe4dce0-8183-48ca-8aee-95f42cd3464d.png",
+      "prompt": "Derive ONE transparent full-body gameplay sprite from this exact Explorer master. Identity preservation is essential. Same fedora shape/band, hair, youthful face, large dark eyes, cream shirt, diagonal leather strap, rolled olive bedroll, backpack, fingerless gloves, olive-brown trousers and boots. Same head-to-body proportions and painterly NimHunt art. DERIVE FROM EXPLORER MASTER, keep exact identity/clothing/proportions. ONE neutral standing idle, facing LEFT (down means toward viewer, up means away, left/right profile). Full-body GAMEPLAY elevated camera, see top of hat, compact mobile character, feet bottom-center. Rolled bedroll/backpack consistent, same hat/face/gloves.\nElevated 3/4 orthographic gameplay camera, visible top of hat, upper-left soft daylight. Feet at bottom center, standing neutrally, no shadows outside character, no text, no props apart from clothing, no labels or scene, TRUE transparent alpha background. Do not create a new character or redesign the outfit."
+    },
+    {
+      "key": "explorer-idle-right",
+      "path": "/assets/game/angkor-v2/player/explorer/explorer-idle-right.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-94eb2e09-65b7-4374-aa73-917036c25266.png",
+      "prompt": "Derive ONE transparent full-body gameplay sprite from this exact Explorer master. Identity preservation is essential. Same fedora shape/band, hair, youthful face, large dark eyes, cream shirt, diagonal leather strap, rolled olive bedroll, backpack, fingerless gloves, olive-brown trousers and boots. Same head-to-body proportions and painterly NimHunt art. DERIVE FROM EXPLORER MASTER, keep exact identity/clothing/proportions. ONE neutral standing idle, facing RIGHT (down means toward viewer, up means away, left/right profile). Full-body GAMEPLAY elevated camera, see top of hat, compact mobile character, feet bottom-center. Rolled bedroll/backpack consistent, same hat/face/gloves.\nElevated 3/4 orthographic gameplay camera, visible top of hat, upper-left soft daylight. Feet at bottom center, standing neutrally, no shadows outside character, no text, no props apart from clothing, no labels or scene, TRUE transparent alpha background. Do not create a new character or redesign the outfit."
+    },
+    {
+      "key": "explorer-walk-v2",
+      "path": "/assets/game/angkor-v2/player/explorer/explorer-walk-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-a7996dfb-c366-4d9c-8eb0-60d70d8bae4f.png",
+      "prompt": "EDIT supplied Explorer sheet into an anatomically correct WALK CYCLE. Preserve exact 4 columns x4 rows, same 1024x1536 transparent canvas and same identity/hat/clothes/face/backpack/bedroll in all sixteen cells. Row1 DOWN; row2 LEFT; row3 RIGHT; row4 UP. CRITICAL each row has FOUR DIFFERENT LEG POSITIONS: column1 LEFT leg extended forward and RIGHT leg extended backward; column2 BOTH feet under hips with one heel lifting; column3 RIGHT leg extended forward and LEFT leg extended backward (opposite column1); column4 BOTH feet under hips with opposite heel lifting. Arms swing opposite the forward leg. Do not repeat the same stride in columns1 and3. Keep steady torso/head height and grounded foot line, cell centers, same scale, painterly upper-left daylight. Change only walking arms/legs. Each character entirely inside its equal rectangular cell. No labels, grid lines, frames, background or floor. This must visibly animate alternating boots, not four copies of a single walking pose.",
+      "additionalSource": "exec-f6797c05-690d-409a-9d93-a89ad6bc538d.png",
+      "additionalPrompt": "Create a HORIZONTAL SPRITE STRIP of exactly FOUR fully separated back-view walking poses of this exact Explorer. ONLY one row and four equal columns. All characters face UP, away from viewer, showing brown fedora back, dark brown hair, cream shirt, leather backpack, rolled bedroll, olive trousers, brown boots. Same body and head scale/steady height in every cell. COLUMN1: SCREEN-LEFT BOOT reaches down below body, SCREEN-RIGHT BOOT tucked high. COLUMN2: BOTH BOOTS side-by-side under hips with LEFT heel lifted, a passing step. COLUMN3: SCREEN-RIGHT BOOT reaches down below body, SCREEN-LEFT BOOT tucked high, opposite of column1. COLUMN4: BOTH BOOTS side-by-side under hips with RIGHT heel lifted. Opposing subtle arm swings. No repeated extended boot in columns2 or4. Equal blank gap between all characters, full bodies visible, same feet ground line. Painterly original illustrated adventure character, soft upper-left light. Transparent alpha background. No shadows, floor, text, labels, cell lines or borders. A single row of four back-facing walking sprites."
+    },
+    {
+      "key": "snake-coiled-v2",
+      "path": "/assets/game/angkor-v2/wildlife/snake/snake-coiled-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-c955611c-ab38-428e-8f16-4cf460e17c64.png",
+      "prompt": "CHANGE POSE of this same olive-scaled fantasy snake with amber eyes and cream segmented belly. CALM COILED IDLE: compact low flat coil, head slightly raised, mouth fully CLOSED, tiny tongue optional. Relaxed readable silhouette. Rebuild entire pose, preserve scale pattern, face identity, hand-painted board-like art and upper-left light. Only snake on alpha, no ground. Original premium NimHunt mobile adventure art. No text, frames, UI, scenery, ground patch or labels. Transparent background."
+    },
+    {
+      "key": "snake-slither-a-v2",
+      "path": "/assets/game/angkor-v2/wildlife/snake/snake-slither-a-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-3955de62-4b60-44a6-bbbf-5a6cce9c5185.png",
+      "prompt": "ONE original standalone wildlife game sprite, TRUE transparent alpha, no backdrop or floor. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested snake-slither-a-v2: SAME olive mottled snake identity, slithering low on ground in gentle S curve, head facing right, tongue barely visible, cream belly.\nCRITICAL preserve the approved creature identity across poses: same species, same body proportions, facial structure, fur/scales palette, eye color and tail design. Elevated 3/4 gameplay perspective, original painterly mobile adventure style. Strong silhouette readable around 24–30px, soft daylight UPPER LEFT, dark olive-brown ambient shading. Full creature, no text, no labels, no pose sheet, no extra creatures. For monkey perched only include its single tiny sandstone perch; for all other creatures no ground prop."
+    },
+    {
+      "key": "snake-slither-b-v2",
+      "path": "/assets/game/angkor-v2/wildlife/snake/snake-slither-b-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-766f01aa-5ea5-4fbe-ae50-06d6342ece01.png",
+      "prompt": "REPOSE this SAME snake into COMPACT S-shaped slither B, retain SAME face size, overall proportions and scale as reference. Two close broad bends fitting into a squat rectangle about 1.4 times wider than tall. Head low at LOWER LEFT with amber eye and CLOSED mouth, chunky snake body winds behind to upper right with opposite bend from reference. Do not stretch into a long thin horizontal worm. Head about one quarter of total width so readable at 30px. Olive scales, cream belly, same hand-painted fantasy identity, upper-left soft light. Transparent alpha, only snake, no floor, shadows or scene."
+    },
+    {
+      "key": "snake-alert-v2",
+      "path": "/assets/game/angkor-v2/wildlife/snake/snake-alert-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-a9f0b1bc-97bc-4ebc-946c-31934777b008.png",
+      "prompt": "CHANGE POSE of this same olive-scaled snake to ALERT. Single loose wide body loop, neck upright, head looking toward viewer, mouth CLOSED, forked tongue out. No fangs or open mouth. Same amber eyes cream belly and distinctive rounded fantasy face. Rebuild pose with taller S-shaped neck than idle, upper-left daylight, ONLY snake on alpha. Original premium NimHunt mobile adventure art. No text, frames, UI, scenery, ground patch or labels. Transparent background."
+    },
+    {
+      "key": "snake-strike-v2",
+      "path": "/assets/game/angkor-v2/wildlife/snake/snake-strike-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-3d611bff-df4f-4f0b-8334-9e7b49baabe7.png",
+      "prompt": "CHANGE POSE to a DYNAMIC HORIZONTAL STRIKE of this same olive-scaled fantasy snake. Body stretched behind in a loose curve, head lunges far right toward prey, neck nearly horizontal, jaws OPEN and two ivory fangs visible, red forked tongue. No upright coiled pose. Preserve face scale pattern amber eyes cream belly painterly upper-left daylight. ONLY lunging snake on transparent alpha. Original premium NimHunt mobile adventure art. No text, frames, UI, scenery, ground patch or labels. Transparent background."
+    },
+    {
+      "key": "monkey-perched-v2",
+      "path": "/assets/game/angkor-v2/wildlife/monkey/monkey-perched-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-f687b75e-6280-41f4-a425-30a0ea08c791.png",
+      "prompt": "ONE original standalone wildlife game sprite, TRUE transparent alpha, no backdrop or floor. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested monkey-perched-v2: ONE approved monkey identity: playful warm chestnut brown small monkey, large cream-peach face and ears, expressive amber-brown eyes, dark head tuft, very long curled tail. Crouched perched on ONE small warm sandstone block, no jungle backdrop. Match approved board exactly.\nCRITICAL preserve the approved creature identity across poses: same species, same body proportions, facial structure, fur/scales palette, eye color and tail design. Elevated 3/4 gameplay perspective, original painterly mobile adventure style. Strong silhouette readable around 24–30px, soft daylight UPPER LEFT, dark olive-brown ambient shading. Full creature, no text, no labels, no pose sheet, no extra creatures. For monkey perched only include its single tiny sandstone perch; for all other creatures no ground prop."
+    },
+    {
+      "key": "monkey-alert-v2",
+      "path": "/assets/game/angkor-v2/wildlife/monkey/monkey-alert-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-4e5947cb-4edf-4a02-940c-ca123000cf1c.png",
+      "prompt": "ONE original standalone wildlife game sprite, TRUE transparent alpha, no backdrop or floor. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested monkey-alert-v2: SAME approved monkey identity and proportions, standing alert on hind legs, forearms raised slightly, long tail curls behind, cream face and ears.\nCRITICAL preserve the approved creature identity across poses: same species, same body proportions, facial structure, fur/scales palette, eye color and tail design. Elevated 3/4 gameplay perspective, original painterly mobile adventure style. Strong silhouette readable around 24–30px, soft daylight UPPER LEFT, dark olive-brown ambient shading. Full creature, no text, no labels, no pose sheet, no extra creatures. For monkey perched only include its single tiny sandstone perch; for all other creatures no ground prop."
+    },
+    {
+      "key": "monkey-jump-v2",
+      "path": "/assets/game/angkor-v2/wildlife/monkey/monkey-jump-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-55a84fdd-e3ed-472c-8cc8-4bbd68d64e8e.png",
+      "prompt": "ONE original standalone wildlife game sprite, TRUE transparent alpha, no backdrop or floor. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested monkey-jump-v2: SAME monkey identity leaping in air, forearms stretched forward, hind legs bent and long tail curved, readable body silhouette.\nCRITICAL preserve the approved creature identity across poses: same species, same body proportions, facial structure, fur/scales palette, eye color and tail design. Elevated 3/4 gameplay perspective, original painterly mobile adventure style. Strong silhouette readable around 24–30px, soft daylight UPPER LEFT, dark olive-brown ambient shading. Full creature, no text, no labels, no pose sheet, no extra creatures. For monkey perched only include its single tiny sandstone perch; for all other creatures no ground prop."
+    },
+    {
+      "key": "monkey-throw-v2",
+      "path": "/assets/game/angkor-v2/wildlife/monkey/monkey-throw-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-1be6ad05-f046-4b66-a3ad-fdcc9f94f789.png",
+      "prompt": "ONE original standalone wildlife game sprite, TRUE transparent alpha, no backdrop or floor. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested monkey-throw-v2: SAME monkey identity, throwing ONE small sandstone rock with extended front arm, twisted body and long tail, rock still in hand.\nCRITICAL preserve the approved creature identity across poses: same species, same body proportions, facial structure, fur/scales palette, eye color and tail design. Elevated 3/4 gameplay perspective, original painterly mobile adventure style. Strong silhouette readable around 24–30px, soft daylight UPPER LEFT, dark olive-brown ambient shading. Full creature, no text, no labels, no pose sheet, no extra creatures. For monkey perched only include its single tiny sandstone perch; for all other creatures no ground prop."
+    },
+    {
+      "key": "monkey-rock-v2",
+      "path": "/assets/game/angkor-v2/wildlife/monkey/monkey-rock-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-b3b88c1b-9dab-490c-83d5-3be47bf11543.png",
+      "prompt": "ONE original standalone wildlife game sprite, TRUE transparent alpha, no backdrop or floor. Premium illustrated mobile adventure game art for NimHunt Angkor Ruins V2. Reference board is approved visual style only; generate an ORIGINAL standalone asset, never crop/copy board pixels. Top-down 3/4 orthographic gameplay perspective, camera elevated about 55 degrees, square logical grid with horizontal front edge and vertical grid axes, NOT an isometric diamond. Warm weathered Khmer-inspired fantasy sandstone, handcrafted painterly texture, lush jungle intrusion with olive/moss green plants. Slightly exaggerated proportions, strong simple silhouette at 32px mobile scale. Match board palette/material/proportions. Soft neutral daylight from UPPER LEFT, olive/brown shading. No text, UI, labels, frame, board, watermark, photorealism, pixel art. Render just the requested single object; NO other asset variants. Transparent alpha around modular sprite, no surrounding background, no rectangular ground patch, only close contact shadows if needed.\nRequested monkey-rock-v2: ONE tiny irregular angular warm gray-brown sandstone rock projectile, same sandstone as ruins, strong readable silhouette. No motion lines.\nCRITICAL preserve the approved creature identity across poses: same species, same body proportions, facial structure, fur/scales palette, eye color and tail design. Elevated 3/4 gameplay perspective, original painterly mobile adventure style. Strong silhouette readable around 24–30px, soft daylight UPPER LEFT, dark olive-brown ambient shading. Full creature, no text, no labels, no pose sheet, no extra creatures. For monkey perched only include its single tiny sandstone perch; for all other creatures no ground prop."
+    },
+    {
+      "key": "dust-small-v2",
+      "path": "/assets/game/angkor-v2/effects/dust-small-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-ba6d47ab-3349-48dc-9179-0342196ac7aa.png",
+      "prompt": "Generate only isolated ochre dust puff; painterly tan olive shadows, translucent wisps, soft upper-left light, transparent alpha; no architecture."
+    },
+    {
+      "key": "dust-push-v2",
+      "path": "/assets/game/angkor-v2/effects/dust-push-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-66aae221-1357-4fb3-bce7-7fc2d342cb5e.png",
+      "prompt": "ONLY an isolated ONE low directional warm ochre dust sweep from pushing boulder, soft translucent trail with a few tiny stone specks, true alpha. Illustrated painterly mobile adventure sprite. Soft upper-left light; tan sandstone dust and olive shadows where appropriate. Transparent alpha background. No architecture, pillars, walls, vegetation clusters, scenery, characters, reference board, ground patch, labels, text or frame. Nothing except the requested particle effect."
+    },
+    {
+      "key": "rock-impact-v2",
+      "path": "/assets/game/angkor-v2/effects/rock-impact-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-f72eeb73-41d4-40af-919a-fffbd9113aef.png",
+      "prompt": "ONLY an isolated ONE small impact burst of warm sandstone chips and translucent dust, radial readable shape, no rock projectile, no flash or text. Illustrated painterly mobile adventure sprite. Soft upper-left light; tan sandstone dust and olive shadows where appropriate. Transparent alpha background. No architecture, pillars, walls, vegetation clusters, scenery, characters, reference board, ground patch, labels, text or frame. Nothing except the requested particle effect."
+    },
+    {
+      "key": "gem-sparkle-v2",
+      "path": "/assets/game/angkor-v2/effects/gem-sparkle-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-12446012-57d1-4586-a74e-e3255ad285eb.png",
+      "prompt": "ONLY an isolated ONE small cyan-blue gem sparkle burst with four simple bright star glints and faint blue translucent glow, no gem body, true alpha. Illustrated painterly mobile adventure sprite. Soft upper-left light; tan sandstone dust and olive shadows where appropriate. Transparent alpha background. No architecture, pillars, walls, vegetation clusters, scenery, characters, reference board, ground patch, labels, text or frame. Nothing except the requested particle effect."
+    },
+    {
+      "key": "leaf-particles-v2",
+      "path": "/assets/game/angkor-v2/effects/leaf-particles-v2.png",
+      "tool": "Codex built-in GPT Image",
+      "rawSource": "exec-b6622fe8-9cda-474f-a22f-ab170f627d5c.png",
+      "prompt": "ONLY an isolated ONE small scattering of five separated olive and jade jungle leaves, varied rotation, ample transparent gaps, no branch or ground. Illustrated painterly mobile adventure sprite. Soft upper-left light; tan sandstone dust and olive shadows where appropriate. Transparent alpha background. No architecture, pillars, walls, vegetation clusters, scenery, characters, reference board, ground patch, labels, text or frame. Nothing except the requested particle effect."
+    }
+  ]
+}

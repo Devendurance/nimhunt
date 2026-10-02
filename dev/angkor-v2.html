@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="data:," />
+    <title>Angkor V2 · Asset review</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; padding: 24px; background: #132a26; color: #f3ead7; font: 15px/1.6 Inter, system-ui, sans-serif; }
+      main { max-width: 1200px; margin: auto; }
+      h1 { margin: 0; font-size: 26px; line-height: 1.2; text-wrap: balance; }
+      h2 { font-size: 18px; margin: 24px 0 12px; }
+      p { max-width: 75ch; text-wrap: pretty; }
+      .controls { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 16px 0; }
+      label { display: inline-flex; gap: 8px; align-items: center; min-height: 44px; }
+      select, button { min-height: 44px; padding: 8px 16px; color: inherit; background: #1b3833; border: 1px solid #5e7c52; border-radius: 9999px; font: inherit; }
+      :focus-visible { outline: 2px solid #3e88f7; outline-offset: 4px; }
+      .review-surface { overflow: auto; background: #1b3833; border: 1px solid #5e7c52; padding: 16px; }
+      canvas { display: block; }
+      #scene { margin: auto; }
+      .checks { display: flex; gap: 24px; flex-wrap: wrap; align-items: start; }
+      #catalogue { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+      figure { margin: 0; padding: 12px; background: #1b3833; border: 1px solid #5e7c52; }
+      .swatch { height: 144px; display: flex; align-items: center; justify-content: center; background: repeating-conic-gradient(#d5cdbb 0% 25%, #f3ead7 0% 50%) 0 0/16px 16px; }
+      .swatch img { max-width: 128px; max-height: 136px; object-fit: contain; }
+      figcaption { margin-top: 8px; font-size: 12px; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+      #status { min-height: 24px; }
+      #status[data-error] { color: #ffb39a; }
+      @media (max-width: 600px) { body { padding: 12px; } .review-surface { padding: 0; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Angkor Ruins V2 · Asset review</h1>
+      <p>Standalone Stage 1 art on a 32px square grid. Check the scene at 1× for mobile readability, then enlarge it to inspect edges and material. This page has no gameplay or backend connection.</p>
+      <div class="controls">
+        <label>Scale <select id="scale"><option value="1">1× · native</option><option value="2" selected>2×</option><option value="3">3×</option></select></label>
+        <label><input id="grid" type="checkbox" /> Show logical grid</label>
+        <label><input id="passage" type="checkbox" checked /> Open passage</label>
+        <label><input id="animate" type="checkbox" /> Animate walk</label>
+        <label>Explorer pose <select id="pose"><option value="idle">Idle</option><option value="walk">Walk</option></select></label>
+        <label>Direction <select id="direction"><option value="0">Down</option><option value="1">Left</option><option value="2">Right</option><option value="3">Up</option></select></label>
+        <label>Walk frame <select id="frame"><option>0</option><option>1</option><option>2</option><option>3</option></select></label>
+      </div>
+      <p id="status" role="status">Loading standalone files…</p>
+      <div class="review-surface"><canvas id="scene" aria-label="Sample Angkor scene composed from standalone V2 assets" role="img"></canvas></div>
+      <h2>Wall joins, floor seams, Explorer frames</h2>
+      <p>Frames run DOWN, LEFT, RIGHT, UP from top to bottom. Cyan guides mark the shared foot anchor. The join strip uses adjacent wall variants at their manifest dimensions.</p>
+      <div class="checks"><div class="review-surface"><canvas id="joins" role="img" aria-label="Wall join and floor seam test"></canvas></div><div class="review-surface"><canvas id="walk" role="img" aria-label="Sixteen aligned Explorer walk frames"></canvas></div></div>
+      <h2>All standalone files · light transparency checker</h2>
+      <div id="catalogue"></div>
+    </main>
+    <script type="module" src="/src/dev/angkorV2Showcase.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,1870 @@
+{
+  "count": 62,
+  "totalBytes": 10013571,
+  "assets": [
+    {
+      "key": "explorer-master-v2",
+      "path": "/assets/game/angkor-v2/player/explorer/explorer-master-v2.png",
+      "sourceDimensions": {
+        "width": 512,
+        "height": 768
+      },
+      "logicalFootprint": {
+        "width": 0,
+        "height": 0
+      },
+      "displayDimensions": {
+        "width": 64,
+        "height": 96
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "actor",
+      "collidable": false,
+      "category": "player/explorer",
+      "bytes": 680517,
+      "sha256": "6a59539ed90c29a27e90a46a80e80c87c3da7a8bc18d57766a1208ecd655d6a5",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1217,
+        "height": 1292
+      }
+    },
+    {
+      "key": "wall-straight-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-straight-v2.png",
+      "sourceDimensions": {
+        "width": 384,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 2,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 64,
+        "height": 44
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "architecture",
+      "collidable": true,
+      "category": "environment/walls",
+      "bytes": 278208,
+      "sha256": "46d221b174e262039c0bdfcd1517a5c87079cfd363c0a1a6c0b6cdab3c739ffe",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1331,
+        "height": 1181
+      }
+    },
+    {
+      "key": "floor-sandstone-clean-v2",
+      "path": "/assets/game/angkor-v2/environment/floors/floor-sandstone-clean-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 32,
+        "height": 32
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "depthClass": "floor",
+      "collidable": false,
+      "category": "environment/floors",
+      "bytes": 166741,
+      "sha256": "26b05058523069968e102034afb9383d09fa19b393ef504175066a6020eb3cfc",
+      "hasAlpha": false,
+      "originalGenerationDimensions": {
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "wall-straight-damaged-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-straight-damaged-v2.png",
+      "sourceDimensions": {
+        "width": 384,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 2,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 64,
+        "height": 44
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "architecture",
+      "collidable": true,
+      "category": "environment/walls",
+      "bytes": 270182,
+      "sha256": "d45a4898f988702352e9b9be2a795477ff36c4d351ef1a74135820e9efbe03e9",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1331,
+        "height": 1181
+      }
+    },
+    {
+      "key": "wall-straight-mossy-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-straight-mossy-v2.png",
+      "sourceDimensions": {
+        "width": 384,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 2,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 64,
+        "height": 44
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "architecture",
+      "collidable": true,
+      "category": "environment/walls",
+      "bytes": 259920,
+      "sha256": "9249fbf336458f94bad30408de5fff9390ca7e58530a35946d9be3bd7583d526",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1331,
+        "height": 1181
+      }
+    },
+    {
+      "key": "wall-broken-opening-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-broken-opening-v2.png",
+      "sourceDimensions": {
+        "width": 384,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 3,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 96,
+        "height": 64
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "architecture",
+      "collidable": false,
+      "category": "environment/walls",
+      "bytes": 242419,
+      "sha256": "3fbe0d4eaa9f5cafa74efded671c91cf2785e7a9529842c7da12a3c61105fe2f",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1476,
+        "height": 1066
+      }
+    },
+    {
+      "key": "wall-low-ruined-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-low-ruined-v2.png",
+      "sourceDimensions": {
+        "width": 384,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 2,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 64,
+        "height": 28
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "architecture",
+      "collidable": true,
+      "category": "environment/walls",
+      "bytes": 112139,
+      "sha256": "febf95014a0ca7d7f647d2446e41ab581086fe5896d4d3998e24ecf4a5918f55",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1659,
+        "height": 948
+      }
+    },
+    {
+      "key": "wall-corner-outer-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-corner-outer-v2.png",
+      "sourceDimensions": {
+        "width": 384,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 2,
+        "height": 2
+      },
+      "displayDimensions": {
+        "width": 64,
+        "height": 48
+      },
+      "anchor": {
+        "x": 0.52,
+        "y": 1
+      },
+      "depthClass": "architecture",
+      "collidable": true,
+      "category": "environment/walls",
+      "bytes": 254471,
+      "sha256": "1d2cc2a9c26503b3de7c20feeca194fc25cf0c32cc63bfa1307823417ad24e7e",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1492,
+        "height": 1054
+      }
+    },
+    {
+      "key": "wall-corner-inner-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-corner-inner-v2.png",
+      "sourceDimensions": {
+        "width": 384,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 2,
+        "height": 2
+      },
+      "displayDimensions": {
+        "width": 76,
+        "height": 56
+      },
+      "anchor": {
+        "x": 0.48,
+        "y": 0.85
+      },
+      "depthClass": "architecture",
+      "collidable": true,
+      "category": "environment/walls",
+      "bytes": 193530,
+      "sha256": "418c6ee3f7c73de7859e3a90f88308f8ab6f31cc43acdb115e8cf0c35836fad8",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1331,
+        "height": 1181
+      }
+    },
+    {
+      "key": "wall-end-left-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-end-left-v2.png",
+      "sourceDimensions": {
+        "width": 384,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 2,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 64,
+        "height": 52
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "architecture",
+      "collidable": true,
+      "category": "environment/walls",
+      "bytes": 242624,
+      "sha256": "ab29ad1a6574cde17fc756e33c8ffd5cab0d7e74b89a396698febc2f2f39a2f1",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1331,
+        "height": 1181
+      }
+    },
+    {
+      "key": "wall-end-right-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-end-right-v2.png",
+      "sourceDimensions": {
+        "width": 384,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 2,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 64,
+        "height": 52
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "architecture",
+      "collidable": true,
+      "category": "environment/walls",
+      "bytes": 224372,
+      "sha256": "8764f5182569f821ef8576b27bcd118f8bbd0791ebf160ba82013010e60bbce2",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1331,
+        "height": 1181
+      }
+    },
+    {
+      "key": "wall-collapsed-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-collapsed-v2.png",
+      "sourceDimensions": {
+        "width": 384,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 2,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 64,
+        "height": 28
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "architecture",
+      "collidable": true,
+      "category": "environment/walls",
+      "bytes": 174949,
+      "sha256": "a6a0f6ee7737efbebec2acbf06c119b07f91c41c39eb6ce246caea113d28c8f2",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "key": "floor-sandstone-weathered-v2",
+      "path": "/assets/game/angkor-v2/environment/floors/floor-sandstone-weathered-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 32,
+        "height": 32
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "depthClass": "floor",
+      "collidable": false,
+      "category": "environment/floors",
+      "bytes": 161497,
+      "sha256": "a6d6657030696e75f0f3fd05c3f1404b4f59795b5278a8e0e14ca53b8955b0c5",
+      "hasAlpha": false,
+      "originalGenerationDimensions": {
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "floor-sandstone-cracked-v2",
+      "path": "/assets/game/angkor-v2/environment/floors/floor-sandstone-cracked-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 32,
+        "height": 32
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "depthClass": "floor",
+      "collidable": false,
+      "category": "environment/floors",
+      "bytes": 171578,
+      "sha256": "1d9243f82b406896ac2d8087080d1acca3c7861cd2099beefc0c8e5b92023e11",
+      "hasAlpha": false,
+      "originalGenerationDimensions": {
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "floor-sandstone-mossy-v2",
+      "path": "/assets/game/angkor-v2/environment/floors/floor-sandstone-mossy-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 32,
+        "height": 32
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "depthClass": "floor",
+      "collidable": false,
+      "category": "environment/floors",
+      "bytes": 177267,
+      "sha256": "97dbb372ba2924e8f131393e94016c8d83aaede2fec7f85a4a7b7ca2a6fa7658",
+      "hasAlpha": false,
+      "originalGenerationDimensions": {
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "floor-root-damaged-v2",
+      "path": "/assets/game/angkor-v2/environment/floors/floor-root-damaged-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 32,
+        "height": 32
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "depthClass": "floor",
+      "collidable": false,
+      "category": "environment/floors",
+      "bytes": 173246,
+      "sha256": "4b38cf22f487ef8e6c0fd542ae676352192de0ee7f5c01c29d48bb235853f6d4",
+      "hasAlpha": false,
+      "originalGenerationDimensions": {
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "floor-debris-v2",
+      "path": "/assets/game/angkor-v2/environment/floors/floor-debris-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 32,
+        "height": 32
+      },
+      "anchor": {
+        "x": 0,
+        "y": 0
+      },
+      "depthClass": "floor",
+      "collidable": false,
+      "category": "environment/floors",
+      "bytes": 172847,
+      "sha256": "60ed845c05fa6e3e60c99c05babe0cd70cce7a99593eb2e4ea76fa6504ee7fcd",
+      "hasAlpha": false,
+      "originalGenerationDimensions": {
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "pillar-intact-v2",
+      "path": "/assets/game/angkor-v2/environment/architecture/pillar-intact-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 384
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 32,
+        "height": 64
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "architecture",
+      "collidable": true,
+      "category": "environment/architecture",
+      "bytes": 149210,
+      "sha256": "6112535020d9cfd99697fd6722b2a4f0f32bae2e774c1fa248218265744a8586",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1024,
+        "height": 1536
+      }
+    },
+    {
+      "key": "pillar-broken-v2",
+      "path": "/assets/game/angkor-v2/environment/architecture/pillar-broken-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 384
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 32,
+        "height": 42
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "architecture",
+      "collidable": true,
+      "category": "environment/architecture",
+      "bytes": 174065,
+      "sha256": "feb9410089ad3ea1a2847fa8410cbbbd9939357ac216089a72a90a402b840ee5",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1024,
+        "height": 1536
+      }
+    },
+    {
+      "key": "guardian-statue-v2",
+      "path": "/assets/game/angkor-v2/environment/architecture/guardian-statue-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 384
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 48,
+        "height": 64
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "architecture",
+      "collidable": true,
+      "category": "environment/architecture",
+      "bytes": 210929,
+      "sha256": "77d61e132521adce1212a61e5ee765a1f9b2551c6c70fbd8b3cda3cc7e092b6d",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1313,
+        "height": 1198
+      }
+    },
+    {
+      "key": "statue-fragment-v2",
+      "path": "/assets/game/angkor-v2/environment/architecture/statue-fragment-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 384
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 40,
+        "height": 32
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "architecture",
+      "collidable": true,
+      "category": "environment/architecture",
+      "bytes": 140086,
+      "sha256": "d2293e71e3e327c12430c7925b86dab5fdc460a015da5ff1aba482c7eb5bf3c1",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1331,
+        "height": 1181
+      }
+    },
+    {
+      "key": "temple-passage-closed-v2",
+      "path": "/assets/game/angkor-v2/props/stage-transitions/temple-passage-closed-v2.png",
+      "sourceDimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "logicalFootprint": {
+        "width": 3,
+        "height": 2
+      },
+      "displayDimensions": {
+        "width": 112,
+        "height": 96
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "architecture",
+      "collidable": false,
+      "category": "props/stage-transitions",
+      "bytes": 424182,
+      "sha256": "bc81fc8f7a6df09a6aa3918103a7e73f965b6e465764bbd1dc3a8d32855c4af5",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "key": "temple-passage-open-v2",
+      "path": "/assets/game/angkor-v2/props/stage-transitions/temple-passage-open-v2.png",
+      "sourceDimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "logicalFootprint": {
+        "width": 3,
+        "height": 2
+      },
+      "displayDimensions": {
+        "width": 112,
+        "height": 96
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "architecture",
+      "collidable": false,
+      "category": "props/stage-transitions",
+      "bytes": 412343,
+      "sha256": "ef004cd18e654e0c6f8cd2a2ce1dedf64ff3238490748f805265d8bef113eaa5",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "key": "root-floor-a-v2",
+      "path": "/assets/game/angkor-v2/nature/roots/root-floor-a-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 32,
+        "height": 32
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "ground-detail",
+      "collidable": false,
+      "category": "nature/roots",
+      "bytes": 59387,
+      "sha256": "caba4b8ac361d1aab4ec5aaae33230ae784fcfd1bfd07119e6be91956628cd14",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "key": "root-floor-b-v2",
+      "path": "/assets/game/angkor-v2/nature/roots/root-floor-b-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 32,
+        "height": 32
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "ground-detail",
+      "collidable": false,
+      "category": "nature/roots",
+      "bytes": 53883,
+      "sha256": "f83ac10c1133106d0ce36b9b408aa3414e692cf3269a8c7253bb960be21f0cd7",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "key": "root-wall-v2",
+      "path": "/assets/game/angkor-v2/nature/roots/root-wall-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 40,
+        "height": 48
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "architecture",
+      "collidable": false,
+      "category": "nature/roots",
+      "bytes": 126777,
+      "sha256": "b21d0e56ae6c210cc00596e794e4ad01a34e7bfe25993144e931dcfec0ec1c57",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "root-heavy-v2",
+      "path": "/assets/game/angkor-v2/nature/roots/root-heavy-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 2,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 64,
+        "height": 64
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "architecture",
+      "collidable": false,
+      "category": "nature/roots",
+      "bytes": 152717,
+      "sha256": "7124bb1d421060de3081c8890afea4c39d819de5a71109848deaf55f6c24957a",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "vine-hanging-v2",
+      "path": "/assets/game/angkor-v2/nature/foliage/vine-hanging-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 48,
+        "height": 48
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "foreground",
+      "collidable": false,
+      "category": "nature/foliage",
+      "bytes": 112806,
+      "sha256": "0d3df6b08fd9855b5621e9124a2195f037091b9c43afa04efcf2fef9e987d151",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1323,
+        "height": 1189
+      }
+    },
+    {
+      "key": "fern-a-v2",
+      "path": "/assets/game/angkor-v2/nature/foliage/fern-a-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 32,
+        "height": 32
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "ground-detail",
+      "collidable": false,
+      "category": "nature/foliage",
+      "bytes": 110759,
+      "sha256": "baeebe3534fb53e3ce1d058778aea59c6dc2badb3f9010b94563d03e4acc5942",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1316,
+        "height": 1195
+      }
+    },
+    {
+      "key": "fern-b-v2",
+      "path": "/assets/game/angkor-v2/nature/foliage/fern-b-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 32,
+        "height": 32
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "ground-detail",
+      "collidable": false,
+      "category": "nature/foliage",
+      "bytes": 115373,
+      "sha256": "48e2a9a663cd62e4d4e113575139575bf1b337ac3d76db43367fe8d7fbfcf2b8",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "broadleaf-a-v2",
+      "path": "/assets/game/angkor-v2/nature/foliage/broadleaf-a-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 32,
+        "height": 32
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "ground-detail",
+      "collidable": false,
+      "category": "nature/foliage",
+      "bytes": 113578,
+      "sha256": "3ecc02fdc723469a2fa307e691d34f594fd708e5948c37a2bc68621d634c4f79",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1312,
+        "height": 1199
+      }
+    },
+    {
+      "key": "grass-edge-v2",
+      "path": "/assets/game/angkor-v2/nature/foliage/grass-edge-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 32,
+        "height": 32
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "ground-detail",
+      "collidable": false,
+      "category": "nature/foliage",
+      "bytes": 56983,
+      "sha256": "615ce76367031d7231596aea3d7214748598aa598ccd6ebe6896d2150a1a54c7",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "key": "moss-cluster-v2",
+      "path": "/assets/game/angkor-v2/nature/foliage/moss-cluster-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 32,
+        "height": 32
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "ground-detail",
+      "collidable": false,
+      "category": "nature/foliage",
+      "bytes": 76243,
+      "sha256": "58820c0538767a55cdf8d168de17d74903bedfde6f5db869f91b2ade800e2516",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "key": "rubble-small-a-v2",
+      "path": "/assets/game/angkor-v2/environment/rubble/rubble-small-a-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 28,
+        "height": 24
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "ground-detail",
+      "collidable": false,
+      "category": "environment/rubble",
+      "bytes": 113288,
+      "sha256": "29a3ae5092f765d7e2c321bc94ea37cc2e3fd803e2519c70ce6b0faff848841a",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1374,
+        "height": 1145
+      }
+    },
+    {
+      "key": "rubble-small-b-v2",
+      "path": "/assets/game/angkor-v2/environment/rubble/rubble-small-b-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 28,
+        "height": 24
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "ground-detail",
+      "collidable": false,
+      "category": "environment/rubble",
+      "bytes": 97307,
+      "sha256": "3df7f46a2344c9c3414671395189d746a9e522b7140319b88864942fe009297b",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "key": "rubble-large-v2",
+      "path": "/assets/game/angkor-v2/environment/rubble/rubble-large-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 48,
+        "height": 32
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "ground-detail",
+      "collidable": true,
+      "category": "environment/rubble",
+      "bytes": 98441,
+      "sha256": "7aea2c933bb2084820734c6685ae0a74e4c5bdab8226df2b3d6109c6d3c4cd56",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "key": "broken-stone-block-v2",
+      "path": "/assets/game/angkor-v2/environment/rubble/broken-stone-block-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 28,
+        "height": 24
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "ground-detail",
+      "collidable": true,
+      "category": "environment/rubble",
+      "bytes": 137903,
+      "sha256": "383f3e1b4bbe825d21df2977c54c561b6a5c94aef3391907267da29b9f37df65",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "key": "pushable-boulder-v2",
+      "path": "/assets/game/angkor-v2/props/boulders/pushable-boulder-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 30,
+        "height": 30
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "prop",
+      "collidable": true,
+      "category": "props/boulders",
+      "bytes": 164014,
+      "sha256": "d9667f672d842e94e22bb24c0a5e4a7cd862fc20cba528c35b44a6de4e2d0856",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "blue-gem-v2",
+      "path": "/assets/game/angkor-v2/props/gems/blue-gem-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 18,
+        "height": 24
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "collectible",
+      "collidable": false,
+      "category": "props/gems",
+      "bytes": 84136,
+      "sha256": "3bc017e186fb06a90ca4ede46e84b46ec02ae139cc307313b1bec2424e2cc750",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1278,
+        "height": 1230
+      }
+    },
+    {
+      "key": "potion-v2",
+      "path": "/assets/game/angkor-v2/props/gems/potion-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 18,
+        "height": 24
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "collectible",
+      "collidable": false,
+      "category": "props/gems",
+      "bytes": 101178,
+      "sha256": "541e8cba6f46fa0ddd7996d131011392ddaacc48de8c29c3eabeb77a4235a55d",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1263,
+        "height": 1245
+      }
+    },
+    {
+      "key": "spike-trap-idle-v2",
+      "path": "/assets/game/angkor-v2/hazards/spikes/spike-trap-idle-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 30,
+        "height": 30
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "hazard",
+      "collidable": false,
+      "category": "hazards/spikes",
+      "bytes": 160538,
+      "sha256": "fd92bf33a00a378ae43ac727de5f7d79a5a45233ffdfddd6a8a0f3f410bca0a3",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "spike-trap-active-v2",
+      "path": "/assets/game/angkor-v2/hazards/spikes/spike-trap-active-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 30,
+        "height": 30
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "hazard",
+      "collidable": false,
+      "category": "hazards/spikes",
+      "bytes": 157689,
+      "sha256": "9eb83eb8335b776b514dd1f0ef2445f617bed6bfbcc72a07233b2d5f556c626e",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1254,
+        "height": 1254
+      }
+    },
+    {
+      "key": "explorer-idle-down",
+      "path": "/assets/game/angkor-v2/player/explorer/explorer-idle-down.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 384
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 22,
+        "height": 31
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.9895833333333334
+      },
+      "depthClass": "actor",
+      "collidable": false,
+      "category": "player/explorer",
+      "bytes": 165998,
+      "sha256": "b27a52a2dbf691dee2a06e7523d6b949cc2f75d67dc5cfcf2f0320749fc72c83",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1217,
+        "height": 1293
+      }
+    },
+    {
+      "key": "explorer-idle-up",
+      "path": "/assets/game/angkor-v2/player/explorer/explorer-idle-up.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 384
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 22,
+        "height": 31
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.9895833333333334
+      },
+      "depthClass": "actor",
+      "collidable": false,
+      "category": "player/explorer",
+      "bytes": 156252,
+      "sha256": "55522113b87ca583ebd3cf89ab3ee85cf41bdf33788749a0f68624d05221f579",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1217,
+        "height": 1293
+      }
+    },
+    {
+      "key": "explorer-idle-left",
+      "path": "/assets/game/angkor-v2/player/explorer/explorer-idle-left.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 384
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 22,
+        "height": 31
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.9895833333333334
+      },
+      "depthClass": "actor",
+      "collidable": false,
+      "category": "player/explorer",
+      "bytes": 149188,
+      "sha256": "db71a67682c56e5a071c9a24642716fd18bb72097ed860a4b2ff4d7574870a6f",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1100,
+        "height": 1430
+      }
+    },
+    {
+      "key": "explorer-idle-right",
+      "path": "/assets/game/angkor-v2/player/explorer/explorer-idle-right.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 384
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 22,
+        "height": 31
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.9895833333333334
+      },
+      "depthClass": "actor",
+      "collidable": false,
+      "category": "player/explorer",
+      "bytes": 149414,
+      "sha256": "aba501be837f6246f40bc9d8f4a99bb28df403c0b33190c8d9c5081d60ab6054",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1217,
+        "height": 1293
+      }
+    },
+    {
+      "key": "snake-coiled-v2",
+      "path": "/assets/game/angkor-v2/wildlife/snake/snake-coiled-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 30,
+        "height": 28
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "actor",
+      "collidable": false,
+      "category": "wildlife/snake",
+      "bytes": 123234,
+      "sha256": "79f7949fa14801317d200700cd9eec544df27dda7cbe3295dbbbc84d44733969",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1278,
+        "height": 1230
+      }
+    },
+    {
+      "key": "snake-slither-a-v2",
+      "path": "/assets/game/angkor-v2/wildlife/snake/snake-slither-a-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 30,
+        "height": 28
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "actor",
+      "collidable": false,
+      "category": "wildlife/snake",
+      "bytes": 79291,
+      "sha256": "bc806fdc710baf91f0842f1025187ffc9eb03cd2debd6f0e9af65d6b566e9304",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1278,
+        "height": 1230
+      }
+    },
+    {
+      "key": "snake-slither-b-v2",
+      "path": "/assets/game/angkor-v2/wildlife/snake/snake-slither-b-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 30,
+        "height": 28
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "actor",
+      "collidable": false,
+      "category": "wildlife/snake",
+      "bytes": 92515,
+      "sha256": "8ccdad824a9a7daf66d71811cdb31a6fce21ef064a663640b66e414d1c69378b",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1484,
+        "height": 1060
+      }
+    },
+    {
+      "key": "snake-alert-v2",
+      "path": "/assets/game/angkor-v2/wildlife/snake/snake-alert-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 30,
+        "height": 28
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "actor",
+      "collidable": false,
+      "category": "wildlife/snake",
+      "bytes": 119752,
+      "sha256": "09ca1f807bb2e6ec12396bd8103fec58d487f56646d47cd9258ac74c1f4ee2ee",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1278,
+        "height": 1230
+      }
+    },
+    {
+      "key": "snake-strike-v2",
+      "path": "/assets/game/angkor-v2/wildlife/snake/snake-strike-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 30,
+        "height": 28
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "actor",
+      "collidable": false,
+      "category": "wildlife/snake",
+      "bytes": 56876,
+      "sha256": "f65220c48f58658eac1ee7cbbe1d2b01fdf5dd08c44fea6d25ba6de3fbdfd8fa",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1600,
+        "height": 983
+      }
+    },
+    {
+      "key": "monkey-perched-v2",
+      "path": "/assets/game/angkor-v2/wildlife/monkey/monkey-perched-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 32,
+        "height": 32
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "actor",
+      "collidable": false,
+      "category": "wildlife/monkey",
+      "bytes": 100187,
+      "sha256": "e398ccc337ae1865c05ef8d8b29b9e6a0634a147c96f9a8c8736c6761c7b83f6",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1263,
+        "height": 1245
+      }
+    },
+    {
+      "key": "monkey-alert-v2",
+      "path": "/assets/game/angkor-v2/wildlife/monkey/monkey-alert-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 32,
+        "height": 32
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "actor",
+      "collidable": false,
+      "category": "wildlife/monkey",
+      "bytes": 100900,
+      "sha256": "0f073a285d16cd080f26480ee3cbce25fff335aac7b973a00df3fbe6b13f03dd",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1263,
+        "height": 1246
+      }
+    },
+    {
+      "key": "monkey-jump-v2",
+      "path": "/assets/game/angkor-v2/wildlife/monkey/monkey-jump-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 32,
+        "height": 32
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "actor",
+      "collidable": false,
+      "category": "wildlife/monkey",
+      "bytes": 97317,
+      "sha256": "313d4474d09196ec3e354824fbde67ec7651569120ab032744463a7e2336c871",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1263,
+        "height": 1246
+      }
+    },
+    {
+      "key": "monkey-throw-v2",
+      "path": "/assets/game/angkor-v2/wildlife/monkey/monkey-throw-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 32,
+        "height": 32
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "actor",
+      "collidable": false,
+      "category": "wildlife/monkey",
+      "bytes": 92439,
+      "sha256": "7b00c8dedcbd2ff02a9bc42d333bb60de973f56ec0b413142a29b3dc1e8d3fb6",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1263,
+        "height": 1246
+      }
+    },
+    {
+      "key": "monkey-rock-v2",
+      "path": "/assets/game/angkor-v2/wildlife/monkey/monkey-rock-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 10,
+        "height": 10
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 1
+      },
+      "depthClass": "effect",
+      "collidable": false,
+      "category": "wildlife/monkey",
+      "bytes": 152026,
+      "sha256": "269182de37e6d66bb9a50f825c7c0a681445ff93e6fc174ec5c262fd315d7685",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "key": "dust-small-v2",
+      "path": "/assets/game/angkor-v2/effects/dust-small-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 0,
+        "height": 0
+      },
+      "displayDimensions": {
+        "width": 28,
+        "height": 28
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "depthClass": "effect",
+      "collidable": false,
+      "category": "effects",
+      "bytes": 22900,
+      "sha256": "fc4e7cba0d245c59447b8449e5c00c1f9095e2a3b633478005889258ffcd9bd1",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "key": "dust-push-v2",
+      "path": "/assets/game/angkor-v2/effects/dust-push-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 0,
+        "height": 0
+      },
+      "displayDimensions": {
+        "width": 40,
+        "height": 24
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "depthClass": "effect",
+      "collidable": false,
+      "category": "effects",
+      "bytes": 41528,
+      "sha256": "e5563a812afdb41a62cce4f096892f5b6469a6ce9d76e13b505988965c1b82cb",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "key": "rock-impact-v2",
+      "path": "/assets/game/angkor-v2/effects/rock-impact-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 0,
+        "height": 0
+      },
+      "displayDimensions": {
+        "width": 28,
+        "height": 28
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "depthClass": "effect",
+      "collidable": false,
+      "category": "effects",
+      "bytes": 39474,
+      "sha256": "776896bff1699389e984cd2993c23aa5d3d7c16aec2748b9161c946a4613fb88",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "key": "gem-sparkle-v2",
+      "path": "/assets/game/angkor-v2/effects/gem-sparkle-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 0,
+        "height": 0
+      },
+      "displayDimensions": {
+        "width": 28,
+        "height": 28
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "depthClass": "effect",
+      "collidable": false,
+      "category": "effects",
+      "bytes": 40646,
+      "sha256": "f4a7f3c01d52297eb73f4a00ed8f4a2ba1daeb1995d9dfaece9a3e15b3c98f07",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1368,
+        "height": 1150
+      }
+    },
+    {
+      "key": "leaf-particles-v2",
+      "path": "/assets/game/angkor-v2/effects/leaf-particles-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "logicalFootprint": {
+        "width": 0,
+        "height": 0
+      },
+      "displayDimensions": {
+        "width": 28,
+        "height": 28
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "depthClass": "effect",
+      "collidable": false,
+      "category": "effects",
+      "bytes": 43292,
+      "sha256": "188c29b309f5210552bfa1dacdbbedfe5b3eb3af85274eac75e97a14ca976323",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    },
+    {
+      "key": "explorer-walk-v2",
+      "path": "/assets/game/angkor-v2/player/explorer/explorer-walk-v2.png",
+      "sourceDimensions": {
+        "width": 512,
+        "height": 768
+      },
+      "logicalFootprint": {
+        "width": 1,
+        "height": 1
+      },
+      "displayDimensions": {
+        "width": 22,
+        "height": 31
+      },
+      "anchor": {
+        "x": 0.5,
+        "y": 0.9895833333333334
+      },
+      "depthClass": "actor",
+      "collidable": false,
+      "category": "player/explorer",
+      "bytes": 630020,
+      "sha256": "2dafdfc5c405b25428915635db778c6a97f06be614c23a9c45696d0978e080dc",
+      "hasAlpha": true,
+      "originalGenerationDimensions": {
+        "width": 1024,
+        "height": 1536
+      },
+      "additionalGenerationDimensions": {
+        "width": 2172,
+        "height": 724
+      }
+    }
+  ]
+}
