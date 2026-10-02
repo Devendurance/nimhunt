@@ -143,6 +143,9 @@ describe('Angkor V2 standalone delivery', () => {
     expect(visited.has(resolve(root, 'src/game/rendering/angkorV2/environment.ts'))).toBe(false)
     expect(visited.has(resolve(root, 'src/game/traversal/angkorV2/movement.ts'))).toBe(false)
     expect(visited.has(resolve(root, 'src/dev/angkorV2Traversal.tsx'))).toBe(false)
+    expect(visited.has(resolve(root, 'src/dev/angkorV2Stage1.tsx'))).toBe(false)
+    expect(visited.has(resolve(root, 'src/game/stage1/model.ts'))).toBe(false)
+    expect(visited.has(resolve(root, 'src/game/stage1/StageScene.ts'))).toBe(false)
     expect(readFileSync(resolve(root, 'src/dev/angkorV2Showcase.ts'), 'utf8')).toContain('if (import.meta.env.DEV)')
   })
 

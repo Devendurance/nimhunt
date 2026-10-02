@@ -10,6 +10,11 @@ export interface TraversalMove {
   readonly to: GridCoord
 }
 interface ActiveMove { command: TraversalMove; elapsed: number }
+export interface TraversalHooks {
+  /** Optional isolated gameplay adapter. Default traversal/V1 legality is unchanged. */
+  canEnter?: (from: GridCoord, direction: Direction) => boolean
+  onArrive?: (move: TraversalMove) => void
+}
 
 /** Opt-in scheduling/presentation around V1's unchanged calculateMove.
  * One accepted tile at a time; no timing/replay/checkpoint authority. */
@@ -23,12 +28,14 @@ export class TileTraversal {
   readonly room: GridRoom
   readonly durationMs: number
   private readonly onMove: (move: TraversalMove) => void
+  private readonly hooks: TraversalHooks
   facing: Direction = 'DOWN'
 
-  constructor(room: GridRoom, onMove: (move: TraversalMove) => void = () => {}, durationMs = ANGKOR_V2_MOVE_MS) {
+  constructor(room: GridRoom, onMove: (move: TraversalMove) => void = () => {}, durationMs = ANGKOR_V2_MOVE_MS, hooks: TraversalHooks = {}) {
     if (!Number.isFinite(durationMs) || durationMs <= 0 || !isWalkableTile(getTileAt(room, room.playerStart))) throw new Error('Invalid traversal spawn or timing')
     this.room = room; this.onMove = onMove; this.durationMs = durationMs
     this.coord = { ...room.playerStart }
+    this.hooks = hooks
   }
   get position(): GridCoord { return { ...this.coord } }
   get moving(): boolean { return Boolean(this.active) }
@@ -66,7 +73,9 @@ export class TileTraversal {
       carryMs = Math.min(16, Math.max(0, this.active.elapsed + deltaMs - this.durationMs))
       this.active.elapsed = Math.min(this.durationMs, this.active.elapsed + deltaMs)
       if (this.active.elapsed < this.durationMs) return
-      this.coord = { ...this.active.command.to }; this.active = undefined; this.blocked = undefined
+      const arrived = this.active.command
+      this.coord = { ...arrived.to }; this.active = undefined; this.blocked = undefined
+      this.hooks.onArrive?.(arrived)
     }
     // A suspended/slow frame completes at most one tile. It never catches up by
     // emitting a burst of invisible moves or overlapping presentation.
@@ -81,7 +90,7 @@ export class TileTraversal {
   private start(direction: Direction, elapsed = 0): boolean {
     this.facing = direction
     const result = calculateMove(this.room, this.coord, direction)
-    if (!result.success) { this.blocked = direction; return false }
+    if (!result.success || this.hooks.canEnter?.(this.coord, direction) === false) { this.blocked = direction; return false }
     this.blocked = undefined
     const command: TraversalMove = { seq: ++this.sequence, type: 'MOVE', direction, from: { ...result.from }, to: { ...result.to } }
     this.active = { command, elapsed }; this.onMove(command)

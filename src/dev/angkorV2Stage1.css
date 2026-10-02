@@ -1,0 +1,27 @@
+* { box-sizing: border-box; }
+body { margin: 0; background: #132a26; color: #f3ead7; font: 14px/1.4 Inter, system-ui, sans-serif; }
+.stage-shell { width: min(100%, 440px); margin: auto; padding: 10px max(12px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); }
+header { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; }
+h1, h2, p { margin: 0; } h1 { font-size: 21px; } h2 { font-size: 23px; text-wrap: balance; }
+.eyebrow { color: #a0c2ad; font-size: 11px; letter-spacing: .08em; }
+label { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; }
+input { accent-color: #3e88f7; }
+.stage-hud { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-variant-numeric: tabular-nums; }
+.stage-hud > strong:first-child { color: #81b4ff; }
+.health { flex: 1; height: 6px; background: #294c40; border-radius: 4px; overflow: hidden; }
+.health span { display: block; height: 100%; background: #a0c2ad; }
+.area-name { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: #a0c2ad; margin: 0 0 6px; }
+.area-name span { font-size: 11px; }
+.stage-viewport { position: relative; width: min(100%, 386px); margin: auto; border: 1px solid #5e7c52; background: #1b3833; touch-action: none; }
+.stage-viewport canvas { display: block; width: 100% !important; height: auto !important; touch-action: none; }
+.stage-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 22px; text-align: center; background: #132a26ed; }
+.stage-overlay p { text-wrap: pretty; } .small { font-size: 12px; color: #a0c2ad; }
+button { font: inherit; color: #f3ead7; background: #294c40; border: 1px solid #5e7c52; border-radius: 8px; padding: 10px 16px; min-height: 44px; cursor: pointer; }
+button:disabled { opacity: .5; cursor: wait; }
+.stage-controls { display: flex; justify-content: center; margin: 8px 0 2px; }
+.stage-options { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #a0c2ad; }
+.stage-debug { font-size: 12px; font-variant-numeric: tabular-nums; border-top: 1px solid #5e7c52; padding-top: 8px; }
+.stage-debug pre { max-height: 240px; overflow: auto; font-size: 10px; } .stage-debug button { margin-top: 8px; }
+:focus-visible { outline: 2px solid #3e88f7; outline-offset: 3px; }
+@media (max-width: 400px) { .stage-viewport { width: calc(100% + 24px); max-width: none; margin-left: -12px; border-left: 0; border-right: 0; } }
+@media (max-height: 650px) { .stage-shell { padding-top: 4px; } header, header label { min-height: 32px; } header .eyebrow, .area-name, .stage-options { display: none; } h1 { font-size: 18px; } .stage-hud { padding: 4px 0; } .stage-controls { margin-top: 4px; } .stage-overlay { gap: 8px; padding: 14px; } }
