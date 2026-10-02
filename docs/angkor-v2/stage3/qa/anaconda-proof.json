@@ -1,0 +1,254 @@
+{
+  "result": {
+    "gems": 12,
+    "expeditionGems": 29,
+    "hp": 76
+  },
+  "anaconda": {
+    "mode": "retreated",
+    "nextTick": 168,
+    "targets": [],
+    "blockedCells": [],
+    "strikesResolved": 3,
+    "sanctumStrikes": 2,
+    "cycle": 3,
+    "objectiveSatisfied": true
+  },
+  "events": [
+    {
+      "type": "ANACONDA_ACTIVATED",
+      "presenceUntil": 92,
+      "seq": 92,
+      "tick": 84
+    },
+    {
+      "type": "ANACONDA_TELEGRAPH",
+      "tiles": [
+        {
+          "x": 13,
+          "y": 7
+        },
+        {
+          "x": 13,
+          "y": 8
+        },
+        {
+          "x": 13,
+          "y": 9
+        }
+      ],
+      "impactTick": 100,
+      "sanctum": false,
+      "seq": 101,
+      "tick": 92
+    },
+    {
+      "type": "ANACONDA_STRIKE",
+      "tiles": [
+        {
+          "x": 13,
+          "y": 7
+        },
+        {
+          "x": 13,
+          "y": 8
+        },
+        {
+          "x": 13,
+          "y": 9
+        }
+      ],
+      "hit": false,
+      "resolved": true,
+      "strikesResolved": 1,
+      "seq": 110,
+      "tick": 100
+    },
+    {
+      "type": "ANACONDA_COIL_BLOCKED",
+      "cells": [
+        {
+          "x": 13,
+          "y": 11
+        },
+        {
+          "x": 14,
+          "y": 11
+        }
+      ],
+      "releaseTick": 112,
+      "seq": 111,
+      "tick": 100
+    },
+    {
+      "type": "ANACONDA_COIL_RELEASED",
+      "cells": [
+        {
+          "x": 13,
+          "y": 11
+        },
+        {
+          "x": 14,
+          "y": 11
+        }
+      ],
+      "seq": 125,
+      "tick": 112
+    },
+    {
+      "type": "ANACONDA_TELEGRAPH",
+      "tiles": [
+        {
+          "x": 19,
+          "y": 14
+        },
+        {
+          "x": 20,
+          "y": 14
+        },
+        {
+          "x": 21,
+          "y": 14
+        }
+      ],
+      "impactTick": 128,
+      "sanctum": true,
+      "seq": 135,
+      "tick": 120
+    },
+    {
+      "type": "ANACONDA_STRIKE",
+      "tiles": [
+        {
+          "x": 19,
+          "y": 14
+        },
+        {
+          "x": 20,
+          "y": 14
+        },
+        {
+          "x": 21,
+          "y": 14
+        }
+      ],
+      "hit": false,
+      "resolved": true,
+      "strikesResolved": 2,
+      "seq": 143,
+      "tick": 128
+    },
+    {
+      "type": "ANACONDA_COIL_BLOCKED",
+      "cells": [
+        {
+          "x": 22,
+          "y": 14
+        },
+        {
+          "x": 23,
+          "y": 14
+        }
+      ],
+      "releaseTick": 140,
+      "seq": 144,
+      "tick": 128
+    },
+    {
+      "type": "ANACONDA_COIL_RELEASED",
+      "cells": [
+        {
+          "x": 22,
+          "y": 14
+        },
+        {
+          "x": 23,
+          "y": 14
+        }
+      ],
+      "seq": 151,
+      "tick": 140
+    },
+    {
+      "type": "ANACONDA_TELEGRAPH",
+      "tiles": [
+        {
+          "x": 20,
+          "y": 12
+        },
+        {
+          "x": 21,
+          "y": 12
+        },
+        {
+          "x": 22,
+          "y": 12
+        }
+      ],
+      "impactTick": 156,
+      "sanctum": true,
+      "seq": 156,
+      "tick": 148
+    },
+    {
+      "type": "ANACONDA_STRIKE",
+      "tiles": [
+        {
+          "x": 20,
+          "y": 12
+        },
+        {
+          "x": 21,
+          "y": 12
+        },
+        {
+          "x": 22,
+          "y": 12
+        }
+      ],
+      "hit": false,
+      "resolved": true,
+      "strikesResolved": 3,
+      "seq": 162,
+      "tick": 156
+    },
+    {
+      "type": "ANACONDA_COIL_BLOCKED",
+      "cells": [
+        {
+          "x": 22,
+          "y": 14
+        },
+        {
+          "x": 23,
+          "y": 14
+        }
+      ],
+      "releaseTick": 168,
+      "seq": 163,
+      "tick": 156
+    },
+    {
+      "type": "ANACONDA_COIL_RELEASED",
+      "cells": [
+        {
+          "x": 22,
+          "y": 14
+        },
+        {
+          "x": 23,
+          "y": 14
+        }
+      ],
+      "seq": 167,
+      "tick": 158
+    },
+    {
+      "type": "ANACONDA_RETREATED",
+      "strikesResolved": 3,
+      "sanctumStrikes": 2,
+      "seq": 168,
+      "tick": 158
+    }
+  ]
+}

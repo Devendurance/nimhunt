@@ -89,6 +89,12 @@ const legacyDefinitions = [
   ["explorer-walk-v2", "player/explorer", 512, 768, 1,1, 22,31, 0.5,1, 'actor', false],
 ] as const
 const productionDefinitions = [
+  ['anaconda-coiled-v2', 'wildlife/anaconda', 512,512, 3,2, 112,112, .5,504/512, 'architecture', true],
+  ['anaconda-rise-v2', 'wildlife/anaconda', 512,512, 3,2, 112,112, .5,504/512, 'architecture', true],
+  ['anaconda-strike-v2', 'wildlife/anaconda', 512,512, 3,2, 112,112, .5,504/512, 'architecture', true],
+  ['anaconda-retreat-v2', 'wildlife/anaconda', 512,512, 3,2, 112,112, .5,504/512, 'architecture', true],
+  ['anaconda-body-v2', 'wildlife/anaconda', 512,256, 2,1, 64,32, .5,248/256, 'architecture', false],
+  ['guardian-monument-v2', 'environment/architecture', 384,384, 2,2, 80,96, .5,376/384, 'architecture', true],
   ['floor-clean-height-v2', 'environment/floors', 256,256, 1,1, 32,32, 0,0, 'floor', false],
   ['floor-weathered-height-v2', 'environment/floors', 256,256, 1,1, 32,32, 0,0, 'floor', false],
   ['floor-cracked-height-v2', 'environment/floors', 256,256, 1,1, 32,32, 0,0, 'floor', false],

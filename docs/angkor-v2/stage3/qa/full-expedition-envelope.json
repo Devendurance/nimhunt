@@ -1,0 +1,7322 @@
+{
+  "schema": "angkor-v2-gem-runner/v1",
+  "version": 1,
+  "mission": "gem-runner",
+  "entries": [
+    {
+      "type": "EXPEDITION_STARTED",
+      "carry": {
+        "hp": 100,
+        "expeditionGems": 0,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": false,
+            "consumed": false
+          }
+        }
+      }
+    },
+    {
+      "type": "STAGE_STARTED",
+      "stageId": "outer-ruins",
+      "carry": {
+        "hp": 100,
+        "expeditionGems": 0,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": false,
+            "consumed": false
+          }
+        }
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 1,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 2,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 3,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 4,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 5,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 6,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 7,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 8,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 9,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 10,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 11,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 12,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 13,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 14,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 15,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 16,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 17,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 18,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 19,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 20,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 21,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 22,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 23,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 24,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 25,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 26,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 27,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 28,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 29,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 30,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 31,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 32,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 33,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 34,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 35,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 36,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 37,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 38,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 39,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 40,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 41,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 42,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 43,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 44,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 45,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 46,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 47,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 48,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 49,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 50,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 51,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 52,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 53,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 54,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 55,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 56,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 57,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 58,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 59,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 60,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 61,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 62,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 63,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 64,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 65,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 66,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 67,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 68,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 69,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 70,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 71,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 72,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 73,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 74,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 75,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 76,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 77,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 78,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 79,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 80,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 81,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 82,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 83,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 84,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 85,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 86,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 87,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 88,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 89,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 90,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 91,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 92,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 93,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 94,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 95,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 96,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 97,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 98,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 99,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 100,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 101,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 102,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 103,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 104,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 105,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 106,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 107,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 108,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 109,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 110,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 111,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 112,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 113,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 114,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 115,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 116,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 117,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 118,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 119,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 120,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 121,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 122,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 123,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 124,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 125,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 126,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 127,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 128,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 129,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 130,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 131,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 132,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 133,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 134,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 135,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 136,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 137,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 138,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 139,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 140,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 141,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 142,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 143,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 144,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 145,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 146,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 147,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 148,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 149,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 150,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 151,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 152,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 153,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 154,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 155,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 156,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 157,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 158,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 159,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 160,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 161,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 162,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 163,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 164,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 165,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 166,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 167,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 168,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 169,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 170,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 171,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 172,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 173,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 174,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 175,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 176,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 177,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 178,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 179,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 180,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 181,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 182,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 183,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 184,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 185,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 186,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 187,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 188,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 189,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 190,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 191,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 192,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 193,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 194,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 195,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 196,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 197,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 198,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 199,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 200,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 201,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 202,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 203,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 204,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 205,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 206,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 207,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 208,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 209,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 210,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 211,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 212,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 213,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 214,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 215,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 216,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 217,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 218,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 219,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 220,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 221,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "outer-ruins",
+      "actionIndex": 222,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_COMPLETED",
+      "stageId": "outer-ruins",
+      "result": {
+        "stageId": "outer-ruins",
+        "stageGems": 7,
+        "expeditionGems": 7,
+        "hpRemaining": 100,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": false,
+            "consumed": false
+          }
+        },
+        "completion": {
+          "tick": 146,
+          "actionCount": 222
+        }
+      },
+      "carryOut": {
+        "hp": 100,
+        "expeditionGems": 7,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": false,
+            "consumed": false
+          }
+        }
+      }
+    },
+    {
+      "type": "STAGE_ADVANCED",
+      "fromStage": "outer-ruins",
+      "toStage": "overgrown-temple",
+      "carry": {
+        "hp": 100,
+        "expeditionGems": 7,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": false,
+            "consumed": false
+          }
+        }
+      }
+    },
+    {
+      "type": "STAGE_STARTED",
+      "stageId": "overgrown-temple",
+      "carry": {
+        "hp": 100,
+        "expeditionGems": 7,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": false,
+            "consumed": false
+          }
+        }
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 1,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 2,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 3,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 4,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 5,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 6,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 7,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 8,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 9,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 10,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 11,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 12,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 13,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 14,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 15,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 16,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 17,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 18,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 19,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 20,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 21,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 22,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 23,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 24,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 25,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 26,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 27,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 28,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 29,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 30,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 31,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 32,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 33,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 34,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 35,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 36,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 37,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 38,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 39,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 40,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 41,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 42,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 43,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 44,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 45,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 46,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 47,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 48,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 49,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 50,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 51,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 52,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 53,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 54,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 55,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 56,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 57,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 58,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 59,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 60,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 61,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 62,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 63,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 64,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 65,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 66,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 67,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 68,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 69,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 70,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 71,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 72,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 73,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 74,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 75,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 76,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 77,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 78,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 79,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 80,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 81,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 82,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 83,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 84,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 85,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 86,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 87,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 88,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 89,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 90,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 91,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 92,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 93,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 94,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 95,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 96,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 97,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 98,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 99,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 100,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 101,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 102,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 103,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 104,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 105,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 106,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 107,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 108,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 109,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 110,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 111,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 112,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 113,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 114,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 115,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 116,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 117,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 118,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 119,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 120,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 121,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 122,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 123,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 124,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 125,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 126,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 127,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 128,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 129,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 130,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 131,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 132,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 133,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 134,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 135,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 136,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 137,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 138,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 139,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 140,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 141,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 142,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 143,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 144,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 145,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 146,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 147,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 148,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 149,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 150,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 151,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 152,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 153,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 154,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 155,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 156,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 157,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 158,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 159,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 160,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 161,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 162,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 163,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 164,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 165,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 166,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 167,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 168,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 169,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 170,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 171,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 172,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 173,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 174,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 175,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 176,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 177,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 178,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 179,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 180,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 181,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 182,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 183,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 184,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 185,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 186,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 187,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 188,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 189,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 190,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 191,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 192,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 193,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 194,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 195,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 196,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 197,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 198,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 199,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 200,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 201,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 202,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 203,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 204,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 205,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 206,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 207,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 208,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 209,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 210,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 211,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 212,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 213,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 214,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 215,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 216,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 217,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 218,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 219,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 220,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 221,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 222,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 223,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 224,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 225,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 226,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 227,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 228,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 229,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 230,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 231,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 232,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 233,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 234,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 235,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 236,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 237,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 238,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 239,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 240,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 241,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 242,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 243,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 244,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 245,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 246,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 247,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 248,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 249,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 250,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 251,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 252,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 253,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 254,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 255,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 256,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 257,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 258,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 259,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 260,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 261,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 262,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 263,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 264,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 265,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 266,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 267,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 268,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 269,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 270,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 271,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 272,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 273,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 274,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 275,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 276,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 277,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 278,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 279,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 280,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 281,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 282,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 283,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 284,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 285,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 286,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "overgrown-temple",
+      "actionIndex": 287,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_COMPLETED",
+      "stageId": "overgrown-temple",
+      "result": {
+        "stageId": "overgrown-temple",
+        "stageGems": 10,
+        "expeditionGems": 17,
+        "hpRemaining": 88,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": false,
+            "consumed": false
+          }
+        },
+        "completion": {
+          "tick": 184,
+          "actionCount": 287
+        }
+      },
+      "carryOut": {
+        "hp": 88,
+        "expeditionGems": 17,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": false,
+            "consumed": false
+          }
+        }
+      }
+    },
+    {
+      "type": "STAGE_ADVANCED",
+      "fromStage": "overgrown-temple",
+      "toStage": "inner-sanctuary",
+      "carry": {
+        "hp": 88,
+        "expeditionGems": 17,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": false,
+            "consumed": false
+          }
+        }
+      }
+    },
+    {
+      "type": "STAGE_STARTED",
+      "stageId": "inner-sanctuary",
+      "carry": {
+        "hp": 88,
+        "expeditionGems": 17,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": false,
+            "consumed": false
+          }
+        }
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 1,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 2,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 3,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 4,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 5,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 6,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 7,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 8,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 9,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 10,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 11,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 12,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 13,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 14,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 15,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 16,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 17,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 18,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 19,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 20,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 21,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 22,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 23,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 24,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 25,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 26,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 27,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 28,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 29,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 30,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 31,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 32,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 33,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 34,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 35,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 36,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 37,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 38,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 39,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 40,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 41,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 42,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 43,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 44,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 45,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 46,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 47,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 48,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 49,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 50,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 51,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 52,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 53,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 54,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 55,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 56,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 57,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 58,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 59,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 60,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 61,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 62,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 63,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 64,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 65,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 66,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 67,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 68,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 69,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 70,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 71,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 72,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 73,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 74,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 75,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 76,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 77,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 78,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 79,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 80,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 81,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 82,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 83,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 84,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 85,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 86,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 87,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 88,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 89,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 90,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 91,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 92,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 93,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 94,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 95,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 96,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 97,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 98,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 99,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 100,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 101,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 102,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 103,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 104,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 105,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 106,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 107,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 108,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 109,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 110,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 111,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 112,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 113,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 114,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 115,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 116,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 117,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 118,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 119,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 120,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 121,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 122,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 123,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 124,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 125,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 126,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 127,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 128,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 129,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 130,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 131,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 132,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 133,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 134,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 135,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 136,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 137,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 138,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 139,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 140,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 141,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 142,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 143,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 144,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 145,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 146,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 147,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 148,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 149,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 150,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 151,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 152,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 153,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 154,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 155,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 156,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 157,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 158,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 159,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 160,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 161,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 162,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 163,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 164,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 165,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 166,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 167,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 168,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 169,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 170,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 171,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 172,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 173,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 174,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 175,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 176,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 177,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 178,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 179,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 180,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 181,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 182,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 183,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 184,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 185,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 186,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 187,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 188,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 189,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 190,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 191,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 192,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 193,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 194,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 195,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 196,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 197,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 198,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 199,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 200,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 201,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 202,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 203,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 204,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 205,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 206,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 207,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 208,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 209,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 210,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 211,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 212,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 213,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 214,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 215,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 216,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 217,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 218,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 219,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 220,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 221,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 222,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 223,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 224,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 225,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 226,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 227,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 228,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 229,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 230,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 231,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 232,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 233,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 234,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 235,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 236,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 237,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 238,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 239,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 240,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 241,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 242,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 243,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 244,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 245,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 246,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 247,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 248,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 249,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 250,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 251,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 252,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 253,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 254,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 255,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 256,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 257,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 258,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 259,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 260,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 261,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 262,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 263,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 264,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 265,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 266,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 267,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 268,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 269,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 270,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 271,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 272,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 273,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 274,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 275,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 276,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 277,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 278,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 279,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 280,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 281,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 282,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 283,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 284,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 285,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 286,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 287,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 288,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 289,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 290,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 291,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 292,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 293,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 294,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 295,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 296,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 297,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 298,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 299,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 300,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 301,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 302,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 303,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 304,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 305,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 306,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 307,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 308,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 309,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 310,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 311,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 312,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 313,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "inner-sanctuary",
+      "actionIndex": 314,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_COMPLETED",
+      "stageId": "inner-sanctuary",
+      "result": {
+        "stageId": "inner-sanctuary",
+        "stageGems": 12,
+        "expeditionGems": 29,
+        "hpRemaining": 76,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": false,
+            "consumed": false
+          }
+        },
+        "completion": {
+          "tick": 215,
+          "actionCount": 314
+        }
+      },
+      "carryOut": {
+        "hp": 76,
+        "expeditionGems": 29,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": false,
+            "consumed": false
+          }
+        }
+      }
+    }
+  ],
+  "snapshot": {
+    "version": 1,
+    "mission": "gem-runner",
+    "status": "COMPLETE",
+    "currentStage": "inner-sanctuary",
+    "currentStageIndex": 2,
+    "hp": 76,
+    "expeditionGems": 29,
+    "carriedItems": {
+      "sword": false,
+      "potion": {
+        "owned": false,
+        "consumed": false
+      }
+    },
+    "stageGems": 12,
+    "stageCarryIn": {
+      "hp": 88,
+      "expeditionGems": 17,
+      "carriedItems": {
+        "sword": false,
+        "potion": {
+          "owned": false,
+          "consumed": false
+        }
+      }
+    },
+    "completedStages": [
+      "outer-ruins",
+      "overgrown-temple",
+      "inner-sanctuary"
+    ],
+    "stageResults": [
+      {
+        "stageId": "outer-ruins",
+        "stageGems": 7,
+        "expeditionGems": 7,
+        "hpRemaining": 100,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": false,
+            "consumed": false
+          }
+        },
+        "completion": {
+          "tick": 146,
+          "actionCount": 222
+        }
+      },
+      {
+        "stageId": "overgrown-temple",
+        "stageGems": 10,
+        "expeditionGems": 17,
+        "hpRemaining": 88,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": false,
+            "consumed": false
+          }
+        },
+        "completion": {
+          "tick": 184,
+          "actionCount": 287
+        }
+      },
+      {
+        "stageId": "inner-sanctuary",
+        "stageGems": 12,
+        "expeditionGems": 29,
+        "hpRemaining": 76,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": false,
+            "consumed": false
+          }
+        },
+        "completion": {
+          "tick": 215,
+          "actionCount": 314
+        }
+      }
+    ],
+    "events": [
+      {
+        "seq": 1,
+        "type": "EXPEDITION_STARTED",
+        "carry": {
+          "hp": 100,
+          "expeditionGems": 0,
+          "carriedItems": {
+            "sword": false,
+            "potion": {
+              "owned": false,
+              "consumed": false
+            }
+          }
+        }
+      },
+      {
+        "seq": 2,
+        "type": "STAGE_STARTED",
+        "stageId": "outer-ruins",
+        "carry": {
+          "hp": 100,
+          "expeditionGems": 0,
+          "carriedItems": {
+            "sword": false,
+            "potion": {
+              "owned": false,
+              "consumed": false
+            }
+          }
+        }
+      },
+      {
+        "type": "STAGE_COMPLETED",
+        "result": {
+          "stageId": "outer-ruins",
+          "stageGems": 7,
+          "expeditionGems": 7,
+          "hpRemaining": 100,
+          "carriedItems": {
+            "sword": false,
+            "potion": {
+              "owned": false,
+              "consumed": false
+            }
+          },
+          "completion": {
+            "tick": 146,
+            "actionCount": 222
+          }
+        },
+        "seq": 3
+      },
+      {
+        "type": "STAGE_TRANSITION_READY",
+        "fromStage": "outer-ruins",
+        "nextStage": "overgrown-temple",
+        "seq": 4
+      },
+      {
+        "type": "STAGE_ADVANCED",
+        "fromStage": "outer-ruins",
+        "toStage": "overgrown-temple",
+        "carry": {
+          "hp": 100,
+          "expeditionGems": 7,
+          "carriedItems": {
+            "sword": false,
+            "potion": {
+              "owned": false,
+              "consumed": false
+            }
+          }
+        },
+        "seq": 5
+      },
+      {
+        "type": "STAGE_STARTED",
+        "stageId": "overgrown-temple",
+        "carry": {
+          "hp": 100,
+          "expeditionGems": 7,
+          "carriedItems": {
+            "sword": false,
+            "potion": {
+              "owned": false,
+              "consumed": false
+            }
+          }
+        },
+        "seq": 6
+      },
+      {
+        "type": "STAGE_COMPLETED",
+        "result": {
+          "stageId": "overgrown-temple",
+          "stageGems": 10,
+          "expeditionGems": 17,
+          "hpRemaining": 88,
+          "carriedItems": {
+            "sword": false,
+            "potion": {
+              "owned": false,
+              "consumed": false
+            }
+          },
+          "completion": {
+            "tick": 184,
+            "actionCount": 287
+          }
+        },
+        "seq": 7
+      },
+      {
+        "type": "STAGE_TRANSITION_READY",
+        "fromStage": "overgrown-temple",
+        "nextStage": "inner-sanctuary",
+        "seq": 8
+      },
+      {
+        "type": "STAGE_ADVANCED",
+        "fromStage": "overgrown-temple",
+        "toStage": "inner-sanctuary",
+        "carry": {
+          "hp": 88,
+          "expeditionGems": 17,
+          "carriedItems": {
+            "sword": false,
+            "potion": {
+              "owned": false,
+              "consumed": false
+            }
+          }
+        },
+        "seq": 9
+      },
+      {
+        "type": "STAGE_STARTED",
+        "stageId": "inner-sanctuary",
+        "carry": {
+          "hp": 88,
+          "expeditionGems": 17,
+          "carriedItems": {
+            "sword": false,
+            "potion": {
+              "owned": false,
+              "consumed": false
+            }
+          }
+        },
+        "seq": 10
+      },
+      {
+        "type": "STAGE_COMPLETED",
+        "result": {
+          "stageId": "inner-sanctuary",
+          "stageGems": 12,
+          "expeditionGems": 29,
+          "hpRemaining": 76,
+          "carriedItems": {
+            "sword": false,
+            "potion": {
+              "owned": false,
+              "consumed": false
+            }
+          },
+          "completion": {
+            "tick": 215,
+            "actionCount": 314
+          }
+        },
+        "seq": 11
+      },
+      {
+        "type": "EXPEDITION_COMPLETED",
+        "hp": 76,
+        "expeditionGems": 29,
+        "seq": 12
+      }
+    ]
+  }
+}

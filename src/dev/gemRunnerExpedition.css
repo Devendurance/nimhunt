@@ -11,3 +11,6 @@
 .runtime-footer a { color: inherit; }
 .runtime-shell .stage-debug h3 { font-size: 13px; margin: 12px 0 4px; }
 @media (max-height: 650px) { .runtime-total { margin-bottom: 4px; } .runtime-total span, .runtime-footer { display: none; } .runtime-transition { gap: 7px; } }
+
+.encounter-hint { margin: 0 0 7px; color: #e9c276; font-size: 11px; line-height: 1.35; text-wrap: pretty; }
+.runtime-transition dl { max-width: 275px; }

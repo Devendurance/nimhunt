@@ -50,7 +50,7 @@ describe('Angkor V2 standalone delivery', () => {
     const files = readdirSync(assetRoot, { recursive: true, encoding: 'utf8' }).map(x => x.replaceAll('\\', '/')).filter(x => x.endsWith('.png') && !x.startsWith('projection-test/')).sort()
     const paths = ANGKOR_V2_MANIFEST.map(x => x.path.replace('/assets/game/angkor-v2/', '')).sort()
     expect(paths).toEqual(files)
-    expect(files).toHaveLength(82)
+    expect(files).toHaveLength(88)
     expect(new Set(ANGKOR_V2_MANIFEST.map(x => x.key)).size).toBe(files.length)
     for (const asset of ANGKOR_V2_MANIFEST) {
       const meta = png(resolve(root, 'public', asset.path.slice(1)))
@@ -67,6 +67,19 @@ describe('Angkor V2 standalone delivery', () => {
       for (const coordinate of Object.values(asset.anchor)) { expect(coordinate).toBeGreaterThanOrEqual(0); expect(coordinate).toBeLessThanOrEqual(1) }
       for (const dimension of Object.values(asset.logicalFootprint)) expect(Number.isInteger(dimension) && dimension >= 0).toBe(true)
       if (asset.depthClass === 'floor') expect(asset.displayDimensions).toEqual({ width: 32, height: 32 })
+    }
+  })
+
+  it('grounds the original multi-tile Anaconda poses on one calibrated foot line', () => {
+    for (const pose of ['coiled', 'rise', 'strike', 'retreat'] as const) {
+      const asset = ANGKOR_V2_BY_KEY[`anaconda-${pose}-v2`]
+      expect(asset.logicalFootprint).toEqual({ width: 3, height: 2 })
+      expect(asset.displayDimensions).toEqual({ width: 112, height: 112 })
+      expect(asset.anchor).toEqual({ x: .5, y: 504 / 512 })
+      const { pixels, width, height } = rgba(resolve(root, 'public', asset.path.slice(1)))
+      let bottom = -1
+      for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) if (pixels[(y * width + x) * 4 + 3] > 32) bottom = Math.max(bottom, y)
+      expect(bottom + 1).toBeGreaterThanOrEqual(502); expect(bottom + 1).toBeLessThanOrEqual(504)
     }
   })
 
@@ -106,7 +119,7 @@ describe('Angkor V2 standalone delivery', () => {
   })
 
   it('promotes the approved overhead pose with a measured gameplay silhouette and foot anchor', () => {
-    expect(ANGKOR_V2_PRODUCTION_MANIFEST).toHaveLength(20)
+    expect(ANGKOR_V2_PRODUCTION_MANIFEST).toHaveLength(26)
     expect(ANGKOR_V2_PRODUCTION_MANIFEST.every(asset => asset.status === 'production')).toBe(true)
     const asset = ANGKOR_V2_BY_KEY[ANGKOR_V2_EXPLORER_GAMEPLAY.key]
     const path = resolve(root, 'public', asset.path.slice(1))
@@ -150,6 +163,9 @@ describe('Angkor V2 standalone delivery', () => {
     expect(visited.has(resolve(root, 'src/game/stage2/model.ts'))).toBe(false)
     expect(visited.has(resolve(root, 'src/game/stage2/Stage2Scene.ts'))).toBe(false)
     expect(visited.has(resolve(root, 'src/game/gemRunner/overgrownTempleAdapter.ts'))).toBe(false)
+    expect(visited.has(resolve(root, 'src/game/stage3/model.ts'))).toBe(false)
+    expect(visited.has(resolve(root, 'src/game/stage3/Stage3Scene.ts'))).toBe(false)
+    expect(visited.has(resolve(root, 'src/game/gemRunner/innerSanctuaryAdapter.ts'))).toBe(false)
     expect(visited.has(resolve(root, 'src/game/gemRunner/runtime.ts'))).toBe(false)
     expect(visited.has(resolve(root, 'src/game/gemRunner/model.ts'))).toBe(false)
     expect(readFileSync(resolve(root, 'src/dev/angkorV2Showcase.ts'), 'utf8')).toContain('if (import.meta.env.DEV)')
