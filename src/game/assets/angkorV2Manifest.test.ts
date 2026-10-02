@@ -3,7 +3,7 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { inflateSync } from 'node:zlib'
 import { describe, expect, it } from 'vitest'
-import { ANGKOR_V2_MANIFEST, ANGKOR_V2_BY_KEY, ANGKOR_V2_EXPLORER_WALK, ANGKOR_V2_TILE_SIZE } from './angkorV2Manifest'
+import { ANGKOR_V2_MANIFEST, ANGKOR_V2_BY_KEY, ANGKOR_V2_EXPLORER_WALK, ANGKOR_V2_EXPLORER_GAMEPLAY, ANGKOR_V2_PRODUCTION_MANIFEST, ANGKOR_V2_TILE_SIZE } from './angkorV2Manifest'
 
 const root = resolve(import.meta.dirname, '../../..')
 const assetRoot = resolve(root, 'public/assets/game/angkor-v2')
@@ -46,10 +46,11 @@ const rgba = (path: string) => {
 
 describe('Angkor V2 standalone delivery', () => {
   it('covers every shipped PNG exactly once with matching dimensions', () => {
-    const files = readdirSync(assetRoot, { recursive: true, encoding: 'utf8' }).filter(x => x.endsWith('.png')).map(x => x.replaceAll('\\', '/')).sort()
+    // The isolated projection experiment does not extend the provisional kit.
+    const files = readdirSync(assetRoot, { recursive: true, encoding: 'utf8' }).map(x => x.replaceAll('\\', '/')).filter(x => x.endsWith('.png') && !x.startsWith('projection-test/')).sort()
     const paths = ANGKOR_V2_MANIFEST.map(x => x.path.replace('/assets/game/angkor-v2/', '')).sort()
     expect(paths).toEqual(files)
-    expect(files).toHaveLength(62)
+    expect(files).toHaveLength(81)
     expect(new Set(ANGKOR_V2_MANIFEST.map(x => x.key)).size).toBe(files.length)
     for (const asset of ANGKOR_V2_MANIFEST) {
       const meta = png(resolve(root, 'public', asset.path.slice(1)))
@@ -72,7 +73,7 @@ describe('Angkor V2 standalone delivery', () => {
   it('has real transparent surroundings on every modular asset and opaque floors', () => {
     for (const asset of ANGKOR_V2_MANIFEST) {
       const path = resolve(root, 'public', asset.path.slice(1))
-      if (asset.depthClass === 'floor') { expect(png(path).color, asset.key).toBe(2); continue }
+      if (asset.renderMode === 'surface') { expect(png(path).color, asset.key).toBe(2); continue }
       const { pixels, width, height } = rgba(path)
       let clear = 0, visible = 0
       for (let i = 3; i < pixels.length; i += 4) { if (pixels[i] === 0) clear++; if (pixels[i] > 32) visible++ }
@@ -80,7 +81,7 @@ describe('Angkor V2 standalone delivery', () => {
       expect(visible, asset.key).toBeGreaterThan(100)
       // A pasted rectangular background fails this even when the PNG has alpha.
       const corners = [0, width - 1, (height - 1) * width, height * width - 1]
-      expect(corners.filter(i => pixels[i * 4 + 3] === 0).length, asset.key).toBeGreaterThanOrEqual(3)
+      expect(corners.filter(i => pixels[i * 4 + 3] === 0).length, asset.key).toBeGreaterThanOrEqual(asset.status === 'production' ? 4 : 3)
     }
   })
 
@@ -104,6 +105,23 @@ describe('Angkor V2 standalone delivery', () => {
     }
   })
 
+  it('promotes the approved overhead pose with a measured gameplay silhouette and foot anchor', () => {
+    expect(ANGKOR_V2_PRODUCTION_MANIFEST).toHaveLength(19)
+    expect(ANGKOR_V2_PRODUCTION_MANIFEST.every(asset => asset.status === 'production')).toBe(true)
+    const asset = ANGKOR_V2_BY_KEY[ANGKOR_V2_EXPLORER_GAMEPLAY.key]
+    const path = resolve(root, 'public', asset.path.slice(1))
+    expect(readFileSync(path)).toEqual(readFileSync(resolve(assetRoot, 'projection-test/explorer-camera-test.png')))
+    const { pixels, width, height } = rgba(path)
+    let top = height, bottom = -1
+    for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) if (pixels[(y * width + x) * 4 + 3] > 32) {
+      top = Math.min(top, y); bottom = Math.max(bottom, y)
+    }
+    expect(bottom + 1).toBe(asset.anchor.y * height)
+    expect(bottom - top + 1).toBe(ANGKOR_V2_EXPLORER_GAMEPLAY.visibleSourceHeight)
+    expect(ANGKOR_V2_EXPLORER_GAMEPLAY.visibleDisplayHeight).toBeGreaterThanOrEqual(24)
+    expect(ANGKOR_V2_EXPLORER_GAMEPLAY.visibleDisplayHeight).toBeLessThanOrEqual(28)
+  })
+
   it('keeps the manifest and showcase outside the production import graph', () => {
     const visited = new Set<string>()
     const visit = (file: string) => {
@@ -119,6 +137,10 @@ describe('Angkor V2 standalone delivery', () => {
     visit(resolve(root, 'src/main.tsx'))
     expect(visited.has(resolve(root, 'src/game/assets/angkorV2Manifest.ts'))).toBe(false)
     expect(visited.has(resolve(root, 'src/dev/angkorV2Showcase.ts'))).toBe(false)
+    expect(visited.has(resolve(root, 'src/dev/angkorV2Projection.ts'))).toBe(false)
+    expect(visited.has(resolve(root, 'src/dev/angkorV2ProjectionModel.ts'))).toBe(false)
+    expect(visited.has(resolve(root, 'src/dev/angkorV2EnvironmentQA.ts'))).toBe(false)
+    expect(visited.has(resolve(root, 'src/game/rendering/angkorV2/environment.ts'))).toBe(false)
     expect(readFileSync(resolve(root, 'src/dev/angkorV2Showcase.ts'), 'utf8')).toContain('if (import.meta.env.DEV)')
   })
 })

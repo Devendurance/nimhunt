@@ -1,0 +1,79 @@
+{
+  "status": "EXPERIMENTAL — projection approval pending; not final environment",
+  "tool": "Built-in GPT Image",
+  "grid": 32,
+  "wallHeight": 24,
+  "assets": [
+    {
+      "file": "wall-top-stone-test.png",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-8bd87ff6-f3ea-4d40-9303-01459d38f1bf.png",
+      "prompt": "Generate ONE original game texture map, not a scene or asset board. Reference supplied is MATERIAL / PAINTERLY STYLE ONLY; no cropping. NimHunt Angkor Ruins warm weathered Khmer fantasy sandstone. Square opaque seamless repeating texture of a thick masonry wall's TOP SURFACE, seen directly vertically from above, flat texture coordinates, rectangular large capstones with slightly chipped rounded edges and sparse dark olive moss in narrow joints. About four stones across, four rows, offset joints. Stone colors tan warm muted ochre, handcrafted painterly broad readable forms, subtle soft upper-left highlights. Fill image edge-to-edge, continue stones through edges for seamless repeat. No vertical front face, no side faces, no perspective skew, no freestanding wall, no outer outline, no ground surround, no shadows cast outside stones, no foliage clumps, no text, no frame, no UI, no photorealism, no pixels. This will be mapped onto a connected elevated square-grid wall mesh; must look like solid massive sandstone from overhead.",
+      "sourceDimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 179983,
+      "sha256": "397cc7a89c09161821c34c215368ea4aafa4f143bcdc92905199a362bcf6c7df",
+      "alpha": false
+    },
+    {
+      "file": "wall-face-courses-test.png",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-64851a07-d2ba-4dbb-a1aa-e62c5d0caf61.png",
+      "prompt": "Create ONE original opaque seamless square texture map for the VERTICAL FACES of NimHunt Angkor's solid masonry wall mesh. Supplied sandstone top texture is material/color reference only. View face material directly front-on with no perspective: six horizontal staggered courses of weathered rectangular warm sandstone blocks, deep narrow dark olive/brown grout, softly rounded worn bevels. Upper-left daylight, restrained painterly handcrafted textures; darker than top surface, moss concentrated in seams near bottom, clear readable courses when sampled at 32x24 pixels. Flat image fills entire canvas edge to edge, seamless horizontal repeat and near-seamless vertical repeat. NO free standing wall silhouette, NO top plane, NO outer edges, no vegetation objects, no rubble, no floor, no letters, no UI, no pixel art, no photorealism. This is only a surface map to apply to south/east/west faces of connected raised square-grid wall solids; geometry comes from code.",
+      "sourceDimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 178272,
+      "sha256": "b604a8bdbd712b5b5584be171a88d780e3c362ad004d3dc5459d2db3597e3506",
+      "alpha": false
+    },
+    {
+      "file": "floor-weathered-moss-test.png",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-ae379ce9-9000-46d4-8b2a-e2adce631935.png",
+      "prompt": "Generate ONE square seamless opaque FLOOR material texture for NimHunt Angkor Ruins. Attached board only sandstone/painterly art reference, no extraction. Straight overhead orthographic stone pavement, exactly square texture coordinates. Ancient weathered sandstone flagstones with irregular broad shallow joints, MUTED cool olive / grey tan stone coloration and low-contrast diffuse moss feathered throughout joints. Largely intact worn slabs, no loose raised rocks, no big roots or plants, no focal patch, no borders. Hand painted premium mobile adventure style with broad readable shapes, no photorealism no pixel art. Floor should be visibly darker cooler and quieter than bright warm golden WALL TOPS, creating recessed interior plane. Soft upper-left daylight but minimal baked shadow, no cast shadows. Seamlessly repeat at all edges; fill image entirely. No text, labels, frames, UI, scenery, objects or perspective slope. Four to six stones each axis approximately.",
+      "sourceDimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 154579,
+      "sha256": "99fbcbb438eaa47c26917644deac9a006edad10cec69b1acab675b1e7d6267f5",
+      "alpha": false
+    },
+    {
+      "file": "explorer-camera-test.png",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-1d5453d1-741b-4178-8289-be3a4df94be8.png",
+      "prompt": "Create ONE transparent-background NimHunt Explorer GAMEPLAY CAMERA TEST sprite. Attached standalone Explorer is IDENTITY reference: youthful male explorer, brown fedora with dark band, brown hair, cream shirt, leather cross-body straps and gloves, olive trousers, brown boots, small brown backpack and rolled bedroll. Preserve exactly that identity and warm painterly handcrafted mobile adventure style. CHANGE CAMERA to elevated overhead view approximately 60–65 degrees above horizontal, top-down 2.5D square tile game. Looking DOWN on large visible oval hat CROWN and shoulders; foreshortened squat body, short glimpse of face below front hat brim, knees/boots visible on ground toward bottom of image. Character faces screen DOWN with slight three-quarter turn only, camera above NOT eye-level portrait. Full body with both feet firmly on same floor plane, balanced standing pose. Character will occupy just 26 pixels tall in game; broad clear silhouette, simplified material forms, legible hat/backpack/cream shoulders, no thin details. Soft upper-left daylight, dark olive/brown self shadows consistent with sandstone ruins. Frame whole character with clear space around, transparent background TRUE ALPHA, no floor, no backdrop, no labels, no UI, no text, no ground shadow, no scene, no multiple poses, no sheet, no photorealism or pixel-art styling.",
+      "sourceDimensions": {
+        "width": 1211,
+        "height": 1299
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 91265,
+      "sha256": "2faacdec528a42467952dafd30f3e460d90c6f52264486bceb5ecfa6f0e2be16",
+      "alpha": true,
+      "visibleBoundsY": [
+        10,
+        245
+      ],
+      "visibleHeightAt28px": 25.8125,
+      "clearAlphaRatio": 0.571533203125,
+      "clearCorners": 4
+    }
+  ]
+}

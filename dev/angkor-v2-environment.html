@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="data:," />
+  <title>Angkor V2 · Environment QA</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 24px; background: #132a26; color: #f3ead7; font: 15px/1.6 Inter, system-ui, sans-serif; }
+    main { max-width: 1120px; margin: auto; }
+    h1 { margin: 0; font-size: 26px; line-height: 1.2; text-wrap: balance; }
+    h2 { font-size: 18px; margin: 24px 0 12px; }
+    p { max-width: 76ch; text-wrap: pretty; }
+    a { color: #a0c2ad; }
+    .controls { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 16px 0; }
+    label { display: inline-flex; gap: 8px; align-items: center; min-height: 44px; }
+    select, input { accent-color: #3e88f7; }
+    select { min-height: 44px; padding: 8px; color: inherit; background: #1b3833; border: 1px solid #5e7c52; font: inherit; }
+    :focus-visible { outline: 2px solid #3e88f7; outline-offset: 4px; }
+    .comparison { display: flex; flex-wrap: wrap; gap: 24px; align-items: start; }
+    figure { margin: 0; max-width: 100%; }
+    .surface { max-width: 100%; overflow: auto; background: #1b3833; border: 1px solid #5e7c52; }
+    canvas { display: block; }
+    figcaption { margin-top: 8px; max-width: 48ch; font-size: 13px; }
+    .phone { width: 344px; max-width: 100%; padding: 11px; background: #0c1917; border: 1px solid #5e7c52; }
+    .phone .surface { border: 0; }
+    .phone p { margin: 8px 0; font-size: 13px; }
+    #status { min-height: 24px; font-variant-numeric: tabular-nums; }
+    #status[data-error] { color: #ffb39a; }
+    @media (max-width: 600px) { body { padding: 12px; } }
+  </style>
+</head>
+<body><main>
+  <h1>Angkor V2 · Environment QA</h1>
+  <p>The approved square-grid projection, composed through the reusable Phaser environment builder. Wall materials, heights and adjacent cells define the room. No Stage 1 or gameplay connection.</p>
+  <div class="controls">
+    <label>Explorer position <select id="pose"><option value="chamber">Inside chamber</option><option value="front">In front of wall</option><option value="beside">Beside corridor wall</option><option value="partial">Partial foreground overlap</option><option value="tall">Behind tall wall · cutaway</option><option value="seam">Straddling wall modules · cutaway</option><option value="pillar">Behind pillar · cutaway</option><option value="doorway">Under doorway lintel</option></select></label>
+    <label><input id="readable" type="checkbox" checked /> Preserve player readability</label>
+    <label><input id="passage" type="checkbox" checked /> Open Temple Passage</label>
+    <label><input id="grid" type="checkbox" /> Logical grid</label>
+    <label><input id="alternate" type="checkbox" /> Alternate room geometry</label>
+    <label>Door passage <input id="door-pass" type="range" min="0" max="100" value="50" aria-label="Explorer position through doorway" /></label>
+  </div>
+  <p id="status" role="status">Loading production environment files…</p>
+  <h2>Complete room · actual gameplay scale</h2>
+  <div class="comparison">
+    <figure><div class="surface" id="world"></div><figcaption>384×384 game pixels, 32px cells. Normal walls rise 24px; tall walls 40px; low walls 10px; collapsed masonry 5px.</figcaption></figure>
+    <figure class="phone"><p>Phone crop · 1 game pixel = 1 CSS pixel</p><div class="surface"><canvas id="phone" width="320" height="384" role="img" aria-label="Actual-scale phone crop of the Phaser environment"></canvas></div><figcaption>320×384 crop of the same live render, without shrinking the square grid.</figcaption></figure>
+  </div>
+  <h2>Depth and occlusion checks</h2>
+  <p>Floor and floor overlays stay on the recessed plane. Items, low props, actors, architecture, wall tops/faces, foreground vegetation and effects interleave by foot/base Y. Only tracked actors update depth as they move. Foreground structures fade gently when their real alpha jointly covers most of Explorer’s head; doorway holes and root gaps remain transparent.</p>
+  <p>The scene includes all six floor treatments, straight runs, inner/outer corners, both side returns and end caps, doorway, broken breach, low/collapsed/tall walls, intact/broken pillars, guardian/fragment, a switchable Temple Passage, masonry-attached roots, crack roots and small rubble. The alternate room uses the same builder with different tile geometry.</p>
+  <p><a href="/dev/angkor-v2-projection.html">Approved projection and annotations</a> · <a href="/dev/angkor-v2.html">Retained provisional asset gallery</a></p>
+</main><script type="module" src="/src/dev/angkorV2EnvironmentQA.ts"></script></body>
+</html>

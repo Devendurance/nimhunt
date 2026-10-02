@@ -1,0 +1,216 @@
+{
+  "count": 19,
+  "totalBytes": 3436570,
+  "original62Unchanged": true,
+  "assets": [
+    {
+      "key": "guardian-statue-height-v2",
+      "path": "/assets/game/angkor-v2/environment/architecture/guardian-statue-height-v2.png",
+      "dimensions": {
+        "width": 384,
+        "height": 384
+      },
+      "bytes": 286660,
+      "sha256": "a1722146f98be7cd4b70383fdced7a009bbec014273611066c498de75b4749aa",
+      "provenance": "GPT Image refinement"
+    },
+    {
+      "key": "pillar-broken-height-v2",
+      "path": "/assets/game/angkor-v2/environment/architecture/pillar-broken-height-v2.png",
+      "dimensions": {
+        "width": 256,
+        "height": 384
+      },
+      "bytes": 224239,
+      "sha256": "1a94a52f05fd6abc5b9adc3ffa7cc17a93c73aad8d9fa2c1da44482b1d8e16d7",
+      "provenance": "GPT Image refinement"
+    },
+    {
+      "key": "pillar-intact-height-v2",
+      "path": "/assets/game/angkor-v2/environment/architecture/pillar-intact-height-v2.png",
+      "dimensions": {
+        "width": 256,
+        "height": 384
+      },
+      "bytes": 206020,
+      "sha256": "ab40844f50ef7f15e2fd0582fadce17762f839b625842e9ca59520bacdfe15dd",
+      "provenance": "GPT Image refinement"
+    },
+    {
+      "key": "statue-fragment-height-v2",
+      "path": "/assets/game/angkor-v2/environment/architecture/statue-fragment-height-v2.png",
+      "dimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 146040,
+      "sha256": "272a6b0d0a896b6b5335f6dcf405fc34be2a91fcf1868c1bd79804a9f74a0d74",
+      "provenance": "GPT Image refinement"
+    },
+    {
+      "key": "floor-clean-height-v2",
+      "path": "/assets/game/angkor-v2/environment/floors/floor-clean-height-v2.png",
+      "dimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 154005,
+      "sha256": "bb8fa52af20040e9c600726168804758e14edc2c42e109b6fc51bda99bace902",
+      "provenance": "GPT Image refinement"
+    },
+    {
+      "key": "floor-cracked-height-v2",
+      "path": "/assets/game/angkor-v2/environment/floors/floor-cracked-height-v2.png",
+      "dimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 154538,
+      "sha256": "4a245fbb90d8982d21560728396312e4b34ec9573521a2b7f0a215765623a882",
+      "provenance": "GPT Image refinement"
+    },
+    {
+      "key": "floor-debris-height-v2",
+      "path": "/assets/game/angkor-v2/environment/floors/floor-debris-height-v2.png",
+      "dimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 159929,
+      "sha256": "f7b9038c2d5f779ad8a594bc060b1d3d626d9b6eca4519bd44a80ef25a6403cc",
+      "provenance": "GPT Image refinement"
+    },
+    {
+      "key": "floor-mossy-height-v2",
+      "path": "/assets/game/angkor-v2/environment/floors/floor-mossy-height-v2.png",
+      "dimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 158976,
+      "sha256": "12a9dce4c9dc449261eb65a7cf94c1462c6599e2016e79f71c499806de590116",
+      "provenance": "GPT Image refinement"
+    },
+    {
+      "key": "floor-root-damaged-height-v2",
+      "path": "/assets/game/angkor-v2/environment/floors/floor-root-damaged-height-v2.png",
+      "dimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 159162,
+      "sha256": "cec7d1c27b5c6aef64f51b25e8c641325a3bf1d75fba506bfffd31233ab1bfea",
+      "provenance": "GPT Image refinement"
+    },
+    {
+      "key": "floor-weathered-height-v2",
+      "path": "/assets/game/angkor-v2/environment/floors/floor-weathered-height-v2.png",
+      "dimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 154579,
+      "sha256": "99fbcbb438eaa47c26917644deac9a006edad10cec69b1acab675b1e7d6267f5",
+      "provenance": "Promoted approved prototype"
+    },
+    {
+      "key": "wall-cap-damaged-height-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-cap-damaged-height-v2.png",
+      "dimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 178850,
+      "sha256": "b569ec5eb65d53bfb7de2984af86adffa9ea48bb12d7c73e53912c57eb2723e8",
+      "provenance": "GPT Image refinement"
+    },
+    {
+      "key": "wall-cap-moss-height-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-cap-moss-height-v2.png",
+      "dimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 179820,
+      "sha256": "5f25cff218adc9b89a73195411a4ef880b7ff356af867cdfe6153d9063625993",
+      "provenance": "GPT Image refinement"
+    },
+    {
+      "key": "wall-cap-sandstone-height-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-cap-sandstone-height-v2.png",
+      "dimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 179983,
+      "sha256": "397cc7a89c09161821c34c215368ea4aafa4f143bcdc92905199a362bcf6c7df",
+      "provenance": "Promoted approved prototype"
+    },
+    {
+      "key": "wall-face-sandstone-height-v2",
+      "path": "/assets/game/angkor-v2/environment/walls/wall-face-sandstone-height-v2.png",
+      "dimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 178272,
+      "sha256": "b604a8bdbd712b5b5584be171a88d780e3c362ad004d3dc5459d2db3597e3506",
+      "provenance": "Promoted approved prototype"
+    },
+    {
+      "key": "root-corner-wrap-height-v2",
+      "path": "/assets/game/angkor-v2/nature/roots/root-corner-wrap-height-v2.png",
+      "dimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 58693,
+      "sha256": "f98364c7ebd0e5748cc41a7a7eb23772a60f5faf5d65823dfc7c8823ed754d98",
+      "provenance": "GPT Image refinement"
+    },
+    {
+      "key": "root-wall-climb-height-v2",
+      "path": "/assets/game/angkor-v2/nature/roots/root-wall-climb-height-v2.png",
+      "dimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 52578,
+      "sha256": "a31180775f3b6ba4983b71581cb3a6c9e8f3f3adad20008c0e9e5515a22a8962",
+      "provenance": "GPT Image refinement"
+    },
+    {
+      "key": "explorer-gameplay-down-v2",
+      "path": "/assets/game/angkor-v2/player/explorer/explorer-gameplay-down-v2.png",
+      "dimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 91265,
+      "sha256": "2faacdec528a42467952dafd30f3e460d90c6f52264486bceb5ecfa6f0e2be16",
+      "provenance": "Promoted approved prototype"
+    },
+    {
+      "key": "temple-passage-closed-height-v2",
+      "path": "/assets/game/angkor-v2/props/stage-transitions/temple-passage-closed-height-v2.png",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "bytes": 334520,
+      "sha256": "237fca180797a3c652bbec96927429ca58ce7f7dce39667d1e91442c5803f84c",
+      "provenance": "GPT Image refinement"
+    },
+    {
+      "key": "temple-passage-open-height-v2",
+      "path": "/assets/game/angkor-v2/props/stage-transitions/temple-passage-open-height-v2.png",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "bytes": 378441,
+      "sha256": "9715a2ab4cc370ed610d6953c1bd9dd0a168893ed90b923dd768e43cad3d8f19",
+      "provenance": "GPT Image refinement"
+    }
+  ]
+}

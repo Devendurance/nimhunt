@@ -1,5 +1,7 @@
 # Angkor Ruins V2 · Stage 1 asset kit
 
+> **Historical provisional kit.** The owner rejected this pass's wall rendering, courtyard composition, perspective consistency and standalone architecture. All 62 originals and historical QA below are retained. The owner subsequently approved the [projection prototype](projection-test/README.md); the [production environment foundation](environment-system/README.md) now implements that projection alongside this kit. No Stage 1 implementation is authorized until review of the new environment QA.
+
 62 original GPT Image PNGs, **10,013,571 bytes / 9.55 MiB** total. This slice adds art beside V1, authoring metadata and an isolated visual review. It adds no gameplay, stage architecture, proof, reward or payout behavior. The approved master board supplied the visual language; no board crops are shipped.
 
 The [complete inventory](inventory.md) lists every filename, delivery dimensions, original generation dimensions and exact file size. [inventory.json](inventory.json) also records SHA-256 hashes, alpha, footprints, display dimensions, anchors, depth, category and collision suggestions. [generation.json](generation.json) records generation prompts, local original filenames and revisions. High-resolution generated originals remain in this chat's generated-images directory; the delivery PNGs are lossless, stripped of unnecessary metadata and ready for web use.

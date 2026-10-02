@@ -1,4 +1,4 @@
-import { ANGKOR_V2_BY_KEY, ANGKOR_V2_EXPLORER_WALK, ANGKOR_V2_MANIFEST, ANGKOR_V2_TILE_SIZE, type AngkorV2AssetKey } from '../game/assets/angkorV2Manifest'
+import { ANGKOR_V2_BY_KEY, ANGKOR_V2_EXPLORER_WALK, ANGKOR_V2_LEGACY_MANIFEST as ANGKOR_V2_MANIFEST, ANGKOR_V2_TILE_SIZE, type AngkorV2AssetKey } from '../game/assets/angkorV2Manifest'
 
 // Separate Vite dev HTML entry; never imported by App, /play, or the production entry.
 if (import.meta.env.DEV) void mountShowcase()

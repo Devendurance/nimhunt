@@ -1,5 +1,6 @@
 /**
- * Standalone Stage 1 art authoring metadata. Deliberately not imported by gameplay.
+ * Approved V2 environment foundation plus retained provisional art.
+ * Deliberately not imported by production gameplay yet.
  * Pixels use the existing 32px square grid; footprint units are logical tiles.
  * Anchors are normalized in the saved canvas; non-floor sprites are bottom-aligned.
  * Corners use calibrated front-wall ground pivots so their return geometry joins
@@ -8,7 +9,7 @@
  * Walk-sheet display dimensions describe ONE frame, not the full texture.
  */
 export const ANGKOR_V2_TILE_SIZE = 32
-export type AngkorV2DepthClass = 'floor' | 'ground-detail' | 'hazard' | 'collectible' | 'architecture' | 'prop' | 'actor' | 'foreground' | 'effect'
+export type AngkorV2DepthClass = 'floor' | 'ground-detail' | 'hazard' | 'collectible' | 'architecture' | 'wall' | 'prop' | 'actor' | 'foreground' | 'effect'
 export interface AngkorV2Asset {
   readonly key: string
   readonly path: string
@@ -19,9 +20,11 @@ export interface AngkorV2Asset {
   readonly depthClass: AngkorV2DepthClass
   readonly collidable: boolean
   readonly category: string
+  readonly renderMode: 'surface' | 'sprite'
+  readonly status: 'production' | 'provisional'
 }
 // key, folder, source W/H, logical W/H, display W/H, anchor X/Y, depth, solid
-const definitions = [
+const legacyDefinitions = [
   ["explorer-master-v2", "player/explorer", 512, 768, 0,0, 64,96, 0.5,1, 'actor', false],
   ["wall-straight-v2", "environment/walls", 384, 256, 2,1, 64,44, 0.5,1, 'architecture', true],
   ["floor-sandstone-clean-v2", "environment/floors", 256, 256, 1,1, 32,32, 0,0, 'floor', false],
@@ -85,6 +88,28 @@ const definitions = [
   ["leaf-particles-v2", "effects", 256, 256, 0,0, 28,28, 0.5,0.5, 'effect', false],
   ["explorer-walk-v2", "player/explorer", 512, 768, 1,1, 22,31, 0.5,1, 'actor', false],
 ] as const
+const productionDefinitions = [
+  ['floor-clean-height-v2', 'environment/floors', 256,256, 1,1, 32,32, 0,0, 'floor', false],
+  ['floor-weathered-height-v2', 'environment/floors', 256,256, 1,1, 32,32, 0,0, 'floor', false],
+  ['floor-cracked-height-v2', 'environment/floors', 256,256, 1,1, 32,32, 0,0, 'floor', false],
+  ['floor-mossy-height-v2', 'environment/floors', 256,256, 1,1, 32,32, 0,0, 'floor', false],
+  ['floor-root-damaged-height-v2', 'environment/floors', 256,256, 1,1, 32,32, 0,0, 'floor', false],
+  ['floor-debris-height-v2', 'environment/floors', 256,256, 1,1, 32,32, 0,0, 'floor', false],
+  ['wall-cap-sandstone-height-v2', 'environment/walls', 256,256, 1,1, 32,32, 0,0, 'wall', true],
+  ['wall-cap-moss-height-v2', 'environment/walls', 256,256, 1,1, 32,32, 0,0, 'wall', true],
+  ['wall-cap-damaged-height-v2', 'environment/walls', 256,256, 1,1, 32,32, 0,0, 'wall', true],
+  ['wall-face-sandstone-height-v2', 'environment/walls', 256,256, 1,1, 32,24, 0,0, 'wall', true],
+  ['pillar-intact-height-v2', 'environment/architecture', 256,384, 1,1, 32,56, .5,376/384, 'architecture', true],
+  ['pillar-broken-height-v2', 'environment/architecture', 256,384, 1,1, 32,36, .5,376/384, 'architecture', true],
+  ['guardian-statue-height-v2', 'environment/architecture', 384,384, 1,1, 40,48, .5,376/384, 'architecture', true],
+  ['statue-fragment-height-v2', 'environment/architecture', 256,256, 1,1, 32,28, .5,248/256, 'prop', true],
+  ['temple-passage-closed-height-v2', 'props/stage-transitions', 512,512, 3,2, 96,80, .5,504/512, 'architecture', false],
+  ['temple-passage-open-height-v2', 'props/stage-transitions', 512,512, 3,2, 96,80, .5,504/512, 'architecture', false],
+  ['root-wall-climb-height-v2', 'nature/roots', 256,256, 1,1, 36,48, .5,248/256, 'foreground', false],
+  ['root-corner-wrap-height-v2', 'nature/roots', 256,256, 1,1, 40,44, .5,248/256, 'foreground', false],
+  ['explorer-gameplay-down-v2', 'player/explorer', 256,256, 1,1, 25,28, .5,246/256, 'actor', false],
+] as const
+const definitions = [...legacyDefinitions, ...productionDefinitions] as const
 export type AngkorV2AssetKey = typeof definitions[number][0]
 export const ANGKOR_V2_MANIFEST: readonly AngkorV2Asset[] = definitions.map(
   ([key, category, sw, sh, fw, fh, dw, dh, ax, ay, depthClass, collidable]) => ({
@@ -93,9 +118,18 @@ export const ANGKOR_V2_MANIFEST: readonly AngkorV2Asset[] = definitions.map(
     logicalFootprint: { width: fw, height: fh },
     displayDimensions: { width: dw, height: dh },
     anchor: { x: ax, y: key.startsWith('explorer-idle') || key === 'explorer-walk-v2' ? 190 / 192 : ay }, depthClass, collidable, category,
+    renderMode: depthClass === 'floor' || depthClass === 'wall' ? 'surface' : 'sprite',
+    status: productionDefinitions.some(entry => entry[0] === key) ? 'production' : 'provisional',
   }),
 )
 export const ANGKOR_V2_BY_KEY = Object.fromEntries(ANGKOR_V2_MANIFEST.map(asset => [asset.key, asset])) as Record<AngkorV2AssetKey, AngkorV2Asset>
+export const ANGKOR_V2_PRODUCTION_MANIFEST = ANGKOR_V2_MANIFEST.filter(asset => asset.status === 'production')
+export const ANGKOR_V2_LEGACY_MANIFEST = ANGKOR_V2_MANIFEST.filter(asset => asset.status === 'provisional')
+export const ANGKOR_V2_EXPLORER_GAMEPLAY = {
+  key: 'explorer-gameplay-down-v2' as const,
+  visibleSourceHeight: 236,
+  visibleDisplayHeight: 28 * 236 / 256,
+}
 export const ANGKOR_V2_EXPLORER_WALK = {
   key: 'explorer-walk-v2', columns: 4, rows: 4,
   frameWidth: 128, frameHeight: 192,

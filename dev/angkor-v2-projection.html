@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="data:," />
+  <title>Angkor V2 · Projection experiment</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 24px; background: #132a26; color: #f3ead7; font: 15px/1.6 Inter, system-ui, sans-serif; }
+    main { max-width: 1120px; margin: auto; }
+    h1 { margin: 0; font-size: 26px; line-height: 1.2; text-wrap: balance; }
+    h2 { font-size: 18px; margin: 24px 0 12px; }
+    p { max-width: 76ch; text-wrap: pretty; }
+    .controls { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 16px 0; }
+    label { display: inline-flex; gap: 8px; align-items: center; min-height: 44px; }
+    select, input { accent-color: #3e88f7; }
+    select { min-height: 44px; padding: 8px; color: inherit; background: #1b3833; border: 1px solid #5e7c52; font: inherit; }
+    :focus-visible { outline: 2px solid #3e88f7; outline-offset: 4px; }
+    .comparison { display: flex; flex-wrap: wrap; gap: 24px; align-items: start; }
+    figure { margin: 0; max-width: 100%; }
+    .surface { max-width: 100%; overflow: auto; background: #1b3833; border: 1px solid #5e7c52; }
+    canvas { display: block; }
+    figcaption { margin-top: 8px; max-width: 48ch; font-size: 13px; }
+    .phone { width: 344px; max-width: 100%; padding: 11px; background: #0c1917; border: 1px solid #5e7c52; }
+    .phone .surface { border: 0; }
+    .phone p { margin: 8px 0; font-size: 13px; }
+    #status { min-height: 24px; font-variant-numeric: tabular-nums; }
+    #status[data-error] { color: #ffb39a; }
+    .legend { display: flex; flex-wrap: wrap; gap: 16px; }
+    .legend span { max-width: 32ch; }
+    @media (max-width: 600px) { body { padding: 12px; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Angkor V2 · Projection experiment</h1>
+  <p>Approved camera reference. Continue review in the <a href="/dev/angkor-v2-environment.html" style="color: #a0c2ad">reusable Phaser environment QA scene</a>.</p>
+  <p>One original 12×12 room. Raised masonry defines a two-tile corridor, turn and chamber; a doorway and broken breach connect them. Experimental geometry for visual approval. No gameplay integration.</p>
+  <div class="controls">
+    <label>Explorer position <select id="pose"><option value="chamber">Inside chamber</option><option value="front">In front of wall</option><option value="beside">Beside corridor wall</option><option value="behind">Behind foreground wall</option><option value="doorway">Under doorway lintel</option></select></label>
+    <label><input type="checkbox" id="grid" /> Logical grid on room</label>
+    <label>Door passage <input id="door-pass" type="range" min="0" max="100" value="50" aria-label="Explorer position through doorway" /></label>
+  </div>
+  <p id="status" role="status">Loading four experimental images and existing provisional vegetation…</p>
+  <h2>A · Complete room at actual gameplay scale</h2>
+  <div class="comparison">
+    <figure><div class="surface"><canvas id="room" width="384" height="384" role="img" aria-label="Complete Angkor room on a 32px grid, native scale"></canvas></div><figcaption>384×384 game pixels. Every logical cell remains 32×32; the wall top rises 24px above its footprint.</figcaption></figure>
+    <figure class="phone"><p>Phone viewport · 1 game pixel = 1 CSS pixel</p><div class="surface"><canvas id="phone" width="320" height="384" role="img" aria-label="Actual-scale phone crop of the same room"></canvas></div><figcaption>320×384 crop of the same scene, without shrinking the grid.</figcaption></figure>
+  </div>
+  <h2>B · Projection and collision comparison</h2>
+  <p>The annotated view fixes Explorer behind the foreground wall. The unannotated room and phone above follow the position selector.</p>
+  <div class="surface"><canvas id="annotated" width="880" height="560" role="img" aria-label="Annotated room: wall top, vertical face, floor, occlusion and logical collision tile"></canvas></div>
+  <div class="legend">
+    <span><strong>Top:</strong> shared cap material joins across horizontal and vertical runs.</span>
+    <span><strong>Face:</strong> exposed south edge drops to the ground, with dark contact shadow.</span>
+    <span><strong>Foot:</strong> ground Y sorts Explorer and masonry; foreground ruins cover the character.</span>
+    <span><strong>Collision:</strong> cyan square marks the original 32px cell, below its raised visual top.</span>
+  </div>
+  <h2>Reference observations</h2>
+  <p>Diamond Rush Angkor owner-supplied footage (part 00 at 00:48 / 02:05; part 03 at 01:25) shows dense continuous architecture, bright capstones over darker faces, recessed passages and foreground obstruction. This experiment uses those spatial principles with original NimHunt textures and room geometry.</p>
+  <p>Current creatures, gem, boulder, potion, spikes, vegetation and Explorer identity remain provisional. The old wall system and courtyard composition remain available as the previous pass; they are rejected as the final environment.</p>
+</main>
+<script type="module" src="/src/dev/angkorV2Projection.ts"></script>
+</body>
+</html>

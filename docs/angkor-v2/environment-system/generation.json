@@ -1,0 +1,398 @@
+{
+  "tool": "Built-in GPT Image",
+  "primaryReference": "Approved 12x12 projection prototype",
+  "assets": [
+    {
+      "key": "floor-clean-height-v2",
+      "category": "environment/floors",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-1f2b6788-4bd3-4bdb-9e17-b812b40eaa32.png",
+      "prompt": "Refine ONE opaque square floor surface texture for the approved NimHunt Angkor 2.5D projection. First image is the EXACT approved floor material/layout to modify; second image is the approved room camera and palette context only. Same exact stone paving layout as reference floor. Cleaner worn grey-tan sandstone, only faint olive moss in joints, low contrast. Remove most cracks and dirt. Keep edge stone layout and lighting unchanged. Flat square texture coordinates, straight overhead, handcrafted painterly stone, low contrast cooler muted olive/tan than walls, diffuse upper-left light. Fill entire image, preserve plain stone edge treatment, no perimeter or vignette. No scene, no text, no frames, no UI, no pixel art, no photorealism. The renderer samples a world-aligned seamless surface with shared floor margins; keep this variant compatible with the reference layout.",
+      "width": 256,
+      "height": 256,
+      "transparent": false,
+      "path": "/assets/game/angkor-v2/environment/floors/floor-clean-height-v2.png",
+      "sourceDimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 154005,
+      "sha256": "bb8fa52af20040e9c600726168804758e14edc2c42e109b6fc51bda99bace902"
+    },
+    {
+      "key": "floor-cracked-height-v2",
+      "category": "environment/floors",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-6ffc9973-dbaf-4dee-b60f-2af85df66e48.png",
+      "prompt": "Refine ONE opaque square floor surface texture for the approved NimHunt Angkor 2.5D projection. First image is the EXACT approved floor material/layout to modify; second image is the approved room camera and palette context only. Same exact paving layout as reference floor. Add a few broad shallow natural cracks across individual slabs inside the central 70% of image, avoid conspicuous repeating large diagonal cracks. Dark olive cracks without raised rocks. Keep edge stone layout. Flat square texture coordinates, straight overhead, handcrafted painterly stone, low contrast cooler muted olive/tan than walls, diffuse upper-left light. Fill entire image, preserve plain stone edge treatment, no perimeter or vignette. No scene, no text, no frames, no UI, no pixel art, no photorealism. The renderer samples a world-aligned seamless surface with shared floor margins; keep this variant compatible with the reference layout.",
+      "width": 256,
+      "height": 256,
+      "transparent": false,
+      "path": "/assets/game/angkor-v2/environment/floors/floor-cracked-height-v2.png",
+      "sourceDimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 154538,
+      "sha256": "4a245fbb90d8982d21560728396312e4b34ec9573521a2b7f0a215765623a882"
+    },
+    {
+      "key": "floor-mossy-height-v2",
+      "category": "environment/floors",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-f7ee4c2e-1f69-4d37-99f4-dbed82b8e3a0.png",
+      "prompt": "Refine ONE opaque square floor surface texture for the approved NimHunt Angkor 2.5D projection. First image is the EXACT approved floor material/layout to modify; second image is the approved room camera and palette context only. Same exact paving layout as reference floor. Increase subtle olive moss in scattered joints, small feathered pale green patches through central stones, no raised plant tufts. Restrained lush moss variation. Keep edge stone layout. Flat square texture coordinates, straight overhead, handcrafted painterly stone, low contrast cooler muted olive/tan than walls, diffuse upper-left light. Fill entire image, preserve plain stone edge treatment, no perimeter or vignette. No scene, no text, no frames, no UI, no pixel art, no photorealism. The renderer samples a world-aligned seamless surface with shared floor margins; keep this variant compatible with the reference layout.",
+      "width": 256,
+      "height": 256,
+      "transparent": false,
+      "path": "/assets/game/angkor-v2/environment/floors/floor-mossy-height-v2.png",
+      "sourceDimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 158976,
+      "sha256": "12a9dce4c9dc449261eb65a7cf94c1462c6599e2016e79f71c499806de590116"
+    },
+    {
+      "key": "floor-root-damaged-height-v2",
+      "category": "environment/floors",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-d26b97fe-6373-48c6-b5ad-2995b6787a16.png",
+      "prompt": "Refine ONE opaque square floor surface texture for the approved NimHunt Angkor 2.5D projection. First image is the EXACT approved floor material/layout to modify; second image is the approved room camera and palette context only. Same exact paving layout as reference floor. Add two thin brown roots threading through central cracks in paving, mostly recessed not sitting on top. Keep rooted accents inside central 70% so edges stay plain stone with same layout. No giant root or large leaves. Flat square texture coordinates, straight overhead, handcrafted painterly stone, low contrast cooler muted olive/tan than walls, diffuse upper-left light. Fill entire image, preserve plain stone edge treatment, no perimeter or vignette. No scene, no text, no frames, no UI, no pixel art, no photorealism. The renderer samples a world-aligned seamless surface with shared floor margins; keep this variant compatible with the reference layout.",
+      "width": 256,
+      "height": 256,
+      "transparent": false,
+      "path": "/assets/game/angkor-v2/environment/floors/floor-root-damaged-height-v2.png",
+      "sourceDimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 159162,
+      "sha256": "cec7d1c27b5c6aef64f51b25e8c641325a3bf1d75fba506bfffd31233ab1bfea"
+    },
+    {
+      "key": "floor-debris-height-v2",
+      "category": "environment/floors",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-7ac87af7-0196-4abd-9316-6dfa2940c035.png",
+      "prompt": "Refine ONE opaque square floor surface texture for the approved NimHunt Angkor 2.5D projection. First image is the EXACT approved floor material/layout to modify; second image is the approved room camera and palette context only. Same exact paving layout as reference floor. Add small flat chipped sandstone flakes and dust sparingly over central 70% of paving, no raised boulders or large rubble piles. Quiet damage texture, keep edge stone layout unchanged. Flat square texture coordinates, straight overhead, handcrafted painterly stone, low contrast cooler muted olive/tan than walls, diffuse upper-left light. Fill entire image, preserve plain stone edge treatment, no perimeter or vignette. No scene, no text, no frames, no UI, no pixel art, no photorealism. The renderer samples a world-aligned seamless surface with shared floor margins; keep this variant compatible with the reference layout.",
+      "width": 256,
+      "height": 256,
+      "transparent": false,
+      "path": "/assets/game/angkor-v2/environment/floors/floor-debris-height-v2.png",
+      "sourceDimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 159929,
+      "sha256": "f7b9038c2d5f779ad8a594bc060b1d3d626d9b6eca4519bd44a80ef25a6403cc"
+    },
+    {
+      "key": "wall-cap-moss-height-v2",
+      "category": "environment/walls",
+      "prompt": "Refine ONE opaque square wall TOP material map for the approved NimHunt room projection. First image exact approved cap texture; second image room spatial context only. Same exact overhead large sandstone CAPSTONE layout as reference top material. Add restrained olive moss filling some joints and a few softly feathered green patches across stones. Top down completely, no front faces or sides, no freestanding wall, no foliage objects, same warm bright sandstone. Fill image entirely as flat overhead material coordinates. Painterly mobile sandstone, soft upper-left light, no text no UI no frame no pixel art no photorealism. Preserve identical base stone layout and plain edge layout for blending onto connected masonry.",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-3fd91ef9-bbdb-4131-97e1-4819c974e2d6.png",
+      "width": 256,
+      "height": 256,
+      "transparent": false,
+      "path": "/assets/game/angkor-v2/environment/walls/wall-cap-moss-height-v2.png",
+      "sourceDimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 179820,
+      "sha256": "5f25cff218adc9b89a73195411a4ef880b7ff356af867cdfe6153d9063625993"
+    },
+    {
+      "key": "wall-cap-damaged-height-v2",
+      "category": "environment/walls",
+      "prompt": "Refine ONE opaque square wall TOP material map for the approved NimHunt room projection. First image exact approved cap texture; second image room spatial context only. Same exact overhead large sandstone CAPSTONE layout as reference top material. Chip a few slab edges and add two shallow cracks, subtle darker worn areas. Strong solid massive masonry read, no loose blocks, no front face, no sides, no object silhouette, same warm sandstone. Fill image entirely as flat overhead material coordinates. Painterly mobile sandstone, soft upper-left light, no text no UI no frame no pixel art no photorealism. Preserve identical base stone layout and plain edge layout for blending onto connected masonry.",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-7da42f1e-250c-4621-a4fb-a7bd78f972eb.png",
+      "width": 256,
+      "height": 256,
+      "transparent": false,
+      "path": "/assets/game/angkor-v2/environment/walls/wall-cap-damaged-height-v2.png",
+      "sourceDimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 178850,
+      "sha256": "b569ec5eb65d53bfb7de2984af86adffa9ea48bb12d7c73e53912c57eb2723e8"
+    },
+    {
+      "key": "root-wall-climb-height-v2",
+      "category": "nature/roots",
+      "prompt": "Create ONE clean transparent modular root sprite. Image 1 is approved room camera/palette PRIMARY reference, image 2 only root material/identity/style reference. One modular jungle root overlay climbing a vertical masonry face and curling onto its TOP cap, viewed strongly from above at the approved room camera. Root alone, no stone blocks or wall baked in. Thick warm brown branching wood with a few sparse olive green leaves. Top part runs across screen left-right cap plane and lower part descends toward viewer, tapered feet on floor. Silhouette should attach tightly to wall seam, roughly 32x48 display footprint, no unrelated vegetation mound. Camera elevated orthographic 60–65 degrees above horizontal, camera along screen Y, square logical grid. Premium handcrafted painterly mobile adventure style, strong thick readable shapes, warm wood dark olive/brown self shadows and soft daylight upper-left. TRUE transparent background, no stone or floor baked in, no cast shadow outside the sprite, no text, no UI, no frame, no photorealism no pixel art. Whole object inside clear padded canvas.",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-05c015c0-a7d0-413d-8980-5652c02b61ac.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "path": "/assets/game/angkor-v2/nature/roots/root-wall-climb-height-v2.png",
+      "sourceDimensions": {
+        "width": 1024,
+        "height": 1535
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 52578,
+      "sha256": "a31180775f3b6ba4983b71581cb3a6c9e8f3f3adad20008c0e9e5515a22a8962"
+    },
+    {
+      "key": "root-corner-wrap-height-v2",
+      "category": "nature/roots",
+      "prompt": "Create ONE clean transparent modular root sprite. Image 1 is approved room camera/palette PRIMARY reference, image 2 only root material/identity/style reference. One modular jungle root overlay wrapping an L-shaped architectural corner. Root alone with TRUE ALPHA, no stones or wall baked in. From same elevated overhead room camera: thick warm brown roots curve across cap and branch down two perpendicular edge directions, small restrained olive leaves. Axis-aligned square-grid L shape rather than isometric diamond, no giant standalone tree stump. Fits 40x44 display shape. Readable clear branch structure, upper-left soft daylight. Camera elevated orthographic 60–65 degrees above horizontal, camera along screen Y, square logical grid. Premium handcrafted painterly mobile adventure style, strong thick readable shapes, warm wood dark olive/brown self shadows and soft daylight upper-left. TRUE transparent background, no stone or floor baked in, no cast shadow outside the sprite, no text, no UI, no frame, no photorealism no pixel art. Whole object inside clear padded canvas.",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-abd40b9c-decf-4031-94d6-94b5df1d1dff.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "path": "/assets/game/angkor-v2/nature/roots/root-corner-wrap-height-v2.png",
+      "sourceDimensions": {
+        "width": 1196,
+        "height": 1315
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 58693,
+      "sha256": "f98364c7ebd0e5748cc41a7a7eb23772a60f5faf5d65823dfc7c8823ed754d98"
+    },
+    {
+      "key": "pillar-intact-height-v2",
+      "category": "environment/architecture",
+      "prompt": "REPLACE THE GEOMETRY of the first pillar reference, preserve sandstone carving and moss STYLE ONLY. Second image is exact approved game camera. One original standalone pillar sprite, transparent background. Hard geometry constraints: all plinth FRONT EDGES HORIZONTAL, all footprint SIDE EDGES VERTICAL in image. NO diamond base, NO rotation 45 degrees, NO sloping diagonal plinth edges. We look straight along screen Y at an elevated square-grid 2.5D pillar: TOP cap is a broad axis-aligned RECTANGLE seen overhead, front FACE is a narrower axis-aligned rectangle extending downward, bottom stepped plinth is another broad HORIZONTAL rectangular block. Imagine an upright stack of rectangular boxes projected with screenX=worldX, screenY=worldY-height. Top cap has substantial visible depth about one third of total sprite height. One FRONT vertical face visible; left/right sides at most tiny 2px bevels, NOT two equal diamond faces. Rectangular carved pillar lower face about same height as top cap depth; squat robust height. Square Khmer fantasy carved motifs, warm weathered sandstone cap highlights, darker olive-brown face, sparse moss, soft daylight upper-left. Top-down camera 60degrees, whole object clean padding, true alpha no cast external shadow, no terrain, no background, no text no UI no photorealism no pixel art. Exact horizontal rectangular base alignment more important than ornate detail.",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-51419672-6540-45c6-83a1-2fe11690adf8.png",
+      "width": 256,
+      "height": 384,
+      "transparent": true,
+      "path": "/assets/game/angkor-v2/environment/architecture/pillar-intact-height-v2.png",
+      "sourceDimensions": {
+        "width": 1237,
+        "height": 1272
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 384
+      },
+      "bytes": 206020,
+      "sha256": "ab40844f50ef7f15e2fd0582fadce17762f839b625842e9ca59520bacdfe15dd"
+    },
+    {
+      "key": "pillar-broken-height-v2",
+      "category": "environment/architecture",
+      "prompt": "Create ONE original standalone production architecture sprite for NimHunt Angkor V2. First image approved ROOM is PRIMARY camera/palette source of truth, existing object only motif/identity reference. One broken square sandstone pillar stump. Broad visible jagged broken TOP surface and foreshortened front face with weathered carved band, low stepped base and restrained moss. Shorter than intact pillar. IMPORTANT camera orthographic from 60–65 degrees above horizontal, looking straight along screen Y onto SQUARE logical grid. No isometric diamond base. Top surfaces approximately as deep in screen space as front vertical faces; squat foreshortening rather than tall front-facing illustration. Warm aged sandstone pale cap highlights darker olive-brown lower faces, restrained jungle moss, painterly handcrafted mobile adventure shapes, strong readable silhouette. Object rests on a square/rectangular footprint with base front edge horizontal. Entire object inside clear padding. TRUE ALPHA transparent background, no external floor/terrain/scene, no background vignette, no extra objects, no text/UI/frames, no photorealism no pixel art. Keep the image aligned to the approved raised tilemap camera, not a front-facing wall prop.",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-ae0696ee-e0b9-4b8e-9c81-9fc25999d8c6.png",
+      "width": 256,
+      "height": 384,
+      "transparent": true,
+      "path": "/assets/game/angkor-v2/environment/architecture/pillar-broken-height-v2.png",
+      "sourceDimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 384
+      },
+      "bytes": 224239,
+      "sha256": "1a94a52f05fd6abc5b9adc3ffa7cc17a93c73aad8d9fa2c1da44482b1d8e16d7"
+    },
+    {
+      "key": "guardian-statue-height-v2",
+      "category": "environment/architecture",
+      "prompt": "Create ONE original standalone production architecture sprite for NimHunt Angkor V2. First image approved ROOM is PRIMARY camera/palette source of truth, existing object only motif/identity reference. One original seated Khmer fantasy lion guardian matching the existing identity and sandstone/moss. View strongly FROM ABOVE: visible head crown and shoulders, foreshortened face, large top area of the rectangular plinth behind front edge, squat seated body. Preserve readable seated lion silhouette; fits 1x1 logical pedestal at ~40x48 display pixels. No eye-level front portrait. IMPORTANT camera orthographic from 60–65 degrees above horizontal, looking straight along screen Y onto SQUARE logical grid. No isometric diamond base. Top surfaces approximately as deep in screen space as front vertical faces; squat foreshortening rather than tall front-facing illustration. Warm aged sandstone pale cap highlights darker olive-brown lower faces, restrained jungle moss, painterly handcrafted mobile adventure shapes, strong readable silhouette. Object rests on a square/rectangular footprint with base front edge horizontal. Entire object inside clear padding. TRUE ALPHA transparent background, no external floor/terrain/scene, no background vignette, no extra objects, no text/UI/frames, no photorealism no pixel art. Keep the image aligned to the approved raised tilemap camera, not a front-facing wall prop.",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-09d29f6b-fa90-4ef4-83d8-e6953757f974.png",
+      "width": 384,
+      "height": 384,
+      "transparent": true,
+      "path": "/assets/game/angkor-v2/environment/architecture/guardian-statue-height-v2.png",
+      "sourceDimensions": {
+        "width": 1145,
+        "height": 1374
+      },
+      "deliveryDimensions": {
+        "width": 384,
+        "height": 384
+      },
+      "bytes": 286660,
+      "sha256": "a1722146f98be7cd4b70383fdced7a009bbec014273611066c498de75b4749aa"
+    },
+    {
+      "key": "statue-fragment-height-v2",
+      "category": "environment/architecture",
+      "prompt": "Create ONE original standalone production architecture sprite for NimHunt Angkor V2. First image approved ROOM is PRIMARY camera/palette source of truth, existing object only motif/identity reference. One fallen lion guardian head and short chipped plinth fragment matching existing design. Seen overhead at same camera, crown prominent and foreshortened muzzle, low profile rubble artifact, no upright portrait. IMPORTANT camera orthographic from 60–65 degrees above horizontal, looking straight along screen Y onto SQUARE logical grid. No isometric diamond base. Top surfaces approximately as deep in screen space as front vertical faces; squat foreshortening rather than tall front-facing illustration. Warm aged sandstone pale cap highlights darker olive-brown lower faces, restrained jungle moss, painterly handcrafted mobile adventure shapes, strong readable silhouette. Object rests on a square/rectangular footprint with base front edge horizontal. Entire object inside clear padding. TRUE ALPHA transparent background, no external floor/terrain/scene, no background vignette, no extra objects, no text/UI/frames, no photorealism no pixel art. Keep the image aligned to the approved raised tilemap camera, not a front-facing wall prop.",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-e13df939-aba4-4a9e-baba-ab137b4ac123.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "path": "/assets/game/angkor-v2/environment/architecture/statue-fragment-height-v2.png",
+      "sourceDimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 146040,
+      "sha256": "272a6b0d0a896b6b5335f6dcf405fc34be2a91fcf1868c1bd79804a9f74a0d74"
+    },
+    {
+      "key": "temple-passage-closed-height-v2",
+      "category": "props/stage-transitions",
+      "prompt": "Create ONE original standalone production architecture sprite for NimHunt Angkor V2. First image approved ROOM is PRIMARY camera/palette source of truth, existing object only motif/identity reference. One closed Temple Passage architectural boundary integrated into a straight north wall: a low broad sandstone gateway lintel and two squat square jambs, engraved wooden closed door inset between them, thick stepped cap visible FROM ABOVE, roots wrapping left and right corners with small green leaves. Three logical tiles wide. Elevated overhead camera: TOP surfaces have broad depth, vertical front faces foreshortened. Floor threshold flush with corridor floor, no huge pile of sand or surrounding terrain. Preserve original doorway motifs. Restrained warm upper-left light and tiny torch highlights allowed, no flames dominating. IMPORTANT camera orthographic from 60–65 degrees above horizontal, looking straight along screen Y onto SQUARE logical grid. No isometric diamond base. Top surfaces approximately as deep in screen space as front vertical faces; squat foreshortening rather than tall front-facing illustration. Warm aged sandstone pale cap highlights darker olive-brown lower faces, restrained jungle moss, painterly handcrafted mobile adventure shapes, strong readable silhouette. Object rests on a square/rectangular footprint with base front edge horizontal. Entire object inside clear padding. TRUE ALPHA transparent background, no external floor/terrain/scene, no background vignette, no extra objects, no text/UI/frames, no photorealism no pixel art. Keep the image aligned to the approved raised tilemap camera, not a front-facing wall prop.",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-952a277d-4a08-41f4-9c7f-b5e62c0ce8de.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "path": "/assets/game/angkor-v2/props/stage-transitions/temple-passage-closed-height-v2.png",
+      "sourceDimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "deliveryDimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "bytes": 334520,
+      "sha256": "237fca180797a3c652bbec96927429ca58ce7f7dce39667d1e91442c5803f84c"
+    },
+    {
+      "key": "temple-passage-open-height-v2",
+      "category": "props/stage-transitions",
+      "prompt": "Create ONE original standalone production architecture sprite for NimHunt Angkor V2. First image approved ROOM is PRIMARY camera/palette source of truth, existing object only motif/identity reference. One OPEN Temple Passage gateway architectural boundary integrated into straight north wall. MATCH CLOSED GATE geometry: low broad sandstone lintel two squat square jambs thick stepped cap visible from above, carved motifs roots wrapping jambs with small leaves. Three logical tiles wide. Dark corridor void through open central doorway and plain flush sandstone threshold. Elevated overhead camera: broad TOP surfaces, foreshortened vertical faces. No exterior terrain, no sand field, no glowing UI, no light beam. IMPORTANT camera orthographic from 60–65 degrees above horizontal, looking straight along screen Y onto SQUARE logical grid. No isometric diamond base. Top surfaces approximately as deep in screen space as front vertical faces; squat foreshortening rather than tall front-facing illustration. Warm aged sandstone pale cap highlights darker olive-brown lower faces, restrained jungle moss, painterly handcrafted mobile adventure shapes, strong readable silhouette. Object rests on a square/rectangular footprint with base front edge horizontal. Entire object inside clear padding. TRUE ALPHA transparent background, no external floor/terrain/scene, no background vignette, no extra objects, no text/UI/frames, no photorealism no pixel art. Keep the image aligned to the approved raised tilemap camera, not a front-facing wall prop.",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-6866a915-75a8-434d-ad41-234b19ec3029.png",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "path": "/assets/game/angkor-v2/props/stage-transitions/temple-passage-open-height-v2.png",
+      "sourceDimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "deliveryDimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "bytes": 378441,
+      "sha256": "9715a2ab4cc370ed610d6953c1bd9dd0a168893ed90b923dd768e43cad3d8f19"
+    },
+    {
+      "key": "floor-weathered-height-v2",
+      "category": "environment/floors",
+      "source": "C:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/public/assets/game/angkor-v2/projection-test/floor-weathered-moss-test.png",
+      "width": 256,
+      "height": 256,
+      "transparent": false,
+      "promoted": true,
+      "path": "/assets/game/angkor-v2/environment/floors/floor-weathered-height-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 154579,
+      "sha256": "99fbcbb438eaa47c26917644deac9a006edad10cec69b1acab675b1e7d6267f5"
+    },
+    {
+      "key": "wall-cap-sandstone-height-v2",
+      "category": "environment/walls",
+      "source": "C:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/public/assets/game/angkor-v2/projection-test/wall-top-stone-test.png",
+      "width": 256,
+      "height": 256,
+      "transparent": false,
+      "promoted": true,
+      "path": "/assets/game/angkor-v2/environment/walls/wall-cap-sandstone-height-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 179983,
+      "sha256": "397cc7a89c09161821c34c215368ea4aafa4f143bcdc92905199a362bcf6c7df"
+    },
+    {
+      "key": "wall-face-sandstone-height-v2",
+      "category": "environment/walls",
+      "source": "C:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/public/assets/game/angkor-v2/projection-test/wall-face-courses-test.png",
+      "width": 256,
+      "height": 256,
+      "transparent": false,
+      "promoted": true,
+      "path": "/assets/game/angkor-v2/environment/walls/wall-face-sandstone-height-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 178272,
+      "sha256": "b604a8bdbd712b5b5584be171a88d780e3c362ad004d3dc5459d2db3597e3506"
+    },
+    {
+      "key": "explorer-gameplay-down-v2",
+      "category": "player/explorer",
+      "source": "C:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt/public/assets/game/angkor-v2/projection-test/explorer-camera-test.png",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "promoted": true,
+      "path": "/assets/game/angkor-v2/player/explorer/explorer-gameplay-down-v2.png",
+      "sourceDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "deliveryDimensions": {
+        "width": 256,
+        "height": 256
+      },
+      "bytes": 91265,
+      "sha256": "2faacdec528a42467952dafd30f3e460d90c6f52264486bceb5ecfa6f0e2be16"
+    }
+  ],
+  "rejected": [
+    {
+      "key": "pillar-intact-height-v2",
+      "category": "environment/architecture",
+      "prompt": "Create ONE original standalone production architecture sprite for NimHunt Angkor V2. First image approved ROOM is PRIMARY camera/palette source of truth, existing object only motif/identity reference. One intact carved square sandstone pillar with broad cap and stepped base. Compress vertical faces in the image so the TOP of its cap and base occupy substantial visible area. Pillar feels 1 logical tile wide and approximately 40px above its base when rendered at 32px wide. Preserve subtle Khmer fantasy motifs and sparse moss. IMPORTANT camera orthographic from 60–65 degrees above horizontal, looking straight along screen Y onto SQUARE logical grid. No isometric diamond base. Top surfaces approximately as deep in screen space as front vertical faces; squat foreshortening rather than tall front-facing illustration. Warm aged sandstone pale cap highlights darker olive-brown lower faces, restrained jungle moss, painterly handcrafted mobile adventure shapes, strong readable silhouette. Object rests on a square/rectangular footprint with base front edge horizontal. Entire object inside clear padding. TRUE ALPHA transparent background, no external floor/terrain/scene, no background vignette, no extra objects, no text/UI/frames, no photorealism no pixel art. Keep the image aligned to the approved raised tilemap camera, not a front-facing wall prop.",
+      "source": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60/exec-3801ea7a-6fd4-41e7-af10-42846b9ae61b.png",
+      "width": 256,
+      "height": 384,
+      "transparent": true,
+      "reason": "Diamond-oriented cap and plinth conflicted with the approved square-grid camera."
+    }
+  ]
+}
