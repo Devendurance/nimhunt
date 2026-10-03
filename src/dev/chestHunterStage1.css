@@ -1,3 +1,10 @@
 .chest-hunter .stage-hud > strong:first-child { color: #f2c14e; }
 .treasure-notice { min-height: 24px; font-size: 12px; color: #f3ead7; padding: 2px 0 6px; }
 .chest-hunter .stage-overlay h2 { overflow-wrap: anywhere; }
+.chest-carry { display:flex; flex-wrap:wrap; gap:4px 12px; justify-content:space-between; font-size:12px; margin:6px 0; color:#a2b1a6; }
+.chest-contract { padding:26px 20px; margin:16px 0; background:#132a26; border:1px solid #27473d; border-radius:12px; }
+.chest-contract h2 { overflow-wrap:anywhere; }
+.chest-contract p { line-height:1.6; }
+.chest-contract button { min-height:44px; margin-top:12px; border:0; border-radius:8px; padding:10px 18px; background:#f2c14e; color:#10251f; font-weight:700; }
+.chest-footer { font-size:11px; color:#a2b1a6; margin:12px 0; }
+.chest-hunter .stage-options > button { min-height:36px; background:transparent; color:#a2b1a6; border:1px solid #27473d; border-radius:6px; padding:6px 10px; }

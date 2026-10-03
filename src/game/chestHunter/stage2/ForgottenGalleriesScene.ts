@@ -7,27 +7,27 @@ import { bindTraversalKeyboard } from '../../traversal/angkorV2/input'
 import { cameraTarget, followCamera } from '../../traversal/angkorV2/camera'
 import { tileToPixel, type GridCoord } from '../../world/grid'
 import type { AngkorV2AssetKey } from '../../assets/angkorV2Manifest'
-import { EXIT, CHESTS, GATE, KEY, MONKEY, SNAKES, SPIKES, DECOR, stageMap } from './level'
+import { EXIT, CHESTS, GATE, KEY, PLATE, PRESSURE_GATE, MONKEY, SNAKES, SPIKES, DECOR, stageMap } from './level'
 import type { StageCarry } from '../contracts'
 import { SIMULATION_TICK_MS, initialStageState, planStageMove, reduceStage, type StageAction, type StageEvent, type StageState } from './model'
 
-export interface ChestHunterSceneOptions {
+export interface ForgottenGalleriesSceneOptions {
   carry?: StageCarry
   reduceAction?: (action: StageAction) => StageState
   viewport: { width: number; height: number }
-  onReady: (scene: ChestHunterScene) => void
+  onReady: (scene: ForgottenGalleriesScene) => void
   onState: (state: StageState) => void
   onError: (message: string) => void
   onNotice: (message: string) => void
   onSound: (kind: 'gem' | 'unlock' | 'hurt') => void
 }
-const additional: AngkorV2AssetKey[] = ['chest-closed-v2', 'chest-open-v2', 'bronze-temple-key-v2', 'side-gate-locked-v2', 'side-gate-open-v2', 'pushable-boulder-v2', 'spike-trap-active-v2', 'snake-coiled-v2', 'snake-alert-v2', 'snake-slither-a-v2', 'snake-slither-b-v2', 'snake-strike-v2', 'monkey-perched-v2', 'monkey-alert-v2', 'monkey-throw-v2', 'monkey-rock-v2', 'dust-push-v2', 'rock-impact-v2', 'gem-sparkle-v2']
+const additional: AngkorV2AssetKey[] = ['chest-closed-v2', 'chest-open-v2', 'pressure-plate-v2', 'silver-archive-key-v2', 'side-gate-locked-v2', 'side-gate-open-v2', 'pushable-boulder-v2', 'spike-trap-active-v2', 'snake-coiled-v2', 'snake-alert-v2', 'snake-slither-a-v2', 'snake-slither-b-v2', 'snake-strike-v2', 'monkey-perched-v2', 'monkey-alert-v2', 'monkey-throw-v2', 'monkey-rock-v2', 'dust-push-v2', 'rock-impact-v2', 'gem-sparkle-v2']
 
 /** Isolated Chest Hunter dev-stage presentation. Approved traversal controls presentation; MOVE is
  * committed on arrival. Fixed explicit TICK actions are recorded for replay.
  * Suspension freezes simulation rather than fast-forwarding invisible attacks. */
-export class ChestHunterScene extends Phaser.Scene {
-  readonly options: ChestHunterSceneOptions
+export class ForgottenGalleriesScene extends Phaser.Scene {
+  readonly options: ForgottenGalleriesSceneOptions
   state = initialStageState()
   readonly transcript: StageAction[] = []
   traversal?: TileTraversal
@@ -44,6 +44,9 @@ export class ChestHunterScene extends Phaser.Scene {
   private snakes: Phaser.GameObjects.Image[] = []
   private monkey?: Phaser.GameObjects.Image
   private rock?: Phaser.GameObjects.Image
+  private pressureGate?: Phaser.GameObjects.Image
+  private plate?: Phaser.GameObjects.Image
+  private glints = new Map<string, Phaser.GameObjects.Graphics>()
   private gate?: Phaser.GameObjects.Image
   private key?: Phaser.GameObjects.Image
   private guides?: Phaser.GameObjects.Graphics
@@ -54,7 +57,7 @@ export class ChestHunterScene extends Phaser.Scene {
   private reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
   private failures: string[] = []
   private effects = new Set<Phaser.GameObjects.Image>()
-  constructor(options: ChestHunterSceneOptions) { super('LostCourtyard'); this.options = options; this.state = initialStageState(options.carry) }
+  constructor(options: ForgottenGalleriesSceneOptions) { super('ForgottenGalleries'); this.options = options; this.state = initialStageState(options.carry) }
   preload() {
     this.load.on('loaderror', (file: Phaser.Loader.File) => this.failures.push(file.key))
     preloadAngkorV2Environment(this, [...additional, ...DECOR.map(p => p.key)])
@@ -73,17 +76,20 @@ export class ChestHunterScene extends Phaser.Scene {
       // so opening on entry never hides the Explorer behind the raised lid.
       image.setY(image.y + 10).setDepth(environmentDepth('ground-item', tileToPixel(chest).y))
       this.chests.set(chest.id, image)
+      this.glints.set(chest.id, this.add.graphics().setDepth(environmentDepth('ground-item', tileToPixel(chest).y)))
     }
-    this.key = sprite('bronze-temple-key-v2', KEY)
+    this.plate = sprite('pressure-plate-v2', PLATE)
+    this.plate.setY(this.plate.y + 15)
+    this.pressureGate = this.environment.addSprite({ key: 'side-gate-locked-v2', ...tileToPixel(PRESSURE_GATE), depthY: tileToPixel(PRESSURE_GATE).y + 8, occludesPlayer: false })
+    this.pressureGate.setY(this.pressureGate.y + 16)
+    this.key = sprite('silver-archive-key-v2', KEY)
     this.gate = this.environment.addSprite({ key: 'side-gate-locked-v2', ...tileToPixel(GATE), depthY: tileToPixel(GATE).y + 8, occludesPlayer: false })
     this.gate.setY(this.gate.y + 16)
     this.guides = this.add.graphics().setDepth(environmentDepth('floor-overlay', 0))
     this.guides.lineStyle(1, 0xd3bd91, .7)
-    for (const [x,y,width] of [[15,5,4], [18,7,3]]) {
-      for (const offset of [10,22]) this.guides.lineBetween(x * 32 + 4, y * 32 + offset, (x + width) * 32 - 4, y * 32 + offset)
-      this.guides.lineStyle(2, 0xd3bd91, .7).lineBetween(x * 32 + 2, y * 32 + 8, x * 32 + 2, y * 32 + 24)
-        .lineBetween((x + width) * 32 - 2, y * 32 + 8, (x + width) * 32 - 2, y * 32 + 24)
-    }
+    for (const offset of [10,22]) this.guides.lineBetween(18 * 32 + offset, 12 * 32 + 3, 18 * 32 + offset, 15 * 32 - 3)
+    this.guides.lineStyle(2, 0xd3bd91, .7).lineBetween(18 * 32 + 8, 12 * 32 + 2, 18 * 32 + 24, 12 * 32 + 2)
+      .lineBetween(18 * 32 + 8, 15 * 32 - 2, 18 * 32 + 24, 15 * 32 - 2)
     for (const stone of this.state.boulders) this.stones.set(stone.id, sprite('pushable-boulder-v2', stone, 'low-prop'))
     for (const group of SPIKES) for (const tile of group.tiles) sprite('spike-trap-active-v2', tile)
     this.snakes = SNAKES.map(s => sprite('snake-coiled-v2', s.path[0], 'actor'))
@@ -105,10 +111,10 @@ export class ChestHunterScene extends Phaser.Scene {
     this.cameraFrame = this.add.graphics().setDepth(100001).setVisible(false)
     this.drawCollision()
     const canvas = this.game.canvas
-    canvas.id = 'chest-hunter-room'; canvas.tabIndex = 0
-    canvas.setAttribute('aria-label', 'Chest Hunter Lost Courtyard. Hold arrows, WASD or directional controls to move.')
+    canvas.id = 'chest-hunter-stage2-room'; canvas.tabIndex = 0
+    canvas.setAttribute('aria-label', 'Chest Hunter Forgotten Galleries. Hold arrows, WASD or directional controls to move.')
     canvas.dataset.collision = JSON.stringify(stageMap.collision.layout)
-    canvas.dataset.chests = JSON.stringify(CHESTS); canvas.dataset.world = '960,768'
+    canvas.dataset.chests = JSON.stringify(CHESTS); canvas.dataset.world = '1024,768'
     canvas.dataset.ready = 'true'
     canvas.dataset.state = JSON.stringify(this.state)
     this.events.once('shutdown', () => { this.unbind?.(); this.explorer?.destroy(); this.environment?.destroy() })
@@ -122,6 +128,7 @@ export class ChestHunterScene extends Phaser.Scene {
     this.effects.clear()
     this.explorer?.sprite.setAlpha(1)
     for (const chest of this.chests.values()) chest.setTexture(angkorV2TextureKey('chest-closed-v2'))
+    this.pressureGate?.setTexture(angkorV2TextureKey('side-gate-locked-v2')); this.plate?.clearTint()
     this.key?.setVisible(true); this.gate?.setTexture(angkorV2TextureKey('side-gate-locked-v2')); this.options.onNotice('Walk onto treasure to open it.')
     for (const b of this.state.boulders) this.stones.get(b.id)?.setPosition(...this.point(b))
     this.syncActors(); this.target?.clear(); this.rock?.setVisible(false); this.passage?.setTexture(angkorV2TextureKey('temple-passage-closed-height-v2'))
@@ -131,8 +138,8 @@ export class ChestHunterScene extends Phaser.Scene {
   }
   setDebug(visible: boolean) { this.debug = visible; this.collision?.setVisible(visible); this.cameraFrame?.setVisible(visible); this.options.onState(this.state) }
   exportReplay() {
-    const blob = new Blob([JSON.stringify({ schema: 'angkor-chest-hunter-stage1/v1', stageId: 'lost-courtyard', actions: this.transcript, result: this.state.result }, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob), link = document.createElement('a'); link.href = url; link.download = 'lost-courtyard-local-replay.json'; link.click(); URL.revokeObjectURL(url)
+    const blob = new Blob([JSON.stringify({ schema: 'angkor-chest-hunter-stage2/v1', stageId: 'forgotten-galleries', actions: this.transcript, result: this.state.result }, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob), link = document.createElement('a'); link.href = url; link.download = 'forgotten-galleries-local-replay.json'; link.click(); URL.revokeObjectURL(url)
   }
   private dispatch(action: StageAction) {
     const previous = this.state, next = this.options.reduceAction ? this.options.reduceAction(action) : reduceStage(previous, action)
@@ -163,11 +170,18 @@ export class ChestHunterScene extends Phaser.Scene {
     }
     if (event.type === 'CHEST_LOOT_RESOLVED') {
       const message = event.loot === 'GEMS' ? '+2 Gems secured' : event.loot === 'POTION' ? 'Potion used · +' + event.healed + ' HP'
-        : event.loot === 'TRAP' ? 'Trapped chest · watch your HP' : event.loot === 'SWORD' ? 'Ancient Blade secured' : 'Nothing but dust · chest opened'
+        : event.loot === 'TRAP' ? 'Trapped chest · watch your HP' : event.loot === 'SWORD' ? event.swordAlreadyOwned ? 'Blade already carried · chest opened' : 'Ancient Blade secured' : 'Nothing but dust · chest opened'
       this.options.onNotice(message)
       if (event.loot === 'TRAP' || event.loot === 'EMPTY') this.effect('dust-push-v2', this.state.player)
     }
-    if (event.type === 'KEY_COLLECTED') { this.key?.setVisible(false); this.options.onNotice('Bronze Temple Key · find the archive gate'); this.options.onSound('gem') }
+    if (event.type === 'KEY_COLLECTED') { this.key?.setVisible(false); this.options.onNotice('Silver Archive Key · find the archive gate'); this.options.onSound('gem') }
+    if (event.type === 'PRESSURE_GATE_OPENED' || event.type === 'PRESSURE_GATE_CLOSED') {
+      const open = event.type === 'PRESSURE_GATE_OPENED'
+      this.pressureGate?.setTexture(angkorV2TextureKey(open ? 'side-gate-open-v2' : 'side-gate-locked-v2'))
+      if (open) this.plate?.setTint(0xc8dbb8); else this.plate?.clearTint()
+      this.options.onNotice(open ? 'Weight plate held · Descent cache open' : 'Weight removed · Descent cache closed')
+      this.options.onSound('unlock'); this.drawCollision()
+    }
     if (event.type === 'GATE_UNLOCKED') { this.gate?.setTexture(angkorV2TextureKey('side-gate-open-v2')); this.options.onNotice('Archive gate unlocked · key used'); this.options.onSound('unlock') }
     if (event.type === 'EXIT_UNLOCKED') { this.passage?.setTexture(angkorV2TextureKey('temple-passage-open-height-v2')); this.options.onSound('unlock') }
     if (event.type === 'DAMAGE') { this.options.onSound('hurt'); if (!this.reduced.matches) this.cameras.main.flash(90, 90, 22, 15, false) }
@@ -198,12 +212,22 @@ export class ChestHunterScene extends Phaser.Scene {
   }
   private drawCollision() {
     this.collision?.clear().lineStyle(1, 0x63dbe0, .45)
-    for (let y = 0; y < 24; y++) for (let x = 0; x < 30; x++) {
+    for (let y = 0; y < 24; y++) for (let x = 0; x < 32; x++) {
       if (stageMap.collision.layout[y][x] === '#') this.collision?.fillStyle(0xff8072, .16).fillRect(x * 32, y * 32, 32, 32)
       this.collision?.strokeRect(x * 32, y * 32, 32, 32)
+      if ((x === GATE.x && y === GATE.y && !this.state.gateUnlocked) || (x === PRESSURE_GATE.x && y === PRESSURE_GATE.y && !this.state.pressureGateOpen) || this.state.boulders.some(b=>b.x===x && b.y===y)) this.collision?.fillStyle(0xf2c14e,.3).fillRect(x*32,y*32,32,32)
     }
   }
-  update(_time: number, delta: number) {
+  update(time: number, delta: number) {
+    // Tiny discovery glints use presentation time only; unopened state is authority.
+    CHESTS.forEach((chest, i) => {
+      const g = this.glints.get(chest.id); g?.clear()
+      const age = (time + i * 611) % 5200
+      if (!this.reduced.matches && age < 170 && !this.state.chests[i].resolved) {
+        const p = tileToPixel(chest), alpha = Math.sin(age / 170 * Math.PI) * .6
+        g?.lineStyle(1, 0xf2c14e, alpha).lineBetween(p.x + 3, p.y - 16, p.x + 7, p.y - 16).lineBetween(p.x + 5, p.y - 18, p.x + 5, p.y - 14)
+      }
+    })
     if (!this.environment || !this.explorer || !this.traversal) return
     const active = this.running && !document.hidden && document.hasFocus()
     this.tweens.timeScale = active ? 1 : 0

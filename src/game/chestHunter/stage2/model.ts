@@ -3,7 +3,7 @@ import { createChestStates, getChestAt, CHEST_GEM_AMOUNT, CHEST_POTION_HEAL, typ
 import { clampHP } from '../../domain/runState'
 import { DIRECTION_VECTORS, type Direction, type GridCoord } from '../../world/grid'
 import { copyCarry, freshCarry, type StageCarry, type CarriedItems } from '../contracts'
-import { BOULDERS, CHESTS, CHEST_REQUIREMENT, EXIT, GATE, KEY, MONKEY, SNAKES, SPIKES, inZone, stageMap } from './level'
+import { BOULDERS, CHESTS, CHEST_REQUIREMENT, EXIT, GATE, KEY, PLATE, PRESSURE_GATE, MONKEY, SNAKES, SPIKES, inZone, stageMap } from './level'
 
 export const SIMULATION_TICK_MS = 150
 export const DAMAGE = { spikes: 18, snake: 12, monkey: 20, trap: 18 } as const
@@ -11,7 +11,7 @@ export type StageAction = { type: 'MOVE'; direction: Direction } | { type: 'TICK
 type EventPayload =
   | { type: 'MOVE'; direction: Direction; from: GridCoord; to: GridCoord }
   | { type: 'CHEST_OPENED'; id: string; stageChestsOpened: number; expeditionChestsOpened: number }
-  | { type: 'CHEST_LOOT_RESOLVED'; id: string; loot: ChestInstance['loot']; gems: number; healed: number }
+  | { type: 'CHEST_LOOT_RESOLVED'; id: string; loot: ChestInstance['loot']; gems: number; healed: number; swordAlreadyOwned: boolean }
   | { type: 'DAMAGE'; source: keyof typeof DAMAGE; amount: number; hp: number }
   | { type: 'KEY_COLLECTED'; id: string }
   | { type: 'GATE_UNLOCKED' }
@@ -20,18 +20,19 @@ type EventPayload =
   | { type: 'MONKEY_ATTACK_TELEGRAPH'; target: GridCoord; impactTick: number; perch: number }
   | { type: 'MONKEY_ROCK_IMPACT'; target: GridCoord; hit: boolean }
   | { type: 'BOULDER_PUSH'; id: string; from: GridCoord; to: GridCoord }
+  | { type: 'PRESSURE_PLATE_ACTIVATED' | 'PRESSURE_PLATE_RELEASED' | 'PRESSURE_GATE_OPENED' | 'PRESSURE_GATE_CLOSED' }
   | { type: 'EXIT_UNLOCKED' }
   | { type: 'STAGE_COMPLETE'; chests: number; hp: number }
 export type StageEvent = EventPayload & { seq: number; tick: number }
 export interface StageResult {
-  stageId: 'lost-courtyard'; stageChestsOpened: number; expeditionChestsOpened: number; hpRemaining: number
+  stageId: 'forgotten-galleries'; stageChestsOpened: number; expeditionChestsOpened: number; hpRemaining: number
   expeditionGems: number; carriedItems: CarriedItems; openedChestIds: string[]
   completion: { tick: number; actionCount: number }
 }
 export interface StageState {
   version: 1; tick: number; actionCount: number; player: GridCoord; hp: number; invulnerableUntil: number
   status: 'playing' | 'complete' | 'failed'; stageChestsOpened: number; expeditionChestsOpened: number; expeditionGems: number
-  carriedItems: { sword: boolean; potion: { owned: boolean; consumed: boolean } }; chests: ChestInstance[]; keyCollected: boolean; keyHeld: boolean; gateUnlocked: boolean
+  carriedItems: { sword: boolean; potion: { owned: boolean; consumed: boolean } }; chests: ChestInstance[]; keyCollected: boolean; keyHeld: boolean; gateUnlocked: boolean; pressurePlateActive: boolean; pressureGateOpen: boolean
   boulders: { id: string; x: number; y: number }[]
   snakes: { id: string; mode: 'dormant' | 'alert' | 'patrol'; index: number; nextTick: number }[]
   monkey: { mode: 'dormant' | 'tell' | 'recover'; perch: number; nextTick: number; target: GridCoord | null }
@@ -40,11 +41,11 @@ export interface StageState {
 export const sameCell = (a: GridCoord, b: GridCoord) => a.x === b.x && a.y === b.y
 export function initialStageState(input: StageCarry = freshCarry()): StageState {
   const carry = copyCarry(input)
-  if (carry.hp === 0) throw new Error('Cannot start Lost Courtyard with zero HP')
+  if (carry.hp === 0) throw new Error('Cannot start Forgotten Galleries with zero HP')
   return { version: 1, tick: 0, actionCount: 0, player: { ...stageMap.collision.playerStart }, hp: carry.hp, invulnerableUntil: 0,
     status: 'playing', stageChestsOpened: 0, expeditionChestsOpened: carry.expeditionChestsOpened, expeditionGems: carry.expeditionGems,
     carriedItems: { sword: carry.carriedItems.sword, potion: { ...carry.carriedItems.potion } }, chests: createChestStates(CHESTS),
-    keyCollected: false, keyHeld: false, gateUnlocked: false, boulders: BOULDERS.map(({id,x,y}) => ({id,x,y})),
+    keyCollected: false, keyHeld: false, gateUnlocked: false, pressurePlateActive: false, pressureGateOpen: false, boulders: BOULDERS.map(({id,x,y}) => ({id,x,y})),
     snakes: SNAKES.map(s => ({ id: s.id, mode: 'dormant', index: 0, nextTick: 0 })),
     monkey: { mode: 'dormant', perch: 0, nextTick: 0, target: null }, exitUnlocked: false, result: null, events: [] }
 }
@@ -54,12 +55,13 @@ export function planStageMove(state: StageState, direction: Direction) {
   if (state.status !== 'playing' || !Object.hasOwn(DIRECTION_VECTORS, direction)) return null
   const move = calculateMove(stageMap.collision, state.player, direction)
   if (!move.success || (sameCell(move.to, EXIT) && !state.exitUnlocked)
+    || (sameCell(move.to, PRESSURE_GATE) && !state.pressureGateOpen)
     || (sameCell(move.to, GATE) && !state.gateUnlocked && !state.keyHeld)) return null
   const boulder = state.boulders.find(b => sameCell(b, move.to))
   if (!boulder) return { ...move, push: null }
   const track = BOULDERS.find(b => b.id === boulder.id)!
   const push = calculateMove(stageMap.collision, boulder, direction)
-  if (!push.success || push.to.y !== track.y || push.to.x < track.minX || push.to.x > track.maxX
+  if (!push.success || push.to.x !== track.x || push.to.y < track.minY || push.to.y > track.maxY
     || state.boulders.some(b => sameCell(b, push.to)) || CHESTS.some(c => sameCell(c, push.to))
     || SNAKES.some(s => s.path.some(tile => sameCell(tile, push.to)))) return null
   return { ...move, push: { id: boulder.id, from: { x: boulder.x, y: boulder.y }, to: push.to } }
@@ -84,6 +86,12 @@ export function reduceStage(state: StageState, action: StageAction): StageState 
   if (action.type === 'MOVE' && plan) {
     next.player = { ...plan.to }
     if (plan.push) { const b = next.boulders.find(b => b.id === plan.push!.id)!; Object.assign(b, plan.push.to); emit({ type: 'BOULDER_PUSH', ...plan.push }) }
+    const active = next.boulders.some(b => sameCell(b, PLATE))
+    if (active !== next.pressurePlateActive) {
+      next.pressurePlateActive = active; next.pressureGateOpen = active
+      emit({ type: active ? 'PRESSURE_PLATE_ACTIVATED' : 'PRESSURE_PLATE_RELEASED' })
+      emit({ type: active ? 'PRESSURE_GATE_OPENED' : 'PRESSURE_GATE_CLOSED' })
+    }
     emit({ type: 'MOVE', direction: action.direction, from: plan.from, to: plan.to })
     if (!next.keyCollected && sameCell(next.player, KEY)) {
       next.keyCollected = true; next.keyHeld = true; emit({ type: 'KEY_COLLECTED', id: KEY.id })
@@ -96,6 +104,7 @@ export function reduceStage(state: StageState, action: StageAction): StageState 
       Object.assign(chest, { state: 'OPEN', resolved: true })
       next.stageChestsOpened++; next.expeditionChestsOpened++
       emit({ type: 'CHEST_OPENED', id: chest.id, stageChestsOpened: next.stageChestsOpened, expeditionChestsOpened: next.expeditionChestsOpened })
+      const swordAlreadyOwned = chest.loot === 'SWORD' && next.carriedItems.sword
       let gems = 0, healed = 0
       // V1 loot vocabulary, exact Gems/heal constants and immediate potion use.
       // openChest itself also applies V1 mission completion/30 HP trap, so it
@@ -107,7 +116,7 @@ export function reduceStage(state: StageState, action: StageAction): StageState 
       }
       if (chest.loot === 'SWORD') next.carriedItems.sword = true
       if (chest.loot === 'TRAP') hurt('trap')
-      emit({ type: 'CHEST_LOOT_RESOLVED', id: chest.id, loot: chest.loot, gems, healed })
+      emit({ type: 'CHEST_LOOT_RESOLVED', id: chest.id, loot: chest.loot, gems, healed, swordAlreadyOwned })
       if (!next.exitUnlocked && next.status === 'playing' && next.stageChestsOpened >= CHEST_REQUIREMENT) { next.exitUnlocked = true; emit({ type: 'EXIT_UNLOCKED' }) }
     }
   }
@@ -138,7 +147,7 @@ export function reduceStage(state: StageState, action: StageAction): StageState 
   }
   if (action.type === 'MOVE' && next.status === 'playing' && next.exitUnlocked && sameCell(next.player, EXIT)) {
     next.status = 'complete'
-    next.result = { stageId: 'lost-courtyard', stageChestsOpened: next.stageChestsOpened,
+    next.result = { stageId: 'forgotten-galleries', stageChestsOpened: next.stageChestsOpened,
       expeditionChestsOpened: next.expeditionChestsOpened, hpRemaining: next.hp, expeditionGems: next.expeditionGems,
       carriedItems: { sword: next.carriedItems.sword, potion: { ...next.carriedItems.potion } },
       openedChestIds: next.chests.filter(c => c.resolved).map(c => c.id), completion: { tick: next.tick, actionCount: next.actionCount } }
@@ -148,8 +157,8 @@ export function reduceStage(state: StageState, action: StageAction): StageState 
 }
 export function replayStage(actions: readonly StageAction[], carry?: StageCarry): StageState { return actions.reduce(reduceStage, initialStageState(carry)) }
 export interface ChestHunterTranscript {
-  schema: 'angkor-chest-hunter-stage1/v1'; stageId: 'lost-courtyard'; actions: StageAction[]; result: StageResult | null
+  schema: 'angkor-chest-hunter-stage2/v1'; stageId: 'forgotten-galleries'; actions: StageAction[]; result: StageResult | null
 }
 export function stageTranscript(actions: readonly StageAction[]): ChestHunterTranscript {
-  return { schema: 'angkor-chest-hunter-stage1/v1', stageId: 'lost-courtyard', actions: actions.map(a => ({ ...a })), result: replayStage(actions).result }
+  return { schema: 'angkor-chest-hunter-stage2/v1', stageId: 'forgotten-galleries', actions: actions.map(a => ({ ...a })), result: replayStage(actions).result }
 }

@@ -1,0 +1,7581 @@
+{
+  "schema": "angkor-v2-chest-hunter/v1",
+  "version": 1,
+  "mission": "chest-hunter",
+  "entries": [
+    {
+      "type": "EXPEDITION_STARTED",
+      "carry": {
+        "hp": 100,
+        "expeditionChestsOpened": 0,
+        "expeditionGems": 0,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": false,
+            "consumed": false
+          }
+        }
+      }
+    },
+    {
+      "type": "STAGE_STARTED",
+      "stageId": "lost-courtyard",
+      "carry": {
+        "hp": 100,
+        "expeditionChestsOpened": 0,
+        "expeditionGems": 0,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": false,
+            "consumed": false
+          }
+        }
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 1,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 2,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 3,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 4,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 5,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 6,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 7,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 8,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 9,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 10,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 11,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 12,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 13,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 14,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 15,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 16,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 17,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 18,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 19,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 20,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 21,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 22,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 23,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 24,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 25,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 26,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 27,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 28,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 29,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 30,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 31,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 32,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 33,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 34,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 35,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 36,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 37,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 38,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 39,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 40,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 41,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 42,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 43,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 44,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 45,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 46,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 47,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 48,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 49,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 50,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 51,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 52,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 53,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 54,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 55,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 56,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 57,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 58,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 59,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 60,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 61,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 62,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 63,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 64,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 65,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 66,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 67,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 68,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 69,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 70,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 71,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 72,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 73,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 74,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 75,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 76,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 77,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 78,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 79,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 80,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 81,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 82,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 83,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 84,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 85,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 86,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 87,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 88,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 89,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 90,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 91,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 92,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 93,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 94,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 95,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 96,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 97,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 98,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 99,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 100,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 101,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 102,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 103,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 104,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 105,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 106,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 107,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 108,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 109,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 110,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 111,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 112,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 113,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 114,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 115,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 116,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 117,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 118,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 119,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 120,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 121,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 122,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 123,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 124,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 125,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 126,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 127,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 128,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 129,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 130,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 131,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 132,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 133,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 134,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 135,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 136,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 137,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 138,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 139,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 140,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 141,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 142,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 143,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 144,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 145,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 146,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 147,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 148,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 149,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 150,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 151,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 152,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 153,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 154,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 155,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 156,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 157,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 158,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 159,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 160,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 161,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 162,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 163,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 164,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 165,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 166,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 167,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 168,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 169,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 170,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 171,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 172,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 173,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 174,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 175,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 176,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 177,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 178,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 179,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 180,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 181,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 182,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 183,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 184,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 185,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 186,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 187,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 188,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 189,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 190,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 191,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 192,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 193,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 194,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 195,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 196,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 197,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 198,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 199,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 200,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 201,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 202,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 203,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 204,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 205,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 206,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 207,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 208,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 209,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 210,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 211,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 212,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 213,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 214,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 215,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 216,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 217,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 218,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 219,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 220,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 221,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 222,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 223,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 224,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 225,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 226,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 227,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 228,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 229,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 230,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 231,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 232,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 233,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 234,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 235,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 236,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 237,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 238,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 239,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 240,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 241,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 242,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 243,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 244,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 245,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 246,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 247,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 248,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 249,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 250,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 251,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 252,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 253,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 254,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 255,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 256,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 257,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 258,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 259,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 260,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 261,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 262,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 263,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 264,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 265,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 266,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 267,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 268,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 269,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 270,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 271,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 272,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 273,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 274,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 275,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 276,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 277,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 278,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 279,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 280,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 281,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 282,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "lost-courtyard",
+      "actionIndex": 283,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_COMPLETED",
+      "stageId": "lost-courtyard",
+      "result": {
+        "stageId": "lost-courtyard",
+        "stageChestsOpened": 6,
+        "expeditionChestsOpened": 6,
+        "expeditionGems": 4,
+        "openedChestIds": [
+          "arrival",
+          "arcade",
+          "archive",
+          "store",
+          "treasury",
+          "store-bonus"
+        ],
+        "hpRemaining": 82,
+        "carriedItems": {
+          "sword": true,
+          "potion": {
+            "owned": true,
+            "consumed": true
+          }
+        },
+        "completion": {
+          "tick": 175,
+          "actionCount": 283
+        }
+      },
+      "carryOut": {
+        "hp": 82,
+        "expeditionChestsOpened": 6,
+        "expeditionGems": 4,
+        "carriedItems": {
+          "sword": true,
+          "potion": {
+            "owned": true,
+            "consumed": true
+          }
+        }
+      }
+    },
+    {
+      "type": "STAGE_ADVANCED",
+      "fromStage": "lost-courtyard",
+      "toStage": "forgotten-galleries",
+      "carry": {
+        "hp": 82,
+        "expeditionChestsOpened": 6,
+        "expeditionGems": 4,
+        "carriedItems": {
+          "sword": true,
+          "potion": {
+            "owned": true,
+            "consumed": true
+          }
+        }
+      }
+    },
+    {
+      "type": "STAGE_STARTED",
+      "stageId": "forgotten-galleries",
+      "carry": {
+        "hp": 82,
+        "expeditionChestsOpened": 6,
+        "expeditionGems": 4,
+        "carriedItems": {
+          "sword": true,
+          "potion": {
+            "owned": true,
+            "consumed": true
+          }
+        }
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 1,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 2,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 3,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 4,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 5,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 6,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 7,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 8,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 9,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 10,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 11,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 12,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 13,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 14,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 15,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 16,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 17,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 18,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 19,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 20,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 21,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 22,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 23,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 24,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 25,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 26,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 27,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 28,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 29,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 30,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 31,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 32,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 33,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 34,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 35,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 36,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 37,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 38,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 39,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 40,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 41,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 42,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 43,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 44,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 45,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 46,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 47,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 48,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 49,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 50,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 51,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 52,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 53,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 54,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 55,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 56,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 57,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 58,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 59,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 60,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 61,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 62,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 63,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 64,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 65,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 66,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 67,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 68,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 69,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 70,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 71,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 72,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 73,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 74,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 75,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 76,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 77,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 78,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 79,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 80,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 81,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 82,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 83,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 84,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 85,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 86,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 87,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 88,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 89,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 90,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 91,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 92,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 93,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 94,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 95,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 96,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 97,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 98,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 99,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 100,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 101,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 102,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 103,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 104,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 105,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 106,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 107,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 108,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 109,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 110,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 111,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 112,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 113,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 114,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 115,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 116,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 117,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 118,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 119,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 120,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 121,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 122,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 123,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 124,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 125,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 126,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 127,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 128,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 129,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 130,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 131,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 132,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 133,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 134,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 135,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 136,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 137,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 138,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 139,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 140,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 141,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 142,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 143,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 144,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 145,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 146,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 147,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 148,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 149,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 150,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 151,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 152,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 153,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 154,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 155,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 156,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 157,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 158,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 159,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 160,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 161,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 162,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 163,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 164,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 165,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 166,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 167,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 168,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 169,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 170,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 171,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 172,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 173,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 174,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 175,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 176,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 177,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 178,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 179,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 180,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 181,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 182,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 183,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 184,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 185,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 186,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 187,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 188,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 189,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 190,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 191,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 192,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 193,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 194,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 195,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 196,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 197,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 198,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 199,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 200,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 201,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 202,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 203,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 204,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 205,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 206,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 207,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 208,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 209,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 210,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 211,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 212,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 213,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 214,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 215,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 216,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 217,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 218,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 219,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 220,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 221,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 222,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 223,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 224,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 225,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 226,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 227,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 228,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 229,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 230,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 231,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 232,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 233,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 234,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 235,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 236,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 237,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 238,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 239,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 240,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 241,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 242,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 243,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 244,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 245,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 246,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 247,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 248,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 249,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 250,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 251,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 252,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 253,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 254,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 255,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 256,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 257,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 258,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 259,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 260,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 261,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 262,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 263,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 264,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 265,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 266,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 267,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 268,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 269,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 270,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 271,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 272,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 273,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 274,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 275,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 276,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 277,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 278,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 279,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 280,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 281,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 282,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 283,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 284,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 285,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 286,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 287,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 288,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 289,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 290,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 291,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 292,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 293,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 294,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 295,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 296,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 297,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 298,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 299,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 300,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 301,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 302,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 303,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 304,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 305,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 306,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 307,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 308,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 309,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 310,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 311,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 312,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 313,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 314,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 315,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 316,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 317,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 318,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 319,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 320,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 321,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 322,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 323,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 324,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 325,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 326,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 327,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 328,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 329,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 330,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 331,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 332,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 333,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 334,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 335,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 336,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 337,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 338,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 339,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 340,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 341,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 342,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 343,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 344,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 345,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 346,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 347,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 348,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 349,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 350,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 351,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 352,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 353,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 354,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 355,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 356,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 357,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 358,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 359,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 360,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 361,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 362,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 363,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 364,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 365,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 366,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 367,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 368,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 369,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 370,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 371,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 372,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 373,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 374,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 375,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 376,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 377,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 378,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 379,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 380,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 381,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 382,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 383,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 384,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 385,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 386,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 387,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 388,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 389,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 390,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 391,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 392,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 393,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 394,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 395,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 396,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 397,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 398,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 399,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 400,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 401,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 402,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 403,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 404,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 405,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 406,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 407,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 408,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 409,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 410,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 411,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 412,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 413,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 414,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 415,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 416,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 417,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 418,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 419,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 420,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 421,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 422,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 423,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 424,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 425,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 426,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 427,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 428,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 429,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 430,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 431,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 432,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 433,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 434,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 435,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 436,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 437,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 438,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 439,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 440,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 441,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 442,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 443,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 444,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 445,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 446,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 447,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 448,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 449,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 450,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 451,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 452,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 453,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 454,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 455,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 456,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 457,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 458,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 459,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 460,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 461,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 462,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 463,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 464,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 465,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 466,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 467,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 468,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 469,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 470,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 471,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 472,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 473,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 474,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 475,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 476,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 477,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 478,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 479,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 480,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 481,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 482,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 483,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 484,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 485,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 486,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 487,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 488,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 489,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 490,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 491,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 492,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 493,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 494,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 495,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 496,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 497,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 498,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 499,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 500,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 501,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 502,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 503,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 504,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 505,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 506,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 507,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 508,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 509,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 510,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 511,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 512,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 513,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 514,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 515,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 516,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 517,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 518,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 519,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 520,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 521,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 522,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 523,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 524,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 525,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 526,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 527,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 528,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 529,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 530,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 531,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 532,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 533,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 534,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 535,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 536,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 537,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 538,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 539,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 540,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 541,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 542,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 543,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 544,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 545,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 546,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 547,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 548,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 549,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 550,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 551,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 552,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 553,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 554,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 555,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 556,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 557,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 558,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 559,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 560,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 561,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 562,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 563,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 564,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 565,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 566,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 567,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 568,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 569,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "forgotten-galleries",
+      "actionIndex": 570,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_COMPLETED",
+      "stageId": "forgotten-galleries",
+      "result": {
+        "stageId": "forgotten-galleries",
+        "stageChestsOpened": 8,
+        "expeditionChestsOpened": 14,
+        "expeditionGems": 10,
+        "openedChestIds": [
+          "descent-cache",
+          "archive-west",
+          "archive-east",
+          "stack-trap",
+          "stack-cache",
+          "plate-cache",
+          "plunder-low",
+          "plunder-high"
+        ],
+        "hpRemaining": 100,
+        "carriedItems": {
+          "sword": true,
+          "potion": {
+            "owned": true,
+            "consumed": true
+          }
+        },
+        "completion": {
+          "tick": 380,
+          "actionCount": 570
+        }
+      },
+      "carryOut": {
+        "hp": 100,
+        "expeditionChestsOpened": 14,
+        "expeditionGems": 10,
+        "carriedItems": {
+          "sword": true,
+          "potion": {
+            "owned": true,
+            "consumed": true
+          }
+        }
+      }
+    },
+    {
+      "type": "STAGE_ADVANCED",
+      "fromStage": "forgotten-galleries",
+      "toStage": "royal-treasury",
+      "carry": {
+        "hp": 100,
+        "expeditionChestsOpened": 14,
+        "expeditionGems": 10,
+        "carriedItems": {
+          "sword": true,
+          "potion": {
+            "owned": true,
+            "consumed": true
+          }
+        }
+      }
+    },
+    {
+      "type": "STAGE_STARTED",
+      "stageId": "royal-treasury",
+      "carry": {
+        "hp": 100,
+        "expeditionChestsOpened": 14,
+        "expeditionGems": 10,
+        "carriedItems": {
+          "sword": true,
+          "potion": {
+            "owned": true,
+            "consumed": true
+          }
+        }
+      }
+    }
+  ],
+  "snapshot": {
+    "version": 1,
+    "mission": "chest-hunter",
+    "status": "PLAYING",
+    "currentStage": "royal-treasury",
+    "currentStageIndex": 2,
+    "hp": 100,
+    "expeditionChestsOpened": 14,
+    "expeditionGems": 10,
+    "carriedItems": {
+      "sword": true,
+      "potion": {
+        "owned": true,
+        "consumed": true
+      }
+    },
+    "stageChestsOpened": 0,
+    "stageCarryIn": {
+      "hp": 100,
+      "expeditionChestsOpened": 14,
+      "expeditionGems": 10,
+      "carriedItems": {
+        "sword": true,
+        "potion": {
+          "owned": true,
+          "consumed": true
+        }
+      }
+    },
+    "completedStages": [
+      "lost-courtyard",
+      "forgotten-galleries"
+    ],
+    "stageResults": [
+      {
+        "stageId": "lost-courtyard",
+        "stageChestsOpened": 6,
+        "expeditionChestsOpened": 6,
+        "expeditionGems": 4,
+        "openedChestIds": [
+          "arrival",
+          "arcade",
+          "archive",
+          "store",
+          "treasury",
+          "store-bonus"
+        ],
+        "hpRemaining": 82,
+        "carriedItems": {
+          "sword": true,
+          "potion": {
+            "owned": true,
+            "consumed": true
+          }
+        },
+        "completion": {
+          "tick": 175,
+          "actionCount": 283
+        }
+      },
+      {
+        "stageId": "forgotten-galleries",
+        "stageChestsOpened": 8,
+        "expeditionChestsOpened": 14,
+        "expeditionGems": 10,
+        "openedChestIds": [
+          "descent-cache",
+          "archive-west",
+          "archive-east",
+          "stack-trap",
+          "stack-cache",
+          "plate-cache",
+          "plunder-low",
+          "plunder-high"
+        ],
+        "hpRemaining": 100,
+        "carriedItems": {
+          "sword": true,
+          "potion": {
+            "owned": true,
+            "consumed": true
+          }
+        },
+        "completion": {
+          "tick": 380,
+          "actionCount": 570
+        }
+      }
+    ],
+    "events": [
+      {
+        "seq": 1,
+        "type": "EXPEDITION_STARTED",
+        "carry": {
+          "hp": 100,
+          "expeditionChestsOpened": 0,
+          "expeditionGems": 0,
+          "carriedItems": {
+            "sword": false,
+            "potion": {
+              "owned": false,
+              "consumed": false
+            }
+          }
+        }
+      },
+      {
+        "seq": 2,
+        "type": "STAGE_STARTED",
+        "stageId": "lost-courtyard",
+        "carry": {
+          "hp": 100,
+          "expeditionChestsOpened": 0,
+          "expeditionGems": 0,
+          "carriedItems": {
+            "sword": false,
+            "potion": {
+              "owned": false,
+              "consumed": false
+            }
+          }
+        }
+      },
+      {
+        "type": "STAGE_COMPLETED",
+        "result": {
+          "stageId": "lost-courtyard",
+          "stageChestsOpened": 6,
+          "expeditionChestsOpened": 6,
+          "expeditionGems": 4,
+          "openedChestIds": [
+            "arrival",
+            "arcade",
+            "archive",
+            "store",
+            "treasury",
+            "store-bonus"
+          ],
+          "hpRemaining": 82,
+          "carriedItems": {
+            "sword": true,
+            "potion": {
+              "owned": true,
+              "consumed": true
+            }
+          },
+          "completion": {
+            "tick": 175,
+            "actionCount": 283
+          }
+        },
+        "seq": 3
+      },
+      {
+        "type": "STAGE_TRANSITION_READY",
+        "fromStage": "lost-courtyard",
+        "nextStage": "forgotten-galleries",
+        "seq": 4
+      },
+      {
+        "type": "STAGE_ADVANCED",
+        "fromStage": "lost-courtyard",
+        "toStage": "forgotten-galleries",
+        "carry": {
+          "hp": 82,
+          "expeditionChestsOpened": 6,
+          "expeditionGems": 4,
+          "carriedItems": {
+            "sword": true,
+            "potion": {
+              "owned": true,
+              "consumed": true
+            }
+          }
+        },
+        "seq": 5
+      },
+      {
+        "type": "STAGE_STARTED",
+        "stageId": "forgotten-galleries",
+        "carry": {
+          "hp": 82,
+          "expeditionChestsOpened": 6,
+          "expeditionGems": 4,
+          "carriedItems": {
+            "sword": true,
+            "potion": {
+              "owned": true,
+              "consumed": true
+            }
+          }
+        },
+        "seq": 6
+      },
+      {
+        "type": "STAGE_COMPLETED",
+        "result": {
+          "stageId": "forgotten-galleries",
+          "stageChestsOpened": 8,
+          "expeditionChestsOpened": 14,
+          "expeditionGems": 10,
+          "openedChestIds": [
+            "descent-cache",
+            "archive-west",
+            "archive-east",
+            "stack-trap",
+            "stack-cache",
+            "plate-cache",
+            "plunder-low",
+            "plunder-high"
+          ],
+          "hpRemaining": 100,
+          "carriedItems": {
+            "sword": true,
+            "potion": {
+              "owned": true,
+              "consumed": true
+            }
+          },
+          "completion": {
+            "tick": 380,
+            "actionCount": 570
+          }
+        },
+        "seq": 7
+      },
+      {
+        "type": "STAGE_TRANSITION_READY",
+        "fromStage": "forgotten-galleries",
+        "nextStage": "royal-treasury",
+        "seq": 8
+      },
+      {
+        "type": "STAGE_ADVANCED",
+        "fromStage": "forgotten-galleries",
+        "toStage": "royal-treasury",
+        "carry": {
+          "hp": 100,
+          "expeditionChestsOpened": 14,
+          "expeditionGems": 10,
+          "carriedItems": {
+            "sword": true,
+            "potion": {
+              "owned": true,
+              "consumed": true
+            }
+          }
+        },
+        "seq": 9
+      },
+      {
+        "type": "STAGE_STARTED",
+        "stageId": "royal-treasury",
+        "carry": {
+          "hp": 100,
+          "expeditionChestsOpened": 14,
+          "expeditionGems": 10,
+          "carriedItems": {
+            "sword": true,
+            "potion": {
+              "owned": true,
+              "consumed": true
+            }
+          }
+        },
+        "seq": 10
+      }
+    ]
+  }
+}

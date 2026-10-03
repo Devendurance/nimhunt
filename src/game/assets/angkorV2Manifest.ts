@@ -89,6 +89,8 @@ const legacyDefinitions = [
   ["explorer-walk-v2", "player/explorer", 512, 768, 1,1, 22,31, 0.5,1, 'actor', false],
 ] as const
 const productionDefinitions = [
+  ['silver-archive-key-v2', 'props/keys', 256,256, 1,1, 18,24, .5,248/256, 'collectible', false],
+  ['pressure-plate-v2', 'props/mechanisms', 256,256, 1,1, 30,30, .5,248/256, 'ground-detail', false],
   ['chest-closed-v2', 'props/chests', 512,512, 1,1, 32,36, .5,500/512, 'prop', false],
   ['chest-open-v2', 'props/chests', 512,512, 1,1, 32,36, .5,500/512, 'prop', false],
   ['bronze-temple-key-v2', 'props/keys', 256,256, 1,1, 18,24, .5,248/256, 'collectible', false],
