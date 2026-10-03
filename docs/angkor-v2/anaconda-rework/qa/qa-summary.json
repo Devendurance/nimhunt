@@ -1,0 +1,174 @@
+{
+  "viewport": {
+    "mobile": [
+      390,
+      844
+    ],
+    "desktop": [
+      1280,
+      900
+    ],
+    "compact": [
+      320,
+      568
+    ],
+    "compactControlsBottom": 547.85
+  },
+  "result": {
+    "gems": 12,
+    "expeditionGems": 29,
+    "hp": 52
+  },
+  "stageResults": [
+    {
+      "stageId": "outer-ruins",
+      "stageGems": 7,
+      "expeditionGems": 7,
+      "hpRemaining": 100,
+      "carriedItems": {
+        "sword": false,
+        "potion": {
+          "owned": false,
+          "consumed": false
+        }
+      },
+      "completion": {
+        "tick": 122,
+        "actionCount": 198
+      }
+    },
+    {
+      "stageId": "overgrown-temple",
+      "stageGems": 10,
+      "expeditionGems": 17,
+      "hpRemaining": 88,
+      "carriedItems": {
+        "sword": false,
+        "potion": {
+          "owned": false,
+          "consumed": false
+        }
+      },
+      "completion": {
+        "tick": 200,
+        "actionCount": 303
+      }
+    },
+    {
+      "stageId": "inner-sanctuary",
+      "stageGems": 12,
+      "expeditionGems": 29,
+      "hpRemaining": 52,
+      "carriedItems": {
+        "sword": false,
+        "potion": {
+          "owned": false,
+          "consumed": false
+        }
+      },
+      "completion": {
+        "tick": 982,
+        "actionCount": 1109
+      }
+    }
+  ],
+  "entryCount": 1619,
+  "actionCount": 1610,
+  "stage3ActionCount": 1109,
+  "hitPits": [
+    "PIT_CENTER",
+    "PIT_LEFT",
+    "PIT_RIGHT"
+  ],
+  "emergences": [
+    {
+      "phase": 1,
+      "pit": "PIT_CENTER"
+    },
+    {
+      "phase": 1,
+      "pit": "PIT_CENTER"
+    },
+    {
+      "phase": 2,
+      "pit": "PIT_LEFT"
+    },
+    {
+      "phase": 3,
+      "pit": "PIT_RIGHT"
+    }
+  ],
+  "replacementImpacts": [
+    {
+      "type": "REPLACEMENT_BOULDER_IMPACT",
+      "id": "boss-PIT_CENTER",
+      "tile": {
+        "x": 24,
+        "y": 11
+      },
+      "hit": false,
+      "seq": 455,
+      "tick": 720
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_IMPACT",
+      "id": "boss-PIT_LEFT",
+      "tile": {
+        "x": 22,
+        "y": 11
+      },
+      "hit": true,
+      "seq": 498,
+      "tick": 769
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_IMPACT",
+      "id": "boss-PIT_RIGHT",
+      "tile": {
+        "x": 26,
+        "y": 11
+      },
+      "hit": false,
+      "seq": 541,
+      "tick": 815
+    }
+  ],
+  "defeatCount": 1,
+  "browserAssertions": [
+    "missed window retried",
+    "real touch drop",
+    "three environmental hits",
+    "retaliation before replacement warning",
+    "replacement landing deals24",
+    "boss defeated at seven gems and exit remains locked",
+    "eighth gem unlocks",
+    "all twelve collected",
+    "full expedition completed",
+    "debug off final",
+    "compact controls reachable"
+  ],
+  "finalNavigationConsoleErrors": 0,
+  "priorEditingSessionsExcluded": true,
+  "recording": {
+    "file": "full-boss.mp4",
+    "durationSeconds": 86,
+    "deliveryDimensions": [
+      278,
+      600
+    ],
+    "sourceDimensions": [
+      800,
+      600
+    ],
+    "gameplayFramesRemoved": false
+  },
+  "verification": {
+    "targetedPassed": 64,
+    "fullSuitePassed": 1173,
+    "fullSuiteSkipped": 69,
+    "build": "passed (existing large-chunk warning)",
+    "lint": "passed",
+    "rootTypecheck": "passed",
+    "serverTypecheck": "passed"
+  }
+}

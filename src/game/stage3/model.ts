@@ -3,9 +3,9 @@ import { DIRECTION_VECTORS, type Direction, type GridCoord } from '../world/grid
 import { assertVitals, type StageCarry } from '../gemRunner/contracts'
 import { DAMAGE as BASE_DAMAGE, SIMULATION_TICK_MS, sameCell, type SnakeState, type MonkeyState } from '../stage1/model'
 import { inZone } from '../stage1/level'
-import { ANACONDA, BOULDERS, EXIT, GEMS, GEM_REQUIREMENT, MONKEYS, RUBBLE, SNAKES, SPIKES, stageMap } from './level'
+import { ANACONDA, BOULDERS, EXIT, GEMS, GEM_REQUIREMENT, MONKEYS, PIT_ORDER, type PitId, RUBBLE, SNAKES, SPIKES, stageMap } from './level'
 export { SIMULATION_TICK_MS }
-export const DAMAGE = { ...BASE_DAMAGE, rubble: 22, anaconda: 26 } as const
+export const DAMAGE = { ...BASE_DAMAGE, rubble: 22, anaconda: 26, replacementBoulder: 24 } as const
 export type StageAction = { type: 'MOVE'; direction: Direction } | { type: 'TICK' }
 type EventPayload =
   | { type: 'MOVE'; direction: Direction; from: GridCoord; to: GridCoord }
@@ -18,22 +18,30 @@ type EventPayload =
   | { type: 'BOULDER_PUSH'; id: string; from: GridCoord; to: GridCoord }
   | { type: 'RUBBLE_TELEGRAPH'; tiles: readonly GridCoord[]; impactTick: number }
   | { type: 'RUBBLE_IMPACT'; tiles: readonly GridCoord[]; hit: boolean }
-  | { type: 'ANACONDA_ACTIVATED'; presenceUntil: number }
-  | { type: 'ANACONDA_TELEGRAPH'; tiles: GridCoord[]; impactTick: number; sanctum: boolean }
-  | { type: 'ANACONDA_STRIKE'; tiles: GridCoord[]; hit: boolean; resolved: boolean; strikesResolved: number }
-  | { type: 'ANACONDA_COIL_BLOCKED'; cells: GridCoord[]; releaseTick: number }
-  | { type: 'ANACONDA_COIL_RELEASED'; cells: GridCoord[] }
-  | { type: 'ANACONDA_RETREATED'; strikesResolved: number; sanctumStrikes: number }
+  | { type: 'ANACONDA_EMERGED'; pit: PitId; phase: number; vulnerableAt: number }
+  | { type: 'ANACONDA_VULNERABLE'; pit: PitId; vulnerableUntil: number }
+  | { type: 'BOULDER_DROP_TRIGGERED'; id: string; pit: PitId; impactTick: number }
+  | { type: 'ANACONDA_HIT'; pit: PitId; successfulHits: number }
+  | { type: 'ANACONDA_RETALIATION_TELEGRAPH'; tiles: GridCoord[]; impactTick: number; phase: number }
+  | { type: 'ANACONDA_RETALIATION_IMPACT'; tiles: GridCoord[]; hit: boolean }
+  | { type: 'REPLACEMENT_BOULDER_TELEGRAPH'; id: string; tile: GridCoord; impactTick: number }
+  | { type: 'REPLACEMENT_BOULDER_IMPACT'; id: string; tile: GridCoord; hit: boolean }
+  | { type: 'REPLACEMENT_BOULDER_READY'; id: string; tile: GridCoord }
+  | { type: 'ANACONDA_PHASE_ADVANCED'; phase: number; pit: PitId }
+  | { type: 'ANACONDA_DEFEATED'; successfulHits: 3; completeAt: number }
   | { type: 'EXIT_UNLOCKED' }
   | { type: 'STAGE_COMPLETE'; gems: number; hp: number }
 export type StageEvent = EventPayload & { seq: number; tick: number }
 export interface AnacondaState {
-  mode: 'dormant' | 'presence' | 'tell' | 'coil' | 'recover' | 'retreated'
-  nextTick: number; targets: GridCoord[]; blockedCells: GridCoord[]
-  strikesResolved: number; sanctumStrikes: number; cycle: number; objectiveSatisfied: boolean
+  mode: 'DORMANT' | 'EMERGING' | 'VULNERABLE' | 'RETALIATING' | 'RECOVERING' | 'DEFEATED'
+  phase: number; activePit: PitId; successfulHits: number
+  nextTick: number; vulnerableUntil: number; targets: GridCoord[]
+  pendingDrop: { id: string; impactTick: number } | null
+  replacement: { id: string; mode: 'WAITING' | 'TELEGRAPH' | 'LANDED'; impactTick: number } | null
+  phaseHit: boolean; defeatedAt: number | null; objectiveSatisfied: boolean
 }
 export interface StageState {
-  version: 1; tick: number; player: GridCoord; hp: number; invulnerableUntil: number
+  version: 2; tick: number; player: GridCoord; hp: number; invulnerableUntil: number
   status: 'playing' | 'complete' | 'failed'; stageGems: number; expeditionGems: number; collected: string[]
   boulders: { id: string; x: number; y: number }[]; snakes: SnakeState[]; monkeys: (MonkeyState & { id: string })[]
   rubble: { mode: 'armed' | 'tell' | 'recover'; nextTick: number }
@@ -43,19 +51,20 @@ export interface StageState {
 export function initialStageState(carry: Pick<StageCarry, 'hp' | 'expeditionGems'>): StageState {
   assertVitals(carry.hp, carry.expeditionGems)
   if (!carry.hp) throw new Error('Cannot start Inner Sanctuary with zero HP')
-  return { version: 1, tick: 0, player: { ...stageMap.collision.playerStart }, hp: carry.hp, invulnerableUntil: 0,
+  return { version: 2, tick: 0, player: { ...stageMap.collision.playerStart }, hp: carry.hp, invulnerableUntil: 0,
     status: 'playing', stageGems: 0, expeditionGems: carry.expeditionGems, collected: [],
     boulders: BOULDERS.map(({ id, x, y }) => ({ id, x, y })), snakes: SNAKES.map(s => ({ id: s.id, mode: 'dormant', index: 0, nextTick: 0 })),
-    monkeys: MONKEYS.map(m => ({ id: m.id, mode: 'dormant', perch: 0, nextTick: 0, target: null })), rubble: { mode: 'armed', nextTick: 0 }, anaconda: { mode: 'dormant', nextTick: 0, targets: [], blockedCells: [], strikesResolved: 0, sanctumStrikes: 0, cycle: 0, objectiveSatisfied: false }, exitUnlocked: false, result: null, events: [] }
+    monkeys: MONKEYS.map(m => ({ id: m.id, mode: 'dormant', perch: 0, nextTick: 0, target: null })), rubble: { mode: 'armed', nextTick: 0 }, anaconda: { mode: 'DORMANT', phase: 1, activePit: PIT_ORDER[0], successfulHits: 0, nextTick: 0, vulnerableUntil: 0, targets: [], pendingDrop: null, replacement: null, phaseHit: false, defeatedAt: null, objectiveSatisfied: false }, exitUnlocked: false, result: null, events: [] }
 }
 export function planStageMove(state: StageState, direction: Direction) {
   if (state.status !== 'playing' || !Object.hasOwn(DIRECTION_VECTORS, direction)) return null
   const move = calculateMove(stageMap.collision, state.player, direction)
-  if (!move.success || state.anaconda.blockedCells.some(p => sameCell(p, move.to)) || (sameCell(move.to, EXIT) && !state.exitUnlocked)) return null
+  if (!move.success || (sameCell(move.to, EXIT) && !state.exitUnlocked)) return null
   const stone = state.boulders.find(b => sameCell(b, move.to))
   if (!stone) return { ...move, push: null }
   const track = BOULDERS.find(b => b.id === stone.id)!, push = calculateMove(stageMap.collision, stone, direction)
-  if (!sameCell(stone, track) || direction !== track.direction || !push.success || !sameCell(push.to, track.parked)
+  if (state.anaconda.mode !== 'VULNERABLE' || state.anaconda.activePit !== track.pit || state.anaconda.pendingDrop || state.anaconda.vulnerableUntil - state.tick < 2
+    || !sameCell(stone, track) || direction !== track.direction || !push.success || !sameCell(push.to, track.drop)
     || state.boulders.some(b => sameCell(b, push.to)) || sameCell(push.to, EXIT)
     || GEMS.some(g => sameCell(g, push.to)) || SPIKES.some(g => g.tiles.some(p => sameCell(p, push.to)))
     || SNAKES.some((s, i) => sameCell(s.path[state.snakes[i].index], push.to))) return null
@@ -65,7 +74,7 @@ export function reduceStage(state: StageState, action: StageAction): StageState 
   if (state.status !== 'playing') return state
   const plan = action.type === 'MOVE' ? planStageMove(state, action.direction) : null
   if (action.type === 'MOVE' && !plan) return state
-  const next: StageState = { ...state, player: { ...state.player }, collected: [...state.collected], boulders: state.boulders.map(b => ({ ...b })), snakes: state.snakes.map(s => ({ ...s })), monkeys: state.monkeys.map(m => ({ ...m })), rubble: { ...state.rubble }, anaconda: { ...state.anaconda, targets: state.anaconda.targets.map(p => ({ ...p })), blockedCells: state.anaconda.blockedCells.map(p => ({ ...p })) }, events: [...state.events] }
+  const next: StageState = { ...state, player: { ...state.player }, collected: [...state.collected], boulders: state.boulders.map(b => ({ ...b })), snakes: state.snakes.map(s => ({ ...s })), monkeys: state.monkeys.map(m => ({ ...m })), rubble: { ...state.rubble }, anaconda: { ...state.anaconda, targets: state.anaconda.targets.map(p => ({ ...p })), pendingDrop: state.anaconda.pendingDrop ? { ...state.anaconda.pendingDrop } : null, replacement: state.anaconda.replacement ? { ...state.anaconda.replacement } : null }, events: [...state.events] }
   const emit = (event: EventPayload) => next.events.push({ ...event, seq: next.events.length + 1, tick: next.tick })
   const hurt = (source: keyof typeof DAMAGE) => {
     if (next.tick < next.invulnerableUntil || next.status !== 'playing') return
@@ -75,7 +84,12 @@ export function reduceStage(state: StageState, action: StageAction): StageState 
   if (action.type === 'TICK') next.tick++
   if (action.type === 'MOVE' && plan) {
     next.player = { ...plan.to }
-    if (plan.push) { Object.assign(next.boulders.find(b => b.id === plan.push!.id)!, plan.push.to); emit({ type: 'BOULDER_PUSH', ...plan.push }) }
+    if (plan.push) {
+      next.boulders = next.boulders.filter(b => b.id !== plan.push!.id)
+      emit({ type: 'BOULDER_PUSH', ...plan.push })
+      next.anaconda.pendingDrop = { id: plan.push.id, impactTick: next.tick + ANACONDA.dropTicks }
+      emit({ type: 'BOULDER_DROP_TRIGGERED', id: plan.push.id, pit: next.anaconda.activePit, impactTick: next.anaconda.pendingDrop.impactTick })
+    }
     emit({ type: 'MOVE', direction: action.direction, from: plan.from, to: plan.to })
     const gem = GEMS.find(g => sameCell(g, next.player) && !next.collected.includes(g.id))
     if (gem) {
@@ -115,41 +129,76 @@ export function reduceStage(state: StageState, action: StageAction): StageState 
     rubble.mode = 'recover'; rubble.nextTick = next.tick + RUBBLE.recoveryTicks
   } else if (action.type === 'TICK' && rubble.mode === 'recover' && next.tick >= rubble.nextTick && !inZone(next.player, RUBBLE.zone)) rubble.mode = 'armed'
 
-  const boss = next.anaconda, inSanctum = inZone(next.player, ANACONDA.sanctum)
-  const engaged = inSanctum || inZone(next.player, ANACONDA.passage)
+  const boss = next.anaconda
+  const emerge = () => {
+    boss.mode = 'EMERGING'; boss.phaseHit = false; boss.targets = []
+    boss.nextTick = next.tick + ANACONDA.emergenceTicks
+    emit({ type: 'ANACONDA_EMERGED', pit: boss.activePit, phase: boss.phase, vulnerableAt: boss.nextTick })
+  }
+  const retaliate = () => {
+    const phase = ANACONDA.phases[boss.phase - 1]
+    boss.mode = 'RETALIATING'; boss.nextTick = next.tick + phase.tellTicks
+    boss.targets = phase.laneRows.flatMap(y => Array.from({ length: 8 }, (_, i) => ({ x: 20 + i, y })))
+      .filter(p => stageMap.collision.layout[p.y][p.x] !== '#')
+    emit({ type: 'ANACONDA_RETALIATION_TELEGRAPH', phase: boss.phase, tiles: boss.targets.map(p => ({ ...p })), impactTick: boss.nextTick })
+  }
   if (next.status === 'playing') {
-    if (boss.mode === 'dormant' && engaged) {
-      boss.mode = 'presence'; boss.nextTick = next.tick + ANACONDA.presenceTicks
-      emit({ type: 'ANACONDA_ACTIVATED', presenceUntil: boss.nextTick })
-    } else if (action.type === 'TICK' && next.tick >= boss.nextTick) {
-      if ((boss.mode === 'presence' || boss.mode === 'recover') && engaged) {
-        // Authored lane orientation; target snapshots never track the moving player.
-        boss.targets = [-1, 0, 1].map(offset => inSanctum ? { x: next.player.x + offset, y: next.player.y } : { x: next.player.x, y: next.player.y + offset })
-          .filter(p => stageMap.collision.layout[p.y]?.[p.x] === '.' || stageMap.collision.layout[p.y]?.[p.x] === 'S')
-        boss.mode = 'tell'; boss.nextTick = next.tick + ANACONDA.tellTicks
-        emit({ type: 'ANACONDA_TELEGRAPH', tiles: boss.targets.map(p => ({ ...p })), impactTick: boss.nextTick, sanctum: inSanctum })
-      } else if (boss.mode === 'tell') {
-        const hit = boss.targets.some(p => sameCell(next.player, p)); if (hit) hurt('anaconda')
-        const resolved = engaged && next.status === 'playing'
-        if (resolved) { boss.strikesResolved++; if (inSanctum) boss.sanctumStrikes++ }
-        emit({ type: 'ANACONDA_STRIKE', tiles: boss.targets.map(p => ({ ...p })), hit, resolved, strikesResolved: boss.strikesResolved })
-        boss.targets = []; boss.mode = 'coil'; boss.nextTick = next.tick + ANACONDA.coilTicks
-        // Reserve the player's cell AND one-step halo. A block can never appear
-        // underneath an already animating move whose logical arrival is pending.
-        boss.blockedCells = ANACONDA.gates[inSanctum ? 2 : boss.cycle % 2]
-          .filter(p => Math.abs(p.x - next.player.x) + Math.abs(p.y - next.player.y) > 1).map(p => ({ ...p }))
-        boss.cycle++
-        emit({ type: 'ANACONDA_COIL_BLOCKED', cells: boss.blockedCells.map(p => ({ ...p })), releaseTick: boss.nextTick })
-        boss.objectiveSatisfied = boss.strikesResolved >= ANACONDA.strikesRequired && boss.sanctumStrikes >= ANACONDA.sanctumStrikesRequired
-      } else if (boss.mode === 'coil') {
-        emit({ type: 'ANACONDA_COIL_RELEASED', cells: boss.blockedCells.map(p => ({ ...p })) }); boss.blockedCells = []
-        boss.mode = 'recover'; boss.nextTick = next.tick + ANACONDA.recoveryTicks
+    // Replacement impact is fixed. Readiness waits for the one-step actor halo:
+    // a boulder can never appear inside an already animating tile destination.
+    if (action.type === 'TICK' && boss.replacement) {
+      const replacement = boss.replacement, track = BOULDERS.find(b => b.id === replacement.id)!
+      if (replacement.mode === 'TELEGRAPH' && next.tick >= replacement.impactTick) {
+        const hit = sameCell(next.player, track)
+        emit({ type: 'REPLACEMENT_BOULDER_IMPACT', id: track.id, tile: { x: track.x, y: track.y }, hit })
+        if (hit) hurt('replacementBoulder')
+        replacement.mode = 'LANDED'
+      }
+      if (replacement.mode === 'LANDED' && Math.abs(next.player.x - track.x) + Math.abs(next.player.y - track.y) > 1) {
+        next.boulders.push({ id: track.id, x: track.x, y: track.y }); boss.replacement = null
+        emit({ type: 'REPLACEMENT_BOULDER_READY', id: track.id, tile: { x: track.x, y: track.y } })
       }
     }
-    if (!next.exitUnlocked && next.stageGems >= GEM_REQUIREMENT && boss.objectiveSatisfied) {
-      if (boss.blockedCells.length) emit({ type: 'ANACONDA_COIL_RELEASED', cells: boss.blockedCells.map(p => ({ ...p })) })
-      boss.mode = 'retreated'; boss.targets = []; boss.blockedCells = []
-      emit({ type: 'ANACONDA_RETREATED', strikesResolved: boss.strikesResolved, sanctumStrikes: boss.sanctumStrikes })
+    if (next.status === 'playing' && boss.mode === 'DORMANT' && inZone(next.player, ANACONDA.sanctum)) emerge()
+    else if (action.type === 'TICK' && next.status === 'playing') {
+      const phase = ANACONDA.phases[boss.phase - 1]
+      if (boss.mode === 'EMERGING' && next.tick >= boss.nextTick) {
+        boss.mode = 'VULNERABLE'; boss.vulnerableUntil = next.tick + phase.vulnerableTicks
+        emit({ type: 'ANACONDA_VULNERABLE', pit: boss.activePit, vulnerableUntil: boss.vulnerableUntil })
+      } else if (boss.mode === 'VULNERABLE') {
+        if (boss.pendingDrop && next.tick >= boss.pendingDrop.impactTick) {
+          const id = boss.pendingDrop.id
+          boss.pendingDrop = null; boss.successfulHits++; boss.phaseHit = true
+          emit({ type: 'ANACONDA_HIT', pit: boss.activePit, successfulHits: boss.successfulHits })
+          boss.replacement = { id, mode: 'WAITING', impactTick: 0 }
+          if (boss.successfulHits === 3) {
+            // Final rock interrupts retaliation. Collapse is a deterministic pause,
+            // not a fourth phase or an automatic expedition completion.
+            boss.mode = 'DEFEATED'; boss.defeatedAt = next.tick; boss.targets = []
+            const track = BOULDERS.find(b => b.id === id)!
+            boss.replacement.mode = 'TELEGRAPH'; boss.replacement.impactTick = next.tick + phase.replacementTicks
+            emit({ type: 'REPLACEMENT_BOULDER_TELEGRAPH', id, tile: { x: track.x, y: track.y }, impactTick: boss.replacement.impactTick })
+            boss.nextTick = next.tick + ANACONDA.defeatTicks
+            emit({ type: 'ANACONDA_DEFEATED', successfulHits: 3, completeAt: boss.nextTick })
+          } else retaliate()
+        } else if (!boss.pendingDrop && next.tick >= boss.vulnerableUntil) retaliate()
+      } else if (boss.mode === 'RETALIATING' && next.tick >= boss.nextTick) {
+        const hit = boss.targets.some(p => sameCell(p, next.player))
+        emit({ type: 'ANACONDA_RETALIATION_IMPACT', tiles: boss.targets.map(p => ({ ...p })), hit }); if (hit) hurt('anaconda')
+        boss.targets = []; boss.mode = 'RECOVERING'; boss.nextTick = next.tick + phase.recoveryTicks
+        if (boss.replacement?.mode === 'WAITING') {
+          const track = BOULDERS.find(b => b.id === boss.replacement!.id)!
+          boss.replacement.mode = 'TELEGRAPH'; boss.replacement.impactTick = next.tick + phase.replacementTicks
+          emit({ type: 'REPLACEMENT_BOULDER_TELEGRAPH', id: track.id, tile: { x: track.x, y: track.y }, impactTick: boss.replacement.impactTick })
+        }
+      } else if (boss.mode === 'RECOVERING' && next.tick >= boss.nextTick && !boss.replacement && inZone(next.player, ANACONDA.sanctum)) {
+        if (boss.phaseHit) {
+          boss.phase++; boss.activePit = PIT_ORDER[boss.phase - 1]
+          emit({ type: 'ANACONDA_PHASE_ADVANCED', phase: boss.phase, pit: boss.activePit })
+        }
+        emerge()
+      } else if (boss.mode === 'DEFEATED' && next.tick >= boss.nextTick && !boss.replacement) boss.objectiveSatisfied = true
+    }
+    if (next.status === 'playing' && !next.exitUnlocked && next.stageGems >= GEM_REQUIREMENT && boss.mode === 'DEFEATED' && boss.successfulHits === 3 && boss.objectiveSatisfied) {
       next.exitUnlocked = true; emit({ type: 'EXIT_UNLOCKED' })
     }
   }

@@ -1,0 +1,569 @@
+{
+  "result": {
+    "gems": 12,
+    "expeditionGems": 29,
+    "hp": 52
+  },
+  "anaconda": {
+    "mode": "DEFEATED",
+    "phase": 3,
+    "activePit": "PIT_RIGHT",
+    "successfulHits": 3,
+    "nextTick": 817,
+    "vulnerableUntil": 834,
+    "targets": [],
+    "pendingDrop": null,
+    "replacement": null,
+    "phaseHit": true,
+    "defeatedAt": 803,
+    "objectiveSatisfied": true
+  },
+  "boulders": [
+    {
+      "id": "boss-PIT_CENTER",
+      "x": 24,
+      "y": 11
+    },
+    {
+      "id": "boss-PIT_LEFT",
+      "x": 22,
+      "y": 11
+    },
+    {
+      "id": "boss-PIT_RIGHT",
+      "x": 26,
+      "y": 11
+    }
+  ],
+  "events": [
+    {
+      "type": "ANACONDA_EMERGED",
+      "pit": "PIT_CENTER",
+      "phase": 1,
+      "vulnerableAt": 560,
+      "seq": 344,
+      "tick": 548
+    },
+    {
+      "type": "ANACONDA_VULNERABLE",
+      "pit": "PIT_CENTER",
+      "vulnerableUntil": 640,
+      "seq": 354,
+      "tick": 560
+    },
+    {
+      "type": "ANACONDA_RETALIATION_TELEGRAPH",
+      "phase": 1,
+      "tiles": [
+        {
+          "x": 20,
+          "y": 11
+        },
+        {
+          "x": 21,
+          "y": 11
+        },
+        {
+          "x": 22,
+          "y": 11
+        },
+        {
+          "x": 23,
+          "y": 11
+        },
+        {
+          "x": 24,
+          "y": 11
+        },
+        {
+          "x": 25,
+          "y": 11
+        },
+        {
+          "x": 26,
+          "y": 11
+        },
+        {
+          "x": 27,
+          "y": 11
+        }
+      ],
+      "impactTick": 656,
+      "seq": 401,
+      "tick": 640
+    },
+    {
+      "type": "ANACONDA_RETALIATION_IMPACT",
+      "tiles": [
+        {
+          "x": 20,
+          "y": 11
+        },
+        {
+          "x": 21,
+          "y": 11
+        },
+        {
+          "x": 22,
+          "y": 11
+        },
+        {
+          "x": 23,
+          "y": 11
+        },
+        {
+          "x": 24,
+          "y": 11
+        },
+        {
+          "x": 25,
+          "y": 11
+        },
+        {
+          "x": 26,
+          "y": 11
+        },
+        {
+          "x": 27,
+          "y": 11
+        }
+      ],
+      "hit": false,
+      "seq": 410,
+      "tick": 656
+    },
+    {
+      "type": "ANACONDA_EMERGED",
+      "pit": "PIT_CENTER",
+      "phase": 1,
+      "vulnerableAt": 678,
+      "seq": 415,
+      "tick": 666
+    },
+    {
+      "type": "ANACONDA_VULNERABLE",
+      "pit": "PIT_CENTER",
+      "vulnerableUntil": 758,
+      "seq": 422,
+      "tick": 678
+    },
+    {
+      "type": "BOULDER_DROP_TRIGGERED",
+      "id": "boss-PIT_CENTER",
+      "pit": "PIT_CENTER",
+      "impactTick": 688,
+      "seq": 429,
+      "tick": 684
+    },
+    {
+      "type": "ANACONDA_HIT",
+      "pit": "PIT_CENTER",
+      "successfulHits": 1,
+      "seq": 433,
+      "tick": 688
+    },
+    {
+      "type": "ANACONDA_RETALIATION_TELEGRAPH",
+      "phase": 1,
+      "tiles": [
+        {
+          "x": 20,
+          "y": 11
+        },
+        {
+          "x": 21,
+          "y": 11
+        },
+        {
+          "x": 22,
+          "y": 11
+        },
+        {
+          "x": 23,
+          "y": 11
+        },
+        {
+          "x": 24,
+          "y": 11
+        },
+        {
+          "x": 25,
+          "y": 11
+        },
+        {
+          "x": 26,
+          "y": 11
+        },
+        {
+          "x": 27,
+          "y": 11
+        }
+      ],
+      "impactTick": 704,
+      "seq": 434,
+      "tick": 688
+    },
+    {
+      "type": "ANACONDA_RETALIATION_IMPACT",
+      "tiles": [
+        {
+          "x": 20,
+          "y": 11
+        },
+        {
+          "x": 21,
+          "y": 11
+        },
+        {
+          "x": 22,
+          "y": 11
+        },
+        {
+          "x": 23,
+          "y": 11
+        },
+        {
+          "x": 24,
+          "y": 11
+        },
+        {
+          "x": 25,
+          "y": 11
+        },
+        {
+          "x": 26,
+          "y": 11
+        },
+        {
+          "x": 27,
+          "y": 11
+        }
+      ],
+      "hit": false,
+      "seq": 445,
+      "tick": 704
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_TELEGRAPH",
+      "id": "boss-PIT_CENTER",
+      "tile": {
+        "x": 24,
+        "y": 11
+      },
+      "impactTick": 720,
+      "seq": 446,
+      "tick": 704
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_IMPACT",
+      "id": "boss-PIT_CENTER",
+      "tile": {
+        "x": 24,
+        "y": 11
+      },
+      "hit": false,
+      "seq": 455,
+      "tick": 720
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_READY",
+      "id": "boss-PIT_CENTER",
+      "tile": {
+        "x": 24,
+        "y": 11
+      },
+      "seq": 456,
+      "tick": 720
+    },
+    {
+      "type": "ANACONDA_PHASE_ADVANCED",
+      "phase": 2,
+      "pit": "PIT_LEFT",
+      "seq": 457,
+      "tick": 720
+    },
+    {
+      "type": "ANACONDA_EMERGED",
+      "pit": "PIT_LEFT",
+      "phase": 2,
+      "vulnerableAt": 732,
+      "seq": 458,
+      "tick": 720
+    },
+    {
+      "type": "ANACONDA_VULNERABLE",
+      "pit": "PIT_LEFT",
+      "vulnerableUntil": 796,
+      "seq": 468,
+      "tick": 732
+    },
+    {
+      "type": "BOULDER_DROP_TRIGGERED",
+      "id": "boss-PIT_LEFT",
+      "pit": "PIT_LEFT",
+      "impactTick": 739,
+      "seq": 470,
+      "tick": 735
+    },
+    {
+      "type": "ANACONDA_HIT",
+      "pit": "PIT_LEFT",
+      "successfulHits": 2,
+      "seq": 474,
+      "tick": 739
+    },
+    {
+      "type": "ANACONDA_RETALIATION_TELEGRAPH",
+      "phase": 2,
+      "tiles": [
+        {
+          "x": 20,
+          "y": 11
+        },
+        {
+          "x": 21,
+          "y": 11
+        },
+        {
+          "x": 22,
+          "y": 11
+        },
+        {
+          "x": 23,
+          "y": 11
+        },
+        {
+          "x": 24,
+          "y": 11
+        },
+        {
+          "x": 25,
+          "y": 11
+        },
+        {
+          "x": 26,
+          "y": 11
+        },
+        {
+          "x": 27,
+          "y": 11
+        },
+        {
+          "x": 20,
+          "y": 12
+        },
+        {
+          "x": 21,
+          "y": 12
+        },
+        {
+          "x": 22,
+          "y": 12
+        },
+        {
+          "x": 23,
+          "y": 12
+        },
+        {
+          "x": 24,
+          "y": 12
+        },
+        {
+          "x": 25,
+          "y": 12
+        },
+        {
+          "x": 26,
+          "y": 12
+        },
+        {
+          "x": 27,
+          "y": 12
+        }
+      ],
+      "impactTick": 755,
+      "seq": 475,
+      "tick": 739
+    },
+    {
+      "type": "ANACONDA_RETALIATION_IMPACT",
+      "tiles": [
+        {
+          "x": 20,
+          "y": 11
+        },
+        {
+          "x": 21,
+          "y": 11
+        },
+        {
+          "x": 22,
+          "y": 11
+        },
+        {
+          "x": 23,
+          "y": 11
+        },
+        {
+          "x": 24,
+          "y": 11
+        },
+        {
+          "x": 25,
+          "y": 11
+        },
+        {
+          "x": 26,
+          "y": 11
+        },
+        {
+          "x": 27,
+          "y": 11
+        },
+        {
+          "x": 20,
+          "y": 12
+        },
+        {
+          "x": 21,
+          "y": 12
+        },
+        {
+          "x": 22,
+          "y": 12
+        },
+        {
+          "x": 23,
+          "y": 12
+        },
+        {
+          "x": 24,
+          "y": 12
+        },
+        {
+          "x": 25,
+          "y": 12
+        },
+        {
+          "x": 26,
+          "y": 12
+        },
+        {
+          "x": 27,
+          "y": 12
+        }
+      ],
+      "hit": false,
+      "seq": 486,
+      "tick": 755
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_TELEGRAPH",
+      "id": "boss-PIT_LEFT",
+      "tile": {
+        "x": 22,
+        "y": 11
+      },
+      "impactTick": 769,
+      "seq": 487,
+      "tick": 755
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_IMPACT",
+      "id": "boss-PIT_LEFT",
+      "tile": {
+        "x": 22,
+        "y": 11
+      },
+      "hit": true,
+      "seq": 498,
+      "tick": 769
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_READY",
+      "id": "boss-PIT_LEFT",
+      "tile": {
+        "x": 22,
+        "y": 11
+      },
+      "seq": 504,
+      "tick": 774
+    },
+    {
+      "type": "ANACONDA_PHASE_ADVANCED",
+      "phase": 3,
+      "pit": "PIT_RIGHT",
+      "seq": 505,
+      "tick": 774
+    },
+    {
+      "type": "ANACONDA_EMERGED",
+      "pit": "PIT_RIGHT",
+      "phase": 3,
+      "vulnerableAt": 786,
+      "seq": 506,
+      "tick": 774
+    },
+    {
+      "type": "ANACONDA_VULNERABLE",
+      "pit": "PIT_RIGHT",
+      "vulnerableUntil": 834,
+      "seq": 515,
+      "tick": 786
+    },
+    {
+      "type": "BOULDER_DROP_TRIGGERED",
+      "id": "boss-PIT_RIGHT",
+      "pit": "PIT_RIGHT",
+      "impactTick": 803,
+      "seq": 526,
+      "tick": 799
+    },
+    {
+      "type": "ANACONDA_HIT",
+      "pit": "PIT_RIGHT",
+      "successfulHits": 3,
+      "seq": 532,
+      "tick": 803
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_TELEGRAPH",
+      "id": "boss-PIT_RIGHT",
+      "tile": {
+        "x": 26,
+        "y": 11
+      },
+      "impactTick": 815,
+      "seq": 533,
+      "tick": 803
+    },
+    {
+      "type": "ANACONDA_DEFEATED",
+      "successfulHits": 3,
+      "completeAt": 817,
+      "seq": 534,
+      "tick": 803
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_IMPACT",
+      "id": "boss-PIT_RIGHT",
+      "tile": {
+        "x": 26,
+        "y": 11
+      },
+      "hit": false,
+      "seq": 541,
+      "tick": 815
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_READY",
+      "id": "boss-PIT_RIGHT",
+      "tile": {
+        "x": 26,
+        "y": 11
+      },
+      "seq": 542,
+      "tick": 815
+    }
+  ]
+}

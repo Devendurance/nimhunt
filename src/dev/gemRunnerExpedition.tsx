@@ -64,7 +64,8 @@ function ExpeditionPlayableStage({ runtime, expedition, onSnapshot, debug }: Pla
     <div className="stage-hud"><strong>STAGE GEMS {stage.stageGems} / {requirement}</strong><span className="health" aria-label={'Health ' + expedition.hp + ' of 100'}><span style={{ width: expedition.hp + '%' }} /></span><strong>HP {expedition.hp}</strong></div>
     <p className="runtime-total">Expedition Gems: {expedition.expeditionGems}<span>One attempt · HP carries forward</span></p>
     {definition.id === 'inner-sanctuary' && <p className="area-name">{sanctuaryAreas.find(area => inZone(stage.player, area))?.name ?? 'Carved connector'}</p>}
-    {definition.id === 'inner-sanctuary' && <p className="encounter-hint" aria-live="polite">{'anaconda' in stage && stage.anaconda.mode === 'retreated' ? 'The Anaconda retreats. Escape Passage is open.' : 'anaconda' in stage && stage.anaconda.mode !== 'dormant' ? `Marked strikes survived: ${Math.min(stage.anaconda.strikesResolved, 3)} / 3 · Sanctum: ${Math.min(stage.anaconda.sanctumStrikes, 1)} / 1. Secure 8 Gems to escape.` : 'Survive 3 marked strikes, including 1 in the Sanctum. Secure 8 Gems to escape.'}</p>}
+    {definition.id === 'inner-sanctuary' && 'anaconda' in stage && <p className="encounter-hint" aria-live="polite">{stage.anaconda.mode === 'DEFEATED' ? `Anaconda defeated! ${stage.exitUnlocked ? 'Escape Passage is open.' : 'Secure 8 Gems; wait for the last falling rock.'}` : stage.anaconda.mode === 'DORMANT' ? 'Sanctum: push the marked rock DOWN onto the risen serpent. Three hits open the way.' : `Hits ${stage.anaconda.successfulHits} / 3 · ${stage.anaconda.activePit.replace('PIT_', '')} · ${stage.anaconda.mode === 'VULNERABLE' ? `Push DOWN now (${Math.max(0, (stage.anaconda.vulnerableUntil - stage.tick) * .15).toFixed(1)}s)` : stage.anaconda.mode === 'RETALIATING' ? 'Slam incoming! Leave the red lanes.' : stage.anaconda.mode === 'EMERGING' ? 'Serpent rising. Find the marked rock.' : 'Avoid the falling replacement rock.'}`}</p>}
+
     <div className="stage-viewport"><div ref={host} />
       {!ready && !error && <div className="stage-overlay" role="status">Loading {definition.name}…</div>}
       {(finished || failed || complete) && <div className="stage-overlay runtime-transition" role="region" aria-label={complete ? 'Gem Runner complete' : finished ? 'Stage ' + definition.numeral + ' complete' : 'Expedition failed'}>
@@ -75,7 +76,7 @@ function ExpeditionPlayableStage({ runtime, expedition, onSnapshot, debug }: Pla
     </div>
     {error && <p role="alert">{error}</p>}
     <div className="stage-controls"><DirectionalDpad inputLocked={!ready || Boolean(error) || expedition.status !== 'PLAYING'} onMove={direction => scene.current?.traversal?.tap(direction)} heldInput={{ press: (source, direction) => scene.current?.traversal?.press(source, direction), release: source => scene.current?.traversal?.release(source), cancel: source => scene.current?.traversal?.cancel(source) }} /></div>
-    {debug && <section className="stage-debug" aria-label="Stage debug"><h3>Stage state · coordinate, Anaconda, blocked cells, wildlife and events</h3><pre>{JSON.stringify(stage, null, 2)}</pre></section>}
+    {debug && <section className="stage-debug" aria-label="Stage debug"><h3>Stage state · coordinate, boss phase, active pit, window, lanes, replacement, boulders, wildlife and events</h3><pre>{JSON.stringify(stage, null, 2)}</pre></section>}
   </>
 }
 export function GemRunnerExpeditionQA() {

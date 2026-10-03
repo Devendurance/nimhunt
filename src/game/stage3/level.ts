@@ -24,10 +24,16 @@ carve(25, 5, 2, 4); carve(23, 2, 5, 4)
 cells[20][3] = 'S'; cells[17][3] = 'D'; cells[8][3] = 'B'; cells[6][12] = 'B'; cells[14][19] = 'D'
 cells[12][7] = 'L'; cells[3][4] = 'P'; cells[6][8] = 'P'; cells[17][23] = 'P'; cells[8][20] = 'P'
 cells[4][23] = 'T'; cells[4][27] = 'T'
-export const BOSS_BODY: readonly GridCoord[] = [23, 24, 25].flatMap(x => [9, 10].map(y => ({ x, y })))
+export const PITS = {
+  PIT_LEFT: { x: 22, y: 13 }, PIT_CENTER: { x: 24, y: 13 }, PIT_RIGHT: { x: 26, y: 13 },
+} as const
+export type PitId = keyof typeof PITS
+export const PIT_ORDER: readonly PitId[] = ['PIT_CENTER', 'PIT_LEFT', 'PIT_RIGHT']
+// Only these authored holes are solid; the large serpent's pixels are not collision.
+export const BOSS_BODY: readonly GridCoord[] = Object.values(PITS)
 const compiled = compileTraversalMap({ id: 'angkor-v2-stage3-inner-sanctuary', name: 'Inner Sanctuary', rows: cells.map(row => row.join('')), structures: [
-  // Permanent ritual plinth: the serpent's visual size never decides collision.
-  { sprite: { key: 'anaconda-coiled-v2', x: 784, y: 352, depthClass: 'architecture', shadow: true }, occupied: BOSS_BODY },
+  // Permanent pit cells: the serpent's visual size never decides collision.
+  ...Object.values(PITS).map(p => ({ sprite: { key: 'serpent-pit-v2' as const, x: p.x * 32 + 16, y: p.y * 32 + 16, depthClass: 'floor-overlay' as const, occludesPlayer: false }, occupied: [p] })),
   { sprite: { key: 'guardian-monument-v2', x: 240, y: 160, shadow: true }, occupied: [{ x: 6, y: 3 }, { x: 7, y: 3 }, { x: 6, y: 4 }, { x: 7, y: 4 }] },
 ] })
 export const stageMap = { ...compiled, visual: { cells: compiled.visual.cells.map((row, y) => row.map((cell, x) => ({
@@ -41,10 +47,11 @@ export const GEMS = [
   { id: 'ritual', x: 4, y: 4 }, { id: 'ritual-risk', x: 9, y: 4 },
   { id: 'passage-west', x: 13, y: 8 }, { id: 'passage-east', x: 17, y: 12 },
   { id: 'sanctum-west', x: 21, y: 10 }, { id: 'sanctum-south', x: 21, y: 16 },
-  { id: 'sanctum-risk', x: 27, y: 15 }, { id: 'sanctum-east', x: 26, y: 11 }, { id: 'escape', x: 25, y: 4 },
+  { id: 'sanctum-risk', x: 27, y: 15 }, { id: 'sanctum-east', x: 27, y: 11 }, { id: 'escape', x: 25, y: 4 },
 ] as const
-// Stage III adds no push puzzle; no prior-stage stones carry into this room.
-export const BOULDERS: readonly { id: string; x: number; y: number; direction: Direction; parked: GridCoord }[] = []
+// Captive one-tile release rails are reversible by waiting: no loose Sokoban stones.
+export const BOULDERS: readonly { id: string; pit: PitId; x: number; y: number; direction: Direction; drop: GridCoord }[] =
+  Object.entries(PITS).map(([pit, p]) => ({ id: `boss-${pit}`, pit: pit as PitId, x: p.x, y: 11, direction: 'DOWN', drop: { x: p.x, y: 12 } }))
 export const SPIKES = [{ id: 'ritual-spikes', tiles: [{ x: 8, y: 4 }, { x: 8, y: 5 }] }, { id: 'sanctum-spikes', tiles: [{ x: 26, y: 15 }] }] as const
 export const SNAKES = [
   { id: 'coil-west', zone: { name: 'Coil west', x: 2, y: 10, width: 5, height: 5 }, path: [{ x: 3, y: 10 }, { x: 3, y: 11 }, { x: 3, y: 12 }, { x: 3, y: 13 }, { x: 3, y: 14 }, { x: 4, y: 14 }, { x: 3, y: 14 }, { x: 3, y: 13 }, { x: 3, y: 12 }, { x: 3, y: 11 }] },
@@ -53,9 +60,12 @@ export const SNAKES = [
 export const MONKEYS = [{ id: 'ritual-keeper', zone: { name: 'Ritual keeper', x: 8, y: 2, width: 2, height: 4 }, perches: [{ x: 10, y: 3 }, { x: 10, y: 5 }], tellTicks: 9, recoveryTicks: 14 }] as const
 export const RUBBLE = { id: 'ritual-vault', zone: { name: 'Ritual vault', x: 3, y: 5, width: 3, height: 2 }, tiles: [{ x: 4, y: 5 }, { x: 5, y: 5 }], tellTicks: 8, recoveryTicks: 16 } as const
 export const ANACONDA = {
-  passage: STAGE_AREAS[3], sanctum: STAGE_AREAS[4], presenceTicks: 8, tellTicks: 8, coilTicks: 12, recoveryTicks: 8,
-  strikesRequired: 3, sanctumStrikesRequired: 1,
-  gates: [ [{ x: 13, y: 11 }, { x: 14, y: 11 }], [{ x: 16, y: 11 }, { x: 17, y: 11 }], [{ x: 22, y: 14 }, { x: 23, y: 14 }] ],
+  passage: STAGE_AREAS[3], sanctum: STAGE_AREAS[4], emergenceTicks: 12, dropTicks: 4, defeatTicks: 14,
+  phases: [
+    { vulnerableTicks: 80, tellTicks: 16, recoveryTicks: 10, replacementTicks: 16, laneRows: [11] },
+    { vulnerableTicks: 64, tellTicks: 16, recoveryTicks: 8, replacementTicks: 14, laneRows: [11, 12] },
+    { vulnerableTicks: 48, tellTicks: 18, recoveryTicks: 8, replacementTicks: 12, laneRows: [10, 11, 12] },
+  ],
 } as const
 export const STAGE_DECOR: readonly EnvironmentSprite[] = [
   { key: 'root-heavy-v2', x: 87, y: 626, depthClass: 'foreground', shadow: true },

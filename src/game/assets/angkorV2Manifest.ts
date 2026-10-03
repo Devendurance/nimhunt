@@ -89,6 +89,7 @@ const legacyDefinitions = [
   ["explorer-walk-v2", "player/explorer", 512, 768, 1,1, 22,31, 0.5,1, 'actor', false],
 ] as const
 const productionDefinitions = [
+  ['serpent-pit-v2', 'environment/architecture', 512,384, 1,1, 64,40, .5,.5, 'prop', true],
   ['anaconda-coiled-v2', 'wildlife/anaconda', 512,512, 3,2, 112,112, .5,504/512, 'architecture', true],
   ['anaconda-rise-v2', 'wildlife/anaconda', 512,512, 3,2, 112,112, .5,504/512, 'architecture', true],
   ['anaconda-strike-v2', 'wildlife/anaconda', 512,512, 3,2, 112,112, .5,504/512, 'architecture', true],
