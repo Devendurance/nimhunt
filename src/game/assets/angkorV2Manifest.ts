@@ -89,6 +89,11 @@ const legacyDefinitions = [
   ["explorer-walk-v2", "player/explorer", 512, 768, 1,1, 22,31, 0.5,1, 'actor', false],
 ] as const
 const productionDefinitions = [
+  ['chest-closed-v2', 'props/chests', 512,512, 1,1, 32,36, .5,500/512, 'prop', false],
+  ['chest-open-v2', 'props/chests', 512,512, 1,1, 32,36, .5,500/512, 'prop', false],
+  ['bronze-temple-key-v2', 'props/keys', 256,256, 1,1, 18,24, .5,248/256, 'collectible', false],
+  ['side-gate-locked-v2', 'environment/architecture', 256,384, 1,1, 64,64, .5,376/384, 'architecture', true],
+  ['side-gate-open-v2', 'environment/architecture', 256,384, 1,1, 64,64, .5,376/384, 'architecture', false],
   ['anaconda-pit-peek-v3', 'wildlife/anaconda', 512,768, 1,1, 64,112, .5,752/768, 'architecture', false],
   ['anaconda-emerge-v3', 'wildlife/anaconda', 512,768, 1,1, 64,112, .5,752/768, 'architecture', false],
   ['anaconda-upright-v3', 'wildlife/anaconda', 512,768, 1,1, 64,112, .5,752/768, 'architecture', false],

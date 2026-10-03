@@ -1,0 +1,34 @@
+{
+  "tool": "built-in image_gen.imagegen (GPT Image)",
+  "transparent_background": true,
+  "reference": "Approved pillar-intact-height-v2 material/camera; derived states reference their generated master. Original board was not cropped.",
+  "sourceDirectory": "C:/Users/USER/.codex/generated_images/01a0f98f-6cb7-7be3-a2d9-017a45845f60",
+  "export": "Whole-canvas uniform paired resizing and shared padding. Chest 512 square +13px Y; gate 256x384 +15px Y; key 256 square +20px Y. Final gate display enlarged to 64x64 after room QA to keep its walk-through opening legible.",
+  "assets": [
+    {
+      "key": "chest-closed-v2",
+      "source": "exec-9e611be1-e46a-42c2-864d-93268f6b9ac1.png",
+      "prompt": "Create ONE clean standalone CLOSED TREASURE CHEST sprite for NimHunt Angkor V2 Chest Hunter. Reference image is style/material/camera only, do not include pillar. Premium painterly mobile-adventure game asset, square logical grid top-down 3/4 orthographic camera, much of curved chest lid TOP visible, front face shorter, subtle right side visible. Original sturdy dark warm teak wood chest with aged bronze bands and large readable bronze latch, restrained tiny moss at base, handcrafted warm sandstone/jungle game language, soft upper-left daylight dark olive ambient shadows. Genuinely transparent background no ground plane no frame no labels no UI. Square canvas 1024x1024. Chest base centered at x512 y960; subject extends x100..924, closed lid top around y350. Reserve empty transparent upper space because an OPEN state will later use exactly same lower chest box, camera, base position and width. Strong silhouette readable at 28px. No gems outside. Do not crop. Save clean RGBA."
+    },
+    {
+      "key": "chest-open-v2",
+      "source": "exec-ae5f526f-0238-49b9-89bf-2a348d2f7408.png",
+      "prompt": "EDIT this exact closed chest into its OPEN state. Same canvas, same camera top-down 3/4 orthographic view, same lighting, exact same lower wooden box, bronze bands, front clasp/lock, feet/base and side handle at exactly the SAME PIXEL POSITIONS as reference. Do not resize/recenter/zoom the chest. ONLY lift the rounded hinged lid backwards into empty upper transparent space to reveal a dark empty interior. Lid attached to rear edge, full open raised lid tilting away from viewer. Keep same base x,y, canvas margins. No loot, particles or glow. Transparent background. Strong closed/open sprite state alignment is critical: chest lower box must not shift even one pixel. Painterly NimHunt Angkor V2 asset."
+    },
+    {
+      "key": "side-gate-locked-v2",
+      "source": "exec-825c63ba-2543-4825-b428-8900e0ed5ef5.png",
+      "prompt": "Create ONE original standalone locked SIDE ROOM GATE sprite for NimHunt Angkor V2. Reference pillar is material/lighting/projection only. Tall narrow Khmer-inspired sandstone door jambs, warm weathered stone, restrained moss/vines at sides, heavy dark bronze grating locked with large readable bronze keyhole medallion. Square-grid top-down 3/4 orthographic gameplay view (visible jamb top surfaces, shorter vertical fronts), not isometric diamond. Two short stone columns flank ONE logical tile doorway. No backdrop, no surrounding wall, no floor plane, no labels. Genuinely transparent PNG. Portrait canvas. Gate occupies nearly entire lower canvas; fixed base bottom center; leave modest top padding. Strong mobile-readable silhouette; gameplay display 40x52px. Soft daylight upper left dark olive ambient shadows, match reference painterly illustrated sandstone. An unlocked variant will later remove the center bronze bars while preserving EXACT jamb positions and canvas."
+    },
+    {
+      "key": "side-gate-open-v2",
+      "source": "exec-3d413bea-7ec6-4c69-b667-c7b21b207bd1.png",
+      "prompt": "EDIT the exact side gate into its UNLOCKED OPEN state. Keep both stone jambs and all their carved mossy stone detail EXACTLY in place, same canvas same camera same pixel positions same size. Remove all center bronze bars and lock entirely leaving clear EMPTY TRANSPARENT WALK THROUGH center. Gate bars have slid underground and are completely gone. The stone pillars and feet remain exactly unchanged. Remove any ambient background haze or brown glow, genuine alpha transparency through center and surrounding exterior. Do NOT add floor, doorway shadow/backdrop, new plants, columns, decor, labels. No recentering, no zoom. Exact closed/open alignment essential. Painterly NimHunt Angkor V2 game sprite."
+    },
+    {
+      "key": "bronze-temple-key-v2",
+      "source": "exec-6fc5d284-b775-49de-9247-361c835f6bde.png",
+      "prompt": "Create ONE standalone BRONZE TEMPLE KEY inventory pickup sprite for NimHunt Angkor V2. Reference chest is style/material only do not include chest. Thick original aged bronze skeleton key, broad circular head with simple carved lotus emblem, chunky teeth, short shaft, warm upper-left highlights and deep brown bevels. Diagonal upperleft head to lower right teeth, top-down 3/4 orthographic angle. Strong clear KEY silhouette readable at 18x24px. Minimal details, no chains, no magic glow, no gradients behind, no shadows cast onto background. Genuine transparent surroundings. Square canvas centered generous clear margin, painterly handcrafted adventure game asset matching warmbronze chest. No text/no UI/no frame/no photorealism."
+    }
+  ]
+}

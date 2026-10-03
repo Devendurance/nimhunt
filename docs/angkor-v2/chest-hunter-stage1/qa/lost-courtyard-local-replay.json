@@ -1,0 +1,1315 @@
+{
+  "schema": "angkor-chest-hunter-stage1/v1",
+  "stageId": "lost-courtyard",
+  "actions": [
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "RIGHT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "DOWN"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "LEFT"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "TICK"
+    },
+    {
+      "type": "MOVE",
+      "direction": "UP"
+    }
+  ],
+  "result": {
+    "stageId": "lost-courtyard",
+    "stageChestsOpened": 6,
+    "expeditionChestsOpened": 6,
+    "hpRemaining": 24,
+    "expeditionGems": 4,
+    "carriedItems": {
+      "sword": true,
+      "potion": {
+        "owned": true,
+        "consumed": true
+      }
+    },
+    "openedChestIds": [
+      "arrival",
+      "arcade",
+      "archive",
+      "store",
+      "treasury",
+      "store-bonus"
+    ],
+    "completion": {
+      "tick": 265,
+      "actionCount": 387
+    }
+  }
+}
