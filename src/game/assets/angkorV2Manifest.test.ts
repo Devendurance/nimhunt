@@ -50,7 +50,7 @@ describe('Angkor V2 standalone delivery', () => {
     const files = readdirSync(assetRoot, { recursive: true, encoding: 'utf8' }).map(x => x.replaceAll('\\', '/')).filter(x => x.endsWith('.png') && !x.startsWith('projection-test/')).sort()
     const paths = ANGKOR_V2_MANIFEST.map(x => x.path.replace('/assets/game/angkor-v2/', '')).sort()
     expect(paths).toEqual(files)
-    expect(files).toHaveLength(89)
+    expect(files).toHaveLength(95)
     expect(new Set(ANGKOR_V2_MANIFEST.map(x => x.key)).size).toBe(files.length)
     for (const asset of ANGKOR_V2_MANIFEST) {
       const meta = png(resolve(root, 'public', asset.path.slice(1)))
@@ -80,6 +80,18 @@ describe('Angkor V2 standalone delivery', () => {
       let bottom = -1
       for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) if (pixels[(y * width + x) * 4 + 3] > 32) bottom = Math.max(bottom, y)
       expect(bottom + 1).toBeGreaterThanOrEqual(502); expect(bottom + 1).toBeLessThanOrEqual(504)
+    }
+  })
+
+  it('grounds the vertical pit poses on a shared portrait anchor with clean transparent exterior', () => {
+    for (const pose of ['pit-peek', 'emerge', 'upright', 'attack', 'hit', 'retract'] as const) {
+      const asset = ANGKOR_V2_BY_KEY[`anaconda-${pose}-v3`]
+      const { pixels, width, height } = rgba(resolve(root, 'public', asset.path.slice(1)))
+      let bottom = -1
+      for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) if (pixels[(y * width + x) * 4 + 3] > 32) bottom = Math.max(bottom, y)
+      expect(bottom + 1).toBe(752)
+      expect(asset.anchor).toEqual({ x: .5, y: 752 / 768 })
+      for (const [x, y] of [[0, 0], [511, 0], [0, 767], [511, 767]]) expect(pixels[(y * width + x) * 4 + 3]).toBe(0)
     }
   })
 
@@ -119,7 +131,7 @@ describe('Angkor V2 standalone delivery', () => {
   })
 
   it('promotes the approved overhead pose with a measured gameplay silhouette and foot anchor', () => {
-    expect(ANGKOR_V2_PRODUCTION_MANIFEST).toHaveLength(27)
+    expect(ANGKOR_V2_PRODUCTION_MANIFEST).toHaveLength(33)
     expect(ANGKOR_V2_PRODUCTION_MANIFEST.every(asset => asset.status === 'production')).toBe(true)
     const asset = ANGKOR_V2_BY_KEY[ANGKOR_V2_EXPLORER_GAMEPLAY.key]
     const path = resolve(root, 'public', asset.path.slice(1))

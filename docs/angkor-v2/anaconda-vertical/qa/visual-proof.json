@@ -1,0 +1,1316 @@
+{
+  "snapshots": [
+    {
+      "name": "mobile-empty-center",
+      "state": {
+        "mode": "DORMANT",
+        "phase": 1,
+        "activePit": "PIT_CENTER",
+        "successfulHits": 0,
+        "nextTick": 0,
+        "vulnerableUntil": 0,
+        "targets": [],
+        "pendingDrop": null,
+        "replacement": null,
+        "phaseHit": false,
+        "defeatedAt": null,
+        "objectiveSatisfied": false
+      },
+      "visual": {
+        "pit": "PIT_CENTER",
+        "pose": "upright",
+        "key": "anaconda-upright-v3",
+        "base": {
+          "x": 784,
+          "y": 440
+        },
+        "mouthY": 432,
+        "depthY": 432,
+        "y": 548.5,
+        "visible": false,
+        "height": 0,
+        "shaking": false,
+        "head": {
+          "x": 784,
+          "y": 345.5
+        },
+        "alpha": 1,
+        "rock": null
+      }
+    },
+    {
+      "name": "mobile-emerging",
+      "state": {
+        "mode": "RECOVERING",
+        "phase": 1,
+        "activePit": "PIT_CENTER",
+        "successfulHits": 0,
+        "nextTick": 258,
+        "vulnerableUntil": 232,
+        "targets": [],
+        "pendingDrop": null,
+        "replacement": null,
+        "phaseHit": false,
+        "defeatedAt": null,
+        "objectiveSatisfied": false
+      },
+      "visual": {
+        "pit": "PIT_CENTER",
+        "pose": "attack",
+        "key": "anaconda-attack-v3",
+        "base": {
+          "x": 784,
+          "y": 440
+        },
+        "mouthY": 432,
+        "depthY": 432,
+        "y": 468.4597650366735,
+        "visible": true,
+        "height": 63.706901629993155,
+        "shaking": false,
+        "head": {
+          "x": 784,
+          "y": 345.5
+        },
+        "alpha": 1,
+        "rock": null
+      }
+    },
+    {
+      "name": "mobile-upright",
+      "state": {
+        "mode": "VULNERABLE",
+        "phase": 1,
+        "activePit": "PIT_CENTER",
+        "successfulHits": 0,
+        "nextTick": 270,
+        "vulnerableUntil": 350,
+        "targets": [],
+        "pendingDrop": null,
+        "replacement": null,
+        "phaseHit": false,
+        "defeatedAt": null,
+        "objectiveSatisfied": false
+      },
+      "visual": {
+        "pit": "PIT_CENTER",
+        "pose": "upright",
+        "key": "anaconda-upright-v3",
+        "base": {
+          "x": 784,
+          "y": 440
+        },
+        "mouthY": 432,
+        "depthY": 432,
+        "y": 440,
+        "visible": true,
+        "height": 108.5,
+        "shaking": false,
+        "head": {
+          "x": 784,
+          "y": 345.5
+        },
+        "alpha": 1,
+        "rock": null
+      }
+    },
+    {
+      "name": "mobile-falling-rock",
+      "state": {
+        "mode": "VULNERABLE",
+        "phase": 1,
+        "activePit": "PIT_CENTER",
+        "successfulHits": 0,
+        "nextTick": 270,
+        "vulnerableUntil": 350,
+        "targets": [],
+        "pendingDrop": {
+          "id": "boss-PIT_CENTER",
+          "impactTick": 281
+        },
+        "replacement": null,
+        "phaseHit": false,
+        "defeatedAt": null,
+        "objectiveSatisfied": false
+      },
+      "visual": {
+        "pit": "PIT_CENTER",
+        "pose": "upright",
+        "key": "anaconda-upright-v3",
+        "base": {
+          "x": 784,
+          "y": 440
+        },
+        "mouthY": 432,
+        "depthY": 432,
+        "y": 440,
+        "visible": true,
+        "height": 108.5,
+        "shaking": false,
+        "head": {
+          "x": 784,
+          "y": 345.5
+        },
+        "alpha": 0.39940342865707984,
+        "rock": {
+          "x": 784,
+          "y": 314.9923116261609,
+          "t": 0.6887057777777374
+        }
+      }
+    },
+    {
+      "name": "mobile-rock-impact",
+      "state": {
+        "mode": "RETALIATING",
+        "phase": 1,
+        "activePit": "PIT_CENTER",
+        "successfulHits": 1,
+        "nextTick": 297,
+        "vulnerableUntil": 350,
+        "targets": [
+          {
+            "x": 20,
+            "y": 11
+          },
+          {
+            "x": 21,
+            "y": 11
+          },
+          {
+            "x": 22,
+            "y": 11
+          },
+          {
+            "x": 23,
+            "y": 11
+          },
+          {
+            "x": 24,
+            "y": 11
+          },
+          {
+            "x": 25,
+            "y": 11
+          },
+          {
+            "x": 26,
+            "y": 11
+          },
+          {
+            "x": 27,
+            "y": 11
+          }
+        ],
+        "pendingDrop": null,
+        "replacement": {
+          "id": "boss-PIT_CENTER",
+          "mode": "WAITING",
+          "impactTick": 0
+        },
+        "phaseHit": true,
+        "defeatedAt": null,
+        "objectiveSatisfied": false
+      },
+      "visual": {
+        "pit": "PIT_CENTER",
+        "pose": "upright",
+        "key": "anaconda-upright-v3",
+        "base": {
+          "x": 784,
+          "y": 440
+        },
+        "mouthY": 432,
+        "depthY": 432,
+        "y": 440,
+        "visible": true,
+        "height": 108.5,
+        "shaking": false,
+        "head": {
+          "x": 784,
+          "y": 345.5
+        },
+        "alpha": 0.9999202201621318,
+        "rock": null
+      }
+    },
+    {
+      "name": "mobile-rooted-attack",
+      "state": {
+        "mode": "RETALIATING",
+        "phase": 1,
+        "activePit": "PIT_CENTER",
+        "successfulHits": 1,
+        "nextTick": 297,
+        "vulnerableUntil": 350,
+        "targets": [
+          {
+            "x": 20,
+            "y": 11
+          },
+          {
+            "x": 21,
+            "y": 11
+          },
+          {
+            "x": 22,
+            "y": 11
+          },
+          {
+            "x": 23,
+            "y": 11
+          },
+          {
+            "x": 24,
+            "y": 11
+          },
+          {
+            "x": 25,
+            "y": 11
+          },
+          {
+            "x": 26,
+            "y": 11
+          },
+          {
+            "x": 27,
+            "y": 11
+          }
+        ],
+        "pendingDrop": null,
+        "replacement": {
+          "id": "boss-PIT_CENTER",
+          "mode": "WAITING",
+          "impactTick": 0
+        },
+        "phaseHit": true,
+        "defeatedAt": null,
+        "objectiveSatisfied": false
+      },
+      "visual": {
+        "pit": "PIT_CENTER",
+        "pose": "attack",
+        "key": "anaconda-attack-v3",
+        "base": {
+          "x": 784,
+          "y": 440
+        },
+        "mouthY": 432,
+        "depthY": 432,
+        "y": 439.99999999999994,
+        "visible": true,
+        "height": 92.16666666666667,
+        "shaking": false,
+        "head": {
+          "x": 784,
+          "y": 345.5
+        },
+        "alpha": 0.9999999998130875,
+        "rock": null
+      }
+    },
+    {
+      "name": "mobile-retracting",
+      "state": {
+        "mode": "RECOVERING",
+        "phase": 1,
+        "activePit": "PIT_CENTER",
+        "successfulHits": 1,
+        "nextTick": 307,
+        "vulnerableUntil": 350,
+        "targets": [],
+        "pendingDrop": null,
+        "replacement": {
+          "id": "boss-PIT_CENTER",
+          "mode": "TELEGRAPH",
+          "impactTick": 313
+        },
+        "phaseHit": true,
+        "defeatedAt": null,
+        "objectiveSatisfied": false
+      },
+      "visual": {
+        "pit": "PIT_CENTER",
+        "pose": "retract",
+        "key": "anaconda-retract-v3",
+        "base": {
+          "x": 784,
+          "y": 440
+        },
+        "mouthY": 432,
+        "depthY": 432,
+        "y": 489.89296542270466,
+        "visible": true,
+        "height": 9.607034577295362,
+        "shaking": false,
+        "head": {
+          "x": 784,
+          "y": 345.5
+        },
+        "alpha": 0.9999999999999998,
+        "rock": null
+      }
+    },
+    {
+      "name": "mobile-replacement",
+      "state": {
+        "mode": "RECOVERING",
+        "phase": 1,
+        "activePit": "PIT_CENTER",
+        "successfulHits": 1,
+        "nextTick": 307,
+        "vulnerableUntil": 350,
+        "targets": [],
+        "pendingDrop": null,
+        "replacement": {
+          "id": "boss-PIT_CENTER",
+          "mode": "TELEGRAPH",
+          "impactTick": 313
+        },
+        "phaseHit": true,
+        "defeatedAt": null,
+        "objectiveSatisfied": false
+      },
+      "visual": {
+        "pit": "PIT_CENTER",
+        "pose": "retract",
+        "key": "anaconda-retract-v3",
+        "base": {
+          "x": 784,
+          "y": 440
+        },
+        "mouthY": 432,
+        "depthY": 432,
+        "y": 499.5,
+        "visible": false,
+        "height": 0,
+        "shaking": false,
+        "head": {
+          "x": 784,
+          "y": 345.5
+        },
+        "alpha": 0.9999999999999998,
+        "rock": null
+      }
+    },
+    {
+      "name": "mobile-left-emerging",
+      "state": {
+        "mode": "EMERGING",
+        "phase": 2,
+        "activePit": "PIT_LEFT",
+        "successfulHits": 1,
+        "nextTick": 327,
+        "vulnerableUntil": 350,
+        "targets": [],
+        "pendingDrop": null,
+        "replacement": null,
+        "phaseHit": false,
+        "defeatedAt": null,
+        "objectiveSatisfied": false
+      },
+      "visual": {
+        "pit": "PIT_LEFT",
+        "pose": "emerge",
+        "key": "anaconda-emerge-v3",
+        "base": {
+          "x": 720,
+          "y": 440
+        },
+        "mouthY": 432,
+        "depthY": 432,
+        "y": 467.7492298791438,
+        "visible": true,
+        "height": 50.27160345418957,
+        "shaking": false,
+        "head": {
+          "x": 720,
+          "y": 345.5
+        },
+        "alpha": 1,
+        "rock": null
+      }
+    },
+    {
+      "name": "mobile-left-upright",
+      "state": {
+        "mode": "VULNERABLE",
+        "phase": 2,
+        "activePit": "PIT_LEFT",
+        "successfulHits": 1,
+        "nextTick": 327,
+        "vulnerableUntil": 391,
+        "targets": [],
+        "pendingDrop": null,
+        "replacement": null,
+        "phaseHit": false,
+        "defeatedAt": null,
+        "objectiveSatisfied": false
+      },
+      "visual": {
+        "pit": "PIT_LEFT",
+        "pose": "upright",
+        "key": "anaconda-upright-v3",
+        "base": {
+          "x": 720,
+          "y": 440
+        },
+        "mouthY": 432,
+        "depthY": 432,
+        "y": 440,
+        "visible": true,
+        "height": 108.5,
+        "shaking": false,
+        "head": {
+          "x": 720,
+          "y": 345.5
+        },
+        "alpha": 1,
+        "rock": null
+      }
+    },
+    {
+      "name": "mobile-second-hit",
+      "state": {
+        "mode": "RETALIATING",
+        "phase": 2,
+        "activePit": "PIT_LEFT",
+        "successfulHits": 2,
+        "nextTick": 362,
+        "vulnerableUntil": 391,
+        "targets": [
+          {
+            "x": 20,
+            "y": 11
+          },
+          {
+            "x": 21,
+            "y": 11
+          },
+          {
+            "x": 22,
+            "y": 11
+          },
+          {
+            "x": 23,
+            "y": 11
+          },
+          {
+            "x": 24,
+            "y": 11
+          },
+          {
+            "x": 25,
+            "y": 11
+          },
+          {
+            "x": 26,
+            "y": 11
+          },
+          {
+            "x": 27,
+            "y": 11
+          },
+          {
+            "x": 20,
+            "y": 12
+          },
+          {
+            "x": 21,
+            "y": 12
+          },
+          {
+            "x": 22,
+            "y": 12
+          },
+          {
+            "x": 23,
+            "y": 12
+          },
+          {
+            "x": 24,
+            "y": 12
+          },
+          {
+            "x": 25,
+            "y": 12
+          },
+          {
+            "x": 26,
+            "y": 12
+          },
+          {
+            "x": 27,
+            "y": 12
+          }
+        ],
+        "pendingDrop": null,
+        "replacement": {
+          "id": "boss-PIT_LEFT",
+          "mode": "WAITING",
+          "impactTick": 0
+        },
+        "phaseHit": true,
+        "defeatedAt": null,
+        "objectiveSatisfied": false
+      },
+      "visual": {
+        "pit": "PIT_LEFT",
+        "pose": "hit",
+        "key": "anaconda-hit-v3",
+        "base": {
+          "x": 720,
+          "y": 440
+        },
+        "mouthY": 432,
+        "depthY": 432,
+        "y": 440,
+        "visible": true,
+        "height": 97.125,
+        "shaking": false,
+        "head": {
+          "x": 720,
+          "y": 345.5
+        },
+        "alpha": 0.9999151305900109,
+        "rock": null
+      }
+    },
+    {
+      "name": "mobile-right-upright",
+      "state": {
+        "mode": "VULNERABLE",
+        "phase": 3,
+        "activePit": "PIT_RIGHT",
+        "successfulHits": 2,
+        "nextTick": 388,
+        "vulnerableUntil": 436,
+        "targets": [],
+        "pendingDrop": null,
+        "replacement": null,
+        "phaseHit": false,
+        "defeatedAt": null,
+        "objectiveSatisfied": false
+      },
+      "visual": {
+        "pit": "PIT_RIGHT",
+        "pose": "upright",
+        "key": "anaconda-upright-v3",
+        "base": {
+          "x": 848,
+          "y": 440
+        },
+        "mouthY": 432,
+        "depthY": 432,
+        "y": 440,
+        "visible": true,
+        "height": 108.5,
+        "shaking": false,
+        "head": {
+          "x": 848,
+          "y": 345.5
+        },
+        "alpha": 1,
+        "rock": null
+      }
+    },
+    {
+      "name": "mobile-final-head-impact",
+      "state": {
+        "mode": "DEFEATED",
+        "phase": 3,
+        "activePit": "PIT_RIGHT",
+        "successfulHits": 3,
+        "nextTick": 414,
+        "vulnerableUntil": 436,
+        "targets": [],
+        "pendingDrop": null,
+        "replacement": {
+          "id": "boss-PIT_RIGHT",
+          "mode": "TELEGRAPH",
+          "impactTick": 412
+        },
+        "phaseHit": true,
+        "defeatedAt": 400,
+        "objectiveSatisfied": false
+      },
+      "visual": {
+        "pit": "PIT_RIGHT",
+        "pose": "hit",
+        "key": "anaconda-hit-v3",
+        "base": {
+          "x": 848,
+          "y": 440
+        },
+        "mouthY": 432,
+        "depthY": 432,
+        "y": 440,
+        "visible": true,
+        "height": 97.125,
+        "shaking": false,
+        "head": {
+          "x": 848,
+          "y": 345.5
+        },
+        "alpha": 0.9997884728354169,
+        "rock": null
+      }
+    },
+    {
+      "name": "mobile-final-retracting",
+      "state": {
+        "mode": "DEFEATED",
+        "phase": 3,
+        "activePit": "PIT_RIGHT",
+        "successfulHits": 3,
+        "nextTick": 414,
+        "vulnerableUntil": 436,
+        "targets": [],
+        "pendingDrop": null,
+        "replacement": {
+          "id": "boss-PIT_RIGHT",
+          "mode": "TELEGRAPH",
+          "impactTick": 412
+        },
+        "phaseHit": true,
+        "defeatedAt": 400,
+        "objectiveSatisfied": false
+      },
+      "visual": {
+        "pit": "PIT_RIGHT",
+        "pose": "retract",
+        "key": "anaconda-retract-v3",
+        "base": {
+          "x": 848,
+          "y": 440
+        },
+        "mouthY": 432,
+        "depthY": 432,
+        "y": 455.70551966293556,
+        "visible": true,
+        "height": 43.79448033706443,
+        "shaking": false,
+        "head": {
+          "x": 848,
+          "y": 345.5
+        },
+        "alpha": 0.9999999993173813,
+        "rock": null
+      }
+    },
+    {
+      "name": "mobile-settled-unlocked",
+      "state": {
+        "mode": "DEFEATED",
+        "phase": 3,
+        "activePit": "PIT_RIGHT",
+        "successfulHits": 3,
+        "nextTick": 414,
+        "vulnerableUntil": 436,
+        "targets": [],
+        "pendingDrop": null,
+        "replacement": null,
+        "phaseHit": true,
+        "defeatedAt": 400,
+        "objectiveSatisfied": true
+      },
+      "visual": {
+        "pit": "PIT_RIGHT",
+        "pose": "retract",
+        "key": "anaconda-retract-v3",
+        "base": {
+          "x": 848,
+          "y": 440
+        },
+        "mouthY": 432,
+        "depthY": 432,
+        "y": 499.5,
+        "visible": false,
+        "height": 0,
+        "shaking": false,
+        "head": {
+          "x": 848,
+          "y": 345.5
+        },
+        "alpha": 0.9999999999999986,
+        "rock": null
+      }
+    },
+    {
+      "name": "mobile-open-passage",
+      "state": {
+        "mode": "DEFEATED",
+        "phase": 3,
+        "activePit": "PIT_RIGHT",
+        "successfulHits": 3,
+        "nextTick": 414,
+        "vulnerableUntil": 436,
+        "targets": [],
+        "pendingDrop": null,
+        "replacement": null,
+        "phaseHit": true,
+        "defeatedAt": 400,
+        "objectiveSatisfied": true
+      },
+      "visual": {
+        "pit": "PIT_RIGHT",
+        "pose": "retract",
+        "key": "anaconda-retract-v3",
+        "base": {
+          "x": 848,
+          "y": 440
+        },
+        "mouthY": 432,
+        "depthY": 432,
+        "y": 499.5,
+        "visible": false,
+        "height": 0,
+        "shaking": false,
+        "head": {
+          "x": 848,
+          "y": 345.5
+        },
+        "alpha": 0.9999999999999998,
+        "rock": null
+      }
+    }
+  ],
+  "hp": 64,
+  "gems": 9,
+  "events": [
+    {
+      "type": "ANACONDA_EMERGED",
+      "pit": "PIT_CENTER",
+      "phase": 1,
+      "vulnerableAt": 152,
+      "seq": 141,
+      "tick": 140
+    },
+    {
+      "type": "ANACONDA_VULNERABLE",
+      "pit": "PIT_CENTER",
+      "vulnerableUntil": 232,
+      "seq": 151,
+      "tick": 152
+    },
+    {
+      "type": "ANACONDA_RETALIATION_TELEGRAPH",
+      "phase": 1,
+      "tiles": [
+        {
+          "x": 20,
+          "y": 11
+        },
+        {
+          "x": 21,
+          "y": 11
+        },
+        {
+          "x": 22,
+          "y": 11
+        },
+        {
+          "x": 23,
+          "y": 11
+        },
+        {
+          "x": 24,
+          "y": 11
+        },
+        {
+          "x": 25,
+          "y": 11
+        },
+        {
+          "x": 26,
+          "y": 11
+        },
+        {
+          "x": 27,
+          "y": 11
+        }
+      ],
+      "impactTick": 248,
+      "seq": 192,
+      "tick": 232
+    },
+    {
+      "type": "ANACONDA_RETALIATION_IMPACT",
+      "tiles": [
+        {
+          "x": 20,
+          "y": 11
+        },
+        {
+          "x": 21,
+          "y": 11
+        },
+        {
+          "x": 22,
+          "y": 11
+        },
+        {
+          "x": 23,
+          "y": 11
+        },
+        {
+          "x": 24,
+          "y": 11
+        },
+        {
+          "x": 25,
+          "y": 11
+        },
+        {
+          "x": 26,
+          "y": 11
+        },
+        {
+          "x": 27,
+          "y": 11
+        }
+      ],
+      "hit": false,
+      "seq": 201,
+      "tick": 248
+    },
+    {
+      "type": "ANACONDA_EMERGED",
+      "pit": "PIT_CENTER",
+      "phase": 1,
+      "vulnerableAt": 270,
+      "seq": 209,
+      "tick": 258
+    },
+    {
+      "type": "ANACONDA_VULNERABLE",
+      "pit": "PIT_CENTER",
+      "vulnerableUntil": 350,
+      "seq": 224,
+      "tick": 270
+    },
+    {
+      "type": "BOULDER_DROP_TRIGGERED",
+      "id": "boss-PIT_CENTER",
+      "pit": "PIT_CENTER",
+      "impactTick": 281,
+      "seq": 230,
+      "tick": 277
+    },
+    {
+      "type": "ANACONDA_HIT",
+      "pit": "PIT_CENTER",
+      "successfulHits": 1,
+      "seq": 234,
+      "tick": 281
+    },
+    {
+      "type": "ANACONDA_RETALIATION_TELEGRAPH",
+      "phase": 1,
+      "tiles": [
+        {
+          "x": 20,
+          "y": 11
+        },
+        {
+          "x": 21,
+          "y": 11
+        },
+        {
+          "x": 22,
+          "y": 11
+        },
+        {
+          "x": 23,
+          "y": 11
+        },
+        {
+          "x": 24,
+          "y": 11
+        },
+        {
+          "x": 25,
+          "y": 11
+        },
+        {
+          "x": 26,
+          "y": 11
+        },
+        {
+          "x": 27,
+          "y": 11
+        }
+      ],
+      "impactTick": 297,
+      "seq": 235,
+      "tick": 281
+    },
+    {
+      "type": "ANACONDA_RETALIATION_IMPACT",
+      "tiles": [
+        {
+          "x": 20,
+          "y": 11
+        },
+        {
+          "x": 21,
+          "y": 11
+        },
+        {
+          "x": 22,
+          "y": 11
+        },
+        {
+          "x": 23,
+          "y": 11
+        },
+        {
+          "x": 24,
+          "y": 11
+        },
+        {
+          "x": 25,
+          "y": 11
+        },
+        {
+          "x": 26,
+          "y": 11
+        },
+        {
+          "x": 27,
+          "y": 11
+        }
+      ],
+      "hit": false,
+      "seq": 245,
+      "tick": 297
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_TELEGRAPH",
+      "id": "boss-PIT_CENTER",
+      "tile": {
+        "x": 24,
+        "y": 11
+      },
+      "impactTick": 313,
+      "seq": 246,
+      "tick": 297
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_IMPACT",
+      "id": "boss-PIT_CENTER",
+      "tile": {
+        "x": 24,
+        "y": 11
+      },
+      "hit": false,
+      "seq": 255,
+      "tick": 313
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_READY",
+      "id": "boss-PIT_CENTER",
+      "tile": {
+        "x": 24,
+        "y": 11
+      },
+      "seq": 258,
+      "tick": 315
+    },
+    {
+      "type": "ANACONDA_PHASE_ADVANCED",
+      "phase": 2,
+      "pit": "PIT_LEFT",
+      "seq": 259,
+      "tick": 315
+    },
+    {
+      "type": "ANACONDA_EMERGED",
+      "pit": "PIT_LEFT",
+      "phase": 2,
+      "vulnerableAt": 327,
+      "seq": 260,
+      "tick": 315
+    },
+    {
+      "type": "ANACONDA_VULNERABLE",
+      "pit": "PIT_LEFT",
+      "vulnerableUntil": 391,
+      "seq": 270,
+      "tick": 327
+    },
+    {
+      "type": "BOULDER_DROP_TRIGGERED",
+      "id": "boss-PIT_LEFT",
+      "pit": "PIT_LEFT",
+      "impactTick": 346,
+      "seq": 280,
+      "tick": 342
+    },
+    {
+      "type": "ANACONDA_HIT",
+      "pit": "PIT_LEFT",
+      "successfulHits": 2,
+      "seq": 285,
+      "tick": 346
+    },
+    {
+      "type": "ANACONDA_RETALIATION_TELEGRAPH",
+      "phase": 2,
+      "tiles": [
+        {
+          "x": 20,
+          "y": 11
+        },
+        {
+          "x": 21,
+          "y": 11
+        },
+        {
+          "x": 22,
+          "y": 11
+        },
+        {
+          "x": 23,
+          "y": 11
+        },
+        {
+          "x": 24,
+          "y": 11
+        },
+        {
+          "x": 25,
+          "y": 11
+        },
+        {
+          "x": 26,
+          "y": 11
+        },
+        {
+          "x": 27,
+          "y": 11
+        },
+        {
+          "x": 20,
+          "y": 12
+        },
+        {
+          "x": 21,
+          "y": 12
+        },
+        {
+          "x": 22,
+          "y": 12
+        },
+        {
+          "x": 23,
+          "y": 12
+        },
+        {
+          "x": 24,
+          "y": 12
+        },
+        {
+          "x": 25,
+          "y": 12
+        },
+        {
+          "x": 26,
+          "y": 12
+        },
+        {
+          "x": 27,
+          "y": 12
+        }
+      ],
+      "impactTick": 362,
+      "seq": 286,
+      "tick": 346
+    },
+    {
+      "type": "ANACONDA_RETALIATION_IMPACT",
+      "tiles": [
+        {
+          "x": 20,
+          "y": 11
+        },
+        {
+          "x": 21,
+          "y": 11
+        },
+        {
+          "x": 22,
+          "y": 11
+        },
+        {
+          "x": 23,
+          "y": 11
+        },
+        {
+          "x": 24,
+          "y": 11
+        },
+        {
+          "x": 25,
+          "y": 11
+        },
+        {
+          "x": 26,
+          "y": 11
+        },
+        {
+          "x": 27,
+          "y": 11
+        },
+        {
+          "x": 20,
+          "y": 12
+        },
+        {
+          "x": 21,
+          "y": 12
+        },
+        {
+          "x": 22,
+          "y": 12
+        },
+        {
+          "x": 23,
+          "y": 12
+        },
+        {
+          "x": 24,
+          "y": 12
+        },
+        {
+          "x": 25,
+          "y": 12
+        },
+        {
+          "x": 26,
+          "y": 12
+        },
+        {
+          "x": 27,
+          "y": 12
+        }
+      ],
+      "hit": false,
+      "seq": 295,
+      "tick": 362
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_TELEGRAPH",
+      "id": "boss-PIT_LEFT",
+      "tile": {
+        "x": 22,
+        "y": 11
+      },
+      "impactTick": 376,
+      "seq": 296,
+      "tick": 362
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_IMPACT",
+      "id": "boss-PIT_LEFT",
+      "tile": {
+        "x": 22,
+        "y": 11
+      },
+      "hit": false,
+      "seq": 304,
+      "tick": 376
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_READY",
+      "id": "boss-PIT_LEFT",
+      "tile": {
+        "x": 22,
+        "y": 11
+      },
+      "seq": 305,
+      "tick": 376
+    },
+    {
+      "type": "ANACONDA_PHASE_ADVANCED",
+      "phase": 3,
+      "pit": "PIT_RIGHT",
+      "seq": 306,
+      "tick": 376
+    },
+    {
+      "type": "ANACONDA_EMERGED",
+      "pit": "PIT_RIGHT",
+      "phase": 3,
+      "vulnerableAt": 388,
+      "seq": 307,
+      "tick": 376
+    },
+    {
+      "type": "ANACONDA_VULNERABLE",
+      "pit": "PIT_RIGHT",
+      "vulnerableUntil": 436,
+      "seq": 319,
+      "tick": 388
+    },
+    {
+      "type": "BOULDER_DROP_TRIGGERED",
+      "id": "boss-PIT_RIGHT",
+      "pit": "PIT_RIGHT",
+      "impactTick": 400,
+      "seq": 325,
+      "tick": 396
+    },
+    {
+      "type": "ANACONDA_HIT",
+      "pit": "PIT_RIGHT",
+      "successfulHits": 3,
+      "seq": 330,
+      "tick": 400
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_TELEGRAPH",
+      "id": "boss-PIT_RIGHT",
+      "tile": {
+        "x": 26,
+        "y": 11
+      },
+      "impactTick": 412,
+      "seq": 331,
+      "tick": 400
+    },
+    {
+      "type": "ANACONDA_DEFEATED",
+      "successfulHits": 3,
+      "completeAt": 414,
+      "seq": 332,
+      "tick": 400
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_IMPACT",
+      "id": "boss-PIT_RIGHT",
+      "tile": {
+        "x": 26,
+        "y": 11
+      },
+      "hit": false,
+      "seq": 339,
+      "tick": 412
+    },
+    {
+      "type": "REPLACEMENT_BOULDER_READY",
+      "id": "boss-PIT_RIGHT",
+      "tile": {
+        "x": 26,
+        "y": 11
+      },
+      "seq": 343,
+      "tick": 416
+    },
+    {
+      "type": "EXIT_UNLOCKED",
+      "seq": 344,
+      "tick": 416
+    }
+  ]
+}

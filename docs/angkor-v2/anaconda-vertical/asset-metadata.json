@@ -1,0 +1,104 @@
+[
+  {
+    "pose": "upright",
+    "source": "C:\\Users\\USER\\.codex\\generated_images\\01a0f98f-6cb7-7be3-a2d9-017a45845f60\\exec-5d4a8672-8e2e-4719-9b4a-921afe287bba.png",
+    "path": "public\\assets\\game\\angkor-v2\\wildlife\\anaconda\\anaconda-upright-v3.png",
+    "dimensions": [
+      512,
+      768
+    ],
+    "bytes": 274828,
+    "alphaBounds": [
+      145,
+      8,
+      367,
+      752
+    ],
+    "displayVisibleHeight": 108.5
+  },
+  {
+    "pose": "pit-peek",
+    "source": "C:\\Users\\USER\\.codex\\generated_images\\01a0f98f-6cb7-7be3-a2d9-017a45845f60\\exec-c87f6c41-419e-4dce-b617-b7221866e69a.png",
+    "path": "public\\assets\\game\\angkor-v2\\wildlife\\anaconda\\anaconda-pit-peek-v3.png",
+    "dimensions": [
+      512,
+      768
+    ],
+    "bytes": 121612,
+    "alphaBounds": [
+      145,
+      478,
+      368,
+      752
+    ],
+    "displayVisibleHeight": 39.958333333333336
+  },
+  {
+    "pose": "emerge",
+    "source": "C:\\Users\\USER\\.codex\\generated_images\\01a0f98f-6cb7-7be3-a2d9-017a45845f60\\exec-b0e08e3f-1b46-46fb-af8e-c5829e3894b7.png",
+    "path": "public\\assets\\game\\angkor-v2\\wildlife\\anaconda\\anaconda-emerge-v3.png",
+    "dimensions": [
+      512,
+      768
+    ],
+    "bytes": 204878,
+    "alphaBounds": [
+      144,
+      217,
+      367,
+      752
+    ],
+    "displayVisibleHeight": 78.02083333333333
+  },
+  {
+    "pose": "attack",
+    "source": "C:\\Users\\USER\\.codex\\generated_images\\01a0f98f-6cb7-7be3-a2d9-017a45845f60\\exec-35bcebb7-d732-45a4-b97b-4d911866fb74.png",
+    "path": "public\\assets\\game\\angkor-v2\\wildlife\\anaconda\\anaconda-attack-v3.png",
+    "dimensions": [
+      512,
+      768
+    ],
+    "bytes": 215004,
+    "alphaBounds": [
+      146,
+      120,
+      368,
+      752
+    ],
+    "displayVisibleHeight": 92.16666666666667
+  },
+  {
+    "pose": "hit",
+    "source": "C:\\Users\\USER\\.codex\\generated_images\\01a0f98f-6cb7-7be3-a2d9-017a45845f60\\exec-ceaff918-9d48-4595-892c-e3a9c17d64e6.png",
+    "path": "public\\assets\\game\\angkor-v2\\wildlife\\anaconda\\anaconda-hit-v3.png",
+    "dimensions": [
+      512,
+      768
+    ],
+    "bytes": 223659,
+    "alphaBounds": [
+      148,
+      86,
+      371,
+      752
+    ],
+    "displayVisibleHeight": 97.125
+  },
+  {
+    "pose": "retract",
+    "source": "C:\\Users\\USER\\.codex\\generated_images\\01a0f98f-6cb7-7be3-a2d9-017a45845f60\\exec-cf78c8ec-759d-42a3-95aa-538a1cda5231.png",
+    "path": "public\\assets\\game\\angkor-v2\\wildlife\\anaconda\\anaconda-retract-v3.png",
+    "dimensions": [
+      512,
+      768
+    ],
+    "bytes": 162114,
+    "alphaBounds": [
+      142,
+      344,
+      365,
+      752
+    ],
+    "displayVisibleHeight": 59.5
+  }
+]

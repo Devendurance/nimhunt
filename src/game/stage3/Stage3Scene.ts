@@ -10,6 +10,7 @@ import type { AngkorV2AssetKey } from '../assets/angkorV2Manifest'
 import { ANACONDA, EXIT, GEMS, MONKEYS, PITS, RUBBLE, BOULDERS, SNAKES, SPIKES, STAGE_DECOR, stageMap } from './level'
 import { SIMULATION_TICK_MS, initialStageState, planStageMove, reduceStage, type StageAction, type StageEvent, type StageState } from './model'
 import type { StageCarry } from '../gemRunner/contracts'
+import { anacondaPresentation, headDropPosition, PIT_POSE_KEYS, PIT_PRESENTATION as P, type PitPose } from './anacondaPresentation'
 
 export interface Stage3SceneOptions {
   carry: StageCarry
@@ -21,7 +22,7 @@ export interface Stage3SceneOptions {
   onError: (message: string) => void
   onSound: (kind: 'gem' | 'unlock' | 'hurt') => void
 }
-const additional: AngkorV2AssetKey[] = ['blue-gem-v2', 'pushable-boulder-v2', 'spike-trap-active-v2', 'snake-coiled-v2', 'snake-alert-v2', 'snake-slither-a-v2', 'snake-slither-b-v2', 'snake-strike-v2', 'monkey-perched-v2', 'monkey-alert-v2', 'monkey-throw-v2', 'monkey-rock-v2', 'dust-push-v2', 'rock-impact-v2', 'gem-sparkle-v2', 'anaconda-coiled-v2', 'anaconda-rise-v2', 'anaconda-strike-v2', 'anaconda-retreat-v2']
+const additional: AngkorV2AssetKey[] = ['blue-gem-v2', 'pushable-boulder-v2', 'spike-trap-active-v2', 'snake-coiled-v2', 'snake-alert-v2', 'snake-slither-a-v2', 'snake-slither-b-v2', 'snake-strike-v2', 'monkey-perched-v2', 'monkey-alert-v2', 'monkey-throw-v2', 'monkey-rock-v2', 'dust-push-v2', 'rock-impact-v2', 'gem-sparkle-v2', ...Object.values(PIT_POSE_KEYS)]
 
 /** Local dev-stage adapter. Approved traversal controls presentation; MOVE is
  * committed on arrival. Fixed explicit TICK actions are recorded for replay.
@@ -46,12 +47,14 @@ export class Stage3Scene extends Phaser.Scene {
   private rocks: Phaser.GameObjects.Image[] = []
   private rubbleRocks: Phaser.GameObjects.Image[] = []
   private boss?: Phaser.GameObjects.Image
-  private passageBody?: Phaser.GameObjects.Image
+  private pitMask?: Phaser.GameObjects.Graphics
+  private pitRims = new Map<string, Phaser.GameObjects.Image>()
+  private pitBacks = new Map<string, Phaser.GameObjects.Image>()
+  private poseAlpha = new Map<PitPose, Uint8ClampedArray>()
+  private stonePixels?: Uint8ClampedArray
   private bossRock?: Phaser.GameObjects.Image
   private replacementRock?: Phaser.GameObjects.Image
   private bossAlpha = 1
-  private strikeUntil = -1
-  private recoilUntil = -1
   private passage?: Phaser.GameObjects.Image
   private target?: Phaser.GameObjects.Graphics
   private collision?: Phaser.GameObjects.Graphics
@@ -67,14 +70,38 @@ export class Stage3Scene extends Phaser.Scene {
   create() {
     if (this.failures.length) { this.options.onError('Stage assets could not load. Reload to retry.'); return }
     this.environment = new AngkorV2Environment(this, stageMap.visual)
-    for (const p of [...stageMap.structures, ...STAGE_DECOR]) this.environment.addSprite(p)
-    this.boss = this.add.image(0, 0, angkorV2TextureKey('anaconda-rise-v2')).setOrigin(.5, 504 / 512).setDisplaySize(112, 112).setVisible(false)
+    for (const p of [...stageMap.structures, ...STAGE_DECOR]) {
+      if (p.key === 'anaconda-body-v2') continue
+      const image = this.environment.addSprite(p)
+      if (p.key === 'serpent-pit-v2') {
+        const id = Object.entries(PITS).find(([, pit]) => tileToPixel(pit).x === p.x)![0]
+        this.pitBacks.set(id, image)
+      }
+    }
+    // The whole existing pit is its rear/interior layer. Reusing its lower half
+    // as a foreground lip keeps stone, hole and contact edge exactly registered.
+    for (const [id, pit] of Object.entries(PITS)) {
+      const foot = tileToPixel(pit)
+      this.pitRims.set(id, this.add.image(foot.x, foot.y, angkorV2TextureKey('serpent-pit-v2'))
+        .setDisplaySize(P.width, P.height).setCrop(0, P.frontCropY, 512, 384 - P.frontCropY)
+        .setDepth(environmentDepth('architecture', foot.y) + 1))
+    }
+    this.boss = this.add.image(0, 0, angkorV2TextureKey(PIT_POSE_KEYS.upright)).setOrigin(.5, P.anchorY).setDisplaySize(P.serpentWidth, P.serpentHeight).setVisible(false)
+    this.pitMask = this.add.graphics().setVisible(false)
+    this.boss.setMask(this.pitMask.createGeometryMask())
+    // Cache alpha once per pose; moving readability samples never read canvas pixels.
+    for (const [pose, key] of Object.entries(PIT_POSE_KEYS)) {
+      const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 768
+      const context = canvas.getContext('2d', { willReadFrequently: true })!
+      context.drawImage(this.textures.get(angkorV2TextureKey(key)).getSourceImage() as HTMLImageElement, 0, 0)
+      this.poseAlpha.set(pose as PitPose, context.getImageData(0, 0, 512, 768).data)
+    }
+    const stoneCanvas = document.createElement('canvas'); stoneCanvas.width = 256; stoneCanvas.height = 256
+    const stoneContext = stoneCanvas.getContext('2d', { willReadFrequently: true })!
+    stoneContext.drawImage(this.textures.get(angkorV2TextureKey('pushable-boulder-v2')).getSourceImage() as HTMLImageElement, 0, 0)
+    this.stonePixels = stoneContext.getImageData(0, 0, 256, 256).data
     this.bossRock = this.add.image(0, 0, angkorV2TextureKey('pushable-boulder-v2')).setDisplaySize(30, 30).setDepth(20000).setVisible(false)
     this.replacementRock = this.add.image(0, 0, angkorV2TextureKey('pushable-boulder-v2')).setDisplaySize(30, 30).setDepth(20000).setVisible(false)
-    // A visible section of the same serpent rises along the solid central spine.
-    // Its visual footprint stays over masonry; only authored gate cells block.
-    this.passageBody = this.add.image(15 * 32 + 16, 10 * 32 - R.tallHeight, angkorV2TextureKey('anaconda-body-v2'))
-      .setDisplaySize(64, 30).setAngle(90).setDepth(environmentDepth('foreground', 11 * 32)).setAlpha(.7)
     const sprite = (key: AngkorV2AssetKey, coord: GridCoord, depthClass: 'actor' | 'ground-item' | 'low-prop' = 'ground-item') => {
       const foot = tileToPixel(coord)
       return this.environment!.addSprite({ key, ...foot, depthClass, occludesPlayer: false })
@@ -83,8 +110,9 @@ export class Stage3Scene extends Phaser.Scene {
     for (const stone of this.state.boulders) {
       // A raised stone cradle makes the boulder a drop mechanism, not a loose rock.
       const foot = tileToPixel(stone)
-      this.environment.addSprite({ key: 'pillar-broken-height-v2', ...foot, depthY: PITS[BOULDERS.find(b => b.id === stone.id)!.pit].y * 32 + 42, occludesPlayer: false }).setDisplaySize(24, 36)
-      this.stones.set(stone.id, sprite('pushable-boulder-v2', stone, 'low-prop').setY(foot.y - 8).setDepth(20000))
+      this.environment.addSprite({ key: 'pillar-intact-height-v2', ...foot, occludesPlayer: true })
+      // Dynamic/consumed stones are sampled below, outside the static occluder list.
+      this.stones.set(stone.id, this.environment.addSprite({ key: 'pushable-boulder-v2', x: foot.x, y: foot.y - P.cradleLift, depthY: foot.y, occludesPlayer: false }))
     }
     for (const group of SPIKES) for (const tile of group.tiles) sprite('spike-trap-active-v2', tile)
     this.snakes = SNAKES.map(s => sprite('snake-coiled-v2', s.path[0], 'actor'))
@@ -130,8 +158,8 @@ export class Stage3Scene extends Phaser.Scene {
     this.effects.clear()
     this.explorer?.sprite.setAlpha(1)
     for (const gem of this.gems.values()) gem.setVisible(true)
-    for (const b of this.state.boulders) { const foot = tileToPixel(b); this.stones.get(b.id)?.setPosition(foot.x, foot.y - 8).setVisible(true) }
-    this.bossAlpha = 1; this.strikeUntil = -1; this.recoilUntil = -1; this.syncActors(); this.target?.clear(); this.rocks.forEach(rock => rock.setVisible(false)); this.passage?.setTexture(angkorV2TextureKey('temple-passage-closed-height-v2'))
+    for (const b of this.state.boulders) { const foot = tileToPixel(b); this.stones.get(b.id)?.setPosition(foot.x, foot.y - P.cradleLift).setAngle(0).setVisible(true) }
+    this.bossAlpha = 1; this.syncActors(); this.target?.clear(); this.rocks.forEach(rock => rock.setVisible(false)); this.passage?.setTexture(angkorV2TextureKey('temple-passage-closed-height-v2'))
     this.scroll = cameraTarget(this.traversal!.foot, stageMap.world, this.options.viewport)
     this.cameras.main.setScroll(this.scroll.x, this.scroll.y); this.options.onState(this.state)
     this.game.canvas.dataset.state = JSON.stringify(this.state)
@@ -153,12 +181,18 @@ export class Stage3Scene extends Phaser.Scene {
   private animatePush(move: TraversalMove) {
     const plan = planStageMove(this.state, move.direction)
     if (!plan?.push) return
-    const sprite = this.stones.get(plan.push.id)!, foot = tileToPixel(plan.push.to)
-    this.tweens.add({ targets: sprite, x: foot.x, y: foot.y - 8, duration: ANGKOR_V2_MOVE_MS })
+    const sprite = this.stones.get(plan.push.id)!
+    // The logical one-cell push releases an overhead cradle. Its fall begins on
+    // BOULDER_DROP_TRIGGERED; no floor tween can pass through the raised head.
+    this.tweens.add({ targets: sprite, angle: this.reduced.matches ? 0 : 12, duration: ANGKOR_V2_MOVE_MS })
     this.effect('dust-push-v2', plan.push.from)
   }
   private effect(key: AngkorV2AssetKey, coord: GridCoord) {
-    const foot = tileToPixel(coord), image = this.add.image(foot.x, foot.y - 8, angkorV2TextureKey(key)).setDisplaySize(32, 24).setDepth(environmentDepth('effect', foot.y))
+    const foot = tileToPixel(coord)
+    this.pixelEffect(key, { x: foot.x, y: foot.y - 8 }, foot.y)
+  }
+  private pixelEffect(key: AngkorV2AssetKey, point: { x: number; y: number }, depthY: number, width = 32, height = 24) {
+    const image = this.add.image(point.x, point.y, angkorV2TextureKey(key)).setDisplaySize(width, height).setDepth(environmentDepth('effect', depthY))
     this.effects.add(image)
     this.tweens.add({ targets: image, alpha: 0, duration: this.reduced.matches ? 100 : 360, onComplete: () => { this.effects.delete(image); image.destroy() } })
   }
@@ -169,21 +203,19 @@ export class Stage3Scene extends Phaser.Scene {
     if (event.type === 'ANACONDA_EMERGED') { this.effect('dust-push-v2', PITS[event.pit]); this.bossAlpha = 1 }
     if (event.type === 'BOULDER_DROP_TRIGGERED') this.stones.get(event.id)?.setVisible(false)
     if (event.type === 'ANACONDA_RETALIATION_IMPACT') {
-      this.strikeUntil = this.state.tick + 3
       for (const tile of event.tiles) this.effect('dust-push-v2', tile)
       if (!this.reduced.matches) this.cameras.main.shake(220, .006)
     }
-    if (event.type === 'ANACONDA_HIT' || event.type === 'ANACONDA_DEFEATED') {
-      this.recoilUntil = this.state.tick + 4
-      const pit = PITS[this.state.anaconda.activePit]
-      this.effect('rock-impact-v2', pit)
-      for (const dx of [-1, 0, 1]) this.effect('dust-push-v2', { x: pit.x + dx, y: pit.y })
-      if (!this.reduced.matches) this.cameras.main.shake(event.type === 'ANACONDA_DEFEATED' ? 500 : 260, event.type === 'ANACONDA_DEFEATED' ? .012 : .007)
+    if (event.type === 'ANACONDA_HIT') {
+      const visual = anacondaPresentation(this.state), final = event.successfulHits === 3
+      this.pixelEffect('rock-impact-v2', visual.head, visual.depthY, final ? 54 : 40, final ? 44 : 32)
+      this.pixelEffect('dust-push-v2', visual.head, visual.depthY, final ? 64 : 44, final ? 40 : 28)
+      if (!this.reduced.matches) this.cameras.main.shake(final ? 500 : 260, final ? .012 : .007)
     }
     if (event.type === 'REPLACEMENT_BOULDER_IMPACT') { this.effect('rock-impact-v2', event.tile); this.effect('dust-push-v2', event.tile) }
     if (event.type === 'REPLACEMENT_BOULDER_READY') {
       const foot = tileToPixel(event.tile)
-      this.stones.get(event.id)?.setPosition(foot.x, foot.y - 8).setVisible(true)
+      this.stones.get(event.id)?.setPosition(foot.x, foot.y - P.cradleLift).setAngle(0).setVisible(true)
     }
     if (event.type === 'RUBBLE_IMPACT') for (const tile of event.tiles) { this.effect('rock-impact-v2', tile); this.effect('dust-push-v2', tile) }
     if (event.type === 'MONKEY_ROCK_IMPACT') { this.effect('rock-impact-v2', event.target); this.target?.clear() }
@@ -208,8 +240,6 @@ export class Stage3Scene extends Phaser.Scene {
       if (m.mode === 'tell' && m.target) this.drawTell(m.target, (m.nextTick - this.state.tick) / MONKEYS[i].tellTicks, i ? 0xe9c276 : 0xec8864)
     })
     const boss = this.state.anaconda
-    this.passageBody?.setVisible(boss.mode !== 'DEFEATED').setAlpha(.65)
-    this.boss?.setTexture(angkorV2TextureKey(boss.mode === 'DEFEATED' || this.state.tick < this.recoilUntil ? 'anaconda-retreat-v2' : this.state.tick < this.strikeUntil ? 'anaconda-strike-v2' : boss.mode === 'RECOVERING' ? 'anaconda-retreat-v2' : 'anaconda-rise-v2'))
     if (boss.mode === 'RETALIATING') for (const tile of boss.targets) {
       // Whole horizontal lanes, not tiny target circles. North and south recesses stay clear.
       this.target?.fillStyle(0xea704f, .38).fillRect(tile.x * 32, tile.y * 32, 32, 32)
@@ -253,6 +283,15 @@ export class Stage3Scene extends Phaser.Scene {
       if (this.accumulator >= SIMULATION_TICK_MS && this.running) { this.accumulator -= SIMULATION_TICK_MS; this.dispatch({ type: 'TICK' }) }
     } else this.traversal.clearInput()
     this.explorer.update(active ? delta : 0, this.reduced.matches); this.environment.update(delta)
+    for (const image of this.stones.values()) {
+      const bounds = { x: image.x - 15, y: image.y - 30, width: 30, height: 30 }
+      const covered = image.visible ? readabilityOccluders({ ...this.traversal.foot, width: 25, visibleHeight: 28 }, [{ bounds, depth: image.depth,
+        opaqueAt: (x, y) => {
+          const sx = Math.floor((x - bounds.x) / 30 * 256), sy = Math.floor((y - bounds.y) / 30 * 256)
+          return sx >= 0 && sx < 256 && sy >= 0 && sy < 256 && this.stonePixels![(sy * 256 + sx) * 4 + 3] > 32
+        } }]) : []
+      image.setAlpha(image.alpha + (readabilityAlpha(covered.length) - image.alpha) * Math.min(1, delta / 100))
+    }
     this.state.monkeys.forEach((monkey, i) => {
       const throwing = monkey.mode === 'tell' && monkey.target !== null && monkey.nextTick - this.state.tick <= 2
       const rock = this.rocks[i]; rock?.setVisible(throwing)
@@ -268,37 +307,44 @@ export class Stage3Scene extends Phaser.Scene {
       rock.setVisible(falling)
       if (falling) { const tile = RUBBLE.tiles[i], t = Math.min(1, (2 - (this.state.rubble.nextTick - this.state.tick) + this.accumulator / SIMULATION_TICK_MS) / 2); rock.setY(tile.y * 32 + 16 - (1 - t) * 54) }
     })
-    const boss = this.state.anaconda, pit = PITS[boss.activePit], pitFoot = tileToPixel(pit)
+    const boss = this.state.anaconda
     const fraction = this.accumulator / SIMULATION_TICK_MS
-    const emerge = boss.mode === 'EMERGING' ? Math.min(1, 1 - (boss.nextTick - this.state.tick - fraction) / ANACONDA.emergenceTicks) : 1
-    const collapse = boss.mode === 'DEFEATED' ? Math.min(1, (this.state.tick - boss.defeatedAt! + fraction) / ANACONDA.defeatTicks) : boss.mode === 'RECOVERING' ? .35 : 0
+    const visual = anacondaPresentation(this.state, fraction)
     if (this.boss) {
-      const base = pitFoot.y + 24, depth = environmentDepth('architecture', base)
-      const y = base + (1 - emerge) * 32 + collapse * 42
-      this.boss.setPosition(pitFoot.x + (this.reduced.matches || boss.mode !== 'EMERGING' ? 0 : Math.sin(emerge * Math.PI * 10) * 2), y)
-        .setDisplaySize(112, 112 * (1 - collapse * .5)).setDepth(depth).setVisible(boss.mode !== 'DORMANT' && collapse < 1)
-      // Reuse the renderer's alpha-aware readability rule for this moving boss.
-      const image = this.boss, bounds = { x: image.x - 56, y: y - image.displayHeight * image.originY, width: 112, height: image.displayHeight }
-      const covered = readabilityOccluders({ ...this.traversal.foot, width: 25, visibleHeight: 28 }, [{ bounds, depth,
-        opaqueAt: (x, py) => (this.textures.getPixelAlpha(Math.floor((x - bounds.x) / 112 * 512), Math.floor((py - bounds.y) / bounds.height * 512), image.texture.key) ?? 0) > 32 }])
-      const alpha = readabilityAlpha(covered.length)
-      this.bossAlpha += (alpha - this.bossAlpha) * Math.min(1, delta / 100)
-      image.setAlpha(this.bossAlpha * emerge * (1 - collapse))
+      const depth = environmentDepth('architecture', visual.depthY)
+      const wobble = !this.reduced.matches && visual.shaking ? Math.sin((this.state.tick + fraction) * 12) * 1.5 : 0
+      this.boss.setTexture(angkorV2TextureKey(visual.key)).setPosition(visual.base.x, visual.y)
+        .setDisplaySize(P.serpentWidth, P.serpentHeight).setDepth(depth).setVisible(visual.visible)
+      this.pitMask?.clear().fillStyle(0xffffff).fillRect(0, 0, stageMap.world.width, visual.mouthY + 4)
+      for (const [id, rim] of this.pitRims) {
+        const x = tileToPixel(PITS[id as keyof typeof PITS]).x + (id === visual.pit ? wobble : 0)
+        rim.setX(x); this.pitBacks.get(id)?.setX(x)
+      }
+      // Depth is always the pit's floor anchor, including during physical sinking.
+      const bounds = { x: visual.base.x - P.serpentWidth / 2, y: visual.y - P.serpentHeight * P.anchorY, width: P.serpentWidth, height: P.serpentHeight }
+      const pixels = this.poseAlpha.get(visual.pose)!
+      const covered = visual.visible ? readabilityOccluders({ ...this.traversal.foot, width: 25, visibleHeight: 28 }, [{ bounds, depth,
+        opaqueAt: (x, py) => {
+          if (py >= visual.mouthY + 4) return false
+          const sx = Math.floor((x - bounds.x) / bounds.width * 512), sy = Math.floor((py - bounds.y) / bounds.height * 768)
+          return sx >= 0 && sx < 512 && sy >= 0 && sy < 768 && pixels[(sy * 512 + sx) * 4 + 3] > 32
+        } }]) : []
+      this.bossAlpha += (readabilityAlpha(covered.length) - this.bossAlpha) * Math.min(1, delta / 100)
+      this.boss.setAlpha(this.bossAlpha)
     }
     if (this.bossRock) {
-      this.bossRock.setVisible(Boolean(boss.pendingDrop))
-      if (boss.pendingDrop) {
-        const t = Math.min(1, 1 - (boss.pendingDrop.impactTick - this.state.tick - fraction) / ANACONDA.dropTicks)
-        this.bossRock.setPosition(pitFoot.x, 11 * 32 + 8 + t * 48).setAngle(t * 100)
-      }
+      const drop = headDropPosition(this.state, fraction)
+      this.bossRock.setVisible(Boolean(drop))
+      if (drop) this.bossRock.setPosition(drop.x, drop.y).setAngle(drop.t * 100)
     }
+    this.game.canvas.dataset.bossVisual = JSON.stringify({ ...visual, alpha: this.bossAlpha, rock: headDropPosition(this.state, fraction) })
     if (this.replacementRock) {
       const replacement = boss.replacement
       this.replacementRock.setVisible(Boolean(replacement && replacement.mode !== 'WAITING'))
       if (replacement && replacement.mode !== 'WAITING') {
         const track = BOULDERS.find(b => b.id === replacement.id)!, ticks = ANACONDA.phases[boss.phase - 1].replacementTicks
         const t = replacement.mode === 'LANDED' ? 1 : Math.min(1, Math.max(0, 1 - (replacement.impactTick - this.state.tick - fraction) / ticks))
-        this.replacementRock.setPosition(track.x * 32 + 16, track.y * 32 + 8 - (1 - t) * 110).setAlpha(t < .6 ? .45 : 1)
+        this.replacementRock.setPosition(track.x * 32 + 16, track.y * 32 + 16 - P.cradleLift - P.rockRadius - (1 - t) * 110).setAlpha(t < .6 ? .45 : 1)
       }
     }
     this.explorer.sprite.setAlpha(this.state.tick < this.state.invulnerableUntil ? .7 : 1)
