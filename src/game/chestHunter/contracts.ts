@@ -3,7 +3,7 @@ export { copyItems, type CarriedItems }
 export const CHEST_HUNTER_STAGES = [
   { id: 'lost-courtyard', name: 'Lost Courtyard', ordinal: 1, numeral: 'I', available: 6, required: 4 },
   { id: 'forgotten-galleries', name: 'Forgotten Galleries', ordinal: 2, numeral: 'II', available: 8, required: 5 },
-  { id: 'royal-treasury', name: 'Royal Treasury', ordinal: 3, numeral: 'III', available: null, required: null },
+  { id: 'royal-treasury', name: 'Royal Treasury', ordinal: 3, numeral: 'III', available: 10, required: 6 },
 ] as const
 export type StageDefinition = typeof CHEST_HUNTER_STAGES[number]
 export type StageId = StageDefinition['id']

@@ -3,10 +3,12 @@ import { describe,it,expect } from 'vitest'
 import { CHEST_HUNTER_STAGES,freshCarry,copyCarry,type StageResult } from './contracts'
 import { ChestHunterRuntime,replayEnvelope,stageFactory } from './runtime'
 import { initialChestHunterState,reduceExpedition,replayLifecycle } from './model'
-import { forgottenGalleriesAdapter,lostCourtyardAdapter,isStageAction } from './adapters'
+import { forgottenGalleriesAdapter,lostCourtyardAdapter,royalTreasuryAdapter,isStageAction } from './adapters'
 import { initialStageState as initialI,reduceStage as reduceI,type StageAction as ActionI } from './stage1/model'
 import { initialStageState as initialII, type StageState as StateII } from './stage2/model'
 import { CHESTS,KEY,GATE,PLATE,PRESSURE_GATE,SPIKES } from './stage2/level'
+import { initialStageState as initialIII, type StageState as StateIII } from './stage3/model'
+import { solveTreasure as solveRoyal } from './stage3/testRoutes'
 import { solveTreasure } from './stage2/testRoutes'
 const oldRun=JSON.parse(readFileSync(new URL('../../../docs/angkor-v2/chest-hunter-stage1/qa/lost-courtyard-local-replay.json',import.meta.url),'utf8')) as {actions:ActionI[]}
 const stageIResult:StageResult={stageId:'lost-courtyard',stageChestsOpened:6,expeditionChestsOpened:6,expeditionGems:4,hpRemaining:37,carriedItems:{sword:true,potion:{owned:true,consumed:true}},openedChestIds:['arrival','arcade','archive','store','treasury','store-bonus'],completion:{tick:44,actionCount:66}}
@@ -36,7 +38,7 @@ describe('Chest Hunter expedition carry and stage lifecycle',()=>{
   expect(failed.events.at(-1)?.type).toBe('EXPEDITION_FAILED')
  })
  it('validates counts/items/results and uses the same lifecycle replay for identical ordered results',()=>{
-  expect(CHEST_HUNTER_STAGES.map(s=>s.id)).toEqual(['lost-courtyard','forgotten-galleries','royal-treasury']);expect(CHEST_HUNTER_STAGES[2].required).toBeNull()
+  expect(CHEST_HUNTER_STAGES.map(s=>s.id)).toEqual(['lost-courtyard','forgotten-galleries','royal-treasury']);expect(CHEST_HUNTER_STAGES[2].required).toBe(6)
   const actions=[{type:'STAGE_COMPLETED' as const,result:stageIResult},{type:'CONTINUE' as const}]
   expect(replayLifecycle(actions)).toEqual(replayLifecycle(JSON.parse(JSON.stringify(actions))))
   expect(()=>reduceExpedition(initialChestHunterState(),{type:'STAGE_COMPLETED',result:{...stageIResult,openedChestIds:['same','same']}})).toThrow()
@@ -111,5 +113,65 @@ describe('Recorded human-input two-stage expedition',()=>{
   const boundaries=envelope.entries.filter((e:{type:string})=>e.type!=='STAGE_ACTION')
   expect(boundaries.map((e:{type:string})=>e.type)).toEqual(['EXPEDITION_STARTED','STAGE_STARTED','STAGE_COMPLETED','STAGE_ADVANCED','STAGE_STARTED','STAGE_COMPLETED','STAGE_ADVANCED','STAGE_STARTED'])
   expect(boundaries[4].carry.hp).toBe(82);expect(boundaries[7].carry.hp).toBe(100)
+ })
+})
+
+
+describe('Royal Treasury final expedition lifecycle',()=>{
+ it('runs all three real adapters, preserves carry and completes exactly once without Stage IV',()=>{
+  const r=new ChestHunterRuntime(),first=r.attachStage(lostCourtyardAdapter)
+  for(const a of oldRun.actions)if(a.type!=='RESET')first.dispatch(a)
+  r.continue();const second=r.attachStage(forgottenGalleriesAdapter)
+  solveTreasure(()=>second.state,a=>{if(a.type==='RESET')throw new Error('Reset');return second.dispatch(a)})
+  const carry=copyCarry(r.state);r.continue();const third=r.attachStage(royalTreasuryAdapter)
+  expect(third.state).toEqual(initialIII(carry));expect(third.state.stageChestsOpened).toBe(0)
+  solveRoyal(()=>third.state,a=>{if(a.type==='RESET')throw new Error('Reset');return third.dispatch(a)})
+  expect(r.state.status).toBe('COMPLETE');expect(r.state.stageResults).toHaveLength(3);expect(r.state.expeditionChestsOpened).toBe(24);expect(r.state.expeditionGems).toBe(18)
+  expect(r.state.hp).toBe(third.state.hp);expect(r.state.carriedItems).toEqual(third.state.carriedItems);expect(r.state.events.filter(e=>e.type==='EXPEDITION_COMPLETED')).toHaveLength(1)
+  const terminal=r.envelope();r.continue();third.dispatch({type:'TICK'});expect(r.envelope()).toEqual(terminal)
+  let final:StateIII|undefined
+  const replay=replayEnvelope(terminal,{'lost-courtyard':stageFactory(lostCourtyardAdapter),'forgotten-galleries':stageFactory(forgottenGalleriesAdapter),'royal-treasury':runtime=>{const stage=runtime.attachStage(royalTreasuryAdapter);return{dispatch:a=>{if(!isStageAction(a))throw new Error('Action');final=stage.dispatch(a)}}}})
+  expect(replay.envelope()).toEqual(terminal);expect(final).toEqual(third.state)
+ })
+ it('rejects a result without the Royal Cache; zero HP cannot finish or advance',()=>{
+  let s=reduceExpedition(initialChestHunterState(),{type:'STAGE_COMPLETED',result:stageIResult});s=reduceExpedition(s,{type:'CONTINUE'})
+  s=reduceExpedition(s,{type:'STAGE_COMPLETED',result:{...stageIResult,stageId:'forgotten-galleries',expeditionChestsOpened:12,expeditionGems:8}});s=reduceExpedition(s,{type:'CONTINUE'})
+  const result:StageResult={...stageIResult,stageId:'royal-treasury',expeditionChestsOpened:18,expeditionGems:12}
+  expect(()=>reduceExpedition(s,{type:'STAGE_COMPLETED',result})).toThrow('Royal Cache')
+  const failed=reduceExpedition(s,{type:'STAGE_FAILED',stageId:'royal-treasury',progress:{...copyCarry(s),hp:0,stageChestsOpened:0}})
+  expect(failed.status).toBe('FAILED');expect(failed.stageResults).toHaveLength(2);expect(reduceExpedition(failed,{type:'CONTINUE'})).toBe(failed)
+  expect(reduceExpedition(failed,{type:'STAGE_COMPLETED',result:{...result,openedChestIds:['royal-cache',...result.openedChestIds.slice(1)]}})).toBe(failed)
+ })
+})
+
+
+describe('Recorded complete three-stage Chest Hunter expedition',()=>{
+ it('reproduces actual mobile play, dual seals, darts, Royal Cache and final expedition exactly',()=>{
+  const envelope=JSON.parse(readFileSync(new URL('../../../docs/angkor-v2/chest-hunter-stage3/qa/chest-hunter-full-expedition-replay.json',import.meta.url),'utf8'))
+  const replay=()=>{
+   let first:ReturnType<typeof initialI>|undefined,second:StateII|undefined,third:StateIII|undefined
+   const runtime=replayEnvelope(envelope,{
+    'lost-courtyard':r=>{const stage=r.attachStage(lostCourtyardAdapter);return{dispatch:a=>{if(!isStageAction(a))throw new Error('Action');first=stage.dispatch(a)}}},
+    'forgotten-galleries':r=>{const stage=r.attachStage(forgottenGalleriesAdapter);return{dispatch:a=>{if(!isStageAction(a))throw new Error('Action');second=stage.dispatch(a)}}},
+    'royal-treasury':r=>{const stage=r.attachStage(royalTreasuryAdapter);return{dispatch:a=>{if(!isStageAction(a))throw new Error('Action');third=stage.dispatch(a)}}},
+   })
+   return {envelope:runtime.envelope(),first,second,third}
+  }
+  const a=replay();expect(a).toEqual(replay());expect(a.envelope).toEqual(envelope)
+  expect(a.envelope.snapshot).toMatchObject({status:'COMPLETE',hp:100,expeditionChestsOpened:24,expeditionGems:18,carriedItems:{sword:true,potion:{owned:true,consumed:true}}})
+  expect(a.envelope.snapshot.stageResults.map(r=>r.stageChestsOpened)).toEqual([6,8,10])
+  expect(a.first?.hp).toBe(82);expect(a.second?.hp).toBe(100)
+  const s=a.third!;expect(s).toMatchObject({status:'complete',hp:100,stageChestsOpened:10,keyCollected:true,keyHeld:false,gateUnlocked:true,pressurePlateA:true,pressurePlateB:true,pressureGateOpen:true,royalCacheOpened:true})
+  for(const type of ['KEY_COLLECTED','GATE_UNLOCKED','PRESSURE_PLATE_A_ACTIVATED','PRESSURE_PLATE_A_RELEASED','PRESSURE_PLATE_B_ACTIVATED','PRESSURE_PLATE_B_RELEASED','ROYAL_VAULT_GATE_OPENED','ROYAL_VAULT_GATE_CLOSED','DART_GUARDIAN_TELEGRAPH','DART_GUARDIAN_IMPACT','SNAKE_ACTIVATED','SNAKE_MOVED','MONKEY_ATTACK_TELEGRAPH','MONKEY_ROCK_IMPACT','ROYAL_CACHE_OPENED','EXIT_UNLOCKED','STAGE_COMPLETE'])expect(s.events.some(e=>e.type===type),type).toBe(true)
+  expect(s.events.filter(e=>e.type==='BOULDER_PUSH')).toHaveLength(6)
+  expect(s.events.filter(e=>e.type==='ROYAL_CACHE_OPENED')).toHaveLength(1)
+  expect(s.events.filter(e=>e.type==='GATE_UNLOCKED')).toHaveLength(1)
+  const unlock=s.events.find(e=>e.type==='EXIT_UNLOCKED')!,cache=s.events.find(e=>e.type==='ROYAL_CACHE_OPENED')!,opens=s.events.filter(e=>e.type==='CHEST_OPENED')
+  expect(cache.seq).toBeLessThan(unlock.seq);expect(opens.filter(e=>e.seq<unlock.seq)).toHaveLength(8);expect(opens.filter(e=>e.seq>unlock.seq)).toHaveLength(2)
+  expect(s.events.filter(e=>e.type==='STAGE_COMPLETE')).toHaveLength(1)
+  expect(a.envelope.snapshot.events.filter(e=>e.type==='EXPEDITION_COMPLETED')).toHaveLength(1)
+  const boundaries=envelope.entries.filter((e:{type:string})=>e.type!=='STAGE_ACTION')
+  expect(boundaries.map((e:{type:string})=>e.type)).toEqual(['EXPEDITION_STARTED','STAGE_STARTED','STAGE_COMPLETED','STAGE_ADVANCED','STAGE_STARTED','STAGE_COMPLETED','STAGE_ADVANCED','STAGE_STARTED','STAGE_COMPLETED'])
+  expect(boundaries[4].carry.hp).toBe(82);expect(boundaries[7].carry).toMatchObject({hp:100,expeditionChestsOpened:14,expeditionGems:10})
  })
 })

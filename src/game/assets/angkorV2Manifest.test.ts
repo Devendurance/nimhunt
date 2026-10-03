@@ -50,7 +50,7 @@ describe('Angkor V2 standalone delivery', () => {
     const files = readdirSync(assetRoot, { recursive: true, encoding: 'utf8' }).map(x => x.replaceAll('\\', '/')).filter(x => x.endsWith('.png') && !x.startsWith('projection-test/')).sort()
     const paths = ANGKOR_V2_MANIFEST.map(x => x.path.replace('/assets/game/angkor-v2/', '')).sort()
     expect(paths).toEqual(files)
-    expect(files).toHaveLength(102)
+    expect(files).toHaveLength(105)
     expect(new Set(ANGKOR_V2_MANIFEST.map(x => x.key)).size).toBe(files.length)
     for (const asset of ANGKOR_V2_MANIFEST) {
       const meta = png(resolve(root, 'public', asset.path.slice(1)))
@@ -71,7 +71,7 @@ describe('Angkor V2 standalone delivery', () => {
   })
 
   it('shares canvas, footprint, display and anchors across Chest Hunter state swaps', () => {
-    for (const [closedKey, openKey] of [['chest-closed-v2', 'chest-open-v2'], ['side-gate-locked-v2', 'side-gate-open-v2']] as const) {
+    for (const [closedKey, openKey] of [['chest-closed-v2', 'chest-open-v2'], ['royal-cache-closed-v2', 'royal-cache-open-v2'], ['side-gate-locked-v2', 'side-gate-open-v2']] as const) {
       const closed = ANGKOR_V2_BY_KEY[closedKey], open = ANGKOR_V2_BY_KEY[openKey]
       expect(open.sourceDimensions).toEqual(closed.sourceDimensions)
       expect(open.logicalFootprint).toEqual(closed.logicalFootprint)
@@ -151,7 +151,7 @@ describe('Angkor V2 standalone delivery', () => {
   })
 
   it('promotes the approved overhead pose with a measured gameplay silhouette and foot anchor', () => {
-    expect(ANGKOR_V2_PRODUCTION_MANIFEST).toHaveLength(40)
+    expect(ANGKOR_V2_PRODUCTION_MANIFEST).toHaveLength(43)
     expect(ANGKOR_V2_PRODUCTION_MANIFEST.every(asset => asset.status === 'production')).toBe(true)
     const asset = ANGKOR_V2_BY_KEY[ANGKOR_V2_EXPLORER_GAMEPLAY.key]
     const path = resolve(root, 'public', asset.path.slice(1))
@@ -200,7 +200,7 @@ describe('Angkor V2 standalone delivery', () => {
     expect(visited.has(resolve(root, 'src/game/gemRunner/innerSanctuaryAdapter.ts'))).toBe(false)
     expect(visited.has(resolve(root, 'src/game/gemRunner/runtime.ts'))).toBe(false)
     expect(visited.has(resolve(root, 'src/game/gemRunner/model.ts'))).toBe(false)
-    for (const path of ['src/dev/chestHunterStage1.tsx', 'src/game/chestHunter/stage1/model.ts', 'src/game/chestHunter/runtime.ts', 'src/game/chestHunter/stage2/model.ts', 'src/game/chestHunter/stage2/ForgottenGalleriesScene.ts', 'src/game/chestHunter/stage1/ChestHunterScene.ts']) expect(visited.has(resolve(root, path))).toBe(false)
+    for (const path of ['src/dev/chestHunterStage1.tsx', 'src/game/chestHunter/stage1/model.ts', 'src/game/chestHunter/runtime.ts', 'src/game/chestHunter/stage2/model.ts', 'src/game/chestHunter/stage3/model.ts', 'src/game/chestHunter/stage3/RoyalTreasuryScene.ts', 'src/game/chestHunter/stage2/ForgottenGalleriesScene.ts', 'src/game/chestHunter/stage1/ChestHunterScene.ts']) expect(visited.has(resolve(root, path))).toBe(false)
     expect(readFileSync(resolve(root, 'src/dev/angkorV2Showcase.ts'), 'utf8')).toContain('if (import.meta.env.DEV)')
   })
 
