@@ -82,7 +82,7 @@ export function AngkorV2Gameplay({ session, practice, onLeave, completion }: { s
     </div>
     <div className="v2-controls">
     <DirectionalDpad inputLocked={locked} onMove={d => scene.current?.traversal?.tap(d)} heldInput={{ press: (source, d) => scene.current?.traversal?.press(source, d), release: source => scene.current?.traversal?.release(source), cancel: source => scene.current?.traversal?.cancel(source) }} />
-    <p className="v2-notice" role="status" title={session.error || error || notice}>{session.error || error || notice || (practice ? 'Explore all three stages. Practice never creates a reward expedition.' : session.syncing ? 'Saving expedition…' : 'Progress saves to the expedition checkpoint.')}</p>
+    <p className="v2-notice" role="status" title={session.error || error || notice}>{session.error || error || notice || (practice ? 'Explore all three stages. Practice never creates a reward expedition.' : session.isBackpressured ? 'Connection is slow — securing progress…' : session.syncing ? 'Saving expedition…' : 'Progress saves to the expedition checkpoint.')}</p>
     <div className="v2-actions">
     {!practice && <button onClick={() => void session.flush().then(() => setNotice('Expedition saved.')).catch(() => setNotice('Connection interrupted. Retry to save.'))}>Retry synchronization</button>}
     <button onClick={() => void session.flush().then(onLeave).catch(() => setNotice('Save did not finish. Retry before leaving.'))}>{practice ? 'Leave practice' : 'Save and leave'}</button>

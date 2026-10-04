@@ -8,6 +8,14 @@ export interface SessionOptions {
   initial: ReplayState; runId?: string; checkpointHash?: string
   send?: (request: CheckpointRequest) => Promise<CheckpointAcknowledgement>
 }
+
+/** The server protocol remains deliberately small and ordered. The client
+ * keeps a larger bounded journal so normal network latency does not become a
+ * gameplay lock, while a genuinely stalled connection still fails closed. */
+export const V2_CHECKPOINT_BATCH_ACTIONS = 8
+export const V2_CHECKPOINT_FLUSH_THRESHOLD = V2_CHECKPOINT_BATCH_ACTIONS
+export const V2_CHECKPOINT_HIGH_WATER = 48
+
 /** Presentation may predict reducers, but only server acknowledgements advance
  * reward proof. A lost reply retries the identical batch; no state/result POST. */
 export class V2Session {
@@ -28,7 +36,13 @@ export class V2Session {
   }
   subscribe(listener: () => void): () => void { this.listeners.add(listener); return () => { this.listeners.delete(listener) } }
   private publish() { this.listeners.forEach(f => f()) }
-  get canAct(): boolean { return !this.error && (!this.options.send || this.pending.length < 12) && this.state.angkorV2!.expedition.status === 'PLAYING' }
+  /** Number of locally accepted actions not yet acknowledged by the server. */
+  get pendingCount(): number { return this.pending.length }
+  /** True only at the bounded high-water mark; fatal sync errors are exposed via error. */
+  get isBackpressured(): boolean { return Boolean(this.options.send && !this.error && this.pending.length >= V2_CHECKPOINT_HIGH_WATER) }
+  get canAct(): boolean {
+    return !this.error && !this.isBackpressured && this.state.angkorV2!.expedition.status === 'PLAYING'
+  }
   dispatch(action: LocalAction): unknown {
     if (!this.canAct) return this.state.angkorV2!.local
     const e = this.state.angkorV2!.expedition
@@ -43,7 +57,7 @@ export class V2Session {
     if (this.options.send) { this.pending.push(action); this.hashes.set(action.seq, hashReplayState(next.state)) }
     else this.acknowledgedSeq = this.state.seq
     this.publish()
-    if (this.pending.length >= 8 || this.state.angkorV2!.expedition.status !== 'PLAYING') void this.flush().catch(() => undefined)
+    if (this.pending.length >= V2_CHECKPOINT_FLUSH_THRESHOLD || this.state.angkorV2!.expedition.status !== 'PLAYING') void this.flush().catch(() => undefined)
   }
   async continue(): Promise<void> {
     await this.flush()
@@ -54,7 +68,7 @@ export class V2Session {
   async flush(): Promise<void> {
     if (!this.options.send || !this.pending.length) return
     if (this.flight) { await this.flight; if (this.pending.length) return this.flush(); return }
-    const actions = this.pending.slice(0, 8), previousCheckpointHash = this.checkpointHash
+    const actions = this.pending.slice(0, V2_CHECKPOINT_BATCH_ACTIONS), previousCheckpointHash = this.checkpointHash
     this.syncing = true; this.publish()
     this.flight = (async () => {
       try {
