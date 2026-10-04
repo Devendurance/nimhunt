@@ -1,0 +1,629 @@
+{
+  "results": [
+    {
+      "width": 320,
+      "height": 568,
+      "hp": 100,
+      "tone": "green",
+      "label": "Health 100 of 100",
+      "text": "HP 100",
+      "rect": {
+        "x": 209,
+        "y": 62.900001525878906,
+        "width": 99,
+        "height": 18,
+        "top": 62.900001525878906,
+        "right": 308,
+        "bottom": 80.9000015258789,
+        "left": 209
+      },
+      "down": 464,
+      "center": 160,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 320,
+        "height": 568,
+        "top": 0,
+        "right": 320,
+        "bottom": 568,
+        "left": 0
+      }
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "hp": 75,
+      "tone": "yellow",
+      "label": "Health 75 of 100",
+      "text": "HP 75",
+      "rect": {
+        "x": 209,
+        "y": 62.900001525878906,
+        "width": 99,
+        "height": 18,
+        "top": 62.900001525878906,
+        "right": 308,
+        "bottom": 80.9000015258789,
+        "left": 209
+      },
+      "down": 464,
+      "center": 160,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 320,
+        "height": 568,
+        "top": 0,
+        "right": 320,
+        "bottom": 568,
+        "left": 0
+      }
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "hp": 50,
+      "tone": "orange",
+      "label": "Health 50 of 100",
+      "text": "HP 50",
+      "rect": {
+        "x": 209,
+        "y": 62.900001525878906,
+        "width": 99,
+        "height": 18,
+        "top": 62.900001525878906,
+        "right": 308,
+        "bottom": 80.9000015258789,
+        "left": 209
+      },
+      "down": 464,
+      "center": 160,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 320,
+        "height": 568,
+        "top": 0,
+        "right": 320,
+        "bottom": 568,
+        "left": 0
+      }
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "hp": 25,
+      "tone": "red",
+      "label": "Health 25 of 100",
+      "text": "HP 25",
+      "rect": {
+        "x": 209,
+        "y": 62.900001525878906,
+        "width": 99,
+        "height": 18,
+        "top": 62.900001525878906,
+        "right": 308,
+        "bottom": 80.9000015258789,
+        "left": 209
+      },
+      "down": 464,
+      "center": 160,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 320,
+        "height": 568,
+        "top": 0,
+        "right": 320,
+        "bottom": 568,
+        "left": 0
+      }
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "hp": 0,
+      "tone": "empty",
+      "label": "Health 0 of 100",
+      "text": "HP 0",
+      "rect": {
+        "x": 209,
+        "y": 62.900001525878906,
+        "width": 99,
+        "height": 18,
+        "top": 62.900001525878906,
+        "right": 308,
+        "bottom": 80.9000015258789,
+        "left": 209
+      },
+      "down": 464,
+      "center": 160,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 320,
+        "height": 568,
+        "top": 0,
+        "right": 320,
+        "bottom": 568,
+        "left": 0
+      }
+    },
+    {
+      "width": 360,
+      "height": 640,
+      "hp": 100,
+      "tone": "green",
+      "label": "Health 100 of 100",
+      "text": "HP 100",
+      "rect": {
+        "x": 249,
+        "y": 54.5,
+        "width": 99,
+        "height": 18,
+        "top": 54.5,
+        "right": 348,
+        "bottom": 72.5,
+        "left": 249
+      },
+      "down": 536,
+      "center": 180,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 360,
+        "height": 640,
+        "top": 0,
+        "right": 360,
+        "bottom": 640,
+        "left": 0
+      }
+    },
+    {
+      "width": 360,
+      "height": 640,
+      "hp": 75,
+      "tone": "yellow",
+      "label": "Health 75 of 100",
+      "text": "HP 75",
+      "rect": {
+        "x": 249,
+        "y": 54.5,
+        "width": 99,
+        "height": 18,
+        "top": 54.5,
+        "right": 348,
+        "bottom": 72.5,
+        "left": 249
+      },
+      "down": 536,
+      "center": 180,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 360,
+        "height": 640,
+        "top": 0,
+        "right": 360,
+        "bottom": 640,
+        "left": 0
+      }
+    },
+    {
+      "width": 360,
+      "height": 640,
+      "hp": 50,
+      "tone": "orange",
+      "label": "Health 50 of 100",
+      "text": "HP 50",
+      "rect": {
+        "x": 249,
+        "y": 54.5,
+        "width": 99,
+        "height": 18,
+        "top": 54.5,
+        "right": 348,
+        "bottom": 72.5,
+        "left": 249
+      },
+      "down": 536,
+      "center": 180,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 360,
+        "height": 640,
+        "top": 0,
+        "right": 360,
+        "bottom": 640,
+        "left": 0
+      }
+    },
+    {
+      "width": 360,
+      "height": 640,
+      "hp": 25,
+      "tone": "red",
+      "label": "Health 25 of 100",
+      "text": "HP 25",
+      "rect": {
+        "x": 249,
+        "y": 54.5,
+        "width": 99,
+        "height": 18,
+        "top": 54.5,
+        "right": 348,
+        "bottom": 72.5,
+        "left": 249
+      },
+      "down": 536,
+      "center": 180,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 360,
+        "height": 640,
+        "top": 0,
+        "right": 360,
+        "bottom": 640,
+        "left": 0
+      }
+    },
+    {
+      "width": 360,
+      "height": 640,
+      "hp": 0,
+      "tone": "empty",
+      "label": "Health 0 of 100",
+      "text": "HP 0",
+      "rect": {
+        "x": 249,
+        "y": 54.5,
+        "width": 99,
+        "height": 18,
+        "top": 54.5,
+        "right": 348,
+        "bottom": 72.5,
+        "left": 249
+      },
+      "down": 536,
+      "center": 180,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 360,
+        "height": 640,
+        "top": 0,
+        "right": 360,
+        "bottom": 640,
+        "left": 0
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "hp": 100,
+      "tone": "green",
+      "label": "Health 100 of 100",
+      "text": "HP 100",
+      "rect": {
+        "x": 279.3999938964844,
+        "y": 60.400001525878906,
+        "width": 99,
+        "height": 18,
+        "top": 60.400001525878906,
+        "right": 378.3999938964844,
+        "bottom": 78.4000015258789,
+        "left": 279.3999938964844
+      },
+      "down": 740,
+      "center": 195.20000457763672,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 390.3999938964844,
+        "height": 844,
+        "top": 0,
+        "right": 390.3999938964844,
+        "bottom": 844,
+        "left": 0
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "hp": 75,
+      "tone": "yellow",
+      "label": "Health 75 of 100",
+      "text": "HP 75",
+      "rect": {
+        "x": 279.3999938964844,
+        "y": 60.400001525878906,
+        "width": 99,
+        "height": 18,
+        "top": 60.400001525878906,
+        "right": 378.3999938964844,
+        "bottom": 78.4000015258789,
+        "left": 279.3999938964844
+      },
+      "down": 740,
+      "center": 195.20000457763672,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 390.3999938964844,
+        "height": 844,
+        "top": 0,
+        "right": 390.3999938964844,
+        "bottom": 844,
+        "left": 0
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "hp": 50,
+      "tone": "orange",
+      "label": "Health 50 of 100",
+      "text": "HP 50",
+      "rect": {
+        "x": 279.3999938964844,
+        "y": 60.400001525878906,
+        "width": 99,
+        "height": 18,
+        "top": 60.400001525878906,
+        "right": 378.3999938964844,
+        "bottom": 78.4000015258789,
+        "left": 279.3999938964844
+      },
+      "down": 740,
+      "center": 195.20000457763672,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 390.3999938964844,
+        "height": 844,
+        "top": 0,
+        "right": 390.3999938964844,
+        "bottom": 844,
+        "left": 0
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "hp": 25,
+      "tone": "red",
+      "label": "Health 25 of 100",
+      "text": "HP 25",
+      "rect": {
+        "x": 279.3999938964844,
+        "y": 60.400001525878906,
+        "width": 99,
+        "height": 18,
+        "top": 60.400001525878906,
+        "right": 378.3999938964844,
+        "bottom": 78.4000015258789,
+        "left": 279.3999938964844
+      },
+      "down": 740,
+      "center": 195.20000457763672,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 390.3999938964844,
+        "height": 844,
+        "top": 0,
+        "right": 390.3999938964844,
+        "bottom": 844,
+        "left": 0
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "hp": 0,
+      "tone": "empty",
+      "label": "Health 0 of 100",
+      "text": "HP 0",
+      "rect": {
+        "x": 279.3999938964844,
+        "y": 60.400001525878906,
+        "width": 99,
+        "height": 18,
+        "top": 60.400001525878906,
+        "right": 378.3999938964844,
+        "bottom": 78.4000015258789,
+        "left": 279.3999938964844
+      },
+      "down": 740,
+      "center": 195.20000457763672,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 390.3999938964844,
+        "height": 844,
+        "top": 0,
+        "right": 390.3999938964844,
+        "bottom": 844,
+        "left": 0
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "hp": 100,
+      "tone": "green",
+      "label": "Health 100 of 100",
+      "text": "HP 100",
+      "rect": {
+        "x": 319.3999938964844,
+        "y": 60.400001525878906,
+        "width": 99,
+        "height": 18,
+        "top": 60.400001525878906,
+        "right": 418.3999938964844,
+        "bottom": 78.4000015258789,
+        "left": 319.3999938964844
+      },
+      "down": 828,
+      "center": 215.20000457763672,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 430.3999938964844,
+        "height": 932,
+        "top": 0,
+        "right": 430.3999938964844,
+        "bottom": 932,
+        "left": 0
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "hp": 75,
+      "tone": "yellow",
+      "label": "Health 75 of 100",
+      "text": "HP 75",
+      "rect": {
+        "x": 319.3999938964844,
+        "y": 60.400001525878906,
+        "width": 99,
+        "height": 18,
+        "top": 60.400001525878906,
+        "right": 418.3999938964844,
+        "bottom": 78.4000015258789,
+        "left": 319.3999938964844
+      },
+      "down": 828,
+      "center": 215.20000457763672,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 430.3999938964844,
+        "height": 932,
+        "top": 0,
+        "right": 430.3999938964844,
+        "bottom": 932,
+        "left": 0
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "hp": 50,
+      "tone": "orange",
+      "label": "Health 50 of 100",
+      "text": "HP 50",
+      "rect": {
+        "x": 319.3999938964844,
+        "y": 60.400001525878906,
+        "width": 99,
+        "height": 18,
+        "top": 60.400001525878906,
+        "right": 418.3999938964844,
+        "bottom": 78.4000015258789,
+        "left": 319.3999938964844
+      },
+      "down": 828,
+      "center": 215.20000457763672,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 430.3999938964844,
+        "height": 932,
+        "top": 0,
+        "right": 430.3999938964844,
+        "bottom": 932,
+        "left": 0
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "hp": 25,
+      "tone": "red",
+      "label": "Health 25 of 100",
+      "text": "HP 25",
+      "rect": {
+        "x": 319.3999938964844,
+        "y": 60.400001525878906,
+        "width": 99,
+        "height": 18,
+        "top": 60.400001525878906,
+        "right": 418.3999938964844,
+        "bottom": 78.4000015258789,
+        "left": 319.3999938964844
+      },
+      "down": 828,
+      "center": 215.20000457763672,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 430.3999938964844,
+        "height": 932,
+        "top": 0,
+        "right": 430.3999938964844,
+        "bottom": 932,
+        "left": 0
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "hp": 0,
+      "tone": "empty",
+      "label": "Health 0 of 100",
+      "text": "HP 0",
+      "rect": {
+        "x": 319.3999938964844,
+        "y": 60.400001525878906,
+        "width": 99,
+        "height": 18,
+        "top": 60.400001525878906,
+        "right": 418.3999938964844,
+        "bottom": 78.4000015258789,
+        "left": 319.3999938964844
+      },
+      "down": 828,
+      "center": 215.20000457763672,
+      "overflow": false,
+      "shell": {
+        "x": 0,
+        "y": 0,
+        "width": 430.3999938964844,
+        "height": 932,
+        "top": 0,
+        "right": 430.3999938964844,
+        "bottom": 932,
+        "left": 0
+      }
+    }
+  ],
+  "damageHealing": true,
+  "practiceRewardIdentical": true,
+  "transitionHp": 67,
+  "reducedMotion": "none",
+  "bossCaptured": true
+}

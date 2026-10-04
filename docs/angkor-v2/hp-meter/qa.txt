@@ -1,0 +1,45 @@
+async (page) => {
+  const results=[];
+  for (const [width,height] of [[320,568],[360,640],[390,844],[430,932]]) {
+    await page.setViewportSize({width,height});
+    for(const hp of [100,75,50,25,0]) {
+      await page.goto(`http://127.0.0.1:5174/dev/angkor-v2-mobile-layout.html?scenario=stage3&hp=${hp}&reward=1&safe=34`);
+      await page.waitForSelector('canvas');
+      await page.getByText(/^Entering .*…$/).waitFor({state:'hidden',timeout:60000});
+      await page.waitForTimeout(400);
+      const m=await page.evaluate(()=>{
+        const meter=document.querySelector('[role=meter]'),pad=document.querySelector('.v2-controls [role=group]').getBoundingClientRect();
+        return {hp:Number(meter.getAttribute('aria-valuenow')),tone:meter.dataset.tone,label:meter.getAttribute('aria-label'),text:meter.textContent,rect:meter.getBoundingClientRect().toJSON(),down:document.querySelector('[aria-label="Move Down"]').getBoundingClientRect().bottom,center:pad.x+pad.width/2,overflow:document.documentElement.scrollWidth>innerWidth,shell:document.querySelector('.angkor-v2-play').getBoundingClientRect().toJSON()};
+      });
+      if(m.hp!==hp||m.overflow||m.down>height-34||Math.abs(m.center-width/2)>.5||m.rect.right>width-12+.5||m.rect.height>18)throw Error(JSON.stringify(m));
+      results.push({width,height,...m});
+      await page.screenshot({path:`output/playwright/v2-hp-${width}-${hp}.png`,scale:'css'});
+    }
+  }
+  await page.setViewportSize({width:390,height:844});
+  const modes=[];
+  for(const reward of [0,1]) {
+    await page.goto(`http://127.0.0.1:5174/dev/angkor-v2-mobile-layout.html?hp=76&reward=${reward}&safe=34`);
+    await page.waitForSelector('[role=meter]');
+    const initial=await page.locator('[role=meter]').innerHTML();
+    for(const [hp,tone] of [[75,'yellow'],[42,'orange'],[67,'yellow']]) {
+      await page.evaluate(hp=>window.__v2LayoutQA.setHp(hp),hp);
+      await page.waitForFunction(({hp,tone})=>{const m=document.querySelector('[role=meter]');return m.getAttribute('aria-valuenow')===String(hp)&&m.dataset.tone===tone;},{hp,tone});
+    }
+    modes.push(initial);
+  }
+  if(modes[0]!==modes[1])throw Error('Practice/reward meter differs');
+  await page.goto('http://127.0.0.1:5174/dev/angkor-v2-mobile-layout.html?scenario=transition&hp=67&reward=1&safe=34');
+  await page.waitForSelector('[aria-label="Stage complete"]');
+  if(await page.locator('[role=meter]').getAttribute('aria-valuenow')!=='67')throw Error('Transition HP changed');
+  await page.screenshot({path:'output/playwright/v2-hp-transition-67.png',scale:'css'});
+  await page.emulateMedia({reducedMotion:'reduce'});
+  const animation=await page.locator('[role=meter]').evaluate(e=>getComputedStyle(e).animationName);
+  if(animation!=='none')throw Error('Nonessential animation');
+  await page.goto('http://127.0.0.1:5174/dev/angkor-v2-mobile-layout.html?scenario=stage3&boss=1&hp=100&safe=34');
+  await page.waitForSelector('canvas');
+  await page.getByText(/^Entering .*…$/).waitFor({state:'hidden',timeout:60000});
+  await page.waitForFunction(()=>window.__v2LayoutQA.session.state.angkorV2.local.anaconda.mode==='VULNERABLE',{},{timeout:60000});
+  await page.screenshot({path:'output/playwright/v2-hp-anaconda.png',scale:'css'});
+  return {results,damageHealing:true,practiceRewardIdentical:true,transitionHp:67,reducedMotion:animation,bossCaptured:true};
+}

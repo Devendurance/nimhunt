@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { DirectionalDpad } from './DirectionalDpad'
 import { SoundToggle } from './SoundToggle'
+import { AngkorV2HealthMeter } from './AngkorV2HealthMeter'
 import { createProofScene, type ProofScene } from '../../game/angkorV2Proof/createScene'
 import type { V2Session } from '../../game/angkorV2Proof/session'
 import { getSharedAudio } from '../../audio/nimhuntAudio'
@@ -60,7 +61,7 @@ export function AngkorV2Gameplay({ session, practice, onLeave, completion }: { s
   return <main ref={shell} className="angkor-v2-play" onContextMenu={event => event.preventDefault()}>
     <div className="v2-hud">
     <header><div><span className="v2-kicker">ANGKOR RUINS · {practice ? 'PRACTICE' : 'REWARD EXPEDITION'}</span><h1>{getMissionTitle(e.mission)}</h1></div><SoundToggle /></header>
-    <div className="v2-stage-heading"><h2>Stage {['I', 'II', 'III'][e.currentStageIndex]} — {stageName}</h2><strong>HP {e.hp}</strong></div>
+    <div className="v2-stage-heading"><h2>Stage {['I', 'II', 'III'][e.currentStageIndex]} — {stageName}</h2><AngkorV2HealthMeter hp={e.hp} /></div>
     <p className="v2-objective">{objective}</p>
     {e.mission === 'chest-hunter' && e.currentStageIndex === 2 && <p className="v2-stage-help">Secure the Royal Cache before leaving.</p>}
     {e.mission === 'gem-runner' && e.currentStageIndex === 2 && <p className="v2-stage-help">Land three environmental boulder hits on the Anaconda.</p>}
