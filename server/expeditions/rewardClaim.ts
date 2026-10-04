@@ -172,7 +172,7 @@ export function toPrepareResult(claim: DurableRewardClaim): PrepareRewardClaimRe
       expiresAt: claim.expiresAt,
       reservationNumber: claim.reservationNumber,
       remainingSlots: null,
-      totalSlots: 69,
+      totalSlots: claim.totalSlots ?? 7,
     }
   }
   throw new ProofError('CLAIM_WINDOW_EXPIRED')
@@ -194,7 +194,7 @@ export function toFinalizeResult(
     runId: claim.runId,
     reservationNumber: extras.reservationNumber,
     remainingSlots: extras.remainingSlots,
-    totalSlots: 69,
+    totalSlots: claim.totalSlots ?? 7,
     finalizedAt: claim.finalizedAt ?? claim.createdAt,
   }
 }

@@ -12,7 +12,7 @@ export const PAYOUT_STATUSES = [
 export type PayoutStatus = (typeof PAYOUT_STATUSES)[number]
 
 export const LUNA_PER_NIM = 100_000n
-export const DAILY_REWARD_SLOTS = 69
+export const DAILY_REWARD_SLOTS = 7
 export const BETA_REWARD_AMOUNT_LUNA = 10_000_000n
 export const BETA_MAX_DAILY_REWARD_LUNA = 690_000_000n
 export const AUTOMATED_PAYOUT_FEE_LUNA = 0n

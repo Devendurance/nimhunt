@@ -1,7 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import {
   DAILY_EXPEDITION_LIMIT,
-  DAILY_REWARD_SLOTS,
   type LedgerErrorCode,
 } from '../../src/domain/dailyLedger.js'
 import { LedgerError } from './errors.js'
@@ -51,14 +50,14 @@ export function createPostgresDailyLedger(client: SupabaseClient): DailyLedger {
         reserved: true as const,
         reservationNumber: asNumber(data.reservation_number),
         remainingSlots: asNumber(data.remaining_slots),
-        totalSlots: DAILY_REWARD_SLOTS,
+        totalSlots: asNumber(data.total_slots),
       }
     },
 
     async getDailyHuntStatus() {
       const data = await rpc(client, 'get_daily_hunt_status', {})
       return {
-        totalSlots: DAILY_REWARD_SLOTS,
+        totalSlots: asNumber(data.total_slots),
         reservedSlots: asNumber(data.reserved_slots),
         remainingSlots: asNumber(data.remaining_slots),
         dayKey: asDayKey(data.day_key),
@@ -80,11 +79,11 @@ export function createPostgresDailyLedger(client: SupabaseClient): DailyLedger {
     },
 
     async seedReservedSlots(count) {
-      if (count < 0 || count > DAILY_REWARD_SLOTS) throw new LedgerError('MALFORMED_REQUEST')
+      if (count < 0 || count > (await this.getDailyHuntStatus()).totalSlots) throw new LedgerError('MALFORMED_REQUEST')
       const status = await this.getDailyHuntStatus()
       const { error } = await client.from('daily_reward_pools').upsert({
         day_key: status.dayKey,
-        total_slots: DAILY_REWARD_SLOTS,
+        total_slots: status.totalSlots,
         reserved_slots: count,
       })
       if (error) throw new LedgerError('LEDGER_UNAVAILABLE')

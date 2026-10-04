@@ -579,7 +579,7 @@ export function parsePrepareRewardClaimResult(value: unknown): PrepareRewardClai
   }
   if (value.outcome !== 'SOLD_OUT' && value.outcome !== 'ALREADY_REWARDED' && value.outcome !== 'RESERVED') return null
   if (!hasExactKeys(value, ['ok', 'outcome', 'claimId', 'runId', 'expiresAt', 'reservationNumber', 'remainingSlots', 'totalSlots'])) return null
-  if (!isBoundedString(value.claimId, 128) || !isBoundedString(value.runId, 128) || !isIsoTimestamp(value.expiresAt) || value.totalSlots !== 69) return null
+  if (!isBoundedString(value.claimId, 128) || !isBoundedString(value.runId, 128) || !isIsoTimestamp(value.expiresAt) || (value.totalSlots !== 7 && value.totalSlots !== 69)) return null
   if (value.reservationNumber !== null && !isPositiveInteger(value.reservationNumber)) return null
   if (value.remainingSlots !== null && !isNonNegativeInteger(value.remainingSlots)) return null
   return {
@@ -589,14 +589,14 @@ export function parsePrepareRewardClaimResult(value: unknown): PrepareRewardClai
     expiresAt: value.expiresAt,
     reservationNumber: value.reservationNumber,
     remainingSlots: value.remainingSlots,
-    totalSlots: 69,
+    totalSlots: value.totalSlots as number,
   }
 }
 
 export function parseFinalizeRewardClaimResult(value: unknown): FinalizeRewardClaimResult | null {
   if (!isRecord(value) || !hasExactKeys(value, ['ok', 'outcome', 'claimId', 'runId', 'reservationNumber', 'remainingSlots', 'totalSlots', 'finalizedAt'])) return null
   if (value.ok !== true || (value.outcome !== 'RESERVED' && value.outcome !== 'SOLD_OUT' && value.outcome !== 'ALREADY_REWARDED')) return null
-  if (!isBoundedString(value.claimId, 128) || !isBoundedString(value.runId, 128) || value.totalSlots !== 69 || !isIsoTimestamp(value.finalizedAt)) return null
+  if (!isBoundedString(value.claimId, 128) || !isBoundedString(value.runId, 128) || (value.totalSlots !== 7 && value.totalSlots !== 69) || !isIsoTimestamp(value.finalizedAt)) return null
   if (value.reservationNumber !== null && !isPositiveInteger(value.reservationNumber)) return null
   if (value.remainingSlots !== null && !isNonNegativeInteger(value.remainingSlots)) return null
   if (value.outcome === 'RESERVED' && (value.reservationNumber === null || value.remainingSlots === null)) return null
@@ -606,7 +606,7 @@ export function parseFinalizeRewardClaimResult(value: unknown): FinalizeRewardCl
     runId: value.runId,
     reservationNumber: value.reservationNumber,
     remainingSlots: value.remainingSlots,
-    totalSlots: 69,
+    totalSlots: value.totalSlots as number,
     finalizedAt: value.finalizedAt,
   }
 }

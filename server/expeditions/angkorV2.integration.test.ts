@@ -57,8 +57,8 @@ describe('wallet-authorized V2 production proof pipeline (local memory; no trans
     if (claim.outcome !== 'PREPARED') throw new Error('Claim not prepared')
     const finalized = await f.service.finalizeRewardClaim({ session: f.session, claimId: claim.claimId, ...f.sign(claim.canonicalPayload) })
     expect(finalized.outcome).toBe('RESERVED')
-    expect(finalized.totalSlots).toBe(69)
-    expect(f.service.getRewardClaim(claim.claimId, f.session).rewardAmountLuna).toBe(10_000_000n)
+    expect(finalized.totalSlots).toBe(7)
+    expect(f.service.getRewardClaim(claim.claimId, f.session).rewardAmountLuna).toBe(100_000_000n)
     expect(f.service.getWalletDailyStatus(f.wallet).expeditionsRemaining).toBe(2)
     expect(() => verifyExpeditionRun({ ...run, actions: [], state: { ...run.state, angkorV2: { ...run.state.angkorV2!, local: { forgedBoss: true } } } }, { checkpointHash, now: f.now() })).toThrow()
     // Even a forged summary with internally recomputed hashes cannot replace

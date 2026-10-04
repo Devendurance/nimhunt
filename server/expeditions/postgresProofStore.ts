@@ -448,7 +448,7 @@ export async function createPostgresProofService(options: {
       }
       const gated = await evaluateClaimRisk(rpc, run, input.session, input.risk, rewardPolicy)
       if (gated.blocked) throw new ProofError('CLAIM_NOT_ELIGIBLE')
-      const rewardAmountLuna = rewardPolicy.resolveForDay(run.dayKey).amountLuna
+      const rewardAmountLuna = stored.rewardAmountLuna ?? rewardPolicy.resolveForDay(run.dayKey).amountLuna
       if (rewardAmountLuna === null) throw new ProofError('REWARD_UNAVAILABLE')
       verifySignedRewardClaim(run, stored, {
         claimId: input.claimId,
@@ -953,8 +953,9 @@ async function evaluateClaimRisk(
   rewardPolicy: RewardPolicy,
 ) {
   const economics = rewardPolicy.resolveForDay(run.dayKey)
+  if (economics.amountLuna === null) throw new ProofError('REWARD_UNAVAILABLE')
   if (economics.maxDailyRewardLuna !== null
-    && (economics.amountLuna === null || economics.amountLuna * 69n > economics.maxDailyRewardLuna)) {
+    && (economics.amountLuna === null || economics.amountLuna * BigInt(economics.totalSlots) > economics.maxDailyRewardLuna)) {
     throw new ProofError('REWARD_UNAVAILABLE')
   }
   const installIdHash = risk?.installId ? hashInstallId(risk.installId) : null
@@ -966,11 +967,12 @@ async function evaluateClaimRisk(
     p_install_id_hash: installIdHash,
     p_pattern_hash: patternHash,
   }))
+  if (asNumber(context.total_slots) !== economics.totalSlots) throw new ProofError('REWARD_UNAVAILABLE')
   const existingStatus = context.existing_claim_status
   if (existingStatus === 'RESERVED' || existingStatus === 'SOLD_OUT' || existingStatus === 'ALREADY_REWARDED' || existingStatus === 'PREPARED') {
     return { blocked: null as ReturnType<typeof toRiskPrepareResult> }
   }
-  if (asNumber(context.wallet_rewards_reserved) >= 1 || asNumber(context.reserved_slots) >= 69) {
+  if (asNumber(context.wallet_rewards_reserved) >= 1 || asNumber(context.reserved_slots) >= asNumber(context.total_slots)) {
     return { blocked: null as ReturnType<typeof toRiskPrepareResult> }
   }
   const assessment = assessRewardRisk({
@@ -1013,6 +1015,7 @@ function asRewardClaim(value: unknown): DurableRewardClaim {
     createdAt: asIso(row.created_at),
     expiresAt: asIso(row.expires_at),
     finalizedAt: row.finalized_at == null ? null : asIso(row.finalized_at),
+    totalSlots: asNumber(row.total_slots),
     rewardAmountLuna: row.reward_amount_luna == null ? null : asPositiveBigInt(row.reward_amount_luna),
     reservationNumber: row.reservation_number == null ? null : asNumber(row.reservation_number),
   }

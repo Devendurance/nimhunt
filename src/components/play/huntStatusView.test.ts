@@ -2,6 +2,15 @@ import { describe, expect, it } from 'vitest'
 import { formatExpeditionsLeftToday, formatResetCountdown, formatRewardWeekCountdown, resolveHuntStatusView } from './huntStatusView.ts'
 
 describe('HuntStatus live treasure view', () => {
+  it('shows the permanent7 pool and SOLD_OUT until UTC reset', () => {
+    for (let remainingSlots = 7; remainingSlots >= 0; remainingSlots--) {
+      const view=resolveHuntStatusView({kind:'live',remainingSlots,totalSlots:7,nextResetAt:'2026-10-11T00:00:00.000Z',walletStatus:null},Date.parse('2026-10-10T12:00:00.000Z'))
+      expect(view.treasuresTotal).toBe('7')
+      expect(view.treasuresRemaining).toBe(String(remainingSlots))
+      expect(view.badge).toBe(remainingSlots===0?'SOLD OUT':'LIVE')
+      expect(view.resetDisplay).toBe('12:00:00')
+    }
+  })
   it('does not present the fixture treasure count as live while loading or unavailable', () => {
     const loading = resolveHuntStatusView({ kind: 'loading', walletStatus: null })
     const unavailable = resolveHuntStatusView({ kind: 'unavailable', walletStatus: null })

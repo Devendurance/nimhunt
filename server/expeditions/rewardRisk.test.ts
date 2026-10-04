@@ -114,7 +114,7 @@ async function completeRun(
 }
 
 describe('pre-reservation risk gate', () => {
-  it('passes a real-human-like run and preserves the 69-slot reservation', async () => {
+  it('passes a real-human-like run and preserves the seven-slot reservation', async () => {
     const started = await startRun(createClock())
     const run = await completeRun(started, true)
     const prepared = await started.service.prepareRewardClaim(run.runId, started.authorized.session, {
@@ -130,7 +130,7 @@ describe('pre-reservation risk gate', () => {
       signature: started.keyPair.sign(nimiqSignedMessageHash(prepared.canonicalPayload)).toHex(),
       risk: { installId: '11111111-1111-4111-8111-111111111111' },
     })
-    expect(reserved).toMatchObject({ outcome: 'RESERVED', reservationNumber: 1, remainingSlots: 68, totalSlots: 69 })
+    expect(reserved).toMatchObject({ outcome: 'RESERVED', reservationNumber: 1, remainingSlots: 6, totalSlots: 7 })
   })
 
   it('blocks an impossible-speed run without consuming a slot', async () => {

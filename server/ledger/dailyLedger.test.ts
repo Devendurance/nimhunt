@@ -133,8 +133,8 @@ describe('daily expedition ledger', () => {
     expect(first).toEqual({
       reserved: true,
       reservationNumber: 1,
-      remainingSlots: 68,
-      totalSlots: 69,
+      remainingSlots: 6,
+      totalSlots: 7,
     })
 
     await expect(ledger.reserveDailyReward(started.runId, address)).rejects.toMatchObject({
@@ -163,9 +163,9 @@ describe('daily expedition ledger', () => {
     expect((await ledger.getDailyHuntStatus()).reservedSlots).toBe(1)
   })
 
-  it('assigns reservation 69 then rejects slot 70 as SOLD_OUT', async () => {
+  it('assigns reservation 7 then rejects slot 8 as SOLD_OUT', async () => {
     const { ledger } = createLedger()
-    await ledger.seedReservedSlots(68)
+    await ledger.seedReservedSlots(6)
 
     const winner = wallet()
     const extra = wallet()
@@ -175,7 +175,7 @@ describe('daily expedition ledger', () => {
     await ledger.completeRun(extraRun.runId, extra)
 
     const reserved = await ledger.reserveDailyReward(winningRun.runId, winner)
-    expect(reserved.reservationNumber).toBe(69)
+    expect(reserved.reservationNumber).toBe(7)
     expect(reserved.remainingSlots).toBe(0)
 
     await expect(ledger.reserveDailyReward(extraRun.runId, extra)).rejects.toMatchObject({
@@ -183,14 +183,14 @@ describe('daily expedition ledger', () => {
     })
 
     const hunt = await ledger.getDailyHuntStatus()
-    expect(hunt.reservedSlots).toBe(69)
+    expect(hunt.reservedSlots).toBe(7)
     expect(hunt.remainingSlots).toBe(0)
     expect(hunt.totalSlots).toBe(DAILY_REWARD_SLOTS)
   })
 
   it('lets exactly one concurrent final-slot request win', async () => {
     const { ledger } = createLedger()
-    await ledger.seedReservedSlots(68)
+    await ledger.seedReservedSlots(6)
 
     const contestants = await Promise.all(
       Array.from({ length: 8 }, async () => {
@@ -213,9 +213,9 @@ describe('daily expedition ledger', () => {
     expect(wins).toHaveLength(1)
     const winner = wins[0]
     if (winner.status !== 'fulfilled') throw new Error('expected a fulfilled reservation')
-    expect(winner.value.reservationNumber).toBe(69)
+    expect(winner.value.reservationNumber).toBe(7)
     expect(soldOut).toHaveLength(7)
-    expect((await ledger.getDailyHuntStatus()).reservedSlots).toBe(69)
+    expect((await ledger.getDailyHuntStatus()).reservedSlots).toBe(7)
   })
 
   it('never lets expeditions or reserved slots exceed their limits', async () => {
@@ -229,7 +229,7 @@ describe('daily expedition ledger', () => {
     })
     expect((await ledger.getWalletDailyStatus(address)).expeditionsStarted).toBe(DAILY_EXPEDITION_LIMIT)
 
-    await ledger.seedReservedSlots(69)
+    await ledger.seedReservedSlots(7)
     const other = wallet()
     const run = await ledger.startExpedition(other, 'chest-hunter')
     await ledger.completeRun(run.runId, other)
@@ -268,7 +268,7 @@ describe('daily expedition ledger', () => {
 describe('daily ledger HTTP surface', () => {
   it('returns public hunt status without a wallet', async () => {
     const { ledger } = createLedger()
-    await ledger.seedReservedSlots(10)
+    await ledger.seedReservedSlots(2)
     const response = await dispatchLedgerHttp(ledger, {
       method: 'GET',
       path: '/api/daily-hunt-status',
@@ -277,9 +277,9 @@ describe('daily ledger HTTP surface', () => {
     expect(response.status).toBe(200)
     expect(response.body).toMatchObject({
       ok: true,
-      totalSlots: 69,
-      reservedSlots: 10,
-      remainingSlots: 59,
+      totalSlots: 7,
+      reservedSlots: 2,
+      remainingSlots: 5,
       nextResetAt: '2026-09-09T00:00:00.000Z',
       dayKey: '2026-09-08',
     })
@@ -327,7 +327,7 @@ describe('daily ledger HTTP surface', () => {
     const reserved = await dispatchLedgerHttp(ledger, {
       method: 'POST',
       path: '/api/rewards/reserve',
-      body: { runId, wallet: address, reservationNumber: 69 },
+      body: { runId, wallet: address, reservationNumber: 7 },
     })
     expect(reserved.body).toMatchObject({
       ok: true,
@@ -348,14 +348,14 @@ describe('daily ledger HTTP surface', () => {
 
 describe('atomic reservation SQL', () => {
   it('increments reserved_slots in Postgres, never in an unlocked JavaScript read/write', () => {
-    const sqlPath = join(dirname(fileURLToPath(import.meta.url)), 'sql', '001_daily_ledger.sql')
+    const sqlPath = join(dirname(fileURLToPath(import.meta.url)), 'sql', '021_permanent_seven_treasures.sql')
     const sql = readFileSync(sqlPath, 'utf8')
 
     const executable = sql.replace(/--.*$/gm, '')
     expect(executable).toMatch(/reserved_slots\s*=\s*reserved_slots\s*\+\s*1/)
-    expect(executable).toMatch(/reserved_slots\s*<\s*69/)
+    expect(executable).toMatch(/reserved_slots\s*<\s*total_slots/)
     expect(executable).toMatch(/for update/i)
     expect(executable).toMatch(/enable row level security/i)
-    expect(executable).not.toMatch(/payout|treasury|private_key|luna|transfer/i)
+    expect(executable).not.toMatch(/execute_payout|treasury_private_key|send_transaction/i)
   })
 })

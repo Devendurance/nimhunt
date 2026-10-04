@@ -26,6 +26,7 @@ describe('isolated PostgreSQL V2 migration, persistence and legacy coexistence',
     for (const file of readdirSync('server/ledger/sql').filter(f => /^\d+.*\.sql$/.test(f)).sort()) {
       try { await db.exec(readFileSync(`server/ledger/sql/${file}`, 'utf8')) } catch (error) { throw new Error(`${file}: ${(error as Error).message}`, { cause: error }) }
     }
+    await db.exec("update permanent_reward_policy set starts_at=date_trunc('day',now() at time zone 'UTC') at time zone 'UTC'")
   }, 120_000)
   afterAll(async () => { await db.close() })
   for (const mission of ['gem-runner', 'chest-hunter', 'vault-breaker'] as const) it(`${mission}: persisted full replay, service restart and one reservation through unchanged pipeline`, async () => {

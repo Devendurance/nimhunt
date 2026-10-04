@@ -1,0 +1,43 @@
+### Ran Playwright code
+```js
+await (async (page) => {
+  // Local presentation fixtures only. No reward-run or financial writes.
+  let remaining = 7;
+  const writes = [];
+  await page.route('**/api/**', async route => {
+    const request = route.request();
+    const path = new URL(request.url()).pathname;
+    if (request.method() !== 'GET') {
+      writes.push(path);
+      return route.abort();
+    }
+    if (path === '/api/daily-hunt-status') {
+      const tomorrow = new Date(); tomorrow.setUTCDate(tomorrow.getUTCDate()+1); tomorrow.setUTCHours(0,0,0,0);
+      return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,totalSlots:7,reservedSlots:7-remaining,remainingSlots:remaining,dayKey:new Date().toISOString().slice(0,10),nextResetAt:tomorrow.toISOString()})});
+    }
+    return route.continue();
+  });
+  await page.setViewportSize({width:390,height:844});
+  const results=[];
+  for (const count of [7,0]) {
+    remaining=count;
+    await page.goto('http://127.0.0.1:5174/play');
+    await page.getByText('7 DAILY TREASURES',{exact:true}).waitFor();
+    if (!count) await page.getByText('SOLD OUT',{exact:true}).waitFor();
+    const status=page.locator('section[aria-labelledby="hunt-status-heading"]');
+    await status.scrollIntoViewIfNeeded();
+    await page.screenshot({path:`output/playwright/seven-treasures-${count?'available':'sold-out'}-390.png`});
+    results.push({remaining:count,text:await status.innerText(),overflow:await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)});
+  }
+  if (writes.length) throw new Error(`Unexpected writes: ${writes.join(',')}`);
+  if (results.some(r=>r.overflow)) throw new Error('Horizontal overflow');
+  console.log(JSON.stringify({fixtureOnly:true,width:390,results,writes},null,2));
+}
+)(page);
+```
+### Page
+- Page URL: http://127.0.0.1:5174/play
+- Page Title: NimHunt — Explore. Survive. Seal.
+- Console: 2 errors, 1 warnings
+### Events
+- New console entries: .playwright-cli\console-2026-10-04T20-12-23-818Z.log#L12-L47

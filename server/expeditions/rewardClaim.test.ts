@@ -390,7 +390,7 @@ describe('signed product reward claim', () => {
       body: { claimId: body.claimId, payload: body.canonicalPayload, publicKey: signed.publicKey, signature: signed.signature },
     }, SECURITY)
     expect(finalized.status).toBe(200)
-    expect(finalized.body).toMatchObject({ ok: true, outcome: 'RESERVED', totalSlots: 69, reservationNumber: 1 })
+    expect(finalized.body).toMatchObject({ ok: true, outcome: 'RESERVED', totalSlots: 7, reservationNumber: 1 })
     expect(ready.service.getWalletDailyStatus(ready.wallet).expeditionsStarted).toBe(before.expeditionsStarted)
   }, 15_000)
 })

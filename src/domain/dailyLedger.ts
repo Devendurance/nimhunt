@@ -1,4 +1,4 @@
-export const DAILY_REWARD_SLOTS = 69
+export const DAILY_REWARD_SLOTS = 7
 export const DAILY_EXPEDITION_LIMIT = 3
 export const DAILY_REWARD_LIMIT_PER_WALLET = 1
 

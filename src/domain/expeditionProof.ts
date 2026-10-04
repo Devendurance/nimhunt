@@ -95,7 +95,7 @@ export type ProductProofState =
   | 'REJECTED'
 
 export type ProductReservationOutcome =
-  | { readonly status: 'RESERVED'; readonly reservationNumber: number; readonly remainingSlots: number; readonly totalSlots: 69 }
+  | { readonly status: 'RESERVED'; readonly reservationNumber: number; readonly remainingSlots: number; readonly totalSlots: number }
   | { readonly status: 'SOLD_OUT' }
   | { readonly status: 'ALREADY_REWARDED' }
   | { readonly status: 'CLAIM_WINDOW_EXPIRED' }
@@ -253,7 +253,7 @@ export type PrepareRewardClaimResult =
       readonly expiresAt: string
       readonly reservationNumber: number | null
       readonly remainingSlots: number | null
-      readonly totalSlots: 69
+      readonly totalSlots: number
     }
   | {
       readonly outcome: 'REVIEW'
@@ -271,7 +271,7 @@ export type FinalizeRewardClaimResult = {
   readonly runId: string
   readonly reservationNumber: number | null
   readonly remainingSlots: number | null
-  readonly totalSlots: 69
+  readonly totalSlots: number
   readonly finalizedAt: string
 }
 

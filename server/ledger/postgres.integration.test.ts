@@ -15,7 +15,8 @@ const integrationEnabled = env.NIMHUNT_LEDGER_INTEGRATION === '1' || process.env
 describe.skipIf(!config || !integrationEnabled)('postgres daily ledger integration', () => {
   it('gives exactly one winner for the final reward slot', async () => {
     const ledger = createPostgresDailyLedger(createSupabaseAdminClient(config!))
-    await ledger.seedReservedSlots(68)
+    const { totalSlots } = await ledger.getDailyHuntStatus()
+    await ledger.seedReservedSlots(totalSlots - 1)
 
     const contestants = await Promise.all(
       Array.from({ length: 4 }, async () => {
@@ -37,6 +38,6 @@ describe.skipIf(!config || !integrationEnabled)('postgres daily ledger integrati
 
     expect(wins).toHaveLength(1)
     expect(soldOut.length).toBeGreaterThanOrEqual(1)
-    expect((await ledger.getDailyHuntStatus()).reservedSlots).toBe(69)
+    expect((await ledger.getDailyHuntStatus()).reservedSlots).toBe(totalSlots)
   })
 })

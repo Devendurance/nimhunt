@@ -49,7 +49,7 @@ export function resolveHuntStatusView(source: HuntTreasureSource, nowMs = Date.n
     treasuresTotal: String(source.totalSlots),
     ...walletAttemptView(source.walletStatus),
     resetDisplay: formatResetCountdown(source.nextResetAt, nowMs),
-    badge: 'LIVE',
+    badge: source.remainingSlots === 0 ? 'SOLD OUT' : 'LIVE',
     live: true,
     busy: false,
     rewardWeek: source.rewardWeek ?? null,

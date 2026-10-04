@@ -1,7 +1,6 @@
 import { PayoutError } from './errors.js'
-import { createRewardPolicy, type RewardPolicy } from '../rewards/policy.js'
+import { createRewardPolicy, LEGACY_DAILY_REWARD_SLOTS, PERMANENT_AMOUNT_LUNA, type RewardPolicy } from '../rewards/policy.js'
 import {
-  DAILY_REWARD_SLOTS,
   LUNA_PER_NIM,
   PAYOUT_NETWORKS,
   type PayoutNetwork,
@@ -71,7 +70,7 @@ export function requireAutomaticPayoutConfig(
     throw new PayoutError('PAYOUT_DAILY_CAP_INVALID')
   }
   if (effective.maxDailyRewardLuna <= 0n) throw new PayoutError('PAYOUT_DAILY_CAP_INVALID')
-  if (amountLuna * BigInt(DAILY_REWARD_SLOTS) > effective.maxDailyRewardLuna) {
+  if (amountLuna * BigInt(config.rewardPolicy?.resolveAt(at).totalSlots ?? (amountLuna === PERMANENT_AMOUNT_LUNA ? 7 : LEGACY_DAILY_REWARD_SLOTS)) > effective.maxDailyRewardLuna) {
     throw new PayoutError('PAYOUT_DAILY_CAP_INVALID')
   }
   if (config.treasuryMinReserveLuna === null || config.treasuryMinReserveLuna === undefined) {
@@ -98,15 +97,9 @@ export function resolvePayoutEconomics(
     }
   }
   const economics = rewardPolicy.resolveAt(at)
-  if (!economics.rewardWeekActive) {
-    return {
-      amountLuna: config.amountLuna ?? null,
-      maxDailyRewardLuna: config.maxDailyRewardLuna ?? null,
-    }
-  }
   return {
-    amountLuna: economics.amountLuna,
-    maxDailyRewardLuna: economics.maxDailyRewardLuna,
+    amountLuna: config.amountLuna === null ? null : economics.amountLuna,
+    maxDailyRewardLuna: config.maxDailyRewardLuna == null ? null : economics.maxDailyRewardLuna,
   }
 }
 

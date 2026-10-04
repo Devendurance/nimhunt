@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { DAILY_REWARD_SLOTS } from '../../src/domain/dailyLedger.ts'
 import { createRewardPolicy, REWARD_WEEK_DURATION_MS } from './policy.ts'
 
 const START = '2026-10-05T00:00:00.000Z'
@@ -79,9 +78,9 @@ describe('Reward Week policy', () => {
     expect(rewardWeek).not.toBeNull()
     if (!rewardWeek) throw new Error('REWARD_WEEK_EXPECTED')
     expect(rewardWeek.endsAt.getTime() - rewardWeek.startsAt.getTime()).toBe(REWARD_WEEK_DURATION_MS)
-    expect(EVENT_AMOUNT * BigInt(DAILY_REWARD_SLOTS)).toBe(99_999_975n)
-    expect(EVENT_AMOUNT * BigInt(DAILY_REWARD_SLOTS)).toBeLessThanOrEqual(EVENT_CAP)
-    expect(EVENT_AMOUNT * BigInt(DAILY_REWARD_SLOTS) * 7n).toBe(699_999_825n)
+    expect(EVENT_AMOUNT * 69n).toBe(99_999_975n)
+    expect(EVENT_AMOUNT * 69n).toBeLessThanOrEqual(EVENT_CAP)
+    expect(EVENT_AMOUNT * 69n * 7n).toBe(699_999_825n)
   })
 
   it('publishes no active UI state outside the same policy window', () => {

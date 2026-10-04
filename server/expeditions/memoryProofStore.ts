@@ -1,6 +1,6 @@
 import { isV2Blueprint } from '../../src/game/angkorV2Proof/blueprint.js'
 import { randomBytes, randomUUID } from 'node:crypto'
-import { DAILY_EXPEDITION_LIMIT, DAILY_REWARD_SLOTS } from '../../src/domain/dailyLedger.js'
+import { DAILY_EXPEDITION_LIMIT } from '../../src/domain/dailyLedger.js'
 import { parseProductVaultSeal } from '../../src/domain/productVaultSeal.js'
 import type {
   ProductActiveExpedition,
@@ -151,8 +151,9 @@ export function createMemoryProofService(options: {
 
   function evaluateClaimRisk(run: DurableExpeditionRun, risk?: RiskContext) {
     const economics = rewardPolicy.resolveForDay(run.dayKey)
+    if (economics.amountLuna === null) throw new ProofError('REWARD_UNAVAILABLE')
     if (economics.maxDailyRewardLuna !== null
-      && (economics.amountLuna === null || economics.amountLuna * BigInt(DAILY_REWARD_SLOTS) > economics.maxDailyRewardLuna)) {
+      && (economics.amountLuna === null || economics.amountLuna * BigInt(economics.totalSlots) > economics.maxDailyRewardLuna)) {
       throw new ProofError('REWARD_UNAVAILABLE')
     }
     const installIdHash = installHash(risk)
@@ -542,12 +543,12 @@ export function createMemoryProofService(options: {
           return toPrepareResult(existing)
         }
         const already = (walletRewards.get(walletKey(run.dayKey, run.wallet)) ?? 0) >= 1
-        const soldOut = (reservedSlots.get(run.dayKey) ?? 0) >= DAILY_REWARD_SLOTS
+        const soldOut = (reservedSlots.get(run.dayKey) ?? 0) >= rewardPolicy.resolveForDay(run.dayKey).totalSlots
         if (!already && !soldOut) {
           const blocked = toRiskPrepareResult(run.runId, evaluateClaimRisk(run, risk))
           if (blocked) return blocked
         }
-        const prepared = createPreparedRewardClaim(run, now)
+        const prepared = { ...createPreparedRewardClaim(run, now), rewardAmountLuna: rewardPolicy.resolveForDay(run.dayKey).amountLuna, totalSlots: rewardPolicy.resolveForDay(run.dayKey).totalSlots }
         const claim: DurableRewardClaim = already
           ? { ...prepared, status: 'ALREADY_REWARDED', finalizedAt: now.toISOString() }
           : soldOut
@@ -567,7 +568,7 @@ export function createMemoryProofService(options: {
         if (stored.status === 'RESERVED' || stored.status === 'SOLD_OUT' || stored.status === 'ALREADY_REWARDED') {
           if (stored.canonicalPayload !== input.payload) throw new ProofError('CLAIM_MISMATCH')
           return toFinalizeResult(stored, {
-            remainingSlots: DAILY_REWARD_SLOTS - (reservedSlots.get(run.dayKey) ?? 0),
+            remainingSlots: rewardPolicy.resolveForDay(run.dayKey).totalSlots - (reservedSlots.get(run.dayKey) ?? 0),
             reservationNumber: stored.reservationNumber,
           })
         }
@@ -593,12 +594,12 @@ export function createMemoryProofService(options: {
           }
           claims.set(claim.claimId, claim)
           return toFinalizeResult(claim, {
-            remainingSlots: DAILY_REWARD_SLOTS - (reservedSlots.get(run.dayKey) ?? 0),
+            remainingSlots: rewardPolicy.resolveForDay(run.dayKey).totalSlots - (reservedSlots.get(run.dayKey) ?? 0),
             reservationNumber: null,
           })
         }
         const current = reservedSlots.get(run.dayKey) ?? 0
-        if (current >= DAILY_REWARD_SLOTS) {
+        if (current >= rewardPolicy.resolveForDay(run.dayKey).totalSlots) {
           const claim: DurableRewardClaim = {
             ...stored,
             status: 'SOLD_OUT',
@@ -620,12 +621,12 @@ export function createMemoryProofService(options: {
           publicKey: input.publicKey,
           signature: input.signature,
           finalizedAt: now.toISOString(),
-          rewardAmountLuna: economics.amountLuna,
+          rewardAmountLuna: stored.rewardAmountLuna ?? economics.amountLuna,
           reservationNumber,
         }
         claims.set(claim.claimId, claim)
         return toFinalizeResult(claim, {
-          remainingSlots: DAILY_REWARD_SLOTS - reservationNumber,
+          remainingSlots: rewardPolicy.resolveForDay(run.dayKey).totalSlots - reservationNumber,
           reservationNumber,
         })
       })
