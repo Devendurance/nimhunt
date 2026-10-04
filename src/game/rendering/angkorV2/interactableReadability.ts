@@ -2,12 +2,14 @@ import type { AngkorV2AssetKey } from '../../assets/angkorV2Manifest'
 
 export interface ItemProfile {
   readonly brightness: number; readonly saturation: number; readonly temperature: 'warm' | 'cool' | 'neutral'
-  readonly kind: 'key' | 'gem' | 'potion' | 'chest' | 'royal' | 'plate' | 'gate' | 'passage'
+  readonly kind: 'key' | 'gem' | 'potion' | 'chest' | 'royal' | 'plate' | 'gate' | 'passage' | 'mechanism'
   readonly color: number; readonly bob: boolean
 }
 const profile=(kind:ItemProfile['kind'],brightness:number,saturation:number,temperature:ItemProfile['temperature'],color:number,bob=false):ItemProfile=>({kind,brightness,saturation,temperature,color,bob})
 /** Rendering-only grades. No floor, wall, wildlife or collision asset is eligible. */
 export const ITEM_PROFILES:Partial<Record<AngkorV2AssetKey,ItemProfile>>={
+  'rotary-seal-v2':profile('mechanism',.05,1.05,'neutral',0x99e6ed),
+  'mechanism-core-v2':profile('key',.02,1.08,'neutral',0xa9eaff,true),
   'bronze-temple-key-v2':profile('key',.34,1.32,'warm',0xffdd78,true),
   'silver-archive-key-v2':profile('key',.38,1.12,'cool',0xd7f0ff,true),
   'royal-seal-key-v2':profile('key',.36,1.4,'warm',0xffe694,true),

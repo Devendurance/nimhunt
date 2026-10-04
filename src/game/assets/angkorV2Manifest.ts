@@ -89,6 +89,8 @@ const legacyDefinitions = [
   ["explorer-walk-v2", "player/explorer", 512, 768, 1,1, 22,31, 0.5,1, 'actor', false],
 ] as const
 const productionDefinitions = [
+  ['rotary-seal-v2', 'props/mechanisms', 1254,1254, 1,1, 40,40, .5,.5, 'ground-detail', false],
+  ['mechanism-core-v2', 'props/mechanisms', 1254,1254, 1,1, 34,36, .5,1147/1254, 'collectible', false],
   ['royal-cache-closed-v2', 'props/chests', 512,512, 1,1, 44,46, .5,500/512, 'prop', false],
   ['royal-cache-open-v2', 'props/chests', 512,512, 1,1, 44,46, .5,500/512, 'prop', false],
   ['royal-seal-key-v2', 'props/keys', 256,256, 1,1, 26,30, .5,248/256, 'collectible', false],

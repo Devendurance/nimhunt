@@ -1,7 +1,7 @@
 import { calculateMove } from '../../systems/movement'
 import { CHEST_POTION_HEAL } from '../../systems/chests'
 import { DIRECTION_VECTORS, type Direction, type GridCoord } from '../../world/grid'
-import { copyCarry, copyItems, freshCarry, type CarriedItems, type StageCarry, type StageResult } from '../contracts'
+import { copyCarry, copyItems, freshCarry, type CarriedItems, type StageCarry, type ApproachResult } from '../contracts'
 import { BOULDERS, EXIT, GATE, KEY, PLATE, PRESSURE_GATE, GEMS, POTION, MONKEY, RUBBLE, SNAKES, SPIKES, inZone, stageMap } from './level'
 
 export const SIMULATION_TICK_MS = 150
@@ -35,7 +35,7 @@ export interface StageState {
   snakes: { id: string; mode: 'dormant' | 'alert' | 'patrol'; index: number; nextTick: number }[]
   monkey: { mode: 'dormant' | 'tell' | 'recover'; perch: number; nextTick: number; target: GridCoord | null }
   rubble: { mode: 'armed' | 'tell' | 'recover'; nextTick: number }
-  exitUnlocked: boolean; result: StageResult | null; events: StageEvent[]
+  exitUnlocked: boolean; result: ApproachResult | null; events: StageEvent[]
 }
 export const sameCell = (a: GridCoord, b: GridCoord) => a.x === b.x && a.y === b.y
 export function initialStageState(input: StageCarry = freshCarry()): StageState {

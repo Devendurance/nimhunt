@@ -1,0 +1,119 @@
+async page=>{const approach=async page => {
+ await page.getByRole('button',{name:'Reset expedition'}).click();await page.getByRole('button',{name:'Start fresh expedition'}).click();
+ const selector='#vault-breaker-stage1-room',canvas=page.locator(selector);await canvas.waitFor();await page.waitForFunction(()=>document.querySelector('#vault-breaker-stage1-room')?.dataset.ready==='true');await page.getByText('Loading Temple Approach…',{exact:true}).waitFor({state:'hidden'});await page.waitForTimeout(250);await canvas.focus();
+ const read=()=>canvas.evaluate(c=>JSON.parse(c.dataset.state)),rows=await canvas.evaluate(c=>JSON.parse(c.dataset.collision));
+ const vectors={UP:[0,-1],DOWN:[0,1],LEFT:[-1,0],RIGHT:[1,0]},keys={UP:'ArrowUp',DOWN:'ArrowDown',LEFT:'ArrowLeft',RIGHT:'ArrowRight'};
+ const eq=(a,b)=>a.x===b.x&&a.y===b.y,shot=async name=>page.screenshot({path:'docs/angkor-v2/vault-breaker-stage2/qa/stage1-'+name+'.png',scale:'css'});
+ async function step(direction){
+  const s=await read(),v=vectors[direction],goal={x:s.player.x+v[0],y:s.player.y+v[1]};
+  await page.keyboard.press(keys[direction]);
+  await page.waitForFunction(({selector,goal})=>{const c=document.querySelector(selector);const s=JSON.parse(c.dataset.state);return s.player.x===goal.x&&s.player.y===goal.y&&c.dataset.moving==='false';},{selector,goal},{timeout:4000});
+  if((await read()).status==='failed')throw new Error('Player died');
+ }
+ async function walk(goal){
+  for(let n=0;n<200;n++){
+   const s=await read();if(eq(s.player,goal))return;
+   const queue=[{p:s.player,path:[]}],seen=new Set([s.player.x+','+s.player.y]);let path;
+   for(let i=0;i<queue.length;i++){
+    const cur=queue[i];if(eq(cur.p,goal)){path=cur.path;break;}
+    for(const[dir,v]of Object.entries(vectors)){
+     const p={x:cur.p.x+v[0],y:cur.p.y+v[1]},id=p.x+','+p.y;
+     if(seen.has(id)||!rows[p.y]||rows[p.y][p.x]==='#'||s.boulders.some(b=>eq(p,b)))continue;
+     if(p.x===20&&p.y===9&&!s.outerSealUnlocked&&!s.keyHeld)continue;
+     if(p.x===27&&p.y===7&&!s.mechanismGateOpen)continue;
+     if(p.x===28&&p.y===4&&!s.exitUnlocked)continue;
+     if(!eq(p,goal)&&((p.x===5||p.x===6)&&p.y===12||p.x===4&&p.y>=10&&p.y<=13||p.x===3&&p.y===13||p.x===22&&p.y>=9&&p.y<=11))continue;
+     seen.add(id);queue.push({p,path:[...cur.path,dir]});
+    }
+   }
+   if(!path?.length)throw new Error('No live route to '+JSON.stringify(goal));await step(path[0]);
+  }throw new Error('Route exhausted');
+ }
+ await shot('mobile-jungle-causeway');
+ const cdp=await page.context().newCDPSession(page);await cdp.send('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:1});
+ const box=await page.getByRole('button',{name:'Move Right',exact:true}).boundingBox();
+ await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:box.x+box.width/2,y:box.y+box.height/2}]});await page.waitForTimeout(420);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await cdp.detach();
+ await page.waitForFunction(()=>document.querySelector('#vault-breaker-stage1-room').dataset.moving==='false');await canvas.focus();
+ if((await read()).player.x<5)throw new Error('Touch hold did not repeat moves');
+ await walk({x:4,y:20});await page.keyboard.down('ArrowRight');await page.waitForTimeout(90);await page.keyboard.down('ArrowUp');await page.waitForTimeout(35);await page.keyboard.up('ArrowUp');await page.keyboard.up('ArrowRight');
+ await page.waitForFunction(()=>{const c=document.querySelector('#vault-breaker-stage1-room'),s=JSON.parse(c.dataset.state);return s.player.x===5&&s.player.y===19&&c.dataset.moving==='false';},{},{timeout:4000});
+ await walk({x:6,y:20});await walk({x:9,y:12});await shot('mobile-broken-watch');
+ // Deliberate spike injury, then optional immediate-use potion using existing isolated semantics.
+ await walk({x:5,y:12});await walk({x:2,y:12});await shot('mobile-potion-used');
+ await walk({x:13,y:7});await shot('mobile-key-stone');await step('UP');await walk({x:16,y:6});await shot('mobile-bronze-vault-key');await step('UP');
+ if(!(await read()).keyHeld)throw new Error('Key missing');
+ await walk({x:19,y:9});await shot('mobile-outer-seal-locked');await step('RIGHT');if(!(await read()).outerSealUnlocked||(await read()).keyHeld)throw new Error('Seal/key state');await shot('mobile-outer-seal-open');
+ await walk({x:24,y:5});await shot('mobile-interior-watch');
+ await walk({x:22,y:9});await page.waitForTimeout(300);await shot('mobile-rubble-tell');
+ await page.waitForFunction(()=>JSON.parse(document.querySelector('#vault-breaker-stage1-room').dataset.state).rubble.mode==='recover',{},{timeout:4000});await shot('mobile-rubble-impact');
+ if(!(await read()).events.some(e=>e.type==='DAMAGE'&&e.source==='rubble'))throw new Error('Rockfall did not damage landing cell');
+ await step('RIGHT');await walk({x:23,y:12});await page.waitForTimeout(2300);await walk({x:23,y:9});await shot('mobile-rubble-safe-lane');await walk({x:27,y:9});await shot('mobile-mechanism-inactive');
+ await step('DOWN');if(!(await read()).mechanismGateOpen)throw new Error('Plate not open');await shot('mobile-mechanism-active');
+ await step('DOWN');if((await read()).mechanismGateOpen)throw new Error('Plate not reversible');await shot('mobile-mechanism-released');
+ await walk({x:27,y:13});await step('UP');if(!(await read()).mechanismGateOpen)throw new Error('Cannot recover plate');
+ await walk({x:28,y:12});await page.waitForFunction(()=>JSON.parse(document.querySelector('#vault-breaker-stage1-room').dataset.state).monkey.mode==='tell',{},{timeout:4000});await shot('mobile-monkey-tell');
+ await page.waitForTimeout(1400);await step('RIGHT');await walk({x:27,y:8});await shot('mobile-final-mechanism-gate');await walk({x:28,y:4});
+ const done=await read();if(done.status!=='complete'||done.collected.length!==3||!done.result.mechanismActivated)throw new Error('Stage incomplete');await shot('mobile-stage1-transition');
+ await page.getByRole('button',{name:'Continue deeper'}).click();
+ await page.locator('#vault-breaker-stage2-room').waitFor();await page.waitForFunction(()=>document.querySelector('#vault-breaker-stage2-room')?.dataset.ready==='true');await page.getByText('Loading Ancient Mechanism…',{exact:true}).waitFor({state:'hidden'});await page.waitForTimeout(300);
+ const next=await page.locator('#vault-breaker-stage2-room').evaluate(c=>JSON.parse(c.dataset.state));
+ if(next.hp!==done.hp||next.collected.length!==0||next.rotaryState!=='A'||next.counterweightActive)throw new Error('Exact carry/local reset failed');
+ await page.screenshot({path:'docs/angkor-v2/vault-breaker-stage2/qa/mobile-stage2-entry.png',scale:'css'});
+ return JSON.stringify({stage1Result:done.result,stage2Carry:{hp:next.hp,items:next.carriedItems},touchHold:true,bufferedTurn:true});
+}
+;await approach(page);const mechanism=async page=>{
+ const selector='#vault-breaker-stage2-room',canvas=page.locator(selector);await canvas.waitFor();await canvas.focus();
+ const read=()=>canvas.evaluate(c=>JSON.parse(c.dataset.state)),rows=await canvas.evaluate(c=>JSON.parse(c.dataset.collision));
+ const vectors={UP:[0,-1],DOWN:[0,1],LEFT:[-1,0],RIGHT:[1,0]},keys={UP:'ArrowUp',DOWN:'ArrowDown',LEFT:'ArrowLeft',RIGHT:'ArrowRight'};
+ const gates=[['counterweight-a',11,14],['counterweight-b',11,18],['rotary-a',20,11],['relay',20,15],['rotary-c',16,9],['inner-lock',27,3]];
+ const eq=(a,b)=>a.x===b.x&&a.y===b.y,shot=async name=>{await page.waitForTimeout(160);await page.screenshot({path:'docs/angkor-v2/vault-breaker-stage2/qa/'+name+'.png',scale:'css'});};
+ async function step(direction){
+  const s=await read(),v=vectors[direction],goal={x:s.player.x+v[0],y:s.player.y+v[1]};
+  await page.keyboard.press(keys[direction]);
+  await page.waitForFunction(({selector,goal})=>{const c=document.querySelector(selector),s=JSON.parse(c.dataset.state);return s.player.x===goal.x&&s.player.y===goal.y&&c.dataset.moving==='false';},{selector,goal},{timeout:4000});
+  if((await read()).status==='failed')throw new Error('Player died');
+ }
+ async function walk(goal){
+  for(let n=0;n<200;n++){
+   const s=await read();if(eq(s.player,goal))return;
+   const queue=[{p:s.player,path:[]}],seen=new Set([s.player.x+','+s.player.y]);let path;
+   for(let i=0;i<queue.length;i++){
+    const cur=queue[i];if(eq(cur.p,goal)){path=cur.path;break;}
+    for(const[dir,v]of Object.entries(vectors)){
+     const p={x:cur.p.x+v[0],y:cur.p.y+v[1]},id=p.x+','+p.y;
+     if(seen.has(id)||!rows[p.y]||rows[p.y][p.x]==='#'||s.boulders.some(b=>eq(p,b)))continue;
+     if(gates.some(([id,x,y])=>p.x===x&&p.y===y&&!s.gates[id]))continue;
+     if(p.x===28&&p.y===2&&!s.innerLockOpen)continue;
+     if(p.x===16&&p.y===13&&!eq(p,goal))continue;
+     if(!eq(p,goal)&&((p.x===22||p.x===23)&&(p.y===10||p.y===11)))continue;
+     seen.add(id);queue.push({p,path:[...cur.path,dir]});
+    }
+   }
+   if(!path?.length)throw new Error('No live route '+JSON.stringify({goal,player:s.player,gates:s.gates}));await step(path[0]);
+  }throw new Error('Route exhausted');
+ }
+ async function seal(value){await walk({x:16,y:14});for(let n=0;(await read()).rotaryState!==value&&n<3;n++){await step('UP');await step('DOWN');await shot('mobile-seal-'+(await read()).rotaryState.toLowerCase());}if((await read()).rotaryState!==value)throw new Error('Bad seal');}
+ await walk({x:6,y:15});await shot('mobile-counterweight-inactive');
+ await walk({x:17,y:20});await shot('mobile-service-gem');await walk({x:14,y:21});await shot('mobile-service-potion-used');
+ await walk({x:6,y:15});await step('DOWN');if(!(await read()).counterweightActive)throw new Error('Plate not active');await shot('mobile-counterweight-active');
+ await step('DOWN');if((await read()).counterweightActive)throw new Error('Plate not reversible');await shot('mobile-counterweight-released');
+ await walk({x:6,y:19});await step('UP');if(!(await read()).counterweightActive)throw new Error('Plate cannot recover');
+ await walk({x:16,y:14});await shot('mobile-seal-a');
+ await walk({x:21,y:11});await shot('mobile-archive-snake');await walk({x:24,y:11});
+ await seal('B');if(!(await read()).gates.relay)throw new Error('Relay not open');await walk({x:21,y:15});await shot('mobile-relay-open');
+ await walk({x:26,y:16});await shot('mobile-core-visible');await step('RIGHT');if(!(await read()).mechanismCoreActivated)throw new Error('Core missing');await shot('mobile-core-awakened');
+ await walk({x:28,y:18});await seal('C');await seal('A');if((await read()).innerLockOpen)throw new Error('Lock should reclose');await seal('B');await seal('C');if(!(await read()).innerLockOpen)throw new Error('Inner lock did not open');
+ await walk({x:20,y:6});await page.waitForFunction(()=>JSON.parse(document.querySelector('#vault-breaker-stage2-room').dataset.state).darts[0].mode==='tell',{},{timeout:5000});await shot('mobile-guardian-first-tell');
+ await walk({x:20,y:4});const firstCount=(await read()).events.filter(e=>e.type==='DART_GUARDIAN_IMPACT'&&e.id==='hall-guardian').length;
+ await page.waitForFunction(n=>JSON.parse(document.querySelector('#vault-breaker-stage2-room').dataset.state).events.filter(e=>e.type==='DART_GUARDIAN_IMPACT'&&e.id==='hall-guardian').length>n,firstCount,{timeout:6500});await step('DOWN');await shot('mobile-guardian-first-impact');
+ await walk({x:27,y:6});await page.waitForFunction(()=>JSON.parse(document.querySelector('#vault-breaker-stage2-room').dataset.state).darts[1].mode==='tell',{},{timeout:5000});await shot('mobile-guardian-second-tell');
+ await walk({x:28,y:6});const secondCount=(await read()).events.filter(e=>e.type==='DART_GUARDIAN_IMPACT'&&e.id==='lock-guardian').length;
+ await page.waitForFunction(n=>JSON.parse(document.querySelector('#vault-breaker-stage2-room').dataset.state).events.filter(e=>e.type==='DART_GUARDIAN_IMPACT'&&e.id==='lock-guardian').length>n,secondCount,{timeout:6500});await step('LEFT');await shot('mobile-guardian-second-impact');
+ await walk({x:27,y:4});await shot('mobile-inner-lock-open');await walk({x:28,y:2});
+ const done=await read();if(done.status!=='complete'||done.collected.length!==3||!done.result.mechanismCoreActivated)throw new Error('Incomplete');await shot('mobile-stage2-transition');
+
+ await page.getByRole('button',{name:'Continue deeper'}).click();await shot('mobile-stage3-contract');
+ const expedition=await page.locator('main').evaluate(c=>JSON.parse(c.dataset.expedition));if(expedition.currentStage!=='inner-vault'||expedition.hp!==done.hp||expedition.stageResults.length!==2)throw new Error('Carry mismatch');
+ await page.getByRole('checkbox',{name:'Debug',exact:true}).check();const downloadEvent=page.waitForEvent('download');await page.getByRole('button',{name:'Export expedition envelope'}).click();await(await downloadEvent).saveAs('docs/angkor-v2/vault-breaker-stage2/qa/vault-breaker-stage2-replay.json');await page.getByRole('checkbox',{name:'Debug',exact:true}).uncheck();
+ return JSON.stringify({result:done.result,currentStage:expedition.currentStage,eventTypes:[...new Set(done.events.map(e=>e.type))],rotarySequence:done.events.filter(e=>e.type==='ROTARY_SEAL_CHANGED').map(e=>e.to)});
+};return await mechanism(page);}

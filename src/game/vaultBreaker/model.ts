@@ -1,4 +1,4 @@
-import { VAULT_BREAKER_STAGES, copyCarry, copyItems, emptyObjectives, freshCarry, type CarriedItems, type ObjectiveResults, type StageCarry, type StageId, type StageProgress, type StageResult } from './contracts'
+import { VAULT_BREAKER_STAGES, copyCarry, copyItems, emptyObjectives, freshCarry, resultObjectives, type CarriedItems, type ObjectiveResults, type StageCarry, type StageId, type StageProgress, type StageResult } from './contracts'
 export type ExpeditionStatus = 'PLAYING' | 'TRANSITION' | 'COMPLETE' | 'FAILED'
 type EventPayload =
   | { type:'EXPEDITION_STARTED';carry:StageCarry }
@@ -28,10 +28,10 @@ export function initialVaultBreakerState():VaultBreakerState{
     events:[{seq:1,type:'EXPEDITION_STARTED',carry:copyCarry(carry)},{seq:2,type:'STAGE_STARTED',stageId,carry:copyCarry(carry)}]}
 }
 function checkProgress(state:VaultBreakerState,input:StageProgress):StageProgress{
-  const carry=copyCarry(input),o=input.objectives,p=state.objectives
-  if(!o || Object.keys(emptyObjectives()).some(k=>typeof o[k as keyof ObjectiveResults]!=='boolean')
-    || (p.bronzeKeyCollected&&!o.bronzeKeyCollected) || (p.outerSealUnlocked&&!o.outerSealUnlocked) || (p.mechanismActivated&&!o.mechanismActivated)
-    || (o.outerSealUnlocked&&!o.bronzeKeyCollected) || (o.mechanismActivated&&!o.outerSealUnlocked)
+  const carry=copyCarry(input),o=input.objectives
+  const keys=state.currentStage==='temple-approach'?['bronzeKeyCollected','outerSealUnlocked','mechanismActivated']:['counterweightSolved','rotaryAligned','relayReached','mechanismCoreActivated','finalCombinationSet','innerLockOpened']
+  const values=o as unknown as Record<string,unknown>,previousObjectives=state.objectives as unknown as Record<string,unknown>
+  if(!o || Object.keys(o).length!==keys.length || keys.some((k,i)=>typeof values[k]!=='boolean'||(previousObjectives[k]===true&&values[k]!==true)||(i>0&&values[k]===true&&values[keys[i-1]]!==true))
     || !Number.isSafeInteger(input.optionalGemCount) || input.optionalGemCount<state.optionalGemCount || input.optionalGemCount>3)throw new Error('Invalid ordered Vault Breaker objectives')
   const previous=state.carriedItems,items=carry.carriedItems
   if((previous.sword&&!items.sword)||(previous.potion.owned&&!items.potion.owned)||(previous.potion.consumed&&!items.potion.consumed))throw new Error('Carried items cannot be restored or discarded')
@@ -45,6 +45,8 @@ export function reduceExpedition(state:VaultBreakerState,action:ExpeditionAction
     const next=VAULT_BREAKER_STAGES[state.currentStageIndex+1];if(!next)return state
     const carry=expeditionCarry(state)
     return {...state,status:'PLAYING',currentStage:next.id,currentStageIndex:state.currentStageIndex+1,
+      // Preserve v1 contract-only boundary snapshots. The first real stage report
+      // supplies its own stage-specific objectives; no previous local state carries.
       objectives:emptyObjectives(),optionalGemCount:0,stageCarryIn:copyCarry(carry),
       events:emit([{type:'STAGE_ADVANCED',fromStage:state.currentStage,toStage:next.id,carry:copyCarry(carry)},{type:'STAGE_STARTED',stageId:next.id,carry:copyCarry(carry)}])}
   }
@@ -54,12 +56,13 @@ export function reduceExpedition(state:VaultBreakerState,action:ExpeditionAction
     const input=action.result
     if(input.stageId!==state.currentStage||state.completedStages.includes(input.stageId))return state
     const progress=checkProgress(state,{hp:input.hpRemaining,carriedItems:input.carriedItems,optionalGemCount:input.optionalGemCount,
-      objectives:{bronzeKeyCollected:input.bronzeKeyCollected,outerSealUnlocked:input.outerSealUnlocked,mechanismActivated:input.mechanismActivated}})
+      objectives:resultObjectives(input)})
     if(!Object.values(progress.objectives).every(Boolean))throw new Error('All access objectives are required')
+    if(input.stageId==='ancient-mechanism'&&(!input.counterweightActive||input.rotaryState!=='C'))throw new Error('Final mechanism combination is required')
     if(progress.hp===0)return reduceExpedition(state,{type:'STAGE_FAILED',stageId:input.stageId,progress})
     if(!Number.isSafeInteger(input.completion.tick)||input.completion.tick<0||!Number.isSafeInteger(input.completion.actionCount)||input.completion.actionCount<0)throw new Error('Invalid completion counters')
-    const result:StageResult={stageId:input.stageId,...progress.objectives,hpRemaining:progress.hp,carriedItems:copyItems(progress.carriedItems),
-      optionalGemCount:progress.optionalGemCount,completion:{...input.completion}}
+    const common={hpRemaining:progress.hp,carriedItems:copyItems(progress.carriedItems),optionalGemCount:progress.optionalGemCount,completion:{...input.completion}}
+    const result:StageResult=input.stageId==='temple-approach'?{stageId:input.stageId,bronzeKeyCollected:input.bronzeKeyCollected,outerSealUnlocked:input.outerSealUnlocked,mechanismActivated:input.mechanismActivated,...common}:{stageId:input.stageId,...resultObjectives(input) as import('./contracts').MechanismObjectives,counterweightActive:input.counterweightActive,rotaryState:input.rotaryState,...common}
     const next=VAULT_BREAKER_STAGES[state.currentStageIndex+1]
     return {...state,...progress,status:next?'TRANSITION':'COMPLETE',completedStages:[...state.completedStages,input.stageId],stageResults:[...state.stageResults,result],
       events:emit([{type:'STAGE_COMPLETED',result},next?{type:'STAGE_TRANSITION_READY',fromStage:state.currentStage,nextStage:next.id}:{type:'EXPEDITION_COMPLETED',hp:progress.hp,carriedItems:copyItems(progress.carriedItems)}])}

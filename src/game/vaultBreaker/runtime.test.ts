@@ -12,7 +12,7 @@ function complete(){
   return {runtime,stage}
 }
 describe('isolated Vault Breaker lifecycle/transcript',()=>{
-  it('defines three canonical stages, only Temple Approach playable; starts100HP with empty objectives',()=>{
+  it('defines three canonical stages, Temple Approach and Ancient Mechanism playable; starts100HP with empty objectives',()=>{
     expect(VAULT_BREAKER_STAGES.map(s=>s.id)).toEqual(['temple-approach','ancient-mechanism','inner-vault'])
     const runtime=new VaultBreakerRuntime();expect(runtime.state).toMatchObject({mission:'vault-breaker',status:'PLAYING',hp:100,currentStage:'temple-approach',objectives:emptyObjectives(),optionalGemCount:0})
     const stage=runtime.attachStage(templeApproachAdapter);expect(stage.state).toEqual(initialStageState());expect(()=>runtime.attachStage(templeApproachAdapter)).toThrow();expect(runtime.continue().currentStageIndex).toBe(0)
@@ -24,8 +24,8 @@ describe('isolated Vault Breaker lifecycle/transcript',()=>{
     const next=runtime.continue();expect(next).toMatchObject({status:'PLAYING',currentStage:'ancient-mechanism',currentStageIndex:1,hp:before.hp,carriedItems:before.carriedItems,objectives:emptyObjectives(),optionalGemCount:0})
     expect(Object.keys(expeditionCarry(next)).sort()).toEqual(['carriedItems','hp']);expect(next.stageResults).toEqual(before.stageResults)
     expect(runtime.continue()).toBe(next);expect(()=>runtime.attachStage(templeApproachAdapter)).toThrow()
-    expect(()=>runtime.attachStage({...templeApproachAdapter,definition:VAULT_BREAKER_STAGES[1]})).toThrow()
-    const madeUp={...before.stageResults[0],stageId:'ancient-mechanism' as const};expect(reduceExpedition(next,{type:'STAGE_COMPLETED',result:madeUp})).toBe(next)
+    expect(()=>runtime.attachStage({...templeApproachAdapter,definition:VAULT_BREAKER_STAGES[2]})).toThrow()
+    const madeUp={...before.stageResults[0],stageId:'ancient-mechanism' as const} as unknown as StageResult;expect(()=>reduceExpedition(next,{type:'STAGE_COMPLETED',result:madeUp})).toThrow()
   })
   it('objective sequence, stage IDs and duplicate/late completion are guarded; no fake quota can unlock',()=>{
     const s=initialVaultBreakerState()

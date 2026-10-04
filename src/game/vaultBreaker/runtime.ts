@@ -1,4 +1,4 @@
-import { copyCarry, type StageAdapter, type StageCarry, type StageId, type StageReport, type StageResult } from './contracts'
+import { copyCarry, resultObjectives, type StageAdapter, type StageCarry, type StageId, type StageReport, type StageResult } from './contracts'
 import { expeditionCarry, initialVaultBreakerState, reduceExpedition, type VaultBreakerState } from './model'
 
 export type TranscriptEntry =
@@ -48,7 +48,7 @@ export class VaultBreakerRuntime {
       if (next.status === 'FAILED') return { state: next, boundary: { type: 'STAGE_FAILED', stageId, carryOut: expeditionCarry(next) } }
       else if (value.status === 'FAILED') throw new Error('Failed stage report must have zero HP')
       else if (value.status === 'COMPLETE') {
-        if (value.result.stageId !== stageId || value.result.hpRemaining !== value.progress.hp || value.result.optionalGemCount !== value.progress.optionalGemCount || value.result.bronzeKeyCollected !== value.progress.objectives.bronzeKeyCollected || value.result.outerSealUnlocked !== value.progress.objectives.outerSealUnlocked || value.result.mechanismActivated !== value.progress.objectives.mechanismActivated || value.result.completion.actionCount !== actionCount || stable(value.result.carriedItems) !== stable(value.progress.carriedItems)) throw new Error('Stage result does not match final progress')
+        if (value.result.stageId !== stageId || value.result.hpRemaining !== value.progress.hp || value.result.optionalGemCount !== value.progress.optionalGemCount || stable(resultObjectives(value.result)) !== stable(value.progress.objectives) || value.result.completion.actionCount !== actionCount || stable(value.result.carriedItems) !== stable(value.progress.carriedItems)) throw new Error('Stage result does not match final progress')
         next = reduceExpedition(next, { type: 'STAGE_COMPLETED', result: value.result })
         return { state: next, boundary: { type: 'STAGE_COMPLETED', stageId, result: clone(next.stageResults.at(-1)!), carryOut: expeditionCarry(next) } }
       }

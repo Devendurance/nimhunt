@@ -52,7 +52,7 @@ export class InteractableEmphasis {
         graphics.fillStyle(0x12201a,.32).fillEllipse(image.x,baseY-1,12,3)
       }
       if(signal.glint){
-        const x=image.x+image.displayWidth*.15,y=baseY-image.displayHeight*(p.kind==='chest'||p.kind==='royal'?.53:.7)
+        const x=image.x+image.displayWidth*.15,y=baseY-image.displayHeight*(p.kind==='mechanism'?.2:p.kind==='chest'||p.kind==='royal'?.53:.7)
         graphics.lineStyle(1,p.color,signal.glint).lineBetween(x-3,y,x+3,y).lineBetween(x,y-3,x,y+3)
       }
       if(p.kind==='plate'){
