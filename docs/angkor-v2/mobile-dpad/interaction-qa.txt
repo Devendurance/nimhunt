@@ -1,0 +1,21 @@
+async (page) => {
+  await page.setViewportSize({width:390,height:844});
+  await page.goto('http://127.0.0.1:5174/dev/angkor-v2-mobile-layout.html?scenario=stage1&safe=34');
+  await page.waitForSelector('[data-input-locked=false]');
+  await page.waitForTimeout(1000);
+  const before=await page.evaluate(()=>{window.__qaCanvas=document.querySelector('canvas');return structuredClone(window.__v2LayoutQA.session.state.angkorV2.local.player);});
+  await page.getByRole('button',{name:'Move Right',exact:true}).hover();
+  await page.mouse.down(); await page.waitForTimeout(1800); await page.mouse.up(); await page.waitForTimeout(300);
+  const held=await page.evaluate(()=>{const s=window.__v2LayoutQA.session.state;const e=new MouseEvent('contextmenu',{bubbles:true,cancelable:true});document.querySelector('.v2-room').dispatchEvent(e);return {player:s.angkorV2.local.player,seq:s.seq,eventCount:s.angkorV2.local.events.length,stage:s.angkorV2.expedition.currentStage,error:window.__v2LayoutQA.session.error,selection:getSelection().toString(),scrollY,calloutPrevented:e.defaultPrevented};});
+  if(held.error||held.selection||held.scrollY||!held.calloutPrevented||held.seq<3||JSON.stringify(held.player)===JSON.stringify(before))throw Error(JSON.stringify(held));
+  await page.setViewportSize({width:390,height:700});await page.waitForTimeout(350);
+  const resize=await page.evaluate(()=>({sameCanvas:window.__qaCanvas===document.querySelector('canvas'),player:window.__v2LayoutQA.session.state.angkorV2.local.player,seq:window.__v2LayoutQA.session.state.seq,down:document.querySelector('[aria-label="Move Down"]').getBoundingClientRect().bottom,height:visualViewport.height,scrollY,events:window.__v2LayoutQA.session.state.angkorV2.local.events,stage:window.__v2LayoutQA.session.state.angkorV2.expedition.currentStage}));
+  const moves = resize.events.slice(held.eventCount).filter(e=>e.type==='MOVE');
+  const expected = moves.reduce((pos,e)=> { if(Math.abs(e.to.x-e.from.x)+Math.abs(e.to.y-e.from.y)!==1||JSON.stringify(e.from)!==JSON.stringify(pos))throw Error('Non-grid resize move');return e.to; },held.player);
+  if(!resize.sameCanvas||JSON.stringify(resize.player)!==JSON.stringify(expected)||resize.stage!==held.stage||resize.seq<held.seq||resize.down>resize.height-34||resize.scrollY)throw Error(JSON.stringify(resize));
+  await page.setViewportSize({width:844,height:390});await page.waitForTimeout(350);
+  const orientation=await page.evaluate(()=>({sameCanvas:window.__qaCanvas===document.querySelector('canvas'),player:window.__v2LayoutQA.session.state.angkorV2.local.player,down:document.querySelector('[aria-label="Move Down"]').getBoundingClientRect().bottom,height:visualViewport.height,scrollY,events:window.__v2LayoutQA.session.state.angkorV2.local.events,stage:window.__v2LayoutQA.session.state.angkorV2.expedition.currentStage,overflow:document.documentElement.scrollWidth>innerWidth}));
+  if(!orientation.sameCanvas||orientation.down>orientation.height-34||orientation.scrollY||orientation.overflow||orientation.stage!==held.stage||JSON.stringify(orientation.player)!==JSON.stringify(expected))throw Error(JSON.stringify(orientation));
+  await page.screenshot({path:'output/playwright/v2-dpad-landscape.png',scale:'css'});
+  return {before,held,resize,orientation};
+}

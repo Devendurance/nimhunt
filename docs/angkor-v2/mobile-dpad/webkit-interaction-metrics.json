@@ -1,0 +1,75 @@
+{
+  "before": {
+    "x": 3,
+    "y": 20
+  },
+  "held": {
+    "player": {
+      "x": 4,
+      "y": 20
+    },
+    "seq": 4,
+    "eventCount": 1,
+    "stage": "outer-ruins",
+    "error": "",
+    "selection": "",
+    "scrollY": 0,
+    "calloutPrevented": true
+  },
+  "resize": {
+    "sameCanvas": true,
+    "player": {
+      "x": 4,
+      "y": 20
+    },
+    "seq": 4,
+    "down": 596,
+    "height": 700,
+    "scrollY": 0,
+    "events": [
+      {
+        "type": "MOVE",
+        "direction": "RIGHT",
+        "from": {
+          "x": 3,
+          "y": 20
+        },
+        "to": {
+          "x": 4,
+          "y": 20
+        },
+        "seq": 1,
+        "tick": 3
+      }
+    ],
+    "stage": "outer-ruins"
+  },
+  "orientation": {
+    "sameCanvas": true,
+    "player": {
+      "x": 4,
+      "y": 20
+    },
+    "down": 244,
+    "height": 390,
+    "scrollY": 0,
+    "events": [
+      {
+        "type": "MOVE",
+        "direction": "RIGHT",
+        "from": {
+          "x": 3,
+          "y": 20
+        },
+        "to": {
+          "x": 4,
+          "y": 20
+        },
+        "seq": 1,
+        "tick": 3
+      }
+    ],
+    "stage": "outer-ruins",
+    "overflow": false
+  }
+}

@@ -1,8 +1,44 @@
-.angkor-v2-play{max-width:560px;margin:0 auto;min-height:100dvh;padding:16px 12px calc(20px + env(safe-area-inset-bottom));color:#f3ead7;background:#132a26;font-family:Inter,sans-serif}
-.angkor-v2-play header,.v2-stage-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.angkor-v2-play h1{font-family:'Jungle Fever',Impact,sans-serif;font-size:28px;margin:6px 0 12px}.angkor-v2-play h2{font-size:17px;margin:8px 0}
-.v2-kicker,.v2-carry{font-size:11px;color:#c3c7ae}.v2-objective{font-size:13px;font-weight:700;margin:8px 0}.v2-carry{margin:8px 0 12px}
-.v2-room{position:relative;width:fit-content;max-width:100%;margin:0 auto 14px;overflow:hidden;border:1px solid #527064;border-radius:10px}.v2-room canvas{display:block;max-width:100%;touch-action:none}
-.v2-overlay{position:absolute;inset:0;background:#10241fed;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;text-align:center;overflow:auto;font-size:12px}.v2-overlay p{margin:7px 0}
-.angkor-v2-play button{min-height:44px;padding:10px 16px;border:1px solid #677566;border-radius:12px;color:#f3ead7;background:#214039;cursor:pointer}.angkor-v2-play button:focus-visible{outline:2px solid #f2c14e;outline-offset:3px}.angkor-v2-play button:disabled{opacity:.5;cursor:default}
-.v2-notice{font-size:12px;line-height:1.5;min-height:36px}.angkor-v2-play>button{margin:4px}.v2-stage-heading strong{white-space:nowrap;color:#f4c773}
+.angkor-v2-play {
+  position:fixed; inset-inline:0; top:var(--v2-viewport-top,0px);
+  width:100%; max-width:560px; height:var(--v2-viewport-height,100dvh); margin:0 auto;
+  box-sizing:border-box; padding:8px 12px max(12px,var(--v2-safe-bottom,env(safe-area-inset-bottom,0px)));
+  display:grid; grid-template-rows:auto minmax(0,1fr) auto; gap:8px;
+  overflow:hidden; overscroll-behavior:none; touch-action:manipulation;
+  user-select:none; -webkit-user-select:none; -webkit-touch-callout:none;
+  color:#f3ead7; background:#132a26; font-family:Inter,sans-serif;
+}
+.angkor-v2-play header,.v2-stage-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.angkor-v2-play h1 { font-family:'Jungle Fever',Impact,sans-serif; font-size:24px; line-height:1.1; margin:3px 0 5px; }
+.angkor-v2-play h2 { font-size:15px; line-height:1.2; margin:4px 0; }
+.v2-hud { min-width:0; }
+.v2-kicker,.v2-carry { font-size:11px; color:#c3c7ae; }
+.v2-kicker { display:block; line-height:14px; }
+.v2-objective { font-size:12px; line-height:1.3; font-weight:700; margin:4px 0; }
+.v2-stage-help { font-size:12px; line-height:1.3; margin:4px 0; max-width:34ch; }
+.v2-carry { margin:4px 0 0; line-height:1.3; }
+.v2-room { position:relative; min-height:0; min-width:0; width:100%; display:grid; place-items:center; overflow:hidden; border:1px solid #527064; border-radius:10px; }
+.v2-room canvas { display:block; width:100% !important; height:100% !important; touch-action:none; }
+.v2-controls { display:grid; justify-items:center; gap:6px; min-width:0; }
+.v2-controls>[role=group] { width:max-content; justify-self:center; margin-inline:auto; }
+.v2-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; width:100%; }
+.v2-actions>button:only-child { grid-column:1 / -1; justify-self:center; }
+.v2-overlay { position:absolute; inset:0; background:#10241fed; display:flex; flex-direction:column; align-items:center; justify-content:safe center; padding:10px; text-align:center; overflow:auto; overscroll-behavior:contain; touch-action:pan-y; font-size:12px; }
+.v2-overlay>* { flex-shrink:0; max-width:100%; }
+.v2-overlay p { margin:5px 0; }
+.angkor-v2-play button { min-height:44px; padding:10px 16px; border:1px solid #677566; border-radius:12px; color:#f3ead7; background:#214039; cursor:pointer; }
+.angkor-v2-play button:focus-visible { outline:2px solid #f2c14e; outline-offset:3px; }
+.angkor-v2-play button:disabled { opacity:.5; cursor:default; }
+.v2-actions button { font-size:12px; line-height:15px; padding:6px 8px; }
+.v2-notice { font-size:11px; line-height:14px; width:100%; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center; }
+.v2-stage-heading strong { white-space:nowrap; color:#f4c773; font-size:13px; line-height:1.2; }
+@media (max-height:650px) {
+  .angkor-v2-play { gap:6px; padding-top:6px; }
+  .angkor-v2-play h1 { font-size:21px; }
+  .angkor-v2-play h2 { font-size:14px; }
+}
+@media (orientation:landscape) and (max-height:500px) {
+  .angkor-v2-play { max-width:900px; grid-template-columns:minmax(0,1fr) 208px; grid-template-rows:auto minmax(0,1fr); }
+  .v2-hud { grid-column:1; }
+  .v2-room { grid-column:1; grid-row:2; }
+  .v2-controls { grid-column:2; grid-row:1 / 3; align-content:center; }
+}

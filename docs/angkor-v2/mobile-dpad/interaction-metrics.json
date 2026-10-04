@@ -1,0 +1,39 @@
+{
+  "before": {
+    "x": 3,
+    "y": 20
+  },
+  "held": {
+    "player": {
+      "x": 8,
+      "y": 20
+    },
+    "seq": 21,
+    "error": "",
+    "selection": "",
+    "scrollY": 0,
+    "calloutPrevented": true
+  },
+  "resize": {
+    "sameCanvas": true,
+    "player": {
+      "x": 8,
+      "y": 20
+    },
+    "seq": 23,
+    "down": 596,
+    "height": 700,
+    "scrollY": 0
+  },
+  "orientation": {
+    "sameCanvas": true,
+    "player": {
+      "x": 8,
+      "y": 20
+    },
+    "down": 244.1999969482422,
+    "height": 390.3999938964844,
+    "scrollY": 0,
+    "overflow": false
+  }
+}

@@ -1,0 +1,710 @@
+[
+  {
+    "scenario": "stage1",
+    "width": 320,
+    "height": 568,
+    "center": 160,
+    "padWidth": 182,
+    "buttons": [
+      {
+        "name": "Move Up",
+        "x": 132,
+        "y": 282,
+        "width": 56,
+        "height": 56,
+        "top": 282,
+        "right": 188,
+        "bottom": 338,
+        "left": 132
+      },
+      {
+        "name": "Move Left",
+        "x": 69,
+        "y": 345,
+        "width": 56,
+        "height": 56,
+        "top": 345,
+        "right": 125,
+        "bottom": 401,
+        "left": 69
+      },
+      {
+        "name": "Move Right",
+        "x": 195,
+        "y": 345,
+        "width": 56,
+        "height": 56,
+        "top": 345,
+        "right": 251,
+        "bottom": 401,
+        "left": 195
+      },
+      {
+        "name": "Move Down",
+        "x": 132,
+        "y": 408,
+        "width": 56,
+        "height": 56,
+        "top": 408,
+        "right": 188,
+        "bottom": 464,
+        "left": 132
+      }
+    ],
+    "safe": 34,
+    "canvasHeight": 185,
+    "displayHeight": 154.5124969482422,
+    "overflow": false,
+    "selection": "none",
+    "callout": ""
+  },
+  {
+    "scenario": "stage3",
+    "width": 320,
+    "height": 568,
+    "center": 160,
+    "padWidth": 182,
+    "buttons": [
+      {
+        "name": "Move Up",
+        "x": 132,
+        "y": 282,
+        "width": 56,
+        "height": 56,
+        "top": 282,
+        "right": 188,
+        "bottom": 338,
+        "left": 132
+      },
+      {
+        "name": "Move Left",
+        "x": 69,
+        "y": 345,
+        "width": 56,
+        "height": 56,
+        "top": 345,
+        "right": 125,
+        "bottom": 401,
+        "left": 69
+      },
+      {
+        "name": "Move Right",
+        "x": 195,
+        "y": 345,
+        "width": 56,
+        "height": 56,
+        "top": 345,
+        "right": 251,
+        "bottom": 401,
+        "left": 195
+      },
+      {
+        "name": "Move Down",
+        "x": 132,
+        "y": 408,
+        "width": 56,
+        "height": 56,
+        "top": 408,
+        "right": 188,
+        "bottom": 464,
+        "left": 132
+      }
+    ],
+    "safe": 34,
+    "canvasHeight": 142,
+    "displayHeight": 118.5999984741211,
+    "overflow": false,
+    "selection": "none",
+    "callout": ""
+  },
+  {
+    "scenario": "transition",
+    "width": 320,
+    "height": 568,
+    "center": 160,
+    "padWidth": 182,
+    "buttons": [
+      {
+        "name": "Move Up",
+        "x": 132,
+        "y": 282,
+        "width": 56,
+        "height": 56,
+        "top": 282,
+        "right": 188,
+        "bottom": 338,
+        "left": 132
+      },
+      {
+        "name": "Move Left",
+        "x": 69,
+        "y": 345,
+        "width": 56,
+        "height": 56,
+        "top": 345,
+        "right": 125,
+        "bottom": 401,
+        "left": 69
+      },
+      {
+        "name": "Move Right",
+        "x": 195,
+        "y": 345,
+        "width": 56,
+        "height": 56,
+        "top": 345,
+        "right": 251,
+        "bottom": 401,
+        "left": 195
+      },
+      {
+        "name": "Move Down",
+        "x": 132,
+        "y": 408,
+        "width": 56,
+        "height": 56,
+        "top": 408,
+        "right": 188,
+        "bottom": 464,
+        "left": 132
+      }
+    ],
+    "safe": 34,
+    "canvasHeight": 185,
+    "displayHeight": 154.5124969482422,
+    "overflow": false,
+    "selection": "none",
+    "callout": ""
+  },
+  {
+    "scenario": "stage1",
+    "width": 360,
+    "height": 640,
+    "center": 180,
+    "padWidth": 196,
+    "buttons": [
+      {
+        "name": "Move Up",
+        "x": 150,
+        "y": 340,
+        "width": 60,
+        "height": 60,
+        "top": 340,
+        "right": 210,
+        "bottom": 400,
+        "left": 150
+      },
+      {
+        "name": "Move Left",
+        "x": 82,
+        "y": 408,
+        "width": 60,
+        "height": 60,
+        "top": 408,
+        "right": 142,
+        "bottom": 468,
+        "left": 82
+      },
+      {
+        "name": "Move Right",
+        "x": 218,
+        "y": 408,
+        "width": 60,
+        "height": 60,
+        "top": 408,
+        "right": 278,
+        "bottom": 468,
+        "left": 218
+      },
+      {
+        "name": "Move Down",
+        "x": 150,
+        "y": 476,
+        "width": 60,
+        "height": 60,
+        "top": 476,
+        "right": 210,
+        "bottom": 536,
+        "left": 150
+      }
+    ],
+    "safe": 34,
+    "canvasHeight": 244,
+    "displayHeight": 212.22500610351562,
+    "overflow": false,
+    "selection": "none",
+    "callout": ""
+  },
+  {
+    "scenario": "stage3",
+    "width": 360,
+    "height": 640,
+    "center": 180,
+    "padWidth": 196,
+    "buttons": [
+      {
+        "name": "Move Up",
+        "x": 150,
+        "y": 340,
+        "width": 60,
+        "height": 60,
+        "top": 340,
+        "right": 210,
+        "bottom": 400,
+        "left": 150
+      },
+      {
+        "name": "Move Left",
+        "x": 82,
+        "y": 408,
+        "width": 60,
+        "height": 60,
+        "top": 408,
+        "right": 142,
+        "bottom": 468,
+        "left": 82
+      },
+      {
+        "name": "Move Right",
+        "x": 218,
+        "y": 408,
+        "width": 60,
+        "height": 60,
+        "top": 408,
+        "right": 278,
+        "bottom": 468,
+        "left": 218
+      },
+      {
+        "name": "Move Down",
+        "x": 150,
+        "y": 476,
+        "width": 60,
+        "height": 60,
+        "top": 476,
+        "right": 210,
+        "bottom": 536,
+        "left": 150
+      }
+    ],
+    "safe": 34,
+    "canvasHeight": 203,
+    "displayHeight": 176.5625,
+    "overflow": false,
+    "selection": "none",
+    "callout": ""
+  },
+  {
+    "scenario": "transition",
+    "width": 360,
+    "height": 640,
+    "center": 180,
+    "padWidth": 196,
+    "buttons": [
+      {
+        "name": "Move Up",
+        "x": 150,
+        "y": 340,
+        "width": 60,
+        "height": 60,
+        "top": 340,
+        "right": 210,
+        "bottom": 400,
+        "left": 150
+      },
+      {
+        "name": "Move Left",
+        "x": 82,
+        "y": 408,
+        "width": 60,
+        "height": 60,
+        "top": 408,
+        "right": 142,
+        "bottom": 468,
+        "left": 82
+      },
+      {
+        "name": "Move Right",
+        "x": 218,
+        "y": 408,
+        "width": 60,
+        "height": 60,
+        "top": 408,
+        "right": 278,
+        "bottom": 468,
+        "left": 218
+      },
+      {
+        "name": "Move Down",
+        "x": 150,
+        "y": 476,
+        "width": 60,
+        "height": 60,
+        "top": 476,
+        "right": 210,
+        "bottom": 536,
+        "left": 150
+      }
+    ],
+    "safe": 34,
+    "canvasHeight": 244,
+    "displayHeight": 212.22500610351562,
+    "overflow": false,
+    "selection": "none",
+    "callout": ""
+  },
+  {
+    "scenario": "stage1",
+    "width": 390,
+    "height": 844,
+    "center": 195.20000457763672,
+    "padWidth": 196,
+    "buttons": [
+      {
+        "name": "Move Up",
+        "x": 165.1999969482422,
+        "y": 544,
+        "width": 60,
+        "height": 60,
+        "top": 544,
+        "right": 225.1999969482422,
+        "bottom": 604,
+        "left": 165.1999969482422
+      },
+      {
+        "name": "Move Left",
+        "x": 97.20000457763672,
+        "y": 612,
+        "width": 60,
+        "height": 60,
+        "top": 612,
+        "right": 157.20000457763672,
+        "bottom": 672,
+        "left": 97.20000457763672
+      },
+      {
+        "name": "Move Right",
+        "x": 233.1999969482422,
+        "y": 612,
+        "width": 60,
+        "height": 60,
+        "top": 612,
+        "right": 293.1999969482422,
+        "bottom": 672,
+        "left": 233.1999969482422
+      },
+      {
+        "name": "Move Down",
+        "x": 165.1999969482422,
+        "y": 680,
+        "width": 60,
+        "height": 60,
+        "top": 680,
+        "right": 225.1999969482422,
+        "bottom": 740,
+        "left": 165.1999969482422
+      }
+    ],
+    "safe": 34,
+    "canvasHeight": 320,
+    "displayHeight": 304.1625061035156,
+    "overflow": false,
+    "selection": "none",
+    "callout": ""
+  },
+  {
+    "scenario": "stage3",
+    "width": 390,
+    "height": 844,
+    "center": 195.20000457763672,
+    "padWidth": 196,
+    "buttons": [
+      {
+        "name": "Move Up",
+        "x": 165.1999969482422,
+        "y": 544,
+        "width": 60,
+        "height": 60,
+        "top": 544,
+        "right": 225.1999969482422,
+        "bottom": 604,
+        "left": 165.1999969482422
+      },
+      {
+        "name": "Move Left",
+        "x": 97.20000457763672,
+        "y": 612,
+        "width": 60,
+        "height": 60,
+        "top": 612,
+        "right": 157.20000457763672,
+        "bottom": 672,
+        "left": 97.20000457763672
+      },
+      {
+        "name": "Move Right",
+        "x": 233.1999969482422,
+        "y": 612,
+        "width": 60,
+        "height": 60,
+        "top": 612,
+        "right": 293.1999969482422,
+        "bottom": 672,
+        "left": 233.1999969482422
+      },
+      {
+        "name": "Move Down",
+        "x": 165.1999969482422,
+        "y": 680,
+        "width": 60,
+        "height": 60,
+        "top": 680,
+        "right": 225.1999969482422,
+        "bottom": 740,
+        "left": 165.1999969482422
+      }
+    ],
+    "safe": 34,
+    "canvasHeight": 320,
+    "displayHeight": 304.1625061035156,
+    "overflow": false,
+    "selection": "none",
+    "callout": ""
+  },
+  {
+    "scenario": "transition",
+    "width": 390,
+    "height": 844,
+    "center": 195.20000457763672,
+    "padWidth": 196,
+    "buttons": [
+      {
+        "name": "Move Up",
+        "x": 165.1999969482422,
+        "y": 544,
+        "width": 60,
+        "height": 60,
+        "top": 544,
+        "right": 225.1999969482422,
+        "bottom": 604,
+        "left": 165.1999969482422
+      },
+      {
+        "name": "Move Left",
+        "x": 97.20000457763672,
+        "y": 612,
+        "width": 60,
+        "height": 60,
+        "top": 612,
+        "right": 157.20000457763672,
+        "bottom": 672,
+        "left": 97.20000457763672
+      },
+      {
+        "name": "Move Right",
+        "x": 233.1999969482422,
+        "y": 612,
+        "width": 60,
+        "height": 60,
+        "top": 612,
+        "right": 293.1999969482422,
+        "bottom": 672,
+        "left": 233.1999969482422
+      },
+      {
+        "name": "Move Down",
+        "x": 165.1999969482422,
+        "y": 680,
+        "width": 60,
+        "height": 60,
+        "top": 680,
+        "right": 225.1999969482422,
+        "bottom": 740,
+        "left": 165.1999969482422
+      }
+    ],
+    "safe": 34,
+    "canvasHeight": 320,
+    "displayHeight": 304.1625061035156,
+    "overflow": false,
+    "selection": "none",
+    "callout": ""
+  },
+  {
+    "scenario": "stage1",
+    "width": 430,
+    "height": 932,
+    "center": 215.20000457763672,
+    "padWidth": 196,
+    "buttons": [
+      {
+        "name": "Move Up",
+        "x": 185.1999969482422,
+        "y": 632,
+        "width": 60,
+        "height": 60,
+        "top": 632,
+        "right": 245.1999969482422,
+        "bottom": 692,
+        "left": 185.1999969482422
+      },
+      {
+        "name": "Move Left",
+        "x": 117.20000457763672,
+        "y": 700,
+        "width": 60,
+        "height": 60,
+        "top": 700,
+        "right": 177.20000457763672,
+        "bottom": 760,
+        "left": 117.20000457763672
+      },
+      {
+        "name": "Move Right",
+        "x": 253.1999969482422,
+        "y": 700,
+        "width": 60,
+        "height": 60,
+        "top": 700,
+        "right": 313.1999969482422,
+        "bottom": 760,
+        "left": 253.1999969482422
+      },
+      {
+        "name": "Move Down",
+        "x": 185.1999969482422,
+        "y": 768,
+        "width": 60,
+        "height": 60,
+        "top": 768,
+        "right": 245.1999969482422,
+        "bottom": 828,
+        "left": 185.1999969482422
+      }
+    ],
+    "safe": 34,
+    "canvasHeight": 320,
+    "displayHeight": 320,
+    "overflow": false,
+    "selection": "none",
+    "callout": ""
+  },
+  {
+    "scenario": "stage3",
+    "width": 430,
+    "height": 932,
+    "center": 215.20000457763672,
+    "padWidth": 196,
+    "buttons": [
+      {
+        "name": "Move Up",
+        "x": 185.1999969482422,
+        "y": 632,
+        "width": 60,
+        "height": 60,
+        "top": 632,
+        "right": 245.1999969482422,
+        "bottom": 692,
+        "left": 185.1999969482422
+      },
+      {
+        "name": "Move Left",
+        "x": 117.20000457763672,
+        "y": 700,
+        "width": 60,
+        "height": 60,
+        "top": 700,
+        "right": 177.20000457763672,
+        "bottom": 760,
+        "left": 117.20000457763672
+      },
+      {
+        "name": "Move Right",
+        "x": 253.1999969482422,
+        "y": 700,
+        "width": 60,
+        "height": 60,
+        "top": 700,
+        "right": 313.1999969482422,
+        "bottom": 760,
+        "left": 253.1999969482422
+      },
+      {
+        "name": "Move Down",
+        "x": 185.1999969482422,
+        "y": 768,
+        "width": 60,
+        "height": 60,
+        "top": 768,
+        "right": 245.1999969482422,
+        "bottom": 828,
+        "left": 185.1999969482422
+      }
+    ],
+    "safe": 34,
+    "canvasHeight": 320,
+    "displayHeight": 320,
+    "overflow": false,
+    "selection": "none",
+    "callout": ""
+  },
+  {
+    "scenario": "transition",
+    "width": 430,
+    "height": 932,
+    "center": 215.20000457763672,
+    "padWidth": 196,
+    "buttons": [
+      {
+        "name": "Move Up",
+        "x": 185.1999969482422,
+        "y": 632,
+        "width": 60,
+        "height": 60,
+        "top": 632,
+        "right": 245.1999969482422,
+        "bottom": 692,
+        "left": 185.1999969482422
+      },
+      {
+        "name": "Move Left",
+        "x": 117.20000457763672,
+        "y": 700,
+        "width": 60,
+        "height": 60,
+        "top": 700,
+        "right": 177.20000457763672,
+        "bottom": 760,
+        "left": 117.20000457763672
+      },
+      {
+        "name": "Move Right",
+        "x": 253.1999969482422,
+        "y": 700,
+        "width": 60,
+        "height": 60,
+        "top": 700,
+        "right": 313.1999969482422,
+        "bottom": 760,
+        "left": 253.1999969482422
+      },
+      {
+        "name": "Move Down",
+        "x": 185.1999969482422,
+        "y": 768,
+        "width": 60,
+        "height": 60,
+        "top": 768,
+        "right": 245.1999969482422,
+        "bottom": 828,
+        "left": 185.1999969482422
+      }
+    ],
+    "safe": 34,
+    "canvasHeight": 320,
+    "displayHeight": 320,
+    "overflow": false,
+    "selection": "none",
+    "callout": ""
+  }
+]
