@@ -1,7 +1,7 @@
-import { compileTraversalMap } from '../../traversal/angkorV2/map'
-import type { EnvironmentSprite } from '../../rendering/angkorV2/environment'
-import type { GridCoord } from '../../world/grid'
-import type { ChestPlacement } from '../../systems/chests'
+import { compileTraversalMap } from '../../traversal/angkorV2/map.js'
+import type { EnvironmentSprite } from '../../rendering/angkorV2/types.js'
+import type { GridCoord } from '../../world/grid.js'
+import type { ChestPlacement } from '../../systems/chests.js'
 
 export interface Zone { name: string; x: number; y: number; width: number; height: number }
 export const inZone = (p: GridCoord, z: Zone) => p.x >= z.x && p.x < z.x + z.width && p.y >= z.y && p.y < z.y + z.height

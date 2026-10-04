@@ -80,6 +80,7 @@ export interface MissionParameters {
 }
 
 export interface ExpeditionBlueprint {
+  readonly angkorV2?: { readonly version: 1; readonly stages: readonly { readonly id: string; readonly hash: string }[] }
   readonly rulesVersion: RulesVersion
   readonly roomVersion: RoomVersion
   readonly blueprintVersion: BlueprintVersion
@@ -117,10 +118,10 @@ export type TickAction = {
   readonly type: 'TICK'
 }
 
-export type ReplayAction = MoveAction | TickAction
+export type ReplayAction = MoveAction | TickAction | import('../angkorV2Proof/model.js').V2Action
 
 export interface ExpeditionTranscript {
-  readonly version: typeof TRANSCRIPT_VERSION
+  readonly version: typeof TRANSCRIPT_VERSION | 2
   readonly runId: string
   readonly wallet: string
   readonly mission: MissionType
@@ -133,6 +134,7 @@ export interface ExpeditionTranscript {
 }
 
 export interface ReplayState {
+  readonly angkorV2?: import('../angkorV2Proof/model.js').V2State
   readonly seq: number
   readonly blueprint: ExpeditionBlueprint
   readonly mission: MissionType

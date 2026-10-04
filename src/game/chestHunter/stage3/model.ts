@@ -1,9 +1,9 @@
-import { calculateMove } from '../../systems/movement'
-import { createChestStates, getChestAt, CHEST_GEM_AMOUNT, CHEST_POTION_HEAL, type ChestInstance } from '../../systems/chests'
-import { clampHP } from '../../domain/runState'
-import { DIRECTION_VECTORS, type Direction, type GridCoord } from '../../world/grid'
-import { copyCarry, freshCarry, type StageCarry, type CarriedItems } from '../contracts'
-import { BOULDERS, CHESTS, CHEST_REQUIREMENT, EXIT, GATE, KEY, PLATES, PRESSURE_GATE, ROYAL_CACHE_ID, DART_GUARDIANS, DART_TIMING, MONKEY, SNAKES, inZone, stageMap } from './level'
+import { calculateMove } from '../../systems/movement.js'
+import { createChestStates, getChestAt, CHEST_GEM_AMOUNT, CHEST_POTION_HEAL, type ChestInstance } from '../../systems/chests.js'
+import { clampHP } from '../../domain/runState.js'
+import { DIRECTION_VECTORS, type Direction, type GridCoord } from '../../world/grid.js'
+import { copyCarry, freshCarry, type StageCarry, type CarriedItems } from '../contracts.js'
+import { BOULDERS, CHESTS, CHEST_REQUIREMENT, EXIT, GATE, KEY, PLATES, PRESSURE_GATE, ROYAL_CACHE_ID, DART_GUARDIANS, DART_TIMING, MONKEY, SNAKES, inZone, stageMap } from './level.js'
 
 export const SIMULATION_TICK_MS = 150
 export const DAMAGE = { spikes: 18, snake: 12, monkey: 20, trap: 18, dart: 16 } as const

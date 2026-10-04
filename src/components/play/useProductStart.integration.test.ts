@@ -33,7 +33,8 @@ import {
   signNimiqMessage,
 } from '../../integrations/nimiq/nimiqClient'
 import { resolvePlayRoute, type PlayableMission } from './expeditionFlow'
-import { ExpeditionView } from './ExpeditionView'
+// Preserve the historical single-room UI lifecycle tests; V2 has dedicated browser/session coverage.
+import { LegacyExpeditionView as ExpeditionView } from './ExpeditionView'
 import { resolveHuntStatusView } from './huntStatusView'
 import { PlayShell } from './PlayShell'
 import { ProductExpeditionGate } from './ProductExpeditionGate'
@@ -76,7 +77,8 @@ const routerRuntime = vi.hoisted(() => ({
   setSearchParams: vi.fn(),
 }))
 
-vi.mock('react', () => {
+vi.mock('react', async () => {
+  const actual = await vi.importActual<typeof import('react')>('react')
   function requestRender(): void {
     if (hookRuntime.rendering || hookRuntime.runningEffects) {
       hookRuntime.pendingRender = true
@@ -91,6 +93,7 @@ vi.mock('react', () => {
   }
 
   return {
+    lazy: actual.lazy, Suspense: actual.Suspense,
     useReducer: (reducer: (state: unknown, action: unknown) => unknown, initial: unknown) => {
       const index = hookRuntime.index++
       let slot = hookRuntime.slots[index]

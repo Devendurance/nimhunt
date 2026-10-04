@@ -2,6 +2,8 @@ import type {
   AbandonExpeditionResult,
   VerifyExpeditionResult,
 } from '../../src/domain/expeditionProof.js'
+import { isV2Blueprint } from '../../src/game/angkorV2Proof/blueprint.js'
+import { isV2Action } from '../../src/game/angkorV2Proof/model.js'
 import { CHEST_HUNTER_TARGET, GEM_RUNNER_TARGET } from '../../src/game/domain/mission.js'
 import { hashBlueprint, hashReplayState, hashTranscript } from '../../src/game/replay/canonical.js'
 import { createInitialRun, replayActions } from '../../src/game/replay/engine.js'
@@ -20,7 +22,7 @@ export function reconstructActionsFromBatches(run: DurableExpeditionRun): readon
     if (batch.seqEnd !== batch.seqStart + batch.actions.length - 1) throw new ProofError('PROOF_LOST')
     for (let index = 0; index < batch.actions.length; index += 1) {
       const action = batch.actions[index]
-      if (!action || action.seq !== batch.seqStart + index || (action.type !== 'MOVE' && action.type !== 'TICK')) {
+      if (!action || action.seq !== batch.seqStart + index || (isV2Blueprint(run.blueprint) ? !isV2Action(action) : (action.type !== 'MOVE' && action.type !== 'TICK'))) {
         throw new ProofError('PROOF_LOST')
       }
     }
@@ -190,6 +192,14 @@ function classifyMission(mission: DurableExpeditionRun['mission'], state: Replay
   if (hp === 0) {
     return { outcome: 'FAILED', status: 'FAILED', rewardStatus: 'NONE', missionSatisfied: false }
   }
+  if (state.angkorV2) {
+    const e = state.angkorV2.expedition
+    if (e.status !== 'COMPLETE' || e.currentStageIndex !== 2 || e.stageResults.length !== 3 || e.completedStages.length !== 3) throw new ProofError('RUN_INCOMPLETE')
+    // Keep the existing additional signed Vault Breaker seal, not a new claim path.
+    return mission === 'vault-breaker'
+      ? { outcome: 'VAULT_GAMEPLAY_VERIFIED', status: 'STARTED', rewardStatus: 'NONE', missionSatisfied: false }
+      : { outcome: 'VERIFIED_ELIGIBLE', status: 'COMPLETED', rewardStatus: 'ELIGIBLE', missionSatisfied: true }
+  }
   if (mission === 'gem-runner' && state.run.gemsCollected >= GEM_RUNNER_TARGET) {
     if (state.run.missionStatus !== 'COMPLETE' || state.run.runStatus !== 'MISSION_COMPLETE') throw new ProofError('PROOF_LOST')
     return { outcome: 'VERIFIED_ELIGIBLE', status: 'COMPLETED', rewardStatus: 'ELIGIBLE', missionSatisfied: true }
@@ -232,7 +242,7 @@ function createVerifyResult(
 
 function transcriptFor(run: DurableExpeditionRun, actions: readonly ReplayAction[]): ExpeditionTranscript {
   return {
-    version: TRANSCRIPT_VERSION,
+    version: isV2Blueprint(run.blueprint) ? 2 : TRANSCRIPT_VERSION,
     runId: run.runId,
     wallet: run.wallet,
     mission: run.mission,

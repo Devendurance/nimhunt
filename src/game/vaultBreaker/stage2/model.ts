@@ -1,8 +1,8 @@
-import { calculateMove } from '../../systems/movement'
-import { CHEST_POTION_HEAL } from '../../systems/chests'
-import { DIRECTION_VECTORS,type Direction,type GridCoord } from '../../world/grid'
-import { copyCarry,copyItems,freshCarry,type StageCarry,type CarriedItems,type MechanismObjectives,type MechanismResult } from '../contracts'
-import { BOULDERS,PLATE,ROTARY,CORE,EXIT,GATES,GEMS,POTION,SNAKES,DART_GUARDIANS,DART_TIMING,AREAS,linkedGates,inZone,stageMap,type RotaryState,type GateId } from './level'
+import { calculateMove } from '../../systems/movement.js'
+import { CHEST_POTION_HEAL } from '../../systems/chests.js'
+import { DIRECTION_VECTORS,type Direction,type GridCoord } from '../../world/grid.js'
+import { copyCarry,copyItems,freshCarry,type StageCarry,type CarriedItems,type MechanismObjectives,type MechanismResult } from '../contracts.js'
+import { BOULDERS,PLATE,ROTARY,CORE,EXIT,GATES,GEMS,POTION,SNAKES,DART_GUARDIANS,DART_TIMING,AREAS,linkedGates,inZone,stageMap,type RotaryState,type GateId } from './level.js'
 export const SIMULATION_TICK_MS=150,IMMUNITY_TICKS=6
 export const DAMAGE={snake:12,dart:16} as const
 export type StageAction={type:'MOVE';direction:Direction}|{type:'TICK'}

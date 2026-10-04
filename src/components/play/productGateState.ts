@@ -1,4 +1,5 @@
 import type { ProductGameplayStartResponse, ProductActiveExpedition } from '../../domain/expeditionProof.ts'
+import { isV2Blueprint, validV2Blueprint } from '../../game/angkorV2Proof/blueprint.js'
 import { isSupportedBlueprintVersion, ROOM_VERSION, RULES_VERSION } from '../../game/replay/versions.ts'
 import type { PlayableMission } from './expeditionFlow'
 
@@ -79,6 +80,15 @@ export function createProductGateAttemptGuard(): {
 
 export function validateProductActive(active: ProductActiveExpedition, mission: PlayableMission, runId: string): ProductGateError | null {
   if (active.runId !== runId || active.mission !== mission) return active.mission !== mission ? 'MISSION_MISMATCH' : 'MALFORMED_ACTIVE'
+  if (isV2Blueprint(active.blueprint)) {
+    const v = active.state.angkorV2
+    return active.status === 'STARTED' && active.rulesVersion === active.blueprint.rulesVersion && active.roomVersion === active.blueprint.roomVersion
+      && active.blueprintVersion === active.blueprint.blueprintVersion && active.state.rulesVersion === active.rulesVersion
+      && active.state.roomVersion === active.roomVersion && active.state.blueprintVersion === active.blueprintVersion
+      && active.blueprint.mission === mission && active.state.mission === mission && validV2Blueprint(active.blueprint) && v?.mission === mission && v.seq === active.state.seq
+      && v.expedition.mission === mission && active.blueprintHash === active.state.blueprintHash && active.blueprintId === active.state.blueprintId
+      && active.blueprintHash === active.blueprint.blueprintHash ? null : 'MALFORMED_ACTIVE'
+  }
   if (active.gameplayStartedAt !== null || active.status !== 'STARTED') return 'ACTIVE_RUN_UNAVAILABLE'
   if (!active.runId
     || active.blueprint.mission !== mission

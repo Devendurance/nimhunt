@@ -1,0 +1,8 @@
+.angkor-v2-play{max-width:560px;margin:0 auto;min-height:100dvh;padding:16px 12px calc(20px + env(safe-area-inset-bottom));color:#f3ead7;background:#132a26;font-family:Inter,sans-serif}
+.angkor-v2-play header,.v2-stage-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.angkor-v2-play h1{font-family:'Jungle Fever',Impact,sans-serif;font-size:28px;margin:6px 0 12px}.angkor-v2-play h2{font-size:17px;margin:8px 0}
+.v2-kicker,.v2-carry{font-size:11px;color:#c3c7ae}.v2-objective{font-size:13px;font-weight:700;margin:8px 0}.v2-carry{margin:8px 0 12px}
+.v2-room{position:relative;width:fit-content;max-width:100%;margin:0 auto 14px;overflow:hidden;border:1px solid #527064;border-radius:10px}.v2-room canvas{display:block;max-width:100%;touch-action:none}
+.v2-overlay{position:absolute;inset:0;background:#10241fed;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;text-align:center;overflow:auto;font-size:12px}.v2-overlay p{margin:7px 0}
+.angkor-v2-play button{min-height:44px;padding:10px 16px;border:1px solid #677566;border-radius:12px;color:#f3ead7;background:#214039;cursor:pointer}.angkor-v2-play button:focus-visible{outline:2px solid #f2c14e;outline-offset:3px}.angkor-v2-play button:disabled{opacity:.5;cursor:default}
+.v2-notice{font-size:12px;line-height:1.5;min-height:36px}.angkor-v2-play>button{margin:4px}.v2-stage-heading strong{white-space:nowrap;color:#f4c773}

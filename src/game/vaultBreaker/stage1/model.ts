@@ -1,8 +1,8 @@
-import { calculateMove } from '../../systems/movement'
-import { CHEST_POTION_HEAL } from '../../systems/chests'
-import { DIRECTION_VECTORS, type Direction, type GridCoord } from '../../world/grid'
-import { copyCarry, copyItems, freshCarry, type CarriedItems, type StageCarry, type ApproachResult } from '../contracts'
-import { BOULDERS, EXIT, GATE, KEY, PLATE, PRESSURE_GATE, GEMS, POTION, MONKEY, RUBBLE, SNAKES, SPIKES, inZone, stageMap } from './level'
+import { calculateMove } from '../../systems/movement.js'
+import { CHEST_POTION_HEAL } from '../../systems/chests.js'
+import { DIRECTION_VECTORS, type Direction, type GridCoord } from '../../world/grid.js'
+import { copyCarry, copyItems, freshCarry, type CarriedItems, type StageCarry, type ApproachResult } from '../contracts.js'
+import { BOULDERS, EXIT, GATE, KEY, PLATE, PRESSURE_GATE, GEMS, POTION, MONKEY, RUBBLE, SNAKES, SPIKES, inZone, stageMap } from './level.js'
 
 export const SIMULATION_TICK_MS = 150
 export const DAMAGE = { spikes: 18, snake: 12, monkey: 20, rubble: 22 } as const

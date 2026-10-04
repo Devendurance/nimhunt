@@ -1,6 +1,6 @@
-import { compileTraversalMap } from '../traversal/angkorV2/map'
-import type { EnvironmentSprite } from '../rendering/angkorV2/environment'
-import type { GridCoord } from '../world/grid'
+import { compileTraversalMap } from '../traversal/angkorV2/map.js'
+import type { EnvironmentSprite } from '../rendering/angkorV2/types.js'
+import type { GridCoord } from '../world/grid.js'
 
 export interface Zone { name: string; x: number; y: number; width: number; height: number }
 export const STAGE_AREAS: readonly Zone[] = [

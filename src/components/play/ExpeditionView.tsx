@@ -1,3 +1,5 @@
+import { lazy, Suspense } from 'react'
+import { isV2Blueprint } from '../../game/angkorV2Proof/blueprint'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Droplets, Gem, Heart, KeyRound, Package, Sword, Triangle } from 'lucide-react'
 import { getMissionObjective, getMissionTitle } from '../../game/domain/mission'
@@ -39,7 +41,14 @@ type ExpeditionViewProps = {
   | { mode: 'practice' }
 )
 
+const V2Practice = lazy(() => import('./AngkorV2PracticeView'))
+const V2Product = lazy(() => import('./AngkorV2ProductView'))
 export function ExpeditionView(props: ExpeditionViewProps) {
+  if (props.mode === 'practice') return <Suspense fallback={<p role="status">Entering Angkor Ruins…</p>}><V2Practice key={props.mission} {...props} /></Suspense>
+  if (isV2Blueprint(props.active.blueprint)) return <Suspense fallback={<p role="status">Restoring expedition…</p>}><V2Product key={props.active.runId} {...props} /></Suspense>
+  return <LegacyExpeditionView {...props} />
+}
+export function LegacyExpeditionView(props: ExpeditionViewProps) {
   const { mission, mode, onBackToMissions, onReturnToHunt } = props
   const active = props.mode === 'product' ? props.active : null
   const checkpoint = useProductCheckpoint(active)

@@ -1,8 +1,8 @@
-import { calculateMove } from '../../systems/movement'
-import { CHEST_POTION_HEAL } from '../../systems/chests'
-import { DIRECTION_VECTORS,type Direction,type GridCoord } from '../../world/grid'
-import { copyCarry,copyItems,freshCarry,type StageCarry,type CarriedItems,type VaultObjectives,type VaultResult } from '../contracts'
-import { stageMap,GOLEM_ROOT,GOLEM_ZONE,ACTIVATION_ZONE,ANCHORS,SEAL_PASSAGE,VAULT_DOOR,SHRINE,GEMS,POTION,DART_GUARDIANS,DART_TIMING,GOLEM_TIMING,inZone,type AnchorId } from './level'
+import { calculateMove } from '../../systems/movement.js'
+import { CHEST_POTION_HEAL } from '../../systems/chests.js'
+import { DIRECTION_VECTORS,type Direction,type GridCoord } from '../../world/grid.js'
+import { copyCarry,copyItems,freshCarry,type StageCarry,type CarriedItems,type VaultObjectives,type VaultResult } from '../contracts.js'
+import { stageMap,GOLEM_ROOT,GOLEM_ZONE,ACTIVATION_ZONE,ANCHORS,SEAL_PASSAGE,VAULT_DOOR,SHRINE,GEMS,POTION,DART_GUARDIANS,DART_TIMING,GOLEM_TIMING,inZone,type AnchorId } from './level.js'
 export const SIMULATION_TICK_MS=150,IMMUNITY_TICKS=6
 export const DAMAGE={golem:30,dart:16} as const
 export type StageAction={type:'MOVE';direction:Direction}|{type:'TICK'}

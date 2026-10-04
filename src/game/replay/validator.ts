@@ -1,4 +1,5 @@
 import { CHEST_HUNTER_TARGET, GEM_RUNNER_TARGET } from '../domain/mission.js'
+import { isV2Blueprint, validV2Blueprint } from '../angkorV2Proof/blueprint.js'
 import { CHEST_GEM_AMOUNT } from '../systems/chests.js'
 import { getTileAt, isWalkableTile } from '../world/grid.js'
 import { ANGKOR_ROOM_01 } from '../world/room01.js'
@@ -59,6 +60,9 @@ export function validateExpeditionBlueprint(
   blueprint: ExpeditionBlueprint,
   options: { readonly maxActions?: number } = {},
 ): BlueprintValidationResult {
+  // This family is immutable built-in content, not a configurable room blueprint.
+  // Full authored progression/replay witnesses are tested in the integration gate.
+  if (isV2Blueprint(blueprint)) return validV2Blueprint(blueprint) ? { valid: true, winningSequence: [] } : { valid: false, reason: 'INVALID_BLUEPRINT_HASH' }
   if (blueprint.rulesVersion !== RULES_VERSION) return { valid: false, reason: 'UNSUPPORTED_RULES_VERSION' }
   if (blueprint.roomVersion !== ROOM_VERSION) return { valid: false, reason: 'UNSUPPORTED_ROOM_VERSION' }
   if (!isSupportedBlueprintVersion(blueprint.blueprintVersion)) return { valid: false, reason: 'UNSUPPORTED_BLUEPRINT_VERSION' }

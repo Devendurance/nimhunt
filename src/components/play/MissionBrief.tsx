@@ -45,7 +45,7 @@ export function MissionBrief({ mission, dialogRef, onBack, onStartExpedition, on
             <div className={styles.sheetTopline}><span className={styles.kicker}>MISSION BRIEF</span><span className={styles.fixtureBadge}>REWARD RUN</span></div>
             <h2 id="mission-sheet-heading" tabIndex={-1} ref={headingRef}>{mission.title}</h2>
             <p className={styles.sheetObjective}>{mission.objective}</p>
-            <div className={styles.runStats}><span><strong>100</strong> starting HP</span><span><strong>3</strong> expeditions daily</span><span>ANGKOR RUINS</span></div>
+            <div className={styles.runStats}><span><strong>100</strong> starting HP</span><span><strong>3</strong> expeditions daily</span><span>3 stages · one attempt</span></div>
             {mission.id === 'vault-breaker' && <p className={styles.sheetObjective}>Finish the route alive, then seal the Vault through Nimiq Pay.</p>}
             <div className={styles.eligibility}><strong>Before you enter</strong><p>Complete the task alive to become reward-eligible while NIM treasures remain.</p></div>
           </div>

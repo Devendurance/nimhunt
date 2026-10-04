@@ -1,3 +1,6 @@
+import { isV2Blueprint, validV2Blueprint } from '../game/angkorV2Proof/blueprint.js'
+import { V2_BLUEPRINT, V2_RULES, V2_ROOM } from '../game/angkorV2Proof/model.js'
+import { hashReplayState, hashCheckpoint } from '../game/replay/canonical.js'
 import {
   ABANDON_EXPEDITION_PATH,
   ACTIVE_EXPEDITION_PATH,
@@ -330,7 +333,7 @@ export function parseActiveExpedition(value: unknown): ProductActiveExpedition |
     || value.status !== 'STARTED'
     || !isIsoTimestamp(value.startedAt)
     || !isIsoTimestamp(value.expiresAt)
-    || value.gameplayStartedAt !== null
+    || (value.blueprintVersion === V2_BLUEPRINT ? value.gameplayStartedAt !== null && !isIsoTimestamp(value.gameplayStartedAt) : value.gameplayStartedAt !== null)
     || !isSupportedVersions(value)
     || !isBoundedString(value.blueprintId, 256)
     || !isHash(value.blueprintHash)) return null
@@ -342,13 +345,12 @@ export function parseActiveExpedition(value: unknown): ProductActiveExpedition |
     || !sameBlueprintIdentity(blueprint, value)
     || blueprint.mission !== value.mission
     || state.mission !== value.mission
-    || state.seq !== 0
-    || state.run.runStatus !== 'PLAYING'
-    || state.run.missionStatus !== 'IN_PROGRESS'
+    || (!isV2Blueprint(blueprint) && (state.seq !== 0 || state.run.runStatus !== 'PLAYING' || state.run.missionStatus !== 'IN_PROGRESS'))
     || !sameBlueprintIdentity(state.blueprint, blueprint)
     || JSON.stringify(state.blueprint) !== JSON.stringify(blueprint)
     || checkpoint.runId !== value.runId
-    || checkpoint.seq !== 0) return null
+    || checkpoint.seq !== state.seq) return null
+  if (isV2Blueprint(blueprint) && (hashReplayState(state) !== checkpoint.stateHash || hashCheckpoint(checkpoint) !== checkpoint.checkpointHash)) return null
   return value as unknown as ProductActiveExpedition
 }
 
@@ -850,6 +852,9 @@ function withInstallId<T extends Record<string, unknown>>(body: T): T & { instal
 }
 
 function parseBlueprint(value: unknown): ExpeditionBlueprint | null {
+  if (isRecord(value) && value.blueprintVersion === V2_BLUEPRINT) {
+    try { return isUtcDay(value.dayKey) && isMission(value.mission) && validV2Blueprint(value as unknown as ExpeditionBlueprint) ? value as unknown as ExpeditionBlueprint : null } catch { return null }
+  }
   const required = [
     'rulesVersion',
     'roomVersion',
@@ -902,6 +907,14 @@ function parseBlueprint(value: unknown): ExpeditionBlueprint | null {
 
 
 function parseReplayState(value: unknown): ReplayState | null {
+  if (isRecord(value) && value.blueprintVersion === V2_BLUEPRINT) {
+    const b = parseBlueprint(value.blueprint)
+    if (!b || !isRecord(value.angkorV2) || value.angkorV2.version !== 2 || !isRecord(value.angkorV2.expedition)
+      || value.angkorV2.seq !== value.seq || value.angkorV2.mission !== b.mission || !isNonNegativeInteger(value.seq)
+      || !parseRunState(value.run) || !parseItems(value.items) || !parsePuzzle(value.puzzle) || !isCoord(value.player)
+      || !sameBlueprintIdentity(b, value) || !isRecord(value.angkorV2.local)) return null
+    return value as unknown as ReplayState
+  }
   const required = [
     'seq',
     'blueprint',
@@ -1104,6 +1117,7 @@ function sameBlueprintIdentity(value: ExpeditionBlueprint, other: Record<string,
 }
 
 function isSupportedVersions(value: Record<string, unknown>): boolean {
+  if (value.blueprintVersion === V2_BLUEPRINT) return value.rulesVersion === V2_RULES && value.roomVersion === V2_ROOM
   return value.rulesVersion === RULES_VERSION
     && value.roomVersion === ROOM_VERSION
     && typeof value.blueprintVersion === 'string'

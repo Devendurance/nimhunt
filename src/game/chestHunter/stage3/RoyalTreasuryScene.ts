@@ -1,3 +1,4 @@
+import { restorePresentation } from '../../angkorV2Proof/restorePresentation'
 import Phaser from 'phaser'
 import { AngkorV2Environment, angkorV2TextureKey, preloadAngkorV2Environment } from '../../rendering/angkorV2/environment'
 import { ANGKOR_V2_RENDER as R, environmentDepth } from '../../rendering/angkorV2/geometry'
@@ -12,6 +13,8 @@ import type { StageCarry } from '../contracts'
 import { SIMULATION_TICK_MS, initialStageState, planStageMove, reduceStage, type StageAction, type StageEvent, type StageState } from './model'
 
 export interface RoyalTreasurySceneOptions {
+  initialState?: StageState
+  canAct?: () => boolean
   carry?: StageCarry
   reduceAction?: (action: StageAction) => StageState
   viewport: { width: number; height: number }
@@ -58,7 +61,7 @@ export class RoyalTreasuryScene extends Phaser.Scene {
   private reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
   private failures: string[] = []
   private effects = new Set<Phaser.GameObjects.Image>()
-  constructor(options: RoyalTreasurySceneOptions) { super('RoyalTreasury'); this.options = options; this.state = initialStageState(options.carry) }
+  constructor(options: RoyalTreasurySceneOptions) { super('RoyalTreasury'); this.options = options; this.state = options.initialState ?? initialStageState(options.carry) }
   preload() {
     this.load.on('loaderror', (file: Phaser.Loader.File) => this.failures.push(file.key))
     preloadAngkorV2Environment(this, [...additional, ...DECOR.map(p => p.key)])
@@ -97,8 +100,8 @@ export class RoyalTreasuryScene extends Phaser.Scene {
     this.monkey.setY(this.monkey.y - R.tallHeight)
     this.rock = this.add.image(0, 0, angkorV2TextureKey('monkey-rock-v2')).setDisplaySize(13, 13).setDepth(10000).setVisible(false)
     this.passage = this.environment.addSprite({ key: 'temple-passage-closed-height-v2', x: EXIT.x * 32 + 16, y: EXIT.y * 32 + 24, depthY: EXIT.y * 32 + 8, shadow: true })
-    this.traversal = new TileTraversal(stageMap.collision, move => this.animatePush(move), ANGKOR_V2_MOVE_MS, {
-      canEnter: (_from, direction) => this.running && this.state.status === 'playing' && Boolean(planStageMove(this.state, direction)),
+    this.traversal = new TileTraversal({...stageMap.collision, playerStart: this.state.player}, move => this.animatePush(move), ANGKOR_V2_MOVE_MS, {
+      canEnter: (_from, direction) => this.running && (this.options.canAct?.() ?? true) && this.state.status === 'playing' && Boolean(planStageMove(this.state, direction)),
       onArrive: move => this.dispatch({ type: 'MOVE', direction: move.direction }),
     })
     this.explorer = new TraversalPlayer(this, this.environment, this.traversal)
@@ -120,11 +123,11 @@ export class RoyalTreasuryScene extends Phaser.Scene {
     canvas.dataset.ready = 'true'
     canvas.dataset.state = JSON.stringify(this.state)
     this.events.once('shutdown', () => { this.unbind?.(); this.explorer?.destroy(); this.environment?.destroy() })
-    this.options.onReady(this); this.options.onState(this.state)
+    if (this.options.initialState) restorePresentation(this.state, {chests: this.chests, key: this.key, gate: this.gate, pressureGate: this.pressureGate, plates: this.plates, passage: this.passage}); this.options.onReady(this); this.options.onState(this.state)
   }
   start() { this.reset(); this.running = true; this.game.canvas.focus() }
   reset() {
-    this.running = false; this.accumulator = 0; this.state = initialStageState(this.options.carry); this.transcript.length = 0
+    this.running = false; this.accumulator = 0; this.state = this.options.initialState ?? initialStageState(this.options.carry); this.transcript.length = 0
     this.tweens.killAll(); this.traversal?.reset()
     for (const effect of this.effects) effect.destroy()
     this.effects.clear()
@@ -135,7 +138,7 @@ export class RoyalTreasuryScene extends Phaser.Scene {
     for (const b of this.state.boulders) this.stones.get(b.id)?.setPosition(...this.point(b))
     this.syncActors(); this.target?.clear(); this.rock?.setVisible(false); this.passage?.setTexture(angkorV2TextureKey('temple-passage-closed-height-v2'))
     this.scroll = cameraTarget(this.traversal!.foot, stageMap.world, this.options.viewport)
-    this.cameras.main.setScroll(this.scroll.x, this.scroll.y); this.options.onState(this.state)
+    this.cameras.main.setScroll(this.scroll.x, this.scroll.y); if (this.options.initialState) restorePresentation(this.state, {chests: this.chests, key: this.key, gate: this.gate, pressureGate: this.pressureGate, plates: this.plates, passage: this.passage}); this.options.onState(this.state)
     this.game.canvas.dataset.state = JSON.stringify(this.state)
   }
   setDebug(visible: boolean) { this.debug = visible; this.collision?.setVisible(visible); this.cameraFrame?.setVisible(visible); this.options.onState(this.state) }
@@ -247,7 +250,7 @@ export class RoyalTreasuryScene extends Phaser.Scene {
   }
   update(time: number, delta: number) {
     if (!this.environment || !this.explorer || !this.traversal) return
-    const active = this.running && !document.hidden && document.hasFocus()
+    const active = this.running && (this.options.canAct?.() ?? true) && !document.hidden && document.hasFocus()
     this.tweens.timeScale = active ? 1 : 0
     if (active) {
       this.traversal.update(delta)

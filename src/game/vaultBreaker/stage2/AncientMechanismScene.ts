@@ -1,3 +1,4 @@
+import { restorePresentation } from '../../angkorV2Proof/restorePresentation'
 import Phaser from 'phaser'
 import { AngkorV2Environment,angkorV2TextureKey,preloadAngkorV2Environment } from '../../rendering/angkorV2/environment'
 import { environmentDepth } from '../../rendering/angkorV2/geometry'
@@ -11,6 +12,8 @@ import type { StageCarry } from '../contracts'
 import { stageMap,DECOR,BOULDERS,PLATE,ROTARY,CORE,EXIT,GATES,GEMS,POTION,SNAKES,DART_GUARDIANS,DART_TIMING } from './level'
 import { initialStageState,planStageMove,SIMULATION_TICK_MS,type StageState,type StageAction,type StageEvent } from './model'
 interface Options{
+  initialState?: StageState
+  canAct?: () => boolean
  carry:StageCarry;viewport:{width:number;height:number};reduceAction:(a:StageAction)=>StageState
  onReady:(scene:AncientMechanismScene)=>void;onState:(s:StageState)=>void;onError:(message:string)=>void
  onNotice:(message:string)=>void;onSound:(kind:'gem'|'unlock'|'hurt')=>void
@@ -27,7 +30,7 @@ export class AncientMechanismScene extends Phaser.Scene{
  private gates:Phaser.GameObjects.Image[]=[];private snakes:Phaser.GameObjects.Image[]=[]
  private plate?:Phaser.GameObjects.Image;private core?:Phaser.GameObjects.Image;private potion?:Phaser.GameObjects.Image;private passage?:Phaser.GameObjects.Image
  private sealState?:Phaser.GameObjects.Graphics;private warnings?:Phaser.GameObjects.Graphics;private darts?:Phaser.GameObjects.Graphics;private collision?:Phaser.GameObjects.Graphics
- constructor(options:Options){super('AncientMechanism');this.options=options;this.state=initialStageState(options.carry)}
+ constructor(options:Options){super('AncientMechanism');this.options=options;this.state=options.initialState ?? initialStageState(options.carry)}
  preload(){this.load.on('loaderror',(file:Phaser.Loader.File)=>this.failures.push(file.key));preloadAngkorV2Environment(this,[...additional,...DECOR.map(p=>p.key)])}
  create(){
   if(this.failures.length){this.options.onError('Ancient Mechanism assets could not load. Reload to retry.');return}
@@ -53,8 +56,8 @@ export class AncientMechanismScene extends Phaser.Scene{
   for(const b of this.state.boulders)this.stones.set(b.id,sprite('pushable-boulder-v2',b,'low-prop'))
   this.snakes=SNAKES.map(s=>sprite('snake-coiled-v2',s.path[0],'actor'))
   this.passage=env.addSprite({key:'temple-passage-closed-height-v2',x:EXIT.x*32+16,y:EXIT.y*32+24,depthY:EXIT.y*32+8,shadow:true})
-  this.traversal=new TileTraversal(stageMap.collision,move=>this.animatePush(move),ANGKOR_V2_MOVE_MS,{
-   canEnter:(_from,direction)=>this.running&&Boolean(planStageMove(this.state,direction)),onArrive:move=>this.dispatch({type:'MOVE',direction:move.direction}),
+  this.traversal=new TileTraversal({...stageMap.collision, playerStart: this.state.player},move=>this.animatePush(move),ANGKOR_V2_MOVE_MS,{
+   canEnter:(_from,direction)=>this.running&&(this.options.canAct?.()??true)&&Boolean(planStageMove(this.state,direction)),onArrive:move=>this.dispatch({type:'MOVE',direction:move.direction}),
   })
   this.explorer=new TraversalPlayer(this,env,this.traversal);this.unbind=bindTraversalKeyboard(this.traversal)
   this.scroll=cameraTarget(this.traversal.foot,stageMap.world,this.options.viewport)
@@ -65,7 +68,7 @@ export class AncientMechanismScene extends Phaser.Scene{
   canvas.setAttribute('aria-label','Vault Breaker Ancient Mechanism. Hold arrows, WASD or directional controls. Step onto the Rotary Seal to cycle A, B, C.')
   canvas.dataset.collision=JSON.stringify(stageMap.collision.layout);canvas.dataset.world='1024,832';canvas.dataset.gems=JSON.stringify(GEMS);canvas.dataset.state=JSON.stringify(this.state);canvas.dataset.ready='true'
   this.syncMechanisms();this.events.once('shutdown',()=>{this.unbind?.();this.explorer?.destroy();env.destroy()})
-  this.options.onReady(this);this.options.onState(this.state)
+  if (this.options.initialState) restorePresentation(this.state, {gems: this.gems, potion: this.potion, plate: this.plate, passage: this.passage}); this.options.onReady(this);this.options.onState(this.state)
  }
  start(){this.running=true;this.game.canvas.focus()}
  setDebug(visible:boolean){this.debug=visible;this.collision?.setVisible(visible);this.options.onState(this.state)}
@@ -101,6 +104,7 @@ export class AncientMechanismScene extends Phaser.Scene{
   }
  }
  private syncMechanisms(){
+  this.core?.setVisible(!this.state.mechanismCoreActivated)
   this.gates.forEach((image,i)=>image.setTexture(angkorV2TextureKey(this.state.gates[GATES[i].id]?'side-gate-open-v2':'side-gate-locked-v2')))
   this.plate?.setTint(this.state.counterweightActive?0xb5fff3:0xffffff)
   this.passage?.setTexture(angkorV2TextureKey(this.state.innerLockOpen?'temple-passage-open-height-v2':'temple-passage-closed-height-v2'))
@@ -133,7 +137,7 @@ export class AncientMechanismScene extends Phaser.Scene{
  }
  update(time:number,delta:number){
   if(!this.environment||!this.explorer||!this.traversal)return
-  const active=this.running&&!document.hidden&&document.hasFocus();this.tweens.timeScale=active?1:0
+  const active=this.running&&(this.options.canAct?.() ?? true)&&!document.hidden&&document.hasFocus();this.tweens.timeScale=active?1:0
   if(active){this.traversal.update(delta);this.accumulator+=Math.min(delta,50);if(this.accumulator>=SIMULATION_TICK_MS&&this.running){this.accumulator-=SIMULATION_TICK_MS;this.dispatch({type:'TICK'})}}
   else this.traversal.clearInput()
   this.explorer.update(active?delta:0,this.reduced.matches);this.environment.update(delta);this.syncDarts(time)

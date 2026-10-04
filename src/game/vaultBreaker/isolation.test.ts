@@ -12,17 +12,18 @@ it('replays the real mobile MOVE/TICK recording through completion and exact Sta
   expect(runtime.state.stageResults[0]).toMatchObject({bronzeKeyCollected:true,outerSealUnlocked:true,mechanismActivated:true,optionalGemCount:3,carriedItems:{potion:{owned:true,consumed:true}}})
   expect(runtime.state.stageResults).toHaveLength(1)
 })
-it('Vault Breaker is dev-gated and unreachable from the production import graph',()=>{
+it('production includes approved Vault Breaker gameplay while dev QA stays gated',()=>{
   const seen=new Set<string>()
   function visit(file:string){
     if(seen.has(file))return;seen.add(file)
     for(const m of readFileSync(file,'utf8').matchAll(/(?:from\s*|import\s*\(\s*|import\s*)['"](\.[^'"]+)['"]/g)){
-      const base=resolve(dirname(file),m[1]),next=[base,base+'.ts',base+'.tsx',resolve(base,'index.ts'),resolve(base,'index.tsx')].find(p=>/\.tsx?$/.test(p)&&existsSync(p))
+      const base=resolve(dirname(file),m[1].replace(/\.js$/, '')),next=[base,base+'.ts',base+'.tsx',resolve(base,'index.ts'),resolve(base,'index.tsx')].find(p=>/\.tsx?$/.test(p)&&existsSync(p))
       if(next)visit(next)
     }
   }
   visit(resolve('src/main.tsx'))
-  expect([...seen].some(p=>p.includes('vaultBreaker'))).toBe(false)
+  expect(seen.has(resolve('src/game/vaultBreaker/stage3/InnerVaultScene.ts'))).toBe(true)
+  expect(seen.has(resolve('src/dev/vaultBreakerStage1.tsx'))).toBe(false)
   expect(readFileSync(resolve('src/dev/vaultBreakerStage1.tsx'),'utf8')).toContain('if(import.meta.env.DEV)')
   expect(readFileSync(resolve('dev/angkor-v2-vault-breaker.html'),'utf8')).toContain('/src/dev/vaultBreakerStage1.tsx')
 })

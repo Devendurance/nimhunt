@@ -1,4 +1,4 @@
-import { CHEST_HUNTER_STAGES, copyCarry, copyItems, freshCarry, type CarriedItems, type StageCarry, type StageId, type StageProgress, type StageResult } from './contracts'
+import { CHEST_HUNTER_STAGES, copyCarry, copyItems, freshCarry, type CarriedItems, type StageCarry, type StageId, type StageProgress, type StageResult } from './contracts.js'
 
 export type ExpeditionStatus = 'PLAYING' | 'TRANSITION' | 'COMPLETE' | 'FAILED'
 type EventPayload =

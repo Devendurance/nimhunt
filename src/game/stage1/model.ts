@@ -1,7 +1,7 @@
-import { calculateMove } from '../systems/movement'
-import { DIRECTION_VECTORS, type Direction, type GridCoord } from '../world/grid'
-import { BOULDERS, EXIT, GEMS, GEM_REQUIREMENT, MONKEY, SNAKES, SPIKES, inZone, stageMap } from './level'
-import { assertVitals, type StageCarry } from '../gemRunner/contracts'
+import { calculateMove } from '../systems/movement.js'
+import { DIRECTION_VECTORS, type Direction, type GridCoord } from '../world/grid.js'
+import { BOULDERS, EXIT, GEMS, GEM_REQUIREMENT, MONKEY, SNAKES, SPIKES, inZone, stageMap } from './level.js'
+import { assertVitals, type StageCarry } from '../gemRunner/contracts.js'
 
 export const SIMULATION_TICK_MS = 150
 export const DAMAGE = { spikes: 18, snake: 12, monkey: 20 } as const

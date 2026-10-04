@@ -1,4 +1,7 @@
 import { evaluateMission, type MissionType } from '../domain/mission.js'
+import { isV2Blueprint } from '../angkorV2Proof/blueprint.js'
+import { initialV2Replay, advanceV2Replay } from '../angkorV2Proof/replay.js'
+import { V2_ACTION_LIMIT } from '../angkorV2Proof/model.js'
 import { createRunState } from '../domain/runState.js'
 import { ANGKOR_ROOM_01 } from '../world/room01.js'
 import { commitPuzzleMove, createPuzzleState, resolvePuzzleMove, sameTile, type PuzzleObjects } from '../systems/puzzle.js'
@@ -38,6 +41,10 @@ export type InitialRunInput = {
 }
 
 export function createInitialRun(input: InitialRunInput): ReplayState {
+  if (isV2Blueprint(input.blueprint)) {
+    if (input.mission !== input.blueprint.mission || input.rulesVersion !== input.blueprint.rulesVersion || input.roomVersion !== input.blueprint.roomVersion) throw new Error('Blueprint version mismatch')
+    return initialV2Replay(input.blueprint)
+  }
   if (input.rulesVersion !== RULES_VERSION || input.roomVersion !== ROOM_VERSION) {
     throw new Error('Unsupported replay version')
   }
@@ -84,6 +91,8 @@ export function createInitialRun(input: InitialRunInput): ReplayState {
 }
 
 export function advanceRun(state: ReplayState, action: ReplayAction): ReplayAdvanceResult {
+  if (isV2Blueprint(state.blueprint)) return advanceV2Replay(state, action)
+  if (action.type !== 'MOVE' && action.type !== 'TICK') return rejected(state, 'INVALID_ACTION')
   if (state.run.runStatus !== 'PLAYING') return rejected(state, 'RUN_ENDED')
   if (action.seq !== state.seq + 1) return rejected(state, 'INVALID_SEQUENCE')
 
@@ -278,7 +287,7 @@ export function advanceRun(state: ReplayState, action: ReplayAction): ReplayAdva
 }
 
 export function replayActions(input: InitialRunInput, actions: readonly ReplayAction[]): ReplayState {
-  if (actions.length > MAX_ACCEPTED_ACTIONS) throw new Error('ACTION_LIMIT_EXCEEDED')
+  if (actions.length > (isV2Blueprint(input.blueprint) ? V2_ACTION_LIMIT : MAX_ACCEPTED_ACTIONS)) throw new Error('ACTION_LIMIT_EXCEEDED')
   let state = createInitialRun(input)
   for (const action of actions) {
     const result = advanceRun(state, action)

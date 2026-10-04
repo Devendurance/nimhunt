@@ -1,9 +1,9 @@
-import { calculateMove } from '../systems/movement'
-import { DIRECTION_VECTORS, type Direction, type GridCoord } from '../world/grid'
-import { assertVitals, type StageCarry } from '../gemRunner/contracts'
-import { DAMAGE as BASE_DAMAGE, SIMULATION_TICK_MS, sameCell, type SnakeState, type MonkeyState } from '../stage1/model'
-import { inZone } from '../stage1/level'
-import { ANACONDA, BOULDERS, EXIT, GEMS, GEM_REQUIREMENT, MONKEYS, PIT_ORDER, type PitId, RUBBLE, SNAKES, SPIKES, stageMap } from './level'
+import { calculateMove } from '../systems/movement.js'
+import { DIRECTION_VECTORS, type Direction, type GridCoord } from '../world/grid.js'
+import { assertVitals, type StageCarry } from '../gemRunner/contracts.js'
+import { DAMAGE as BASE_DAMAGE, SIMULATION_TICK_MS, sameCell, type SnakeState, type MonkeyState } from '../stage1/model.js'
+import { inZone } from '../stage1/level.js'
+import { ANACONDA, BOULDERS, EXIT, GEMS, GEM_REQUIREMENT, MONKEYS, PIT_ORDER, type PitId, RUBBLE, SNAKES, SPIKES, stageMap } from './level.js'
 export { SIMULATION_TICK_MS }
 export const DAMAGE = { ...BASE_DAMAGE, rubble: 22, anaconda: 26, replacementBoulder: 24 } as const
 export type StageAction = { type: 'MOVE'; direction: Direction } | { type: 'TICK' }

@@ -1,6 +1,6 @@
-import { DIRECTION_VECTORS } from '../world/grid'
-import { initialStageState, reduceStage, type StageAction, type StageState } from '../stage1/model'
-import { GEM_RUNNER_STAGES, copyItems, type StageAdapter } from './contracts'
+import { DIRECTION_VECTORS } from '../world/grid.js'
+import { initialStageState, reduceStage, type StageAction, type StageState } from '../stage1/model.js'
+import { GEM_RUNNER_STAGES, copyItems, type StageAdapter } from './contracts.js'
 
 export type OuterRuinsAction = Exclude<StageAction, { type: 'RESET' }>
 export const outerRuinsAdapter: StageAdapter<StageState, OuterRuinsAction> = {

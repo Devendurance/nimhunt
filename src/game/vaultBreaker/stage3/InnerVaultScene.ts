@@ -1,3 +1,4 @@
+import { restorePresentation } from '../../angkorV2Proof/restorePresentation'
 import Phaser from 'phaser'
 import { AngkorV2Environment,angkorV2TextureKey,preloadAngkorV2Environment } from '../../rendering/angkorV2/environment'
 import { environmentDepth } from '../../rendering/angkorV2/geometry'
@@ -12,6 +13,8 @@ import { stageMap,DECOR,GOLEM_FOOT,GOLEM_ROOT,ANCHORS,SEAL_PASSAGE,VAULT_DOOR,SH
 import { initialStageState,planStageMove,isBlocked,SIMULATION_TICK_MS,type StageState,type StageAction,type StageEvent } from './model'
 import { golemPose } from './presentation'
 interface Options{
+  initialState?: StageState
+  canAct?: () => boolean
  carry:StageCarry;viewport:{width:number;height:number};reduceAction:(a:StageAction)=>StageState
  onReady:(scene:InnerVaultScene)=>void;onState:(s:StageState)=>void;onError:(message:string)=>void
  onNotice:(message:string)=>void;onSound:(kind:'gem'|'unlock'|'hurt')=>void
@@ -28,7 +31,7 @@ export class InnerVaultScene extends Phaser.Scene{
  private gems=new Map<string,Phaser.GameObjects.Image>();private anchors:Phaser.GameObjects.Image[]=[];private gates:Phaser.GameObjects.Image[]=[]
  private boss?:Phaser.GameObjects.Image;private door?:Phaser.GameObjects.Image;private potion?:Phaser.GameObjects.Image
  private warnings?:Phaser.GameObjects.Graphics;private darts?:Phaser.GameObjects.Graphics;private collision?:Phaser.GameObjects.Graphics;private glow?:Phaser.GameObjects.Graphics
- constructor(options:Options){super('InnerVault');this.options=options;this.state=initialStageState(options.carry)}
+ constructor(options:Options){super('InnerVault');this.options=options;this.state=options.initialState ?? initialStageState(options.carry)}
  preload(){this.load.on('loaderror',(file:Phaser.Loader.File)=>this.failures.push(file.key));preloadAngkorV2Environment(this,[...additional,...DECOR.map(p=>p.key)])}
  create(){
   if(this.failures.length){this.options.onError('Inner Vault assets could not load. Reload to retry.');return}
@@ -47,8 +50,8 @@ export class InnerVaultScene extends Phaser.Scene{
   this.gates=SEAL_PASSAGE.map(p=>env.addSprite({key:'side-gate-locked-v2',x:p.x*32+16,y:p.y*32+32,depthY:p.y*32+24,occludesPlayer:false}))
   this.door=env.addSprite({key:'inner-vault-door-sealed-v2',x:VAULT_DOOR.x*32+16,y:VAULT_DOOR.y*32+32,depthY:VAULT_DOOR.y*32+24,shadow:true})
   this.boss=env.addSprite({key:'golem-dormant-v2',...GOLEM_FOOT,depthY:GOLEM_FOOT.y-8,shadow:true,occludesPlayer:true})
-  this.traversal=new TileTraversal(stageMap.collision,()=>{},ANGKOR_V2_MOVE_MS,{
-   canEnter:(_from,direction)=>this.running&&Boolean(planStageMove(this.state,direction)),onArrive:move=>this.dispatch({type:'MOVE',direction:move.direction}),
+  this.traversal=new TileTraversal({...stageMap.collision, playerStart: this.state.player},()=>{},ANGKOR_V2_MOVE_MS,{
+   canEnter:(_from,direction)=>this.running&&(this.options.canAct?.()??true)&&Boolean(planStageMove(this.state,direction)),onArrive:move=>this.dispatch({type:'MOVE',direction:move.direction}),
   })
   this.explorer=new TraversalPlayer(this,env,this.traversal);this.unbind=bindTraversalKeyboard(this.traversal)
   this.scroll=cameraTarget(this.traversal.foot,stageMap.world,this.options.viewport)
@@ -60,7 +63,7 @@ export class InnerVaultScene extends Phaser.Scene{
   canvas.setAttribute('aria-label','Inner Vault. Bait the guardian onto the carved sockets beside three anchors, leave the amber smash area, then bait the final vault door.')
   canvas.dataset.collision=JSON.stringify(stageMap.collision.layout);canvas.dataset.world='1024,832';canvas.dataset.state=JSON.stringify(this.state);canvas.dataset.ready='true'
   this.events.once('shutdown',()=>{this.unbind?.();this.explorer?.destroy();env.destroy()})
-  this.options.onReady(this);this.options.onState(this.state)
+  if (this.options.initialState) restorePresentation(this.state, {gems: this.gems, potion: this.potion}); this.options.onReady(this);this.options.onState(this.state)
  }
  start(){this.running=true;this.game.canvas.focus()}
  setDebug(visible:boolean){this.debug=visible;this.collision?.setVisible(visible);this.options.onState(this.state)}
@@ -137,7 +140,7 @@ export class InnerVaultScene extends Phaser.Scene{
  }
  update(time:number,delta:number){
   if(!this.environment||!this.explorer||!this.traversal)return
-  const active=this.running&&!document.hidden&&document.hasFocus();this.tweens.timeScale=active?1:0
+  const active=this.running&&(this.options.canAct?.() ?? true)&&!document.hidden&&document.hasFocus();this.tweens.timeScale=active?1:0
   if(active){this.traversal.update(delta);this.accumulator+=Math.min(delta,50);if(this.accumulator>=SIMULATION_TICK_MS&&this.running){this.accumulator-=SIMULATION_TICK_MS;this.dispatch({type:'TICK'})}}
   else this.traversal.clearInput()
   this.explorer.update(active?delta:0,this.reduced.matches);this.environment.update(delta);this.syncBoss(time);this.syncWarnings(time)

@@ -8,6 +8,7 @@ const PROOF_RPCS = new Set([
   'bind_run_session',
   'get_run_session',
   'get_published_blueprint',
+  'get_published_angkor_v2_blueprint',
   'register_published_blueprint',
   'mark_gameplay_started',
   'append_checkpoint_batch',

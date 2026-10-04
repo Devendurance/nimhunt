@@ -1,4 +1,4 @@
-import { VAULT_BREAKER_STAGES, copyCarry, copyItems, emptyObjectives, freshCarry, resultObjectives, type CarriedItems, type ObjectiveResults, type StageCarry, type StageId, type StageProgress, type StageResult } from './contracts'
+import { VAULT_BREAKER_STAGES, copyCarry, copyItems, emptyObjectives, freshCarry, resultObjectives, type CarriedItems, type ObjectiveResults, type StageCarry, type StageId, type StageProgress, type StageResult } from './contracts.js'
 export type ExpeditionStatus = 'PLAYING' | 'TRANSITION' | 'COMPLETE' | 'FAILED'
 type EventPayload =
   | { type:'EXPEDITION_STARTED';carry:StageCarry }
@@ -63,7 +63,7 @@ export function reduceExpedition(state:VaultBreakerState,action:ExpeditionAction
     if(progress.hp===0)return reduceExpedition(state,{type:'STAGE_FAILED',stageId:input.stageId,progress})
     if(!Number.isSafeInteger(input.completion.tick)||input.completion.tick<0||!Number.isSafeInteger(input.completion.actionCount)||input.completion.actionCount<0)throw new Error('Invalid completion counters')
     const common={hpRemaining:progress.hp,carriedItems:copyItems(progress.carriedItems),optionalGemCount:progress.optionalGemCount,completion:{...input.completion}}
-    const result:StageResult=input.stageId==='temple-approach'?{stageId:input.stageId,bronzeKeyCollected:input.bronzeKeyCollected,outerSealUnlocked:input.outerSealUnlocked,mechanismActivated:input.mechanismActivated,...common}:input.stageId==='inner-vault'?{stageId:input.stageId,...resultObjectives(input) as import('./contracts').VaultObjectives,brokenAnchors:[...input.brokenAnchors],golemState:input.golemState,...common}:{stageId:input.stageId,...resultObjectives(input) as import('./contracts').MechanismObjectives,counterweightActive:input.counterweightActive,rotaryState:input.rotaryState,...common}
+    const result:StageResult=input.stageId==='temple-approach'?{stageId:input.stageId,bronzeKeyCollected:input.bronzeKeyCollected,outerSealUnlocked:input.outerSealUnlocked,mechanismActivated:input.mechanismActivated,...common}:input.stageId==='inner-vault'?{stageId:input.stageId,...resultObjectives(input) as import('./contracts.js').VaultObjectives,brokenAnchors:[...input.brokenAnchors],golemState:input.golemState,...common}:{stageId:input.stageId,...resultObjectives(input) as import('./contracts.js').MechanismObjectives,counterweightActive:input.counterweightActive,rotaryState:input.rotaryState,...common}
     const next=VAULT_BREAKER_STAGES[state.currentStageIndex+1]
     return {...state,...progress,status:next?'TRANSITION':'COMPLETE',completedStages:[...state.completedStages,input.stageId],stageResults:[...state.stageResults,result],
       events:emit([{type:'STAGE_COMPLETED',result},next?{type:'STAGE_TRANSITION_READY',fromStage:state.currentStage,nextStage:next.id}:{type:'EXPEDITION_COMPLETED',hp:progress.hp,carriedItems:copyItems(progress.carriedItems)}])}

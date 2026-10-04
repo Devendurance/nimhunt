@@ -1,4 +1,6 @@
-import { Hash } from '@nimiq/core'
+import { sha256 } from '@noble/hashes/sha2.js'
+import { isV2Blueprint, blueprintPayload } from '../angkorV2Proof/blueprint.js'
+import { canonicalV2, hashV2, isV2Action, V2_BLUEPRINT } from '../angkorV2Proof/model.js'
 import type {
   ExpeditionActionBatch,
   ExpeditionBlueprint,
@@ -16,6 +18,7 @@ export function normalizeWallet(wallet: string): string {
 }
 
 export function serializeBlueprintHashPayload(blueprint: ExpeditionBlueprint): string {
+  if (isV2Blueprint(blueprint)) return canonicalV2(blueprintPayload(blueprint))
   return JSON.stringify({
     rulesVersion: blueprint.rulesVersion,
     roomVersion: blueprint.roomVersion,
@@ -54,6 +57,7 @@ export function serializeBlueprintHashPayload(blueprint: ExpeditionBlueprint): s
 }
 
 function serializeAction(action: ReplayAction): Record<string, unknown> {
+  if (isV2Action(action)) return { ...action }
   return action.type === 'MOVE'
     ? { seq: action.seq, type: action.type, direction: action.direction }
     : { seq: action.seq, type: action.type }
@@ -75,6 +79,7 @@ export function serializeTranscript(transcript: ExpeditionTranscript): string {
 }
 
 export function serializeReplayState(state: ReplayState): string {
+  if (isV2Blueprint(state.blueprint)) return canonicalV2({ seq: state.seq, mission: state.mission, blueprintHash: state.blueprintHash, angkorV2: state.angkorV2, run: state.run, items: state.items, puzzle: state.puzzle, player: state.player })
   return JSON.stringify({
     seq: state.seq,
     mission: state.mission,
@@ -177,14 +182,21 @@ export function serializeClaim(payload: RewardClaimPayload): string {
 }
 
 export function hashBlueprint(blueprint: ExpeditionBlueprint): string {
+  if (isV2Blueprint(blueprint)) return hashV2('BLUEPRINT', blueprintPayload(blueprint))
   return hashDomain('BLUEPRINT', serializeBlueprintHashPayload(blueprint))
 }
 
 export function hashTranscript(transcript: ExpeditionTranscript): string {
+  if (transcript.blueprintVersion === V2_BLUEPRINT) {
+    if (transcript.version !== 2) throw new Error('UNSUPPORTED_V2_TRANSCRIPT_VERSION')
+    return hashV2('TRANSCRIPT', JSON.parse(serializeTranscript(transcript)))
+  }
+  if (transcript.version !== 1) throw new Error('UNSUPPORTED_TRANSCRIPT_VERSION')
   return hashDomain('TRANSCRIPT', serializeTranscript(transcript))
 }
 
 export function hashReplayState(state: ReplayState): string {
+  if (isV2Blueprint(state.blueprint)) return hashV2('REPLAY_STATE', JSON.parse(serializeReplayState(state)))
   return hashDomain('REPLAY_STATE', serializeReplayState(state))
 }
 
@@ -205,6 +217,6 @@ function coordinate(value: { readonly x: number; readonly y: number }): { x: num
 }
 
 function hashDomain(domain: string, serialized: string): string {
-  const digest = Hash.computeSha256(encoder.encode(`NIMHUNT:${domain}:v1\n${serialized}`))
+  const digest = sha256(encoder.encode(`NIMHUNT:${domain}:v1\n${serialized}`))
   return Array.from(digest, byte => byte.toString(16).padStart(2, '0')).join('')
 }

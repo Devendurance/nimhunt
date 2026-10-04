@@ -1,7 +1,7 @@
-import { compileTraversalMap } from '../../traversal/angkorV2/map'
-import type { EnvironmentSprite } from '../../rendering/angkorV2/environment'
-import type { GridCoord } from '../../world/grid'
-import { inZone, type Zone } from '../stage1/level'
+import { compileTraversalMap } from '../../traversal/angkorV2/map.js'
+import type { EnvironmentSprite } from '../../rendering/angkorV2/types.js'
+import type { GridCoord } from '../../world/grid.js'
+import { inZone, type Zone } from '../stage1/level.js'
 export { inZone }
 export const AREAS: readonly Zone[] = [
  {name:'Inner Lock Vestibule',x:2,y:21,width:9,height:3},

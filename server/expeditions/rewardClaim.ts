@@ -11,6 +11,7 @@ import type {
   PrepareRewardClaimResult,
 } from '../../src/domain/expeditionProof.js'
 import { isSupportedBlueprintVersion, ROOM_VERSION, RULES_VERSION } from '../../src/game/replay/versions.js'
+import { isV2Blueprint, validV2Blueprint } from '../../src/game/angkorV2Proof/blueprint.js'
 import { nextUtcResetAt } from '../ledger/utcDay.js'
 import { sha256Hex, verifyNimiqSignedCanonicalMessage } from './crypto.js'
 import { ProofError } from './errors.js'
@@ -199,6 +200,7 @@ export function toFinalizeResult(
 }
 
 function requireBoundVersions(run: DurableExpeditionRun): void {
+  if (isV2Blueprint(run.blueprint) && validV2Blueprint(run.blueprint)) return
   if (run.blueprint.rulesVersion !== RULES_VERSION
     || run.blueprint.roomVersion !== ROOM_VERSION
     || !isSupportedBlueprintVersion(run.blueprint.blueprintVersion)) {

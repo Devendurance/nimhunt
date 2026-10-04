@@ -1,3 +1,4 @@
+import { isV2Action } from '../../src/game/angkorV2Proof/model.js'
 import { ABANDON_EXPEDITION_PATH, ACTIVE_EXPEDITION_PATH, CHECKPOINT_PATH, EXPEDITION_RESULT_PATH, FINALIZE_REWARD_CLAIM_PATH, GAMEPLAY_START_PATH, PREPARE_REWARD_CLAIM_PATH, PRODUCT_VAULT_SEAL_PREPARE_PATH, PRODUCT_VAULT_SEAL_VERIFY_PATH, RECOVER_RUN_SESSION_PATH, START_CHALLENGE_PATH, START_EXPEDITION_PATH, VERIFY_EXPEDITION_PATH } from '../../src/domain/expeditionProof.js'
 import type { ReplayAction } from '../../src/game/replay/types.js'
 import { MAX_CHECKPOINT_BATCH_ACTIONS } from '../../src/game/replay/versions.js'
@@ -477,6 +478,7 @@ function readCheckpointRequest(body: Record<string, unknown>): {
 }
 
 function readCheckpointAction(value: unknown): ReplayAction {
+  if (isV2Action(value)) return { ...value }
   if (!isRecord(value)) throw new ProofError('MALFORMED_REQUEST')
   const keys = Object.keys(value)
   if (typeof value.seq !== 'number' || !Number.isInteger(value.seq) || value.seq < 1) throw new ProofError('INVALID_SEQUENCE')

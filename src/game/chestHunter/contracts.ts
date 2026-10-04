@@ -1,4 +1,4 @@
-import { copyItems, type CarriedItems } from '../gemRunner/contracts'
+import { copyItems, type CarriedItems } from '../gemRunner/contracts.js'
 export { copyItems, type CarriedItems }
 export const CHEST_HUNTER_STAGES = [
   { id: 'lost-courtyard', name: 'Lost Courtyard', ordinal: 1, numeral: 'I', available: 6, required: 4 },

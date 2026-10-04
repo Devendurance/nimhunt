@@ -1,4 +1,4 @@
-import { ANGKOR_V2_TILE_SIZE } from '../../assets/angkorV2Manifest'
+import { ANGKOR_V2_TILE_SIZE } from '../../assets/angkorV2Manifest.js'
 /** Pure visual geometry; never supplies or mutates gameplay collision. */
 export const ANGKOR_V2_RENDER = {
   tile: ANGKOR_V2_TILE_SIZE, normalHeight: 24, tallHeight: 40, lowHeight: 10, collapsedHeight: 5,

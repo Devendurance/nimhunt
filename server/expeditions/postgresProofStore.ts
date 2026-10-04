@@ -1,3 +1,5 @@
+import { isV2Blueprint, validV2Blueprint, createV2Blueprint } from '../../src/game/angkorV2Proof/blueprint.js'
+import { isV2Action } from '../../src/game/angkorV2Proof/model.js'
 import { randomBytes, randomUUID } from 'node:crypto'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { parseProductVaultSeal } from '../../src/domain/productVaultSeal.js'
@@ -17,7 +19,7 @@ import type {
   ExpeditionCheckpoint,
   ExpeditionTranscript,
   MissionType,
-  MoveAction,
+  ReplayAction,
   ReplayState,
 } from '../../src/game/replay/types.js'
 import { applyCheckpointBatch } from './checkpoint.js'
@@ -35,7 +37,7 @@ import {
 import { verifyNimiqSignedCanonicalMessage } from './crypto.js'
 import { ProofError } from './errors.js'
 import { createSupabaseProofRpcClient, readProofRpc, type ProofRpcClient } from './proofDb.js'
-import { createInitialCheckpoint, isRecoverableInitialRun } from './runProof.js'
+import { createInitialCheckpoint, isRecoverableInitialRun, isRecoverableV2Run } from './runProof.js'
 import {
   createRunSessionCapability,
   hashRunSessionCapability,
@@ -83,9 +85,11 @@ export async function createPostgresProofService(options: {
 }): Promise<ProofService> {
   const rpc = options.rpc
   const rewardPolicy = options.rewardPolicy ?? createRewardPolicy()
+  const v2Publication = options.blueprints?.some(isV2Blueprint) ?? false
   const recoveryChallengeTimes = new Map<string, { issuedAt: string; expiresAt: string }>()
   const service: ProofService = {
     async registerBlueprint(blueprint) {
+      if (isV2Blueprint(blueprint) && !validV2Blueprint(blueprint)) throw new ProofError('BLUEPRINT_INVALID')
       if (blueprint.status !== 'PUBLISHED') throw new ProofError('BLUEPRINT_LIFECYCLE_INVALID')
       const expectedHash = hashBlueprint(blueprint)
       if (blueprint.blueprintHash !== expectedHash) throw new ProofError('BLUEPRINT_INVALID')
@@ -110,11 +114,18 @@ export async function createPostgresProofService(options: {
     },
 
     async getPublishedBlueprint(dayKey, mission) {
-      const payload = await rpc.rpc('get_published_blueprint', {
+      const payload = await rpc.rpc(v2Publication ? 'get_published_angkor_v2_blueprint' : 'get_published_blueprint', {
         p_day_key: dayKey,
         p_mission_type: mission,
       })
-      if (typeof payload === 'object' && payload !== null && 'ok' in payload && payload.ok === false) return null
+      if (typeof payload === 'object' && payload !== null && 'ok' in payload && payload.ok === false) {
+        if (!v2Publication) return null
+        if (!('error' in payload) || payload.error !== 'DAILY_BLUEPRINT_UNAVAILABLE') return readProofRpc(payload).blueprint as ExpeditionBlueprint
+        // Server-generated immutable content; keep warm instances correct at UTC rollover.
+        const blueprint = createV2Blueprint(dayKey, mission)
+        await service.registerBlueprint(blueprint)
+        return blueprint
+      }
       const result = readProofRpc(payload)
       return asBlueprint(result.blueprint)
     },
@@ -185,7 +196,7 @@ export async function createPostgresProofService(options: {
         : { seq: 0 }
       const transcript: ExpeditionTranscript | null = canCreate && published
         ? {
-          version: TRANSCRIPT_VERSION,
+          version: isV2Blueprint(published) ? 2 : TRANSCRIPT_VERSION,
           runId,
           wallet: parsed.wallet,
           mission: parsed.mission,
@@ -295,10 +306,10 @@ export async function createPostgresProofService(options: {
 
     async getActiveExpedition(runId, session) {
       const { run, now } = await requireAuthenticatedRun(rpc, runId, session)
-      if (run.gameplayStartedAt || run.status !== 'STARTED' || now.getTime() >= new Date(run.expiresAt).getTime()) {
+      if ((!isV2Blueprint(run.blueprint) && run.gameplayStartedAt) || run.status !== 'STARTED' || now.getTime() >= new Date(run.expiresAt).getTime()) {
         throw new ProofError('ACTIVE_RUN_UNAVAILABLE')
       }
-      if (!isRecoverableInitialRun(run)) throw new ProofError('ACTIVE_RUN_UNAVAILABLE')
+      if (!(isV2Blueprint(run.blueprint) ? isRecoverableV2Run(run) : isRecoverableInitialRun(run))) throw new ProofError('ACTIVE_RUN_UNAVAILABLE')
       return {
         runId: run.runId,
         dayKey: run.dayKey,
@@ -1078,10 +1089,12 @@ function asVerifyResult(value: unknown): VerifyExpeditionResult {
   }
 }
 
-function asActions(value: unknown): MoveAction[] {
+function asActions(value: unknown): ReplayAction[] {
   if (!Array.isArray(value)) throw new ProofError('PROOF_LOST')
   return value.map(item => {
     const row = asRecord(item)
+    if (isV2Action(row)) return { ...row }
+    if (row.type === 'TICK' && Object.keys(row).length === 2) return { seq: asNumber(row.seq), type: 'TICK' }
     if (row.type !== 'MOVE') throw new ProofError('PROOF_LOST')
     const direction = row.direction
     if (direction !== 'UP' && direction !== 'DOWN' && direction !== 'LEFT' && direction !== 'RIGHT') {

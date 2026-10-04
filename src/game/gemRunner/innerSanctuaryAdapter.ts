@@ -1,6 +1,6 @@
-import { DIRECTION_VECTORS } from '../world/grid'
-import { initialStageState, reduceStage, type StageAction, type StageState } from '../stage3/model'
-import { GEM_RUNNER_STAGES, copyItems, type StageAdapter } from './contracts'
+import { DIRECTION_VECTORS } from '../world/grid.js'
+import { initialStageState, reduceStage, type StageAction, type StageState } from '../stage3/model.js'
+import { GEM_RUNNER_STAGES, copyItems, type StageAdapter } from './contracts.js'
 
 export const innerSanctuaryAdapter: StageAdapter<StageState, StageAction> = {
   definition: GEM_RUNNER_STAGES[2], create: initialStageState, reduce: reduceStage,

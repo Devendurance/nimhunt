@@ -1,8 +1,8 @@
-import { DIRECTION_VECTORS } from '../world/grid'
-import { CHEST_HUNTER_STAGES, copyItems, type StageAdapter } from './contracts'
-import { initialStageState as initialI, reduceStage as reduceI, type StageState as StateI, type StageAction as ActionI } from './stage1/model'
-import { initialStageState as initialII, reduceStage as reduceII, type StageState as StateII, type StageAction as ActionII } from './stage2/model'
-import { initialStageState as initialIII, reduceStage as reduceIII, type StageState as StateIII, type StageAction as ActionIII } from './stage3/model'
+import { DIRECTION_VECTORS } from '../world/grid.js'
+import { CHEST_HUNTER_STAGES, copyItems, type StageAdapter } from './contracts.js'
+import { initialStageState as initialI, reduceStage as reduceI, type StageState as StateI, type StageAction as ActionI } from './stage1/model.js'
+import { initialStageState as initialII, reduceStage as reduceII, type StageState as StateII, type StageAction as ActionII } from './stage2/model.js'
+import { initialStageState as initialIII, reduceStage as reduceIII, type StageState as StateIII, type StageAction as ActionIII } from './stage3/model.js'
 export type ChestStageAction = Exclude<ActionI | ActionII | ActionIII, { type: 'RESET' }>
 export function isStageAction(value: unknown): value is ChestStageAction {
   if (!value || typeof value !== 'object') return false

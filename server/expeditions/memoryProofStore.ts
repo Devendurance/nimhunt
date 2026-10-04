@@ -1,3 +1,4 @@
+import { isV2Blueprint } from '../../src/game/angkorV2Proof/blueprint.js'
 import { randomBytes, randomUUID } from 'node:crypto'
 import { DAILY_EXPEDITION_LIMIT, DAILY_REWARD_SLOTS } from '../../src/domain/dailyLedger.js'
 import { parseProductVaultSeal } from '../../src/domain/productVaultSeal.js'
@@ -13,7 +14,7 @@ import type {
   ExpeditionBlueprint,
   ExpeditionTranscript,
 } from '../../src/game/replay/types.js'
-import { createInitialCheckpoint, isRecoverableInitialRun } from './runProof.js'
+import { createInitialCheckpoint, isRecoverableInitialRun, isRecoverableV2Run } from './runProof.js'
 import { validateExpeditionBlueprint } from '../../src/game/replay/validator.js'
 import { applyCheckpointBatch } from './checkpoint.js'
 import { prepareProductVaultSeal, verifyProductVaultSeal } from './vaultSeal.js'
@@ -429,10 +430,10 @@ export function createMemoryProofService(options: {
 
     getActiveExpedition(runId, session) {
       const { run, now } = requireAuthenticatedRun(runId, session)
-      if (run.gameplayStartedAt || run.status !== 'STARTED' || now.getTime() >= new Date(run.expiresAt).getTime()) {
+      if ((!isV2Blueprint(run.blueprint) && run.gameplayStartedAt) || run.status !== 'STARTED' || now.getTime() >= new Date(run.expiresAt).getTime()) {
         throw new ProofError('ACTIVE_RUN_UNAVAILABLE')
       }
-      if (!isRecoverableInitialRun(run)) throw new ProofError('ACTIVE_RUN_UNAVAILABLE')
+      if (!(isV2Blueprint(run.blueprint) ? isRecoverableV2Run(run) : isRecoverableInitialRun(run))) throw new ProofError('ACTIVE_RUN_UNAVAILABLE')
 
       return {
         runId: run.runId,
@@ -705,7 +706,7 @@ export function createMemoryProofService(options: {
       blueprint,
     })
     const transcript: ExpeditionTranscript = {
-      version: TRANSCRIPT_VERSION,
+      version: isV2Blueprint(blueprint) ? 2 : TRANSCRIPT_VERSION,
       runId,
       wallet: challenge.wallet,
       mission: challenge.mission,

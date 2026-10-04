@@ -1,8 +1,8 @@
-import { DIRECTION_VECTORS } from '../world/grid'
-import { VAULT_BREAKER_STAGES, copyItems, type StageAdapter } from './contracts'
-import { initialStageState, reduceStage, type StageAction, type StageState } from './stage1/model'
-import * as mechanism from './stage2/model'
-import * as vault from './stage3/model'
+import { DIRECTION_VECTORS } from '../world/grid.js'
+import { VAULT_BREAKER_STAGES, copyItems, type StageAdapter } from './contracts.js'
+import { initialStageState, reduceStage, type StageAction, type StageState } from './stage1/model.js'
+import * as mechanism from './stage2/model.js'
+import * as vault from './stage3/model.js'
 export const innerVaultAdapter:StageAdapter<vault.StageState,vault.StageAction>={
   definition:VAULT_BREAKER_STAGES[2],create:vault.initialStageState,reduce:vault.reduceStage,isAction:isStageAction,
   report(state,_carry,actionCount){

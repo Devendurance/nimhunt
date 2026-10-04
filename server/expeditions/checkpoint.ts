@@ -1,4 +1,6 @@
 import type { CheckpointAcknowledgement } from '../../src/domain/expeditionProof.js'
+import { isV2Blueprint } from '../../src/game/angkorV2Proof/blueprint.js'
+import { isV2Action, canonicalV2, V2_ACTION_LIMIT, V2_TICK_MS } from '../../src/game/angkorV2Proof/model.js'
 import { hashActionBatch, hashCheckpoint, hashReplayState, hashTranscript } from '../../src/game/replay/canonical.js'
 import { deriveCheckpointProgress } from '../../src/game/replay/checkpointProgress.js'
 import { advanceRun } from '../../src/game/replay/engine.js'
@@ -43,7 +45,7 @@ export function applyCheckpointBatch(
     throw new ProofError('MALFORMED_REQUEST')
   }
   for (const action of actions) {
-    if (action.type !== 'MOVE' && action.type !== 'TICK') throw new ProofError('INVALID_ACTION')
+    if (isV2Blueprint(run.blueprint) ? !isV2Action(action) : action.type !== 'MOVE' && action.type !== 'TICK') throw new ProofError('INVALID_ACTION')
   }
 
   const existing = run.batches.find(batch => batch.previousCheckpointHash === input.previousCheckpointHash)
@@ -64,7 +66,7 @@ export function applyCheckpointBatch(
   for (let index = 0; index < actions.length; index += 1) {
     if (actions[index]!.seq !== seqStart + index) throw new ProofError('INVALID_SEQUENCE')
   }
-  if (run.seq + actions.length > MAX_ACCEPTED_ACTIONS) throw new ProofError('ACTION_LIMIT_EXCEEDED')
+  if (run.seq + actions.length > (isV2Blueprint(run.blueprint) ? V2_ACTION_LIMIT : MAX_ACCEPTED_ACTIONS)) throw new ProofError('ACTION_LIMIT_EXCEEDED')
 
   verifyTrustedSnapshot(run)
 
@@ -149,6 +151,14 @@ export function applyCheckpointBatch(
     ...state,
     hazardDeadlines,
   }
+  if (state.angkorV2) {
+    if (!run.gameplayStartedAt) throw new ProofError('RUN_NOT_ACTIVE')
+    // Reward actions cannot manufacture elapsed simulation time. The logical
+    // reducers remain deterministic; this separate admission guard is server-owned.
+    const elapsed = now.getTime() - Date.parse(run.gameplayStartedAt)
+    const moves = [...run.actions, ...actions].filter(a => a.type === 'V2_MOVE').length
+    if (Math.max(state.angkorV2.totalTicks * V2_TICK_MS, moves * 145) > elapsed + 750) throw new ProofError('INVALID_ACTION')
+  }
 
   const nextActions = [...run.actions, ...actions]
   const transcriptHash = hashTranscript(transcriptFor(run, nextActions))
@@ -178,7 +188,7 @@ function verifyTrustedSnapshot(run: DurableExpeditionRun): void {
 
 function transcriptFor(run: DurableExpeditionRun, actions: readonly ReplayAction[]): ExpeditionTranscript {
   return {
-    version: TRANSCRIPT_VERSION,
+    version: isV2Blueprint(run.blueprint) ? 2 : TRANSCRIPT_VERSION,
     runId: run.runId,
     wallet: run.wallet,
     mission: run.mission,
@@ -255,6 +265,7 @@ function createAcknowledgement(
 }
 
 function sameActions(left: readonly ReplayAction[], right: readonly ReplayAction[]): boolean {
+  if (left.some(isV2Action) || right.some(isV2Action)) return canonicalV2(left) === canonicalV2(right)
   return left.length === right.length
     && left.every((action, index) => {
       const other = right[index]

@@ -13,6 +13,7 @@ import {
   type ProductVaultSealPayload,
 } from '../../src/domain/productVaultSeal.js'
 import { isSupportedBlueprintVersion, ROOM_VERSION, RULES_VERSION } from '../../src/game/replay/versions.js'
+import { isV2Blueprint, validV2Blueprint } from '../../src/game/angkorV2Proof/blueprint.js'
 import { ProofError } from './errors.js'
 import { sha256Hex, verifyNimiqSignedCanonicalMessage } from './crypto.js'
 import type { DurableExpeditionRun, DurableVaultSealProof } from './types.js'
@@ -105,13 +106,13 @@ function requireBoundPayload(run: DurableExpeditionRun, payload: ProductVaultSea
   if (payload.wallet !== run.wallet) throw new ProofError('WALLET_MISMATCH')
   if (payload.mission !== run.mission) throw new ProofError('RUN_MISMATCH')
   if (payload.runChallenge !== run.runChallenge) throw new ProofError('VAULT_SEAL_MISMATCH')
-  if (payload.rulesVersion !== run.blueprint.rulesVersion || payload.rulesVersion !== RULES_VERSION) {
+  if (payload.rulesVersion !== run.blueprint.rulesVersion || (!isV2Blueprint(run.blueprint) && payload.rulesVersion !== RULES_VERSION)) {
     throw new ProofError('VAULT_SEAL_MISMATCH')
   }
-  if (payload.roomVersion !== run.blueprint.roomVersion || payload.roomVersion !== ROOM_VERSION) {
+  if (payload.roomVersion !== run.blueprint.roomVersion || (!isV2Blueprint(run.blueprint) && payload.roomVersion !== ROOM_VERSION)) {
     throw new ProofError('VAULT_SEAL_MISMATCH')
   }
-  if (payload.blueprintVersion !== run.blueprint.blueprintVersion || !isSupportedBlueprintVersion(payload.blueprintVersion)) {
+  if (payload.blueprintVersion !== run.blueprint.blueprintVersion || (!isV2Blueprint(run.blueprint) && !isSupportedBlueprintVersion(payload.blueprintVersion))) {
     throw new ProofError('VAULT_SEAL_MISMATCH')
   }
   if (payload.blueprintId !== run.blueprint.blueprintId) throw new ProofError('VAULT_SEAL_MISMATCH')
@@ -133,11 +134,12 @@ function requireVaultGameplayVerified(run: DurableExpeditionRun): void {
   if (!run.terminal.result.objectiveReached || run.terminal.result.finalHp <= 0) {
     throw new ProofError('CHECKPOINT_MISMATCH')
   }
-  if (run.blueprint.rulesVersion !== RULES_VERSION
+  if (!isV2Blueprint(run.blueprint) && (run.blueprint.rulesVersion !== RULES_VERSION
     || run.blueprint.roomVersion !== ROOM_VERSION
-    || !isSupportedBlueprintVersion(run.blueprint.blueprintVersion)) {
+    || !isSupportedBlueprintVersion(run.blueprint.blueprintVersion))) {
     throw new ProofError('VAULT_SEAL_MISMATCH')
   }
+  if (isV2Blueprint(run.blueprint) && !validV2Blueprint(run.blueprint)) throw new ProofError('VAULT_SEAL_MISMATCH')
 }
 
 function toVerifiedResult(proof: DurableVaultSealProof): VerifiedProductVaultSeal {

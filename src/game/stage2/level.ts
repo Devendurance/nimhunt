@@ -1,7 +1,7 @@
-import { compileTraversalMap } from '../traversal/angkorV2/map'
-import type { EnvironmentSprite } from '../rendering/angkorV2/environment'
-import type { Direction, GridCoord } from '../world/grid'
-import type { Zone } from '../stage1/level'
+import { compileTraversalMap } from '../traversal/angkorV2/map.js'
+import type { EnvironmentSprite } from '../rendering/angkorV2/types.js'
+import type { Direction, GridCoord } from '../world/grid.js'
+import type { Zone } from '../stage1/level.js'
 
 export const STAGE_AREAS: readonly Zone[] = [
   { name: 'Vine Hall', x: 2, y: 17, width: 7, height: 5 },

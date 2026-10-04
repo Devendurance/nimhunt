@@ -25,6 +25,8 @@ export const MAX_UNACKNOWLEDGED_ACTIONS = 16
 export const MAX_TRANSCRIPT_BODY_BYTES = 16 * 1024
 export const TIMED_HAZARD_TICK_MS = 750
 
-export type RulesVersion = typeof RULES_VERSION
-export type RoomVersion = typeof ROOM_VERSION
-export type BlueprintVersion = typeof SUPPORTED_BLUEPRINT_VERSIONS[number]
+// Angkor V2 is a distinct rules/room/blueprint family. Historical constants and
+// allowlists above continue to mean exactly the legacy single-room protocol.
+export type RulesVersion = typeof RULES_VERSION | 'nimhunt-angkor-v2-rules-v1'
+export type RoomVersion = typeof ROOM_VERSION | 'angkor-nine-stages-v1'
+export type BlueprintVersion = typeof SUPPORTED_BLUEPRINT_VERSIONS[number] | 'angkor-expedition-blueprint-v1'

@@ -1,4 +1,4 @@
-import { copyItems, type CarriedItems } from '../gemRunner/contracts'
+import { copyItems, type CarriedItems } from '../gemRunner/contracts.js'
 export { copyItems, type CarriedItems }
 export const VAULT_BREAKER_STAGES = [
   { id: 'temple-approach', name: 'Temple Approach', ordinal: 1, numeral: 'I', implemented: true },

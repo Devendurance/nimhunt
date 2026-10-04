@@ -3,6 +3,7 @@ import type { PrepareRewardClaimResult } from '../../src/domain/expeditionProof.
 import { isInstallId } from '../../src/domain/installId.js'
 import { PLAYER_MOVE_DURATION_MS, PLAYER_MOVE_FRAME_SLACK_MS } from '../../src/game/config/timing.js'
 import { sha256Hex } from './crypto.js'
+import { isV2Blueprint } from '../../src/game/angkorV2Proof/blueprint.js'
 import type { DurableExpeditionRun } from './types.js'
 
 export const INSTALL_ID_HASH_PREFIX = 'nimhunt-install-v1:'
@@ -62,7 +63,7 @@ export function hashInstallId(installId: string): string {
 }
 
 export function runPatternHash(run: Pick<DurableExpeditionRun, 'actions'>): string {
-  return sha256Hex(run.actions.map(action => action.type === 'MOVE' ? action.direction : 'TICK').join(','))
+  return sha256Hex(run.actions.map(action => action.type === 'MOVE' ? action.direction : action.type === 'V2_MOVE' ? `${action.stageId}:${action.direction}` : action.type === 'TICK' ? 'TICK' : `${action.stageId}:${action.type}`).join(','))
 }
 
 export function countsAsConcurrentGameplayRun(
@@ -149,6 +150,13 @@ export function dailyRewardSlotCount(): number {
 function isImpossibleSpeedFromRun(run: DurableExpeditionRun): boolean {
   if (run.terminal?.type !== 'VERIFIED') return false
   const startedAt = run.gameplayStartedAt ?? run.startedAt
+  if (isV2Blueprint(run.blueprint)) {
+    const moves = run.actions.filter(a => a.type === 'V2_MOVE').length
+    const ticks = run.state.angkorV2?.totalTicks ?? 0
+    // MOVE and TICK share the same real timeline; adding their durations would
+    // falsely block normal V2 play. Keep legacy per-action timing untouched.
+    return Date.parse(run.terminal.result.verifiedAt) - Date.parse(startedAt) < Math.max(moves * 145, ticks * 150) - RISK_NETWORK_RENDER_SLACK_MS
+  }
   return isImpossibleRunSpeed({
     actionCount: run.seq,
     startedAt,

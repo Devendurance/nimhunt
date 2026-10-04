@@ -1,6 +1,6 @@
-import { TILE_SIZE, type GridRoom, type GridCoord } from '../../world/grid'
-import type { EnvironmentMap, EnvironmentCell } from '../../rendering/angkorV2/geometry'
-import type { EnvironmentSprite } from '../../rendering/angkorV2/environment'
+import { TILE_SIZE, type GridRoom, type GridCoord } from '../../world/grid.js'
+import type { EnvironmentMap, EnvironmentCell } from '../../rendering/angkorV2/geometry.js'
+import type { EnvironmentSprite } from '../../rendering/angkorV2/types.js'
 
 export interface TraversalMapTruth {
   readonly id: string

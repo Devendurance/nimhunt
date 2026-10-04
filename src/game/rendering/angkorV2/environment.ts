@@ -1,8 +1,8 @@
 import type Phaser from 'phaser'
-import { ANGKOR_V2_BY_KEY, ANGKOR_V2_EXPLORER_GAMEPLAY, ANGKOR_V2_PRODUCTION_MANIFEST, type AngkorV2AssetKey, type AngkorV2DepthClass } from '../../assets/angkorV2Manifest'
-import { ANGKOR_V2_RENDER as R, compileWallModules, environmentDepth, readabilityOccluders, readabilityAlpha, validateEnvironmentMap, type EnvironmentDepthClass, type EnvironmentMap, type VisualBounds } from './geometry'
-import { InteractableEmphasis } from './interactableEmphasis'
-import { CAP_MATERIALS, FLOOR_MATERIALS, createFloorSurface, createWallSurface } from './surfaces'
+import { ANGKOR_V2_BY_KEY, ANGKOR_V2_EXPLORER_GAMEPLAY, ANGKOR_V2_PRODUCTION_MANIFEST, type AngkorV2AssetKey, type AngkorV2DepthClass } from '../../assets/angkorV2Manifest.js'
+import { ANGKOR_V2_RENDER as R, compileWallModules, environmentDepth, readabilityOccluders, readabilityAlpha, validateEnvironmentMap, type EnvironmentDepthClass, type EnvironmentMap, type VisualBounds } from './geometry.js'
+import { InteractableEmphasis } from './interactableEmphasis.js'
+import { CAP_MATERIALS, FLOOR_MATERIALS, createFloorSurface, createWallSurface } from './surfaces.js'
 
 export const angkorV2TextureKey = (key: AngkorV2AssetKey) => `angkor-v2/${key}`
 export function preloadAngkorV2Environment(scene: Phaser.Scene, additional: readonly AngkorV2AssetKey[] = []): void {
@@ -12,11 +12,9 @@ export function preloadAngkorV2Environment(scene: Phaser.Scene, additional: read
 const classForAsset: Record<AngkorV2DepthClass, EnvironmentDepthClass> = {
   floor: 'floor', 'ground-detail': 'floor-overlay', hazard: 'ground-item', collectible: 'ground-item', prop: 'low-prop', actor: 'actor', architecture: 'architecture', wall: 'wall', foreground: 'foreground', effect: 'effect',
 }
-export interface EnvironmentSprite {
-  readonly key: AngkorV2AssetKey; readonly x: number; readonly y: number;
-  readonly depthClass?: EnvironmentDepthClass; readonly depthY?: number;
-  readonly occludesPlayer?: boolean; readonly alpha?: number; readonly flipX?: boolean; readonly shadow?: boolean;
-}
+export type { EnvironmentSprite } from './types.js'
+import type { EnvironmentSprite } from './types.js'
+
 export interface DepthTarget { readonly x: number; readonly y: number; setDepth(depth: number): unknown }
 interface Occluder { object: Phaser.GameObjects.Image; bounds: VisualBounds; depth: number; baseAlpha: number; targetAlpha: number; opaqueAt: (x: number, y: number) => boolean }
 interface ActorBinding { object: DepthTarget; foot: () => { x: number; y: number }; width: number; visibleHeight: number; lastX?: number; lastY?: number }

@@ -1,6 +1,6 @@
-import { DIRECTION_VECTORS } from '../world/grid'
-import { initialStageState, reduceStage, type StageAction, type StageState } from '../stage2/model'
-import { GEM_RUNNER_STAGES, copyItems, type StageAdapter } from './contracts'
+import { DIRECTION_VECTORS } from '../world/grid.js'
+import { initialStageState, reduceStage, type StageAction, type StageState } from '../stage2/model.js'
+import { GEM_RUNNER_STAGES, copyItems, type StageAdapter } from './contracts.js'
 
 export const overgrownTempleAdapter: StageAdapter<StageState, StageAction> = {
   definition: GEM_RUNNER_STAGES[1], create: initialStageState, reduce: reduceStage,

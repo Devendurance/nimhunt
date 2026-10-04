@@ -2,6 +2,11 @@ import { createRoom01Blueprint } from '../../src/game/world/room01.js'
 import { createDailyAngkorBlueprint } from '../../src/game/world/dailyAngkorLayouts.js'
 import { hashBlueprint } from '../../src/game/replay/canonical.js'
 import type { ExpeditionBlueprint, MissionType } from '../../src/game/replay/types.js'
+import { createV2Blueprint } from '../../src/game/angkorV2Proof/blueprint.js'
+
+export function createV2PublishedBlueprints(dayKey: string): readonly ExpeditionBlueprint[] {
+  return (['gem-runner', 'chest-hunter', 'vault-breaker'] as const).map(mission => createV2Blueprint(dayKey, mission))
+}
 
 /** Built-in Room 01 templates. Publication may skip BFS only on exact prevalidated template hash match. */
 export function createBootstrapBlueprint(dayKey: string, mission: MissionType): ExpeditionBlueprint {

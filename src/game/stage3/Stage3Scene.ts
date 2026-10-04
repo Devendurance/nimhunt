@@ -1,3 +1,4 @@
+import { restorePresentation } from '../angkorV2Proof/restorePresentation'
 import Phaser from 'phaser'
 import { AngkorV2Environment, angkorV2TextureKey, preloadAngkorV2Environment } from '../rendering/angkorV2/environment'
 import { ANGKOR_V2_RENDER as R, environmentDepth, readabilityOccluders, readabilityAlpha } from '../rendering/angkorV2/geometry'
@@ -13,6 +14,8 @@ import type { StageCarry } from '../gemRunner/contracts'
 import { anacondaPresentation, headDropPosition, PIT_POSE_KEYS, PIT_PRESENTATION as P, type PitPose } from './anacondaPresentation'
 
 export interface Stage3SceneOptions {
+  initialState?: StageState
+  canAct?: () => boolean
   carry: StageCarry
   /** Local expedition authority; the isolated Stage III reducer remains the fallback. */
   reduceAction?: (action: StageAction) => StageState
@@ -62,7 +65,7 @@ export class Stage3Scene extends Phaser.Scene {
   private reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
   private failures: string[] = []
   private effects = new Set<Phaser.GameObjects.Image>()
-  constructor(options: Stage3SceneOptions) { super('InnerSanctuary'); this.options = options; this.state = initialStageState(options.carry) }
+  constructor(options: Stage3SceneOptions) { super('InnerSanctuary'); this.options = options; this.state = options.initialState ?? initialStageState(options.carry) }
   preload() {
     this.load.on('loaderror', (file: Phaser.Loader.File) => this.failures.push(file.key))
     preloadAngkorV2Environment(this, [...additional, ...STAGE_DECOR.map(p => p.key)])
@@ -126,8 +129,8 @@ export class Stage3Scene extends Phaser.Scene {
     }
     this.rubbleRocks = RUBBLE.tiles.map(tile => this.add.image(tile.x * 32 + 16, tile.y * 32 + 16, angkorV2TextureKey('monkey-rock-v2')).setDisplaySize(15, 15).setDepth(environmentDepth('effect', tile.y * 32 + 16)).setVisible(false))
     this.passage = this.environment.addSprite({ key: 'temple-passage-closed-height-v2', x: EXIT.x * 32 + 16, y: EXIT.y * 32 + 24, depthY: EXIT.y * 32 + 8, shadow: true })
-    this.traversal = new TileTraversal(stageMap.collision, move => this.animatePush(move), ANGKOR_V2_MOVE_MS, {
-      canEnter: (_from, direction) => this.running && this.state.status === 'playing' && Boolean(planStageMove(this.state, direction)),
+    this.traversal = new TileTraversal({...stageMap.collision, playerStart: this.state.player}, move => this.animatePush(move), ANGKOR_V2_MOVE_MS, {
+      canEnter: (_from, direction) => this.running && (this.options.canAct?.() ?? true) && this.state.status === 'playing' && Boolean(planStageMove(this.state, direction)),
       onArrive: move => this.dispatch({ type: 'MOVE', direction: move.direction }),
     })
     this.explorer = new TraversalPlayer(this, this.environment, this.traversal)
@@ -148,11 +151,11 @@ export class Stage3Scene extends Phaser.Scene {
     canvas.dataset.ready = 'true'
     canvas.dataset.state = JSON.stringify(this.state)
     this.events.once('shutdown', () => { this.unbind?.(); this.explorer?.destroy(); this.environment?.destroy() })
-    this.options.onReady(this); this.options.onState(this.state)
+    if (this.options.initialState) restorePresentation(this.state, {gems: this.gems, passage: this.passage}); this.options.onReady(this); this.options.onState(this.state)
   }
   start() { this.reset(); this.running = true; this.game.canvas.focus() }
   reset() {
-    this.running = false; this.accumulator = 0; this.state = initialStageState(this.options.carry); this.transcript.length = 0
+    this.running = false; this.accumulator = 0; this.state = this.options.initialState ?? initialStageState(this.options.carry); this.transcript.length = 0
     this.tweens.killAll(); this.traversal?.reset()
     for (const effect of this.effects) effect.destroy()
     this.effects.clear()
@@ -161,7 +164,7 @@ export class Stage3Scene extends Phaser.Scene {
     for (const b of this.state.boulders) { const foot = tileToPixel(b); this.stones.get(b.id)?.setPosition(foot.x, foot.y - P.cradleLift).setAngle(0).setVisible(true) }
     this.bossAlpha = 1; this.syncActors(); this.target?.clear(); this.rocks.forEach(rock => rock.setVisible(false)); this.passage?.setTexture(angkorV2TextureKey('temple-passage-closed-height-v2'))
     this.scroll = cameraTarget(this.traversal!.foot, stageMap.world, this.options.viewport)
-    this.cameras.main.setScroll(this.scroll.x, this.scroll.y); this.options.onState(this.state)
+    this.cameras.main.setScroll(this.scroll.x, this.scroll.y); if (this.options.initialState) restorePresentation(this.state, {gems: this.gems, passage: this.passage}); this.options.onState(this.state)
     this.game.canvas.dataset.state = JSON.stringify(this.state)
   }
   setDebug(visible: boolean) { this.debug = visible; this.collision?.setVisible(visible); this.cameraFrame?.setVisible(visible); this.options.onState(this.state) }
@@ -274,7 +277,7 @@ export class Stage3Scene extends Phaser.Scene {
   }
   update(_time: number, delta: number) {
     if (!this.environment || !this.explorer || !this.traversal) return
-    const active = this.running && !document.hidden && document.hasFocus()
+    const active = this.running && (this.options.canAct?.() ?? true) && !document.hidden && document.hasFocus()
     this.tweens.timeScale = active ? 1 : 0
     if (active) {
       this.traversal.update(delta)
