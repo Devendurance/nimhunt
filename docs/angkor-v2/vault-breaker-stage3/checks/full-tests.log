@@ -1,0 +1,51 @@
+
+> nimiq-treasure-hunt@0.0.0 test
+> vitest run --testTimeout=120000 --maxWorkers=4
+
+
+ RUN  v5.0.0 C:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt
+
+ ❯ server/expeditions/room01BootstrapPrevalidation.test.ts (6 tests | 1 failed) 106512ms
+   ❯ Room 01 bootstrap template prevalidation (6)
+     × proves each static template is solvable and replays the stored winning sequence 104040ms
+ ❯ src/game/world/dailyAngkorLayouts.test.ts (15 tests | 1 failed) 194981ms
+   ❯ mission-specific daily Angkor difficulty layouts (15)
+     × validates and proves solvability for Chest Hunter variant 2 within 256 actions 90842ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  server/expeditions/room01BootstrapPrevalidation.test.ts > Room 01 bootstrap template prevalidation > proves each static template is solvable and replays the stored winning sequence
+Error: Test timed out in 90000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ server/expeditions/room01BootstrapPrevalidation.test.ts:55:3
+     53|   })
+     54|
+     55|   it('proves each static template is solvable and replays the stored w…
+       |   ^
+     56|     for (const mission of ROOM_01_BOOTSTRAP_MISSIONS) {
+     57|       const blueprint = createBootstrapBlueprint(ROOM_01_BOOTSTRAP_TEM…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/game/world/dailyAngkorLayouts.test.ts > mission-specific daily Angkor difficulty layouts > validates and proves solvability for Chest Hunter variant 2 within 256 actions
+Error: Test timed out in 75000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/game/world/dailyAngkorLayouts.test.ts:153:3
+    151|   })
+    152|
+    153|   it('validates and proves solvability for Chest Hunter variant 2 with…
+       |   ^
+    154|     const bp = createDailyAngkorBlueprint(testDay, 'chest-hunter', 1, …
+    155|     const result = validateExpeditionBlueprint(bp)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 161 passed | 5 skipped (168)
+      Tests  2 failed | 1277 passed | 69 skipped (1348)
+   Start at  06:54:54
+   Duration  197.40s (tests 82%, import 9%, transform 8%, worker 1%)
+
+    Isolate  168 workers spawned · ~763ms startup each (spawn + environment, per file)
+             at least ~31.30s faster with isolate: false — reuses workers across files instead of one per file
+

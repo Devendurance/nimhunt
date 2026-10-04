@@ -1,0 +1,12 @@
+
+ RUN  v5.0.0 C:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt
+
+
+ Test Files  20 passed (20)
+      Tests  132 passed (132)
+   Start at  07:43:22
+   Duration  5.88s (tests 79%, transform 11%, import 8%, worker 1%)
+
+    Isolate  20 workers spawned · ~161ms startup each (spawn + environment, per file)
+             at least ~1.45s faster with isolate: false — reuses workers across files instead of one per file
+

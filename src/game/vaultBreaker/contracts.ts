@@ -3,9 +3,9 @@ export { copyItems, type CarriedItems }
 export const VAULT_BREAKER_STAGES = [
   { id: 'temple-approach', name: 'Temple Approach', ordinal: 1, numeral: 'I', implemented: true },
   { id: 'ancient-mechanism', name: 'Ancient Mechanism', ordinal: 2, numeral: 'II', implemented: true },
-  { id: 'inner-vault', name: 'Inner Vault', ordinal: 3, numeral: 'III', implemented: false },
+  { id: 'inner-vault', name: 'Inner Vault', ordinal: 3, numeral: 'III', implemented: true },
 ] as const
-export type StageDefinition = typeof VAULT_BREAKER_STAGES[number]
+export type StageDefinition = Omit<typeof VAULT_BREAKER_STAGES[number], 'implemented'> & { readonly implemented: boolean }
 export type StageId = StageDefinition['id']
 /** Explicit carry whitelist: local keys, stones and mechanisms cannot leak. */
 export interface StageCarry { readonly hp: number; readonly carriedItems: CarriedItems }
@@ -23,7 +23,13 @@ export interface MechanismObjectives {
   readonly finalCombinationSet: boolean
   readonly innerLockOpened: boolean
 }
-export type ObjectiveResults = ApproachObjectives | MechanismObjectives
+export interface VaultObjectives {
+  readonly golemAwakened: boolean
+  readonly anchorsBroken: boolean
+  readonly finalVaultBroken: boolean
+  readonly shrineReached: boolean
+}
+export type ObjectiveResults = ApproachObjectives | MechanismObjectives | VaultObjectives
 export interface StageProgress extends StageCarry { readonly objectives: ObjectiveResults; readonly optionalGemCount: number }
 interface ResultCarry {
   readonly hpRemaining: number; readonly carriedItems: CarriedItems
@@ -35,9 +41,15 @@ export interface MechanismResult extends ResultCarry, MechanismObjectives {
   readonly counterweightActive: boolean
   readonly rotaryState: 'A' | 'B' | 'C'
 }
-export type StageResult = ApproachResult | MechanismResult
+export interface VaultResult extends ResultCarry, VaultObjectives {
+  readonly stageId: 'inner-vault'
+  readonly brokenAnchors: readonly ('west-anchor' | 'east-anchor' | 'south-anchor')[]
+  readonly golemState: 'STUNNED'
+}
+export type StageResult = ApproachResult | MechanismResult | VaultResult
 export function resultObjectives(result: StageResult): ObjectiveResults {
   if (result.stageId === 'temple-approach') return { bronzeKeyCollected: result.bronzeKeyCollected, outerSealUnlocked: result.outerSealUnlocked, mechanismActivated: result.mechanismActivated }
+  if (result.stageId === 'inner-vault') return { golemAwakened: result.golemAwakened, anchorsBroken: result.anchorsBroken, finalVaultBroken: result.finalVaultBroken, shrineReached: result.shrineReached }
   return { counterweightSolved: result.counterweightSolved, rotaryAligned: result.rotaryAligned, relayReached: result.relayReached, mechanismCoreActivated: result.mechanismCoreActivated, finalCombinationSet: result.finalCombinationSet, innerLockOpened: result.innerLockOpened }
 }
 export type StageReport =

@@ -1,0 +1,44 @@
+
+> nimiq-treasure-hunt@0.0.0 build
+> tsc -b && vite build
+
+vite v8.2.2 building client environment for production...
+transforming...
+✓ 2068 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                           0.71 kB │ gzip:   0.43 kB
+dist/assets/inter-latin-400-normal-C38fXH4l.woff2        23.66 kB
+dist/assets/inter-latin-500-normal-Cerq10X2.woff2        24.27 kB
+dist/assets/inter-latin-700-normal-Yt3aPRUw.woff2        24.35 kB
+dist/assets/inter-latin-600-normal-LgqL8muc.woff2        24.45 kB
+dist/assets/inter-latin-400-normal-CyCys3Eg.woff         30.69 kB
+dist/assets/JungleFeverNF-DHQ2aAGp.ttf                   30.84 kB
+dist/assets/inter-latin-600-normal-CiBQ2DWP.woff         31.26 kB
+dist/assets/inter-latin-500-normal-BL9OpVg8.woff         31.28 kB
+dist/assets/inter-latin-700-normal-BLAVimhd.woff         31.32 kB
+dist/assets/TradeWinds-Regular-CY5YAnop.ttf              85.74 kB
+dist/assets/nimhunt-wordmark-HEkB8Pxx.png               454.25 kB
+dist/assets/sapphire shard gem-6aMgA_qE.png           1,003.10 kB
+dist/assets/NimHunt Character-DikaxgfE.png            1,306.13 kB
+dist/assets/NimHunt Goblin-NZHKnuFd.png               1,989.32 kB
+dist/assets/NimHunt Gem--hjnoPIQ.png                  2,236.49 kB
+dist/assets/NimHunt Golem-DYK9KZAZ.png                2,336.74 kB
+dist/assets/Nimiq Treasure Hunt Scenery-BtQtzmSX.png  3,006.87 kB
+dist/assets/Angkor world gate-CipIW3HX.png            3,251.69 kB
+dist/assets/Angkor world environment-BkAHnVdT.png     3,270.98 kB
+dist/assets/useAngkorRun-Chlol3bS.css                     1.39 kB │ gzip:   0.63 kB
+dist/assets/GameDevView-D9qa7GEe.css                      4.54 kB │ gzip:   1.40 kB
+dist/assets/index-D6C61Cgp.css                           74.56 kB │ gzip:  15.33 kB
+dist/assets/ExpeditionView-CYyp3kBG.js                    9.55 kB │ gzip:   2.90 kB
+dist/assets/GameDevView-CFv1MPam.js                      15.93 kB │ gzip:   5.01 kB
+dist/assets/dist-CTPYWgHY.js                            210.34 kB │ gzip:  54.45 kB
+dist/assets/index-CKFPn8mi.js                           496.95 kB │ gzip: 144.55 kB
+dist/assets/useAngkorRun-DZBLicrR.js                  1,419.50 kB │ gzip: 369.81 kB
+
+✓ built in 3.22s
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.

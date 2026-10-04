@@ -22,6 +22,7 @@ export interface AngkorV2Asset {
   readonly category: string
   readonly renderMode: 'surface' | 'sprite'
   readonly status: 'production' | 'provisional'
+  readonly loadScope: 'shared' | 'stage'
 }
 // key, folder, source W/H, logical W/H, display W/H, anchor X/Y, depth, solid
 const legacyDefinitions = [
@@ -135,7 +136,20 @@ const productionDefinitions = [
   ['explorer-gameplay-down-v2', 'player/explorer', 256,256, 1,1, 25,28, .5,246/256, 'actor', false],
   ['explorer-traversal-walk-v2', 'player/explorer', 1024,1024, 1,1, 25,29, .5,246/256, 'actor', false],
 ] as const
-const definitions = [...legacyDefinitions, ...productionDefinitions] as const
+const stage3Definitions = [
+  ['golem-dormant-v2', 'wildlife/golem', 1254,1254, 2,2, 128,128, 0.5,0.91, 'architecture', true],
+  ['golem-awaken-v2', 'wildlife/golem', 1254,1254, 2,2, 128,128, 0.5,0.915, 'architecture', true],
+  ['golem-idle-v2', 'wildlife/golem', 1254,1254, 2,2, 128,128, 0.5,0.935, 'architecture', true],
+  ['golem-windup-v2', 'wildlife/golem', 1254,1254, 2,2, 128,128, 0.52,0.94, 'architecture', true],
+  ['golem-smash-v2', 'wildlife/golem', 1254,1254, 2,2, 128,128, 0.5,0.85, 'architecture', true],
+  ['golem-recoil-v2', 'wildlife/golem', 1254,1254, 2,2, 128,128, 0.52,0.917, 'architecture', true],
+  ['golem-stunned-v2', 'wildlife/golem', 1254,1254, 2,2, 128,128, 0.5,0.913, 'architecture', true],
+  ['vault-anchor-intact-v2', 'props/mechanisms', 1254,1254, 1,1, 44,56, 0.5,0.955, 'architecture', true],
+  ['vault-anchor-broken-v2', 'props/mechanisms', 1254,1254, 1,1, 44,56, 0.5,0.955, 'architecture', false],
+  ['inner-vault-door-sealed-v2', 'environment/architecture', 1254,1254, 1,1, 96,96, 0.5,0.955, 'architecture', true],
+  ['inner-vault-door-broken-v2', 'environment/architecture', 1254,1254, 1,1, 96,96, 0.5,0.955, 'architecture', false],
+] as const
+const definitions = [...legacyDefinitions, ...productionDefinitions, ...stage3Definitions] as const
 export type AngkorV2AssetKey = typeof definitions[number][0]
 export const ANGKOR_V2_MANIFEST: readonly AngkorV2Asset[] = definitions.map(
   ([key, category, sw, sh, fw, fh, dw, dh, ax, ay, depthClass, collidable]) => ({
@@ -145,7 +159,8 @@ export const ANGKOR_V2_MANIFEST: readonly AngkorV2Asset[] = definitions.map(
     displayDimensions: { width: dw, height: dh },
     anchor: { x: ax, y: key.startsWith('explorer-idle') || key === 'explorer-walk-v2' ? 190 / 192 : ay }, depthClass, collidable, category,
     renderMode: depthClass === 'floor' || depthClass === 'wall' ? 'surface' : 'sprite',
-    status: productionDefinitions.some(entry => entry[0] === key) ? 'production' : 'provisional',
+    status: [...productionDefinitions, ...stage3Definitions].some(entry => entry[0] === key) ? 'production' : 'provisional',
+    loadScope: stage3Definitions.some(entry => entry[0] === key) ? 'stage' : 'shared',
   }),
 )
 export const ANGKOR_V2_BY_KEY = Object.fromEntries(ANGKOR_V2_MANIFEST.map(asset => [asset.key, asset])) as Record<AngkorV2AssetKey, AngkorV2Asset>

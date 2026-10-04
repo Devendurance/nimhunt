@@ -29,7 +29,7 @@ export function initialVaultBreakerState():VaultBreakerState{
 }
 function checkProgress(state:VaultBreakerState,input:StageProgress):StageProgress{
   const carry=copyCarry(input),o=input.objectives
-  const keys=state.currentStage==='temple-approach'?['bronzeKeyCollected','outerSealUnlocked','mechanismActivated']:['counterweightSolved','rotaryAligned','relayReached','mechanismCoreActivated','finalCombinationSet','innerLockOpened']
+  const keys=state.currentStage==='temple-approach'?['bronzeKeyCollected','outerSealUnlocked','mechanismActivated']:state.currentStage==='inner-vault'?['golemAwakened','anchorsBroken','finalVaultBroken','shrineReached']:['counterweightSolved','rotaryAligned','relayReached','mechanismCoreActivated','finalCombinationSet','innerLockOpened']
   const values=o as unknown as Record<string,unknown>,previousObjectives=state.objectives as unknown as Record<string,unknown>
   if(!o || Object.keys(o).length!==keys.length || keys.some((k,i)=>typeof values[k]!=='boolean'||(previousObjectives[k]===true&&values[k]!==true)||(i>0&&values[k]===true&&values[keys[i-1]]!==true))
     || !Number.isSafeInteger(input.optionalGemCount) || input.optionalGemCount<state.optionalGemCount || input.optionalGemCount>3)throw new Error('Invalid ordered Vault Breaker objectives')
@@ -59,10 +59,11 @@ export function reduceExpedition(state:VaultBreakerState,action:ExpeditionAction
       objectives:resultObjectives(input)})
     if(!Object.values(progress.objectives).every(Boolean))throw new Error('All access objectives are required')
     if(input.stageId==='ancient-mechanism'&&(!input.counterweightActive||input.rotaryState!=='C'))throw new Error('Final mechanism combination is required')
+    if(input.stageId==='inner-vault'&&(input.golemState!=='STUNNED'||input.brokenAnchors.length!==3||new Set(input.brokenAnchors).size!==3||['west-anchor','east-anchor','south-anchor'].some(id=>!input.brokenAnchors.includes(id as typeof input.brokenAnchors[number]))))throw new Error('All anchors and final guardian stun are required')
     if(progress.hp===0)return reduceExpedition(state,{type:'STAGE_FAILED',stageId:input.stageId,progress})
     if(!Number.isSafeInteger(input.completion.tick)||input.completion.tick<0||!Number.isSafeInteger(input.completion.actionCount)||input.completion.actionCount<0)throw new Error('Invalid completion counters')
     const common={hpRemaining:progress.hp,carriedItems:copyItems(progress.carriedItems),optionalGemCount:progress.optionalGemCount,completion:{...input.completion}}
-    const result:StageResult=input.stageId==='temple-approach'?{stageId:input.stageId,bronzeKeyCollected:input.bronzeKeyCollected,outerSealUnlocked:input.outerSealUnlocked,mechanismActivated:input.mechanismActivated,...common}:{stageId:input.stageId,...resultObjectives(input) as import('./contracts').MechanismObjectives,counterweightActive:input.counterweightActive,rotaryState:input.rotaryState,...common}
+    const result:StageResult=input.stageId==='temple-approach'?{stageId:input.stageId,bronzeKeyCollected:input.bronzeKeyCollected,outerSealUnlocked:input.outerSealUnlocked,mechanismActivated:input.mechanismActivated,...common}:input.stageId==='inner-vault'?{stageId:input.stageId,...resultObjectives(input) as import('./contracts').VaultObjectives,brokenAnchors:[...input.brokenAnchors],golemState:input.golemState,...common}:{stageId:input.stageId,...resultObjectives(input) as import('./contracts').MechanismObjectives,counterweightActive:input.counterweightActive,rotaryState:input.rotaryState,...common}
     const next=VAULT_BREAKER_STAGES[state.currentStageIndex+1]
     return {...state,...progress,status:next?'TRANSITION':'COMPLETE',completedStages:[...state.completedStages,input.stageId],stageResults:[...state.stageResults,result],
       events:emit([{type:'STAGE_COMPLETED',result},next?{type:'STAGE_TRANSITION_READY',fromStage:state.currentStage,nextStage:next.id}:{type:'EXPEDITION_COMPLETED',hp:progress.hp,carriedItems:copyItems(progress.carriedItems)}])}

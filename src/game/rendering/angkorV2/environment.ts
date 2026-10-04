@@ -6,7 +6,7 @@ import { CAP_MATERIALS, FLOOR_MATERIALS, createFloorSurface, createWallSurface }
 
 export const angkorV2TextureKey = (key: AngkorV2AssetKey) => `angkor-v2/${key}`
 export function preloadAngkorV2Environment(scene: Phaser.Scene, additional: readonly AngkorV2AssetKey[] = []): void {
-  const keys = new Set<AngkorV2AssetKey>([...ANGKOR_V2_PRODUCTION_MANIFEST.map(a => a.key as AngkorV2AssetKey), ...additional])
+  const keys = new Set<AngkorV2AssetKey>([...ANGKOR_V2_PRODUCTION_MANIFEST.filter(a => a.loadScope === 'shared').map(a => a.key as AngkorV2AssetKey), ...additional])
   for (const key of keys) if (!scene.textures.exists(angkorV2TextureKey(key))) scene.load.image(angkorV2TextureKey(key), ANGKOR_V2_BY_KEY[key].path)
 }
 const classForAsset: Record<AngkorV2DepthClass, EnvironmentDepthClass> = {

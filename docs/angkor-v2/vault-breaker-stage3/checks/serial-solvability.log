@@ -1,0 +1,28 @@
+
+ RUN  v5.0.0 C:/Users/USER/Documents/ideas/nimhunt/nimiq-treasure-hunt
+
+ ❯ src/game/world/dailyAngkorLayouts.test.ts (15 tests | 1 failed) 130090ms
+   ❯ mission-specific daily Angkor difficulty layouts (15)
+     × verifies Chest Hunter V3 goblins follow strictly cardinal, non-wall, single-cell transitions 16931ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/game/world/dailyAngkorLayouts.test.ts > mission-specific daily Angkor difficulty layouts > verifies Chest Hunter V3 goblins follow strictly cardinal, non-wall, single-cell transitions
+Error: Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/game/world/dailyAngkorLayouts.test.ts:185:3
+    183|   })
+    184|
+    185|   it('verifies Chest Hunter V3 goblins follow strictly cardinal, non-w…
+       |   ^
+    186|     const bp = createDailyAngkorBlueprint(testDay, 'chest-hunter', 2, …
+    187|     expect(bp.goblins).toHaveLength(2)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 20 passed (21)
+   Start at  06:59:43
+   Duration  185.09s (tests 99%, transform 1%)
+

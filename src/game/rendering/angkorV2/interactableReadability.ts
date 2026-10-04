@@ -8,6 +8,8 @@ export interface ItemProfile {
 const profile=(kind:ItemProfile['kind'],brightness:number,saturation:number,temperature:ItemProfile['temperature'],color:number,bob=false):ItemProfile=>({kind,brightness,saturation,temperature,color,bob})
 /** Rendering-only grades. No floor, wall, wildlife or collision asset is eligible. */
 export const ITEM_PROFILES:Partial<Record<AngkorV2AssetKey,ItemProfile>>={
+  'vault-anchor-intact-v2':profile('mechanism',.04,1.06,'neutral',0xb1e8df),
+  'inner-vault-door-sealed-v2':profile('mechanism',.02,1.04,'neutral',0xe7c57b),
   'rotary-seal-v2':profile('mechanism',.05,1.05,'neutral',0x99e6ed),
   'mechanism-core-v2':profile('key',.02,1.08,'neutral',0xa9eaff,true),
   'bronze-temple-key-v2':profile('key',.34,1.32,'warm',0xffdd78,true),

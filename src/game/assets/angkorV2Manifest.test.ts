@@ -50,7 +50,7 @@ describe('Angkor V2 standalone delivery', () => {
     const files = readdirSync(assetRoot, { recursive: true, encoding: 'utf8' }).map(x => x.replaceAll('\\', '/')).filter(x => x.endsWith('.png') && !x.startsWith('projection-test/')).sort()
     const paths = ANGKOR_V2_MANIFEST.map(x => x.path.replace('/assets/game/angkor-v2/', '')).sort()
     expect(paths).toEqual(files)
-    expect(files).toHaveLength(107)
+    expect(files).toHaveLength(118)
     expect(new Set(ANGKOR_V2_MANIFEST.map(x => x.key)).size).toBe(files.length)
     for (const asset of ANGKOR_V2_MANIFEST) {
       const meta = png(resolve(root, 'public', asset.path.slice(1)))
@@ -151,7 +151,7 @@ describe('Angkor V2 standalone delivery', () => {
   })
 
   it('promotes the approved overhead pose with a measured gameplay silhouette and foot anchor', () => {
-    expect(ANGKOR_V2_PRODUCTION_MANIFEST).toHaveLength(45)
+    expect(ANGKOR_V2_PRODUCTION_MANIFEST).toHaveLength(56)
     expect(ANGKOR_V2_PRODUCTION_MANIFEST.every(asset => asset.status === 'production')).toBe(true)
     const asset = ANGKOR_V2_BY_KEY[ANGKOR_V2_EXPLORER_GAMEPLAY.key]
     const path = resolve(root, 'public', asset.path.slice(1))

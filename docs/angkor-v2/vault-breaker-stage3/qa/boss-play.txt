@@ -1,0 +1,52 @@
+async page=>{
+ const selector='#vault-breaker-stage3-room',canvas=page.locator(selector);await canvas.waitFor();await page.waitForFunction(()=>document.querySelector('#vault-breaker-stage3-room')?.dataset.ready==='true');await page.getByText('Loading Inner Vault…',{exact:true}).waitFor({state:'hidden'});await page.waitForTimeout(250);await canvas.focus();
+ const read=()=>canvas.evaluate(c=>JSON.parse(c.dataset.state)),rows=await canvas.evaluate(c=>JSON.parse(c.dataset.collision));
+ const vectors={UP:[0,-1],DOWN:[0,1],LEFT:[-1,0],RIGHT:[1,0]},keys={UP:'ArrowUp',DOWN:'ArrowDown',LEFT:'ArrowLeft',RIGHT:'ArrowRight'};
+ const eq=(a,b)=>a.x===b.x&&a.y===b.y,anchors=[{id:'west-anchor',x:15,y:14},{id:'east-anchor',x:26,y:17},{id:'south-anchor',x:20,y:17}],root=[{x:19,y:13},{x:20,y:13},{x:19,y:14},{x:20,y:14}];
+ const shot=async name=>page.screenshot({path:'docs/angkor-v2/vault-breaker-stage3/qa/'+name+'.png',scale:'css'});
+ async function step(direction){const s=await read(),v=vectors[direction],goal={x:s.player.x+v[0],y:s.player.y+v[1]};await page.keyboard.press(keys[direction]);await page.waitForFunction(({selector,goal})=>{const c=document.querySelector(selector),s=JSON.parse(c.dataset.state);return eqLocal(s.player,goal)&&c.dataset.moving==='false';function eqLocal(a,b){return a.x===b.x&&a.y===b.y}},{selector,goal},{timeout:4000});if((await read()).status==='failed')throw new Error('StageIII player died');}
+ async function walk(goal){for(let n=0;n<200;n++){const s=await read();if(eq(s.player,goal))return;const queue=[{p:s.player,path:[]}],seen=new Set([s.player.x+','+s.player.y]);let path;
+  for(let i=0;i<queue.length;i++){const node=queue[i];if(eq(node.p,goal)){path=node.path;break;}for(const[d,v]of Object.entries(vectors)){const p={x:node.p.x+v[0],y:node.p.y+v[1]},key=p.x+','+p.y;
+   if(seen.has(key)||!rows[p.y]||rows[p.y][p.x]==='#'||root.some(c=>eq(c,p))||anchors.some(a=>eq(a,p)&&!s.golem.brokenAnchors.includes(a.id)))continue;
+   if(p.y===13&&p.x===23&&!s.objectives.anchorsBroken)continue;if(p.x===24&&p.y===12&&!s.golem.finalVaultBroken)continue;
+   if(p.x===28&&p.y===11&&!eq(goal,p))continue;
+   if(!eq(goal,p)&&p.y===12&&p.x>=4&&p.x<=7)continue;
+   // Avoid the currently frozen danger zone when routing between mechanisms.
+   if(s.golem.mode==='WINDUP'&&!eq(goal,p)&&s.golem.telegraphedCells.some(c=>eq(c,p))&&!s.golem.telegraphedCells.some(c=>eq(c,s.player)))continue;
+   seen.add(key);queue.push({p,path:[...node.path,d]});
+  }}if(!path?.length)throw new Error('No live StageIII route '+JSON.stringify({player:s.player,goal,boss:s.golem}));await step(path[0]);}throw new Error('StageIII path exhausted');}
+ async function wait(predicate,timeout=7000){await page.waitForFunction(({selector,source})=>{const s=JSON.parse(document.querySelector(selector).dataset.state);return new Function('s','return ('+source+')(s)')(s)},{selector,source:predicate.toString()},{timeout});}
+ const carry=(await read()).hp;
+ await shot('mobile-inner-vestibule');await walk({x:6,y:22});await walk({x:5,y:13});await walk({x:9,y:14});await shot('mobile-causeway-potion');
+ await walk({x:21,y:16});await shot('mobile-dormant-golem');
+ // Activation and first bait: south anchor, then a two-tile lateral escape.
+ await walk({x:21,y:15});await wait(s=>s.golem.mode==='AWAKENING');await shot('mobile-awakening');await walk({x:20,y:16});
+ async function hit(bait,safe,id,index){
+  await walk(bait);
+  for(let attempt=0;attempt<8;attempt++){
+   await wait(s=>s.golem.mode==='WINDUP');const s=await read();
+   const hits=s.golem.brokenAnchors.length,isCorrect=eq(s.golem.target,bait);
+   if(isCorrect){await shot(index===4?'mobile-final-vault-telegraph':'mobile-phase-'+index+'-windup');await walk(safe);
+    await wait(s=>s.golem.mode==='SMASH'||s.golem.mode==='STUNNED');await shot(index===4?'mobile-final-vault-smash':'mobile-anchor-'+index+'-impact');
+    if(index===4){if(!(await read()).golem.finalVaultBroken)throw new Error('Final door did not break');return;}
+    if(!(await read()).golem.brokenAnchors.includes(id))throw new Error('Anchor missed');await wait(s=>s.golem.mode==='RECOVER');await shot('mobile-anchor-'+index+'-broken');return;
+   }
+   // A prior approach snapshot may be underway. Dodge it, let recovery occur,
+   // then return to the intended socket before the next authoritative tell.
+   const escape=[safe,{x:bait.x,y:bait.y+2},{x:bait.x-2,y:bait.y},{x:bait.x+2,y:bait.y}].find(p=>!s.golem.telegraphedCells.some(c=>eq(c,p)));
+   await walk(escape);await wait(s=>s.golem.mode==='RECOVER');await walk(bait);
+   if((await read()).golem.brokenAnchors.length>hits&&id) return;
+  }throw new Error('Bait attempts exhausted');
+ }
+ await hit({x:20,y:16},{x:22,y:16},'south-anchor',1);
+ await hit({x:16,y:14},{x:16,y:16},'west-anchor',2);
+ await hit({x:26,y:16},{x:24,y:16},'east-anchor',3);
+ await shot('mobile-three-anchors-open');
+ await hit({x:23,y:12},{x:23,y:14},null,4);
+ await wait(s=>s.golem.mode==='STUNNED'&&s.tick-s.golem.startedTick>=7);await shot('mobile-broken-vault');
+ await walk({x:29,y:10});await shot('mobile-inner-shrine');await walk({x:28,y:11});await shot('mobile-expedition-complete');
+ const done=await read(),expedition=await page.locator('main').evaluate(c=>JSON.parse(c.dataset.expedition));
+ if(done.status!=='complete'||done.golem.brokenAnchors.length!==3||!done.golem.finalVaultBroken||expedition.status!=='COMPLETE'||expedition.stageResults.length!==3)throw new Error('Expedition completion failed');
+ await page.getByRole('checkbox',{name:'Debug',exact:true}).check();const downloadEvent=page.waitForEvent('download');await page.getByRole('button',{name:'Export expedition envelope'}).click();await(await downloadEvent).saveAs('docs/angkor-v2/vault-breaker-stage3/qa/vault-breaker-stage3-replay.json');await page.getByRole('checkbox',{name:'Debug',exact:true}).uncheck();
+ return JSON.stringify({carryIn:carry,hp:done.hp,stageGems:done.collected.length,result:done.result,expeditionStatus:expedition.status,anchorSequence:done.events.filter(e=>e.type==='VAULT_ANCHOR_BROKEN').map(e=>e.id),eventTypes:[...new Set(done.events.map(e=>e.type))]});
+}
