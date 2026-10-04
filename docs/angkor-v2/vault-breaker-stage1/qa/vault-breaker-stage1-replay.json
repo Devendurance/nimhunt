@@ -1,0 +1,4223 @@
+{
+  "schema": "angkor-v2-vault-breaker/v1",
+  "version": 1,
+  "mission": "vault-breaker",
+  "entries": [
+    {
+      "type": "EXPEDITION_STARTED",
+      "carry": {
+        "hp": 100,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": false,
+            "consumed": false
+          }
+        }
+      }
+    },
+    {
+      "type": "STAGE_STARTED",
+      "stageId": "temple-approach",
+      "carry": {
+        "hp": 100,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": false,
+            "consumed": false
+          }
+        }
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 1,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 2,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 3,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 4,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 5,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 6,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 7,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 8,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 9,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 10,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 11,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 12,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 13,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 14,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 15,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 16,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 17,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 18,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 19,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 20,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 21,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 22,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 23,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 24,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 25,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 26,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 27,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 28,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 29,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 30,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 31,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 32,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 33,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 34,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 35,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 36,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 37,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 38,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 39,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 40,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 41,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 42,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 43,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 44,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 45,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 46,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 47,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 48,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 49,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 50,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 51,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 52,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 53,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 54,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 55,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 56,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 57,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 58,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 59,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 60,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 61,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 62,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 63,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 64,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 65,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 66,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 67,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 68,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 69,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 70,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 71,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 72,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 73,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 74,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 75,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 76,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 77,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 78,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 79,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 80,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 81,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 82,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 83,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 84,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 85,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 86,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 87,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 88,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 89,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 90,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 91,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 92,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 93,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 94,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 95,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 96,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 97,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 98,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 99,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 100,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 101,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 102,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 103,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 104,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 105,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 106,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 107,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 108,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 109,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 110,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 111,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 112,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 113,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 114,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 115,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 116,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 117,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 118,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 119,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 120,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 121,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 122,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 123,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 124,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 125,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 126,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 127,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 128,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 129,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 130,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 131,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 132,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 133,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 134,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 135,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 136,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 137,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 138,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 139,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 140,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 141,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 142,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 143,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 144,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 145,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 146,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 147,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 148,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 149,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 150,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 151,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 152,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 153,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 154,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 155,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 156,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 157,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 158,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 159,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 160,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 161,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 162,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 163,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 164,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 165,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 166,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 167,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 168,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 169,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 170,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 171,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 172,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 173,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 174,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 175,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 176,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 177,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 178,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 179,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 180,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 181,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 182,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 183,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 184,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 185,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 186,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 187,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 188,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 189,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 190,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 191,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 192,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 193,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 194,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 195,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 196,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 197,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 198,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 199,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 200,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 201,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 202,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 203,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 204,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 205,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 206,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 207,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 208,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 209,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 210,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 211,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 212,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 213,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 214,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 215,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 216,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 217,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 218,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 219,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 220,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 221,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 222,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 223,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 224,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 225,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 226,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 227,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 228,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 229,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 230,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 231,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 232,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 233,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 234,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 235,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 236,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 237,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 238,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 239,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 240,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 241,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 242,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 243,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 244,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 245,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 246,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 247,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 248,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 249,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 250,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 251,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 252,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 253,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 254,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 255,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 256,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 257,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 258,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 259,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 260,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 261,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 262,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 263,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 264,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 265,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 266,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 267,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 268,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 269,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 270,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 271,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 272,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 273,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 274,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 275,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 276,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 277,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 278,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 279,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 280,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 281,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 282,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 283,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 284,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 285,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 286,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 287,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 288,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 289,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 290,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 291,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 292,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 293,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 294,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 295,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 296,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 297,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 298,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 299,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 300,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 301,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 302,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 303,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 304,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 305,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 306,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 307,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 308,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 309,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 310,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 311,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 312,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 313,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 314,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 315,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 316,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 317,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 318,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 319,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 320,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 321,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 322,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 323,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 324,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 325,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 326,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 327,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 328,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 329,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 330,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 331,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 332,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 333,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 334,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 335,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 336,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 337,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 338,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 339,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 340,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 341,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 342,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 343,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 344,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 345,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 346,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 347,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 348,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 349,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 350,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 351,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 352,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 353,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 354,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 355,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 356,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 357,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 358,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 359,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 360,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 361,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 362,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 363,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 364,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 365,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 366,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 367,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 368,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 369,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 370,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 371,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 372,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 373,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 374,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 375,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 376,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 377,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 378,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 379,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 380,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 381,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 382,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 383,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 384,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 385,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 386,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 387,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 388,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 389,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 390,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 391,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 392,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 393,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 394,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 395,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 396,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 397,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 398,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 399,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 400,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 401,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 402,
+      "action": {
+        "type": "MOVE",
+        "direction": "DOWN"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 403,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 404,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 405,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 406,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 407,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 408,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 409,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 410,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 411,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 412,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 413,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 414,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 415,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 416,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 417,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 418,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 419,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 420,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 421,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 422,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 423,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 424,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 425,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 426,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 427,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 428,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 429,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 430,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 431,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 432,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 433,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 434,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 435,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 436,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 437,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 438,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 439,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 440,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 441,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 442,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 443,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 444,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 445,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 446,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 447,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 448,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 449,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 450,
+      "action": {
+        "type": "MOVE",
+        "direction": "LEFT"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 451,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 452,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 453,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 454,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 455,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 456,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 457,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 458,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 459,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 460,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 461,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 462,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 463,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 464,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 465,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 466,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 467,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 468,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 469,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 470,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 471,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 472,
+      "action": {
+        "type": "MOVE",
+        "direction": "UP"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 473,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 474,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 475,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 476,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 477,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 478,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 479,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 480,
+      "action": {
+        "type": "TICK"
+      }
+    },
+    {
+      "type": "STAGE_ACTION",
+      "stageId": "temple-approach",
+      "actionIndex": 481,
+      "action": {
+        "type": "MOVE",
+        "direction": "RIGHT"
+      }
+    },
+    {
+      "type": "STAGE_COMPLETED",
+      "stageId": "temple-approach",
+      "result": {
+        "stageId": "temple-approach",
+        "bronzeKeyCollected": true,
+        "outerSealUnlocked": true,
+        "mechanismActivated": true,
+        "hpRemaining": 58,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": true,
+            "consumed": true
+          }
+        },
+        "optionalGemCount": 3,
+        "completion": {
+          "tick": 348,
+          "actionCount": 481
+        }
+      },
+      "carryOut": {
+        "hp": 58,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": true,
+            "consumed": true
+          }
+        }
+      }
+    },
+    {
+      "type": "STAGE_ADVANCED",
+      "fromStage": "temple-approach",
+      "toStage": "ancient-mechanism",
+      "carry": {
+        "hp": 58,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": true,
+            "consumed": true
+          }
+        }
+      }
+    },
+    {
+      "type": "STAGE_STARTED",
+      "stageId": "ancient-mechanism",
+      "carry": {
+        "hp": 58,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": true,
+            "consumed": true
+          }
+        }
+      }
+    }
+  ],
+  "snapshot": {
+    "version": 1,
+    "mission": "vault-breaker",
+    "status": "PLAYING",
+    "currentStage": "ancient-mechanism",
+    "currentStageIndex": 1,
+    "hp": 58,
+    "carriedItems": {
+      "sword": false,
+      "potion": {
+        "owned": true,
+        "consumed": true
+      }
+    },
+    "objectives": {
+      "bronzeKeyCollected": false,
+      "outerSealUnlocked": false,
+      "mechanismActivated": false
+    },
+    "optionalGemCount": 0,
+    "stageCarryIn": {
+      "hp": 58,
+      "carriedItems": {
+        "sword": false,
+        "potion": {
+          "owned": true,
+          "consumed": true
+        }
+      }
+    },
+    "completedStages": [
+      "temple-approach"
+    ],
+    "stageResults": [
+      {
+        "stageId": "temple-approach",
+        "bronzeKeyCollected": true,
+        "outerSealUnlocked": true,
+        "mechanismActivated": true,
+        "hpRemaining": 58,
+        "carriedItems": {
+          "sword": false,
+          "potion": {
+            "owned": true,
+            "consumed": true
+          }
+        },
+        "optionalGemCount": 3,
+        "completion": {
+          "tick": 348,
+          "actionCount": 481
+        }
+      }
+    ],
+    "events": [
+      {
+        "seq": 1,
+        "type": "EXPEDITION_STARTED",
+        "carry": {
+          "hp": 100,
+          "carriedItems": {
+            "sword": false,
+            "potion": {
+              "owned": false,
+              "consumed": false
+            }
+          }
+        }
+      },
+      {
+        "seq": 2,
+        "type": "STAGE_STARTED",
+        "stageId": "temple-approach",
+        "carry": {
+          "hp": 100,
+          "carriedItems": {
+            "sword": false,
+            "potion": {
+              "owned": false,
+              "consumed": false
+            }
+          }
+        }
+      },
+      {
+        "type": "STAGE_COMPLETED",
+        "result": {
+          "stageId": "temple-approach",
+          "bronzeKeyCollected": true,
+          "outerSealUnlocked": true,
+          "mechanismActivated": true,
+          "hpRemaining": 58,
+          "carriedItems": {
+            "sword": false,
+            "potion": {
+              "owned": true,
+              "consumed": true
+            }
+          },
+          "optionalGemCount": 3,
+          "completion": {
+            "tick": 348,
+            "actionCount": 481
+          }
+        },
+        "seq": 3
+      },
+      {
+        "type": "STAGE_TRANSITION_READY",
+        "fromStage": "temple-approach",
+        "nextStage": "ancient-mechanism",
+        "seq": 4
+      },
+      {
+        "type": "STAGE_ADVANCED",
+        "fromStage": "temple-approach",
+        "toStage": "ancient-mechanism",
+        "carry": {
+          "hp": 58,
+          "carriedItems": {
+            "sword": false,
+            "potion": {
+              "owned": true,
+              "consumed": true
+            }
+          }
+        },
+        "seq": 5
+      },
+      {
+        "type": "STAGE_STARTED",
+        "stageId": "ancient-mechanism",
+        "carry": {
+          "hp": 58,
+          "carriedItems": {
+            "sword": false,
+            "potion": {
+              "owned": true,
+              "consumed": true
+            }
+          }
+        },
+        "seq": 6
+      }
+    ]
+  }
+}

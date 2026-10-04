@@ -1,0 +1,12 @@
+.vault-breaker .stage-hud > strong:first-child { color: #d6cfaa; font-size: 12px; }
+.vault-objective { display: flex; justify-content: space-between; gap: 8px; min-height: 25px; color: #f3ead7; font-size: 12px; }
+.vault-objective span { color: #a0c2ad; font-size: 10px; }
+.vault-notice { min-height: 30px; font-size: 11px; color: #c9d4b4; }
+.vault-contract { margin: 20px 0; padding: 22px; background: #1b3833; border: 1px solid #5e7c52; border-radius: 8px; }
+.vault-contract > * + * { margin-top: 14px; }
+.vault-footer { color: #a0c2ad; font-size: 10px; text-align: center; margin-top: 8px; }
+.vault-breaker .stage-overlay h2:focus { outline: none; }
+@media (max-height: 650px) {
+  .vault-notice { min-height: 18px; } .vault-objective { min-height: 18px; }
+  .vault-breaker .stage-options { display: flex; } .vault-footer { display: none; }
+}

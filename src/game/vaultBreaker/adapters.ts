@@ -1,0 +1,17 @@
+import { DIRECTION_VECTORS } from '../world/grid'
+import { VAULT_BREAKER_STAGES, copyItems, type StageAdapter } from './contracts'
+import { initialStageState, reduceStage, type StageAction, type StageState } from './stage1/model'
+export function isStageAction(value:unknown):value is StageAction{
+  if(!value||typeof value!=='object')return false
+  const a=value as Record<string,unknown>
+  return a.type==='TICK'?Object.keys(a).length===1:a.type==='MOVE'&&Object.keys(a).length===2&&typeof a.direction==='string'&&Object.hasOwn(DIRECTION_VECTORS,a.direction)
+}
+export const templeApproachAdapter:StageAdapter<StageState,StageAction>={
+  definition:VAULT_BREAKER_STAGES[0],create:initialStageState,reduce:reduceStage,isAction:isStageAction,
+  report(state,_carry,actionCount){
+    const progress={hp:state.hp,carriedItems:copyItems(state.carriedItems),optionalGemCount:state.collected.length,
+      objectives:{bronzeKeyCollected:state.bronzeKeyCollected,outerSealUnlocked:state.outerSealUnlocked,mechanismActivated:state.mechanismActivated}}
+    if(state.status!=='complete'||!state.result)return {status:state.status==='failed'?'FAILED':'PLAYING',progress}
+    return {status:'COMPLETE',progress,result:{...state.result,carriedItems:copyItems(state.carriedItems),completion:{tick:state.tick,actionCount}}}
+  },
+}
