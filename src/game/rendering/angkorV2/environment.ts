@@ -1,6 +1,7 @@
 import type Phaser from 'phaser'
 import { ANGKOR_V2_BY_KEY, ANGKOR_V2_EXPLORER_GAMEPLAY, ANGKOR_V2_PRODUCTION_MANIFEST, type AngkorV2AssetKey, type AngkorV2DepthClass } from '../../assets/angkorV2Manifest'
 import { ANGKOR_V2_RENDER as R, compileWallModules, environmentDepth, readabilityOccluders, readabilityAlpha, validateEnvironmentMap, type EnvironmentDepthClass, type EnvironmentMap, type VisualBounds } from './geometry'
+import { InteractableEmphasis } from './interactableEmphasis'
 import { CAP_MATERIALS, FLOOR_MATERIALS, createFloorSurface, createWallSurface } from './surfaces'
 
 export const angkorV2TextureKey = (key: AngkorV2AssetKey) => `angkor-v2/${key}`
@@ -26,6 +27,7 @@ let nextEnvironmentId = 0
 export class AngkorV2Environment {
   readonly wallModules: ReturnType<typeof compileWallModules>
   private readonly scene: Phaser.Scene
+  private readonly itemEmphasis: InteractableEmphasis
   private readonly owned: Phaser.GameObjects.GameObject[] = []
   private readonly runtimeTextures: string[] = []
   private readonly occluders: Occluder[] = []
@@ -36,7 +38,7 @@ export class AngkorV2Environment {
   private readonly shutdown = () => this.destroy()
 
   constructor(scene: Phaser.Scene, map: EnvironmentMap) {
-    validateEnvironmentMap(map); this.scene = scene; this.wallModules = compileWallModules(map)
+    validateEnvironmentMap(map); this.scene = scene; this.itemEmphasis = new InteractableEmphasis(scene); this.wallModules = compileWallModules(map)
     const id = nextEnvironmentId++, source = (key: AngkorV2AssetKey) => {
       if (!scene.textures.exists(angkorV2TextureKey(key))) throw new Error(`Angkor V2 texture not preloaded: ${key}`)
       return scene.textures.get(angkorV2TextureKey(key)).getSourceImage() as HTMLImageElement
@@ -66,7 +68,7 @@ export class AngkorV2Environment {
     const image = this.scene.add.image(placement.x, placement.y, key)
       .setOrigin(asset.anchor.x, asset.anchor.y).setDisplaySize(asset.displayDimensions.width, asset.displayDimensions.height)
       .setDepth(depth).setAlpha(placement.alpha ?? 1).setFlipX(placement.flipX ?? false)
-    this.owned.push(image)
+    this.owned.push(image); this.itemEmphasis.track(image, placement.key)
     if (placement.shadow) {
       const shadow = this.scene.add.ellipse(placement.x, placement.y - 1, asset.displayDimensions.width * .6, 5, 0x24271b, .35)
         .setDepth(environmentDepth(kind, baseY) - .5)
@@ -76,6 +78,13 @@ export class AngkorV2Environment {
       const bounds = { x: placement.x - asset.displayDimensions.width * asset.anchor.x, y: placement.y - asset.displayDimensions.height * asset.anchor.y, ...asset.displayDimensions }
       this.addOccluder(image, bounds, this.scene.textures.get(key).getSourceImage() as HTMLImageElement)
     }
+    return image
+  }
+
+  /** Brief receipt of already-resolved chest loot. No world pickup or delayed effect authority. */
+  showItemReceipt(key: AngkorV2AssetKey, x: number, y: number): Phaser.GameObjects.Image {
+    const image = this.addSprite({ key, x, y: y - 17, depthY: y, depthClass: 'effect', occludesPlayer: false })
+    this.scene.tweens.add({ targets: image, alpha: 0, delay: 650, duration: 250, onComplete: () => image.destroy() })
     return image
   }
 
@@ -92,6 +101,7 @@ export class AngkorV2Environment {
 
   update(deltaMs: number): void {
     if (this.destroyed) return
+    this.itemEmphasis.update(deltaMs)
     let changed = this.dirty
     for (const actor of this.actors) {
       const foot = actor.foot()
@@ -123,6 +133,7 @@ export class AngkorV2Environment {
   destroy(): void {
     if (this.destroyed) return
     this.destroyed = true; this.scene.events.off('shutdown', this.shutdown)
+    this.itemEmphasis.destroy()
     this.owned.forEach(object => object.destroy()); this.runtimeTextures.forEach(key => this.scene.textures.remove(key))
     this.actors.clear(); this.occluders.length = 0; this.owned.length = 0; this.runtimeTextures.length = 0
   }

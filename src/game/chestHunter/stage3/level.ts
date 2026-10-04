@@ -68,7 +68,7 @@ export const DECOR:readonly EnvironmentSprite[]=[
  {key:'root-corner-wrap-height-v2',x:225,y:729},{key:'root-wall-climb-height-v2',x:482,y:713},
  {key:'vine-hanging-v2',x:172,y:671,depthClass:'foreground'},{key:'root-heavy-v2',x:259,y:615,depthClass:'foreground'},
  {key:'root-wall-climb-height-v2',x:248,y:465},{key:'statue-fragment-height-v2',x:421,y:498},
- {key:'root-heavy-v2',x:304,y:127,depthClass:'foreground'},{key:'root-corner-wrap-height-v2',x:365,y:210},
+ {key:'root-heavy-v2',x:280,y:127,depthClass:'foreground'},{key:'root-corner-wrap-height-v2',x:365,y:210},
  {key:'vine-hanging-v2',x:147,y:132,depthClass:'foreground'},{key:'pillar-broken-height-v2',x:80,y:274},
  {key:'root-wall-climb-height-v2',x:582,y:212},{key:'root-floor-a-v2',x:612,y:407,depthClass:'floor-overlay'},
  {key:'root-corner-wrap-height-v2',x:819,y:381},{key:'root-heavy-v2',x:860,y:247,depthClass:'foreground'},
