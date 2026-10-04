@@ -21,7 +21,7 @@ export interface ChestHunterSceneOptions {
   onNotice: (message: string) => void
   onSound: (kind: 'gem' | 'unlock' | 'hurt') => void
 }
-const additional: AngkorV2AssetKey[] = ['chest-closed-v2', 'chest-open-v2', 'bronze-temple-key-v2', 'side-gate-locked-v2', 'side-gate-open-v2', 'pushable-boulder-v2', 'spike-trap-active-v2', 'snake-coiled-v2', 'snake-alert-v2', 'snake-slither-a-v2', 'snake-slither-b-v2', 'snake-strike-v2', 'monkey-perched-v2', 'monkey-alert-v2', 'monkey-throw-v2', 'monkey-rock-v2', 'dust-push-v2', 'rock-impact-v2', 'gem-sparkle-v2']
+const additional: AngkorV2AssetKey[] = ['potion-v2', 'chest-closed-v2', 'chest-open-v2', 'bronze-temple-key-v2', 'side-gate-locked-v2', 'side-gate-open-v2', 'pushable-boulder-v2', 'spike-trap-active-v2', 'snake-coiled-v2', 'snake-alert-v2', 'snake-slither-a-v2', 'snake-slither-b-v2', 'snake-strike-v2', 'monkey-perched-v2', 'monkey-alert-v2', 'monkey-throw-v2', 'monkey-rock-v2', 'dust-push-v2', 'rock-impact-v2', 'gem-sparkle-v2']
 
 /** Isolated Chest Hunter dev-stage presentation. Approved traversal controls presentation; MOVE is
  * committed on arrival. Fixed explicit TICK actions are recorded for replay.
@@ -165,6 +165,7 @@ export class ChestHunterScene extends Phaser.Scene {
       const message = event.loot === 'GEMS' ? '+2 Gems secured' : event.loot === 'POTION' ? 'Potion used · +' + event.healed + ' HP'
         : event.loot === 'TRAP' ? 'Trapped chest · watch your HP' : event.loot === 'SWORD' ? 'Ancient Blade secured' : 'Nothing but dust · chest opened'
       this.options.onNotice(message)
+      if (event.loot === 'POTION') { const foot = tileToPixel(this.state.player); this.effects.add(this.environment!.showItemReceipt('potion-v2', foot.x, foot.y)) }
       if (event.loot === 'TRAP' || event.loot === 'EMPTY') this.effect('dust-push-v2', this.state.player)
     }
     if (event.type === 'KEY_COLLECTED') { this.key?.setVisible(false); this.options.onNotice('Bronze Temple Key · find the archive gate'); this.options.onSound('gem') }

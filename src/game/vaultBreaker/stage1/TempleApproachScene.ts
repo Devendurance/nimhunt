@@ -46,7 +46,6 @@ export class TempleApproachScene extends Phaser.Scene {
   private rock?: Phaser.GameObjects.Image
   private pressureGate?: Phaser.GameObjects.Image
   private plate?: Phaser.GameObjects.Image
-  private glint?: Phaser.GameObjects.Graphics
   private potion?: Phaser.GameObjects.Image
   private rubbleRocks: Phaser.GameObjects.Image[] = []
   private gate?: Phaser.GameObjects.Image
@@ -74,12 +73,11 @@ export class TempleApproachScene extends Phaser.Scene {
     }
     for (const gem of GEMS) this.gems.set(gem.id, sprite('blue-gem-v2', gem))
     this.potion = sprite('potion-v2', POTION)
-    this.glint = this.add.graphics().setDepth(environmentDepth('ground-item', tileToPixel(KEY).y))
     this.plate = sprite('pressure-plate-v2', PLATE)
     this.plate.setY(this.plate.y + 15)
     this.pressureGate = this.environment.addSprite({ key: 'side-gate-locked-v2', ...tileToPixel(PRESSURE_GATE), depthY: tileToPixel(PRESSURE_GATE).y + 8, occludesPlayer: false })
     this.pressureGate.setY(this.pressureGate.y + 16)
-    this.key = sprite('bronze-temple-key-v2', KEY).setDisplaySize(24,32)
+    this.key = sprite('bronze-temple-key-v2', KEY)
     this.gate = this.environment.addSprite({ key: 'side-gate-locked-v2', ...tileToPixel(GATE), depthY: tileToPixel(GATE).y + 8, occludesPlayer: false })
     this.gate.setY(this.gate.y + 16)
     this.guides = this.add.graphics().setDepth(environmentDepth('floor-overlay', 0))
@@ -217,13 +215,7 @@ export class TempleApproachScene extends Phaser.Scene {
       if ((x === GATE.x && y === GATE.y && !this.state.outerSealUnlocked) || (x === PRESSURE_GATE.x && y === PRESSURE_GATE.y && !this.state.mechanismGateOpen) || this.state.boulders.some(b=>b.x===x && b.y===y)) this.collision?.fillStyle(0xf2c14e,.3).fillRect(x*32,y*32,32,32)
     }
   }
-  update(time: number, delta: number) {
-    this.glint?.clear()
-    const age=time%4800
-    if(!this.state.bronzeKeyCollected&&!this.reduced.matches&&age<220){
-      const foot=tileToPixel(KEY),alpha=Math.sin(age/220*Math.PI)*.7
-      this.glint?.lineStyle(1,0xffdc8a,alpha).lineBetween(foot.x-4,foot.y-22,foot.x+4,foot.y-22).lineBetween(foot.x,foot.y-26,foot.x,foot.y-18)
-    }
+  update(_time: number, delta: number) {
     if (!this.environment || !this.explorer || !this.traversal) return
     const active = this.running && !document.hidden && document.hasFocus()
     this.tweens.timeScale = active ? 1 : 0

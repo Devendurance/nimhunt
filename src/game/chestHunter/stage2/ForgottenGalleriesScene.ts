@@ -21,7 +21,7 @@ export interface ForgottenGalleriesSceneOptions {
   onNotice: (message: string) => void
   onSound: (kind: 'gem' | 'unlock' | 'hurt') => void
 }
-const additional: AngkorV2AssetKey[] = ['chest-closed-v2', 'chest-open-v2', 'pressure-plate-v2', 'silver-archive-key-v2', 'side-gate-locked-v2', 'side-gate-open-v2', 'pushable-boulder-v2', 'spike-trap-active-v2', 'snake-coiled-v2', 'snake-alert-v2', 'snake-slither-a-v2', 'snake-slither-b-v2', 'snake-strike-v2', 'monkey-perched-v2', 'monkey-alert-v2', 'monkey-throw-v2', 'monkey-rock-v2', 'dust-push-v2', 'rock-impact-v2', 'gem-sparkle-v2']
+const additional: AngkorV2AssetKey[] = ['potion-v2', 'chest-closed-v2', 'chest-open-v2', 'pressure-plate-v2', 'silver-archive-key-v2', 'side-gate-locked-v2', 'side-gate-open-v2', 'pushable-boulder-v2', 'spike-trap-active-v2', 'snake-coiled-v2', 'snake-alert-v2', 'snake-slither-a-v2', 'snake-slither-b-v2', 'snake-strike-v2', 'monkey-perched-v2', 'monkey-alert-v2', 'monkey-throw-v2', 'monkey-rock-v2', 'dust-push-v2', 'rock-impact-v2', 'gem-sparkle-v2']
 
 /** Isolated Chest Hunter dev-stage presentation. Approved traversal controls presentation; MOVE is
  * committed on arrival. Fixed explicit TICK actions are recorded for replay.
@@ -46,7 +46,6 @@ export class ForgottenGalleriesScene extends Phaser.Scene {
   private rock?: Phaser.GameObjects.Image
   private pressureGate?: Phaser.GameObjects.Image
   private plate?: Phaser.GameObjects.Image
-  private glints = new Map<string, Phaser.GameObjects.Graphics>()
   private gate?: Phaser.GameObjects.Image
   private key?: Phaser.GameObjects.Image
   private guides?: Phaser.GameObjects.Graphics
@@ -76,7 +75,6 @@ export class ForgottenGalleriesScene extends Phaser.Scene {
       // so opening on entry never hides the Explorer behind the raised lid.
       image.setY(image.y + 10).setDepth(environmentDepth('ground-item', tileToPixel(chest).y))
       this.chests.set(chest.id, image)
-      this.glints.set(chest.id, this.add.graphics().setDepth(environmentDepth('ground-item', tileToPixel(chest).y)))
     }
     this.plate = sprite('pressure-plate-v2', PLATE)
     this.plate.setY(this.plate.y + 15)
@@ -172,6 +170,7 @@ export class ForgottenGalleriesScene extends Phaser.Scene {
       const message = event.loot === 'GEMS' ? '+2 Gems secured' : event.loot === 'POTION' ? 'Potion used · +' + event.healed + ' HP'
         : event.loot === 'TRAP' ? 'Trapped chest · watch your HP' : event.loot === 'SWORD' ? event.swordAlreadyOwned ? 'Blade already carried · chest opened' : 'Ancient Blade secured' : 'Nothing but dust · chest opened'
       this.options.onNotice(message)
+      if (event.loot === 'POTION') { const foot = tileToPixel(this.state.player); this.effects.add(this.environment!.showItemReceipt('potion-v2', foot.x, foot.y)) }
       if (event.loot === 'TRAP' || event.loot === 'EMPTY') this.effect('dust-push-v2', this.state.player)
     }
     if (event.type === 'KEY_COLLECTED') { this.key?.setVisible(false); this.options.onNotice('Silver Archive Key · find the archive gate'); this.options.onSound('gem') }
@@ -218,16 +217,7 @@ export class ForgottenGalleriesScene extends Phaser.Scene {
       if ((x === GATE.x && y === GATE.y && !this.state.gateUnlocked) || (x === PRESSURE_GATE.x && y === PRESSURE_GATE.y && !this.state.pressureGateOpen) || this.state.boulders.some(b=>b.x===x && b.y===y)) this.collision?.fillStyle(0xf2c14e,.3).fillRect(x*32,y*32,32,32)
     }
   }
-  update(time: number, delta: number) {
-    // Tiny discovery glints use presentation time only; unopened state is authority.
-    CHESTS.forEach((chest, i) => {
-      const g = this.glints.get(chest.id); g?.clear()
-      const age = (time + i * 611) % 5200
-      if (!this.reduced.matches && age < 170 && !this.state.chests[i].resolved) {
-        const p = tileToPixel(chest), alpha = Math.sin(age / 170 * Math.PI) * .6
-        g?.lineStyle(1, 0xf2c14e, alpha).lineBetween(p.x + 3, p.y - 16, p.x + 7, p.y - 16).lineBetween(p.x + 5, p.y - 18, p.x + 5, p.y - 14)
-      }
-    })
+  update(_time: number, delta: number) {
     if (!this.environment || !this.explorer || !this.traversal) return
     const active = this.running && !document.hidden && document.hasFocus()
     this.tweens.timeScale = active ? 1 : 0
