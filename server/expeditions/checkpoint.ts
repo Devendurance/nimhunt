@@ -8,9 +8,9 @@ import {
   ACTION_BATCH_VERSION,
   CHECKPOINT_VERSION,
   MAX_ACCEPTED_ACTIONS,
-  MAX_CHECKPOINT_BATCH_ACTIONS,
   TIMED_HAZARD_TICK_MS,
   TRANSCRIPT_VERSION,
+  maxCheckpointBatchActionsFor,
 } from '../../src/game/replay/versions.js'
 import type {
   DurableHazardDeadline,
@@ -41,7 +41,8 @@ export function applyCheckpointBatch(
   options?: { readonly now?: Date },
 ): CheckpointApplyResult {
   const actions = input.actions
-  if (actions.length === 0 || actions.length > MAX_CHECKPOINT_BATCH_ACTIONS) {
+  const maxBatch = maxCheckpointBatchActionsFor(run.blueprint)
+  if (actions.length === 0 || actions.length > maxBatch) {
     throw new ProofError('MALFORMED_REQUEST')
   }
   for (const action of actions) {

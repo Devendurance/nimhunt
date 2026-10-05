@@ -30,6 +30,7 @@
 .angkor-v2-play button:disabled { opacity:.5; cursor:default; }
 .v2-actions button { font-size:12px; line-height:15px; padding:6px 8px; }
 .v2-notice { font-size:11px; line-height:14px; width:100%; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center; }
+.v2-metrics { font-size:10px; line-height:13px; width:100%; margin:0; color:#c3c7ae; font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center; }
 .v2-stage-heading h2 { min-width:0; }
 @media (max-height:650px) {
   .angkor-v2-play { gap:6px; padding-top:6px; }

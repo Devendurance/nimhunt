@@ -2,6 +2,7 @@ import type { CheckpointAcknowledgement, CheckpointRequest } from '../../domain/
 import type { ReplayState } from '../replay/types'
 import { advanceRun } from '../replay/engine'
 import { hashReplayState } from '../replay/canonical'
+import { V2_MAX_CHECKPOINT_BATCH_ACTIONS } from '../replay/versions.js'
 import type { LocalAction, V2Action } from './model'
 
 export interface SessionOptions {
@@ -9,12 +10,20 @@ export interface SessionOptions {
   send?: (request: CheckpointRequest) => Promise<CheckpointAcknowledgement>
 }
 
-/** The server protocol remains deliberately small and ordered. The client
- * keeps a larger bounded journal so normal network latency does not become a
- * gameplay lock, while a genuinely stalled connection still fails closed. */
-export const V2_CHECKPOINT_BATCH_ACTIONS = 8
-export const V2_CHECKPOINT_FLUSH_THRESHOLD = V2_CHECKPOINT_BATCH_ACTIONS
-export const V2_CHECKPOINT_HIGH_WATER = 48
+export interface V2CheckpointMetrics {
+  readonly rttMs: number | null
+  readonly pendingCount: number
+  readonly inFlightSeqStart: number | null
+  readonly inFlightSeqEnd: number | null
+  readonly acknowledgedSeq: number
+  readonly backpressured: boolean
+}
+
+/** Version-scoped V2 transport. Legacy remains 8 elsewhere. */
+export const V2_CHECKPOINT_BATCH_ACTIONS = V2_MAX_CHECKPOINT_BATCH_ACTIONS
+export const V2_CHECKPOINT_FLUSH_THRESHOLD = 16
+export const V2_CHECKPOINT_HIGH_WATER = 128
+export const V2_CHECKPOINT_CATCHING_UP = 80
 
 /** Presentation may predict reducers, but only server acknowledgements advance
  * reward proof. A lost reply retries the identical batch; no state/result POST. */
@@ -27,6 +36,8 @@ export class V2Session {
   private pending: V2Action[] = []
   private hashes = new Map<number, string>()
   private flight?: Promise<void>
+  private inFlightRequest?: CheckpointRequest
+  private lastRttMs: number | null = null
   private listeners = new Set<() => void>()
   readonly options: SessionOptions
   constructor(options: SessionOptions) {
@@ -40,8 +51,22 @@ export class V2Session {
   get pendingCount(): number { return this.pending.length }
   /** True only at the bounded high-water mark; fatal sync errors are exposed via error. */
   get isBackpressured(): boolean { return Boolean(this.options.send && !this.error && this.pending.length >= V2_CHECKPOINT_HIGH_WATER) }
+  get isCatchingUp(): boolean {
+    return Boolean(this.options.send && !this.error && !this.isBackpressured && this.pending.length >= V2_CHECKPOINT_CATCHING_UP)
+  }
   get canAct(): boolean {
     return !this.error && !this.isBackpressured && this.state.angkorV2!.expedition.status === 'PLAYING'
+  }
+  get metrics(): V2CheckpointMetrics {
+    const actions = this.inFlightRequest?.actions
+    return {
+      rttMs: this.lastRttMs,
+      pendingCount: this.pending.length,
+      inFlightSeqStart: actions?.[0]?.seq ?? null,
+      inFlightSeqEnd: actions?.at(-1)?.seq ?? null,
+      acknowledgedSeq: this.acknowledgedSeq,
+      backpressured: this.isBackpressured,
+    }
   }
   dispatch(action: LocalAction): unknown {
     if (!this.canAct) return this.state.angkorV2!.local
@@ -66,23 +91,48 @@ export class V2Session {
     await this.flush()
   }
   async flush(): Promise<void> {
-    if (!this.options.send || !this.pending.length) return
-    if (this.flight) { await this.flight; if (this.pending.length) return this.flush(); return }
-    const actions = this.pending.slice(0, V2_CHECKPOINT_BATCH_ACTIONS), previousCheckpointHash = this.checkpointHash
-    this.syncing = true; this.publish()
-    this.flight = (async () => {
+    if (!this.options.send) return
+    if (this.flight) {
+      await this.flight
+      if (!this.error && (this.inFlightRequest || this.pending.length)) return this.flush()
+      return
+    }
+    if (!this.inFlightRequest && !this.pending.length) return
+    const work = this.drain()
+    this.flight = work
+    try { await work }
+    finally { if (this.flight === work) this.flight = undefined }
+    if (!this.error && (this.inFlightRequest || this.pending.length)) return this.flush()
+  }
+  private nextRequest(): CheckpointRequest | undefined {
+    if (this.inFlightRequest) return this.inFlightRequest
+    if (!this.pending.length || !this.options.runId) return undefined
+    return {
+      runId: this.options.runId,
+      previousCheckpointHash: this.checkpointHash,
+      actions: this.pending.slice(0, V2_CHECKPOINT_BATCH_ACTIONS),
+    }
+  }
+  private async drain(): Promise<void> {
+    while (!this.error && this.options.send && (this.inFlightRequest || this.pending.length)) {
+      const request = this.nextRequest()
+      if (!request) return
+      this.inFlightRequest = request
+      this.syncing = true
+      this.publish()
       try {
-        const ack = await this.options.send!({ runId: this.options.runId!, previousCheckpointHash, actions })
-        if (ack.runId !== this.options.runId || ack.previousCheckpointHash !== previousCheckpointHash || ack.seqStart !== actions[0].seq
-          || ack.seqEnd !== actions.at(-1)!.seq || ack.acknowledgedSeq !== ack.seqEnd || ack.stateHash !== this.hashes.get(ack.seqEnd)) {
+        const started = Date.now()
+        const ack = await this.options.send(request)
+        this.lastRttMs = Date.now() - started
+        if (ack.runId !== this.options.runId || ack.previousCheckpointHash !== request.previousCheckpointHash || ack.seqStart !== request.actions[0].seq
+          || ack.seqEnd !== request.actions.at(-1)!.seq || ack.acknowledgedSeq !== ack.seqEnd || ack.stateHash !== this.hashes.get(ack.seqEnd)) {
           this.error = 'The server checkpoint disagrees with this expedition. Reload to restore authoritative progress.'
           throw new Error('CHECKPOINT_MISMATCH')
         }
         this.checkpointHash = ack.checkpointHash; this.acknowledgedSeq = ack.seqEnd
-        this.pending.splice(0, actions.length); actions.forEach(a => this.hashes.delete(a.seq))
-      } finally { this.flight = undefined; this.syncing = false; this.publish() }
-    })()
-    await this.flight
-    if (this.pending.length) await this.flush()
+        this.pending.splice(0, request.actions.length); request.actions.forEach(a => this.hashes.delete(a.seq))
+        this.inFlightRequest = undefined
+      } finally { this.syncing = false; this.publish() }
+    }
   }
 }

@@ -20,10 +20,25 @@ export function isSupportedBlueprintVersion(version: string): version is Bluepri
 }
 
 export const MAX_ACCEPTED_ACTIONS = 256
-export const MAX_CHECKPOINT_BATCH_ACTIONS = 8
+export const LEGACY_MAX_CHECKPOINT_BATCH_ACTIONS = 8
+export const V2_MAX_CHECKPOINT_BATCH_ACTIONS = 64
+/** Legacy HTTP/queue/server batch ceiling. Still exactly 8; never reinterpreted as V2. */
+export const MAX_CHECKPOINT_BATCH_ACTIONS = LEGACY_MAX_CHECKPOINT_BATCH_ACTIONS
 export const MAX_UNACKNOWLEDGED_ACTIONS = 16
 export const MAX_TRANSCRIPT_BODY_BYTES = 16 * 1024
 export const TIMED_HAZARD_TICK_MS = 750
+
+export function maxCheckpointBatchActionsFor(input: {
+  readonly rulesVersion: string
+  readonly roomVersion: string
+  readonly blueprintVersion: string
+}): number {
+  return input.rulesVersion === 'nimhunt-angkor-v2-rules-v1'
+    && input.roomVersion === 'angkor-nine-stages-v1'
+    && input.blueprintVersion === 'angkor-expedition-blueprint-v1'
+    ? V2_MAX_CHECKPOINT_BATCH_ACTIONS
+    : LEGACY_MAX_CHECKPOINT_BATCH_ACTIONS
+}
 
 // Angkor V2 is a distinct rules/room/blueprint family. Historical constants and
 // allowlists above continue to mean exactly the legacy single-room protocol.
